@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>创建菜单界面</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+</head>
+<body>
+	<table style="width:380px;">
+		<tr>
+			<td style="width:120px;">服务号：</td>
+			<td style="width:250px;">
+				<select id="selService" style="width:250px;">
+					<option value="drv8">驾吧网</option>
+					<option value="gwglpt">国唯管理平台</option>
+					<option value="qztaxi">旗忠出租</option>
+					<option value="always">敖维科技</option>
+				</select>
+			</td>
+		</tr>		
+		<tr>
+			<td colspan="2">
+				<input type="button" id="btnCreateMenu" value="重建菜单" onclick="btnCreateMenu_click();" />
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+
+<script type="text/javascript">
+	var selService = gId("selService");
+	var txtContent = gId("txtContent");
+
+	function btnCreateMenu_click() {
+		if (g.a.send("processType=dms.weixin.Example&actionType=createMenu", { ServiceKey: selService.value }, true)) {
+			if (g.a.OK) {
+				win.flashTitle("菜单重建成功。");
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+</script>

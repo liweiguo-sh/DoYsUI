@@ -1,0 +1,808 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>数据表管理</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+    <script src="../../../../res/control/tab/xwf.tab.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <script src="../../js/xtfs.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/jquery/jquery-1.11.3.min.js"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+        
+        .xwf_tab_divContainer,
+        .tbForm {
+            width: 960px;
+        }
+    </style>
+</head>
+<body>
+    <div id="divDC"></div>
+    <div id="divTab" class="xwf_tab_divContainer">
+        <form id="frm" action="" target="com.db_design.Table">
+            <table id="tbForm" class="tbForm">
+                <tr class="trH">
+                    <th style="width:120px;"></th>
+                    <th style="width:360px;"></th>
+                    <th style="width:120px;"></th>
+                    <th style="width:360px;"></th>
+                </tr>
+                <tr>
+                    <td>table_key：</td>
+                    <td><input id="_cTABLE_KEY" type="text" disabled="disabled" /></td>
+                    <td>database_key：</td>
+                    <td><input id="_cDatabase_key" type="text" controlType="dropdown" fieldValue="database_key" fieldText="database_text" visibleSearch="false" /></td>
+                </tr>
+                <tr>
+                    <td>table_name：</td>
+                    <td><input id="_cTable_Name" type="text" value="" /></td>
+                    <td>table_type：</td>
+                    <td><input id="_cTable_Type" type="text" controlType="dropdown" fieldValue="b" fieldText="a" dataSource="[['a','b'],['表','U'],['视图','V']]" visibleSearch="false" /></td>
+                </tr>
+                <tr>
+                    <td>table_text：</td>
+                    <td><input id="_cTable_Text" type="text" value="" /></td>
+                    <td>状态</td>
+                    <td><input type="text" id="_cTable_status_test" controlType="dropdown" fieldValue="status_id" fieldText="status_name" fieldsVisible="status_name" dataSource="[['status_id','status_name'],[0,'待测试'],[-1,'测试通过'],[1,'测试失败']]" enabled="false"
+                        /></td>
+                </tr>
+                <tr>
+                    <td>remark：</td>
+                    <td colspan="3"><textarea id="_cTable_Remark" rows="5" cols="0"></textarea></td>
+                </tr>
+                <tr>
+                    <td>table_sql_test</td>
+                    <td colspan="3"><textarea id="_cTable_sql_test" rows="12" cols="0" wrap="off" style="overflow:auto"></textarea></td>
+                </tr>
+                <tr>
+                    <td>table_sql_create</td>
+                    <td colspan="3"><textarea id="_cTable_sql_create" rows="12" cols="0" wrap="off" style="overflow:auto"></textarea></td>
+                </tr>
+            </table>
+        </form>
+        <div id="divF">
+            <table id="tbDefine" class="tbForm">
+                <tr class="trH">
+                    <th style="width:120px;"></th>
+                    <th style="width:180px;"></th>
+                    <th style="width:90px;"></th>
+                    <th style="width:90px;"></th>
+                    <th style="width:120px;"></th>
+                    <th style="width:120px;"></th>
+                    <th style="width:120px;"></th>
+                    <th style="width:120px;"></th>
+                </tr>
+                <tr>
+                    <td>字段</td>
+                    <td colspan="3"><input id="field_name" type="text" onblur="field_name_blur();" /></td>
+                    <td>名称</td>
+                    <td colspan="3"><input id="field_text" type="text" /></td>
+                </tr>
+                <tr>
+                    <td>类型</td>
+                    <td><input id="field_type" type="text" controlType="dropdown" fieldValue="field_type" fieldText="field_type" dataSource="[['field_type'],['number'],['string'],['datetime']]" visibleSearch="false" /></td>
+                    <td><input id="field_length" type="text" title="长度" /></td>
+                    <td><input id="field_scale" type="text" title="小数位数" /></td>
+                    <td></td>
+                    <td><input id="field_nullable" type="checkbox" /><label for="field_nullable">允许NULL值</label></td>
+                    <td><input id="field_identity" type="checkbox" onclick="field_identity_click();" /><label for="field_identity">自增量</label></td>
+                    <td><input id="field_default" type="text" title="默认值" /></td>
+                </tr>
+                <tr>
+                    <td>备注</td>
+                    <td colspan="7"><textarea id="field_remark" rows="2" cols="0"></textarea></td>
+                </tr>
+            </table>
+            <div id="divButton" class="divButtons" style="width:950px;">
+                <input type="button" id="btnNew" onclick="btnNew_click();" value="新增" />
+                <input type="button" id="btnInsert" onclick="btnInsert_click();" value="插入" />
+                <input type="button" id="btnUp" onclick="btnUp_click();" value="上移" />
+                <input type="button" id="btnDown" onclick="btnDown_click();" value="下移" />
+                <input type="button" id="btnDelete" onclick="btnDelete_click();" value="删除" />
+                <input type="button" id="btnUpdate" onclick="btnUpdate_click();" value="更新" style="color:Red;" />
+                <input type="button" id="btnMore" onclick="btnMore_click();" value="更多" style="color:Blue;" />
+            </div>
+            <div id="divGridF"></div>
+        </div>
+        <div id="divGridI"></div>
+    </div>
+</body>
+
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var tbDefineHeight = gId('tbDefine').clientHeight,
+        divButtonHeight = gId('tbDefine').clientHeight;
+    var tabs = null;
+
+    var divGridF = gId("divGridF");
+    var divGridI = gId("divGridI");
+
+    var gridviewF = null;
+    var gridviewI = null;
+    // ----------------------------------------------------
+    function formLoad() {
+        vf.addExtraButton({
+            key: "refreshTable",
+            text: "刷新表结构"
+        });
+        vf.addExtraButton({
+            key: "sql",
+            text: "SQL"
+        });
+        vf.addExtraButton({
+            key: "xTFS",
+            text: "xTFS"
+        });
+
+        vf.css(gId("tbForm"));
+        vf.css(gId("tbDefine"));
+
+        tabs = new window.xwf_tab({
+            divContainer: gId("divTab"),
+            tabClick: tab_click
+        });
+        tabs.addTab({
+            key: "tabA",
+            text: "基本信息",
+            control: gId("tbForm")
+        });
+        tabs.addTab({
+            key: "tabF",
+            text: "字段",
+            control: gId("divF")
+        });
+        tabs.addTab({
+            key: "tabI",
+            text: "索引",
+            control: gId("divGridI")
+        });
+
+        gId("divF").style.display = "";
+        gId("field_type").dropdown = new window.xwf_dropdown({
+            txtHost: gId("field_type"),
+            rowClick: fieldTypeClick
+        });
+        gId("divF").style.display = "none";
+
+        formResize();
+    }
+
+    function formResize() {
+        var height = win.p.height;
+        var hDivTab = height - 30;
+
+        gId("divTab").style.height = hDivTab + "px";
+        divGridF.style.height = (hDivTab - 160) + "px";
+        divGridI.style.height = (hDivTab - 9) + "px";
+    }
+
+    function tab_click(tab) {
+        var tableKey = frm._cTABLE_KEY.value.trim();
+        // ------------------------------------------------
+        if (tab.key == "tabF") {
+            if (!vf.status.equals("view")) {
+                if (!vf.save()) return false;
+            }
+            clearTableField();
+
+            if (gridviewF == null) {
+                var prop = {
+                    divContainer: divGridF,
+                    viewKey: "fv_table_field",
+                    viewFilter: "table_key = '" + tableKey + "'",
+                    viewForm: "project/xpas/html/db_design/field.html",
+                    rowClick: tableFieldRowClick,
+                    rowFill: rowFill_Field
+                };
+                gId("divF").style.display = "";
+                gridviewF = new window.xwf_gridview(prop);
+                gridviewF.beforeAddnew = function() {
+                    if (!vf.status.equals("view")) {
+                        showWarn("当前状态不允许添加明细记录。");
+                        return false;
+                    }
+                    return true;
+                }
+            } else {
+                gridviewF.setViewFilter("table_key = '" + tableKey + "'");
+            }
+        } else if (tab.key == "tabI") {
+            if (gridviewI == null) {
+                var jsonToolbar = {
+                    height: "M",
+                    onclick: onToolbarClick
+                };
+                var prop = {
+                    divContainer: divGridI,
+                    toolbarVisible: true,
+                    jsonToolbar: jsonToolbar,
+                    viewKey: "fv_table_index",
+                    viewFilter: "table_key = '" + tableKey + "'",
+                    viewForm: "project/xpas/html/db_design/index.html",
+                    gridviewI: gridviewI
+                };
+                gridviewI = new window.xwf_gridview(prop);
+                gridviewI.beforeAddnew = function() {
+                    if (!vf.status.equals("view")) {
+                        showWarn("当前状态不允许添加明细记录。");
+                        return false;
+                    }
+                    return true;
+                }
+                gridviewI.toolbar.addBar({
+                    type: "button",
+                    key: "addnew",
+                    text: "添加索引",
+                    highlight: true
+                });
+            } else {
+                gridviewI.setViewFilter("table_key = '" + tableKey + "'");
+            }
+        }
+        return true;
+    }
+
+    function rowFill_Field(para) {
+        var dataRow = para.drRow;
+        // ----------------------------------------------------
+        if (dataRow["field_pkey"].value == 1) {
+            dataRow["field_name"].className = "cellColor_Red";
+        }
+        if (dataRow["field_identity"].value == 1) {
+            dataRow["field_identity"].className = "cellColor_Red";
+        }
+    }
+
+    function onToolbarClick(para) {
+        if (para.key.equals("addnew")) {
+            gridviewI.addnew();
+        }
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.afterLoad = function() {
+        //tabs.tabClick("tabF");
+    }
+
+    vf.afterAddnew = function() {
+        tabs.selectTab("tabA");
+        frm._cTable_Type.setValue("U");
+        frm._cTable_status_test.setValue(0);
+        frm._cTable_Name.focus();
+    }
+
+    vf.beforeSave = function() {
+        frm._cTable_Name.value = frm._cTable_Name.value.toUpperCase();
+        if (frm._cTable_Text.value.equals("")) {
+            frm._cTable_Text.value = frm._cTable_Name.value;
+        }
+        return true;
+    }
+
+    vf.afterMove = function() {
+        clearTableField();
+        tab_click(tabs.tabSelected);
+    }
+
+    vf.beforeClick = function(prop) {
+        var buttonKey = prop.buttonKey;
+        if (buttonKey.equals("sql")) {
+            var arrMenus = new Array();
+            arrMenus.push({
+                key: "sqlCreate",
+                text: "一键创建SQL脚本"
+            });
+            arrMenus.push({
+                key: "sqlCreate2",
+                text: "一键创建SQL脚本 (本地表立即生效)"
+            });
+            topWin.context.show({
+                arrMenus: arrMenus,
+                menuClick: sqlMenuClick,
+                objDom: prop.button,
+                top: 0,
+                left: 0
+            });
+        } else if (buttonKey.equals("xTFS")) {
+            var jsonPara = {
+                mdataType: "table",
+                mdataKeys: "'" + frm._cTABLE_KEY.value + "'",
+                objDom: prop.button
+            }
+            xTFS.openMenu(jsonPara);
+        } else if (buttonKey.equals("refreshTable")) {
+            return true;
+        }
+        return false;
+    }
+    vf.afterClick = function(prop) {
+        var buttonKey = prop.buttonKey;
+        if (buttonKey.equals("refreshTable")) {
+            if (!g.a.OK) return;
+            alert(g.a.cReturn["result"]);
+            gridviewF.refresh();
+        }
+    }
+</script>
+
+<!-- 字段维护 -->
+<script type="text/javascript">
+    function btnNew_click() {
+        addnewField();
+    }
+
+    function btnInsert_click() {
+        var orderNewField;
+        // ------------------------------------------------
+        if (gridviewF.recordRow >= 0) {
+            orderNewField = 1 + gridviewF.dtbViewData.rows[gridviewF.recordRow]["field_order"].value;
+        }
+        addnewField(orderNewField);
+    }
+
+    function addnewField(orderNewField) {
+        var tableKey = frm._cTABLE_KEY.value.trim();
+        // ------------------------------------------------
+        if (tableKey.equals("")) {
+            showWarn("请先保存主表。");
+            return;
+        }
+        if (orderNewField == null) {
+            orderNewField = 1 + gridviewF.dtbViewData.rowCount;
+        }
+        // ------------------------------------------------
+        if (g.a.send("processType=com.db_design.TableField&actionType=addnewField", {
+                tableKey: tableKey,
+                orderNewField: orderNewField
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                gridviewF.refresh();
+                gridviewF.selectRow(orderNewField - 1);
+                if (gridviewF.dtbViewData.rowCount == 1 && gId("field_text").value.equals("")) {
+                    if (frm._cTABLE_KEY.value.indexOf("_") > 0) {
+                        gId("field_name").value = frm._cTABLE_KEY.value.substring(frm._cTABLE_KEY.value.indexOf("_") + 1).toLowerCase() + "_id";
+                        gId("field_text").value = "主键";
+                        gId("field_type").setValue("number");
+                        gId("field_length").value = "0";
+                        gId("field_scale").value = "0";
+                        gId("field_nullable").checked = false;
+                        gId("field_default").value = "";
+                        gId("field_identity").checked = true;
+                    }
+                }
+                gId("field_name").focus();
+                gId("field_name").select();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function btnUpdate_click() {
+        var recordRow = 0;
+
+        var fieldKey = "";
+        var jsonPara = {
+            fieldKey: "",
+            tableKey: frm._cTABLE_KEY.value.trim(),
+            fieldName: gId("field_name").value.trim().toLowerCase(),
+            fieldText: gId("field_text").value.trim(),
+
+            fieldType: gId("field_type").value.trim(),
+            fieldLength: gId("field_length").value.toInt(),
+            fieldScale: gId("field_scale").value.toInt(),
+
+            fieldNullable: gId("field_nullable").checked ? 1 : 0,
+            fieldIdentity: gId("field_identity").checked ? 1 : 0,
+            fieldDefault: gId("field_default").value,
+
+            fieldRemark: gId("field_remark").value
+        };
+        // ------------------------------------------------
+        if (gridviewF.recordRow < 0) {
+            showWarn("请先选中要更新的字段记录行。");
+            return;
+        }
+        recordRow = gridviewF.recordRow;
+        fieldKey = gridviewF.dtbViewData.rows[recordRow]["field_key"].value;
+        jsonPara.fieldKey = fieldKey;
+
+        if (jsonPara.fieldName.equals("")) {
+            showWarn("字段不能为空，请检查。");
+            gId("field_name").focus();
+            return;
+        }
+        if (jsonPara.fieldText.equals("")) {
+            jsonPara.fieldText = jsonPara.fieldName;
+        }
+        if (jsonPara.fieldIdentity == 1) {
+            if (!jsonPara.fieldType.equals("number") || jsonPara.fieldScale != 0) {
+                showWarn("自增量选项必需是整型字段，请检查。");
+                return;
+            }
+        }
+        if (jsonPara.fieldType.equals("number")) {
+            if (jsonPara.fieldScale > 4) {
+                showWarn("小数精度最大为4位，请检查。");
+                gId("field_scale").focus();
+                gId("field_scale").select();
+                return;
+            }
+            if (jsonPara.fieldLength > 18) {
+                showWarn("数字型最大18位，请检查。");
+                gId("field_length").focus();
+                gId("field_length").select();
+                return;
+            }
+        } else if (jsonPara.fieldType.equals("string")) {
+            if (gId("field_length").value.equals("")) {
+                showWarn("字符型长度不能为空，请检查。");
+                gId("field_length").focus();
+                gId("field_length").select();
+                return;
+            } else if (jsonPara.fieldLength > 8000) {
+                showWarn("字符型长度不能大于8000，请检查。");
+                gId("field_length").focus();
+                gId("field_length").select();
+                return;
+            }
+        }
+        if (!jsonPara.fieldDefault.equals("")) {
+            if (jsonPara.fieldType.equals("number")) {
+                if (jsonPara.fieldScale == 0) {
+                    if (!g.x.isInt(jsonPara.fieldDefault)) {
+                        showWarn("当前字段类型的默认值必需是整数，请检查。");
+                        gId("field_default").focus();
+                        gId("field_default").select();
+                        return;
+                    }
+                } else {
+                    if (!g.x.isNumberic(jsonPara.fieldDefault)) {
+                        showWarn("当前字段类型的默认值必需是数字，请检查。");
+                        gId("field_default").focus();
+                        gId("field_default").select();
+                        return;
+                    }
+                }
+            }
+        }
+        // ------------------------------------------------
+        if (g.a.send("processType=com.db_design.TableField&actionType=updateField", jsonPara, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbField = cReturn.dtbField;
+                var dataRow = dtbField.rows[0];
+                var columnName = "";
+
+                for (var iCol = 0; iCol < dtbField.columnCount; iCol++) {
+                    columnName = dtbField.columns[iCol].name;
+
+                    if (columnName.equals("field_text")) {
+                        gId(columnName).value = dataRow[columnName].value;
+                    }
+
+                    columnName = gridviewF.dtbViewData.getColName(columnName);
+                    if (!columnName.equals("")) {
+                        gridviewF.setValue(recordRow, columnName, dataRow[columnName].value);
+                    }
+                    win.flashTitle("更新操作成功");
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function btnDelete_click() {
+        var recordRow = gridviewF.recordRow;
+        var tableKey = "",
+            fieldKey = "",
+            fieldName = "";
+        // ------------------------------------------------
+        if (recordRow < 0) {
+            showWarn("请先选择要删除的记录行。");
+            return;
+        }
+        if (!showConfirm("确定要删除当前字段吗？")) {
+            return;
+        }
+
+        tableKey = frm._cTABLE_KEY.value.trim();
+        fieldKey = gridviewF.dtbViewData.rows[recordRow]["field_key"].value;
+        fieldName = gridviewF.dtbViewData.rows[recordRow]["field_name"].value;
+        // ------------------------------------------------
+        if (g.a.send("processType=com.db_design.TableField&actionType=deleteField", {
+                tableKey: tableKey,
+                fieldKey: fieldKey,
+                fieldName: fieldName
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                gridviewF.remove();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function tableFieldRowClick(para) {
+        var recordRow = para.recordRow;
+        var dataRow = para.dataRow;
+        // ------------------------------------------------
+        clearTableField();
+        if (recordRow >= 0) {
+            gId("field_name").value = dataRow["field_name"].value;
+            gId("field_text").value = dataRow["field_text"].value;
+
+            gId("field_type").setValue(dataRow["field_type"].value);
+            gId("field_length").value = dataRow["field_length"].value;
+            gId("field_scale").value = dataRow["field_scale"].value;
+
+            gId("field_nullable").checked = dataRow["field_nullable"].value;
+            gId("field_identity").checked = dataRow["field_identity"].value;
+            gId("field_default").value = dataRow["field_default"].value;
+
+            gId("field_remark").value = dataRow["field_remark"].value;
+        }
+    }
+
+    function clearTableField() {
+        gId("field_name").value = "";
+        gId("field_text").value = "";
+
+        gId("field_type").setValue("");
+        gId("field_length").value = "";
+        gId("field_scale").value = "";
+
+        gId("field_nullable").checked = false;
+        gId("field_identity").checked = false;
+        gId("field_default").value = "";
+
+        gId("field_remark").value = "";
+    }
+
+    function fieldTypeClick(para) {
+        var dataRow = para.dataRow;
+        var fieldType = dataRow["field_type"].value;
+
+        if (fieldType.equals("number")) {
+            gId("field_length").value = "";
+            gId("field_scale").value = "";
+            gId("field_length").focus();
+        } else if (fieldType.equals("datetime")) {
+            gId("field_identity").checked = false;
+            gId("field_length").value = "";
+            gId("field_scale").value = "";
+        } else if (fieldType.equals("string")) {
+            gId("field_identity").checked = false;
+            gId("field_length").value = "50";
+            gId("field_scale").value = "";
+            gId("field_length").focus();
+            gId("field_length").select();
+        } else {
+            gId("field_length").value = "";
+            gId("field_scale").value = "";
+        }
+
+        return true;
+    }
+
+    function btnUp_click() {
+        upDown(-1);
+    }
+
+    function btnDown_click() {
+        upDown(1);
+    }
+
+    function upDown(move) {
+        var recordRow = gridviewF.recordRow;
+        var changeRow = recordRow + move;
+        // ------------------------------------------------
+        if (recordRow < 0) {
+            showWarn("请先选中要操作的数据行。");
+            return;
+        }
+        if (recordRow + move < 0 || recordRow + move >= gridviewF.dtbViewData.rowCount) {
+            return;
+        }
+        // ------------------------------------------------
+        var tableKey = frm._cTABLE_KEY.value.trim();
+        var fieldKeyA = gridviewF.dtbViewData.rows[recordRow]["field_key"].value;
+        var fieldKeyB = gridviewF.dtbViewData.rows[changeRow]["field_key"].value;
+        if (g.a.send("processType=com.db_design.TableField&actionType=exchangeFieldOrder", {
+                tableKey: tableKey,
+                fieldKeyA: fieldKeyA,
+                fieldKeyB: fieldKeyB
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                gridviewF.exchangeRow(recordRow, changeRow);
+                gridviewF.selectRow(changeRow);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+<!-- 智能感知 -->
+<script type="text/javascript">
+    function field_name_blur() {
+        var fieldName = gId("field_name").value;
+        // --------------------------------------
+        if (!gId("field_text").value.equals("")) return;
+
+        if (fieldName.indexOf("_id") == fieldName.length - 3 || fieldName.indexOf("_id_") > 0) {
+            gId("field_type").setValue("number");
+            gId("field_nullable").checked = false;
+            gId("field_length").value = "";
+            gId("field_scale").value = "";
+        } else if (fieldName.indexOf("_date") == fieldName.length - 5 || fieldName.indexOf("_date_") > 0) {
+            gId("field_type").setValue("datetime");
+            gId("field_length").value = "";
+            gId("field_scale").value = "";
+        } else if (fieldName.indexOf("_qty") == fieldName.length - 4 || fieldName.indexOf("_qty_") > 0) {
+            gId("field_type").setValue("number");
+        } else if (fieldName.indexOf("_key") == fieldName.length - 4 || fieldName.indexOf("_key_") > 0) {
+            gId("field_type").setValue("number");
+            gId("field_length").value = "20";
+        } else if (fieldName.indexOf("_remark") == fieldName.length - 7) {
+            gId("field_text").value = "备注";
+            gId("field_type").setValue("string");
+            gId("field_length").value = "100";
+            gId("field_scale").value = "";
+
+            gId("field_length").focus();
+            gId("field_length").select();
+        } else {
+            gId("field_type").setValue("string");
+            gId("field_length").value = "20";
+        }
+
+        if (!gId("field_type").underValue.equals("number")) {
+            gId("field_identity").checked = false;
+        }
+    }
+
+    function field_identity_click() {
+        var chk = gId("field_identity");
+        if (chk.checked) {
+            gId("field_type").setValue("number");
+            gId("field_length").value = "0";
+            gId("field_scale").value = "0";
+            gId("field_nullable").checked = false;
+            gId("field_default").value = "";
+        }
+    }
+</script>
+<!-- SQL -->
+<script type="text/javascript">
+    function sqlMenuClick(para) {
+        var menuKey = para.key;
+        var databaseKey = frm._cDatabase_key.underValue;
+        var tableKey = frm._cTABLE_KEY.value;
+        var tableName = frm._cTable_Name.value;
+        // ------------------------------------------------
+        if (vf.checkNeedSave(true, false)) return false;
+        if (menuKey.equals("sqlCreate")) {
+            if (g.a.send("processType=com.db_design.Table&actionType=sqlCreate", {
+                    viewKey: vf.viewKey,
+                    databaseKey: databaseKey,
+                    tableKey: tableKey,
+                    tableName: tableName
+                }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+                    var sqlTest = cReturn.sqlTest;
+                    var sqlCreate = cReturn.sqlCreate;
+
+                    vf.refreshRecord();
+                    win.flashTitle("一键创建SQL脚本成功并测试通过");
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if (menuKey.equals("sqlCreate2")) {
+            if (!showConfirm("当前操作执行后，本地表表结构会立即变更为最新设计。\n操作不可逆，确定要执行当前操作吗？")) {
+                return;
+            }
+            if (g.a.send("processType=com.db_design.Table&actionType=sqlCreate", {
+                    viewKey: vf.viewKey,
+                    databaseKey: databaseKey,
+                    tableKey: tableKey,
+                    tableName: tableName,
+                    immediately: "1"
+                }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+                    var sqlTest = cReturn.sqlTest;
+                    var sqlCreate = cReturn.sqlCreate;
+
+                    vf.refreshRecord();
+                    win.flashTitle("本地数据表结构已变更为最新设计。");
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            showWarn("unknown menuKey：" + menuKey + "，please check it。");
+        }
+    }
+</script>
+
+<!-- more -->
+<script type="text/javascript">
+    function btnMore_click() {
+        var arrMenus = new Array();
+        arrMenus.push({
+            key: "autoCreateField_CMA",
+            text: "自动创建：creat、modify、audit"
+        });
+        topWin.context.show({
+            arrMenus: arrMenus,
+            menuClick: moreMenuClick,
+            objDom: gId("btnMore"),
+            top: 0,
+            left: 0
+        });
+    }
+
+    function moreMenuClick(para) {
+        var menuKey = para.key;
+        if (menuKey.equals("autoCreateField_CMA")) {
+            moreAutoCreateField_CMA();
+        } else {
+            showWarn(menuKey);
+        }
+    }
+
+    function moreAutoCreateField_CMA() {
+        var tableKey = frm._cTABLE_KEY.value.trim();
+        // ------------------------------------------------
+        if (g.a.send("processType=com.db_design.TableField&actionType=autoCreateField_CMA", {
+                tableKey: tableKey
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                gridviewF.refresh();
+                gridviewF.selectRow(gridviewF.dtbViewData.rowCount - 1);
+
+                gId("field_remark").focus();
+                gId("field_remark").select();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>

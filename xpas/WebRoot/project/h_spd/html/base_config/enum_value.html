@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>数据字典维护</title>
+<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+<script src="../../../../res/jscript/xwf.const.js"
+	type="text/javascript"></script>
+<script src="../../../../res/control/uvform/xwf.uvform.js"
+	type="text/javascript"></script>
+<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+<style type="text/css">
+	.name{
+	padding: 2px 3px 7px 10px !important;
+	}
+</style>
+</head>
+<body>
+	<div id="divDC"></div>
+	<div class="PanelA">
+	<form id="frm" action="" target="">
+		<table id="tbForm" class="tbForm" style="width: 685px;">
+			<tr class="trH">
+				<th style="width: 150px;"></th>
+				<th style="width: 180px;"></th>
+				<th style="width: 150px;"></th>
+				<th style="width: 200px;"></th>
+			</tr>
+			<tr>
+				<td class="name">字典名称<span style="color:chocolate;"> *</span></td>
+				<td><input id="_cenum_key" type="text" controltype="dropdown" fieldvalue="enum_key" fieldtext="enum_name" /></td>
+				<td>属性标识</td>
+				<td><input id="_cenum_value" type="text" value="" /></td>
+			</tr>
+			<tr>
+				<td>属性文本</td>
+				<td><input id="_cenum_value_text" type="text" value="" /></td>
+				<td>属性文本一</td>
+				<td><input id="_cenum_value1" type="text" value="" /></td>
+			</tr>
+			<tr>
+				<td>属性文本二</td>
+				<td><input id="_cenum_value2" type="text" value="" /></td>
+				<td>属性文本三</td>
+				<td><input id="_cenum_value3" type="text" value="" /></td>
+			</tr>
+			<tr>
+				<td>备注</td>
+				<td colspan="3"><textarea id="_cenum_value_remark" rows="3"
+						cols="0" placeholder="请在这里输入属性描述"></textarea></td>
+			</tr>
+		</table>
+		</form>
+	</div>
+</body>
+</html>
+<!-- formLoad -->
+<script type="text/javascript">
+	var parentWin = null;
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		vf.css(gId("tbForm"));
+		parentWin = win.parentWindow;
+		initenumkey();
+	}
+	function initenumkey(){
+		 var enumkey = gId("_cenum_key");
+	        if (g.a.send("processType=h_spd.base_config.VIEW_enumValue&actionType=getZiDian", {viewKey: "enum_value" }, true)) {
+	        	if (g.a.OK) {
+	                var dtbSource = g.a.cReturn.dtbDataSource;
+	                var jsonProp = {
+	                    txtHost: enumkey,
+	                    dtbSource: dtbSource,
+	                    visibleSN: true,
+	                    pageMaxRows: 12,
+	                    rowClick: rowClick
+	                };
+	                enumkey.dropdown = new window.xwf_dropdown(jsonProp);
+	            }
+
+	        }
+	}
+	function rowClick(para) {
+        var dataRow = para.dataRow;
+        //  debug(dataRow["doctor_name"].value);
+        return true;
+    }
+	vf.beforeSave = function () { 
+		if (frm._cenum_value_text.value.equals("")) {
+			showErr("属性文本不能为空。");
+			tbForm._cenum_value_text.focus();
+			return false;
+		}
+	
+	return true;
+	};
+</script>

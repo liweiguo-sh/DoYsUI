@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>文件上传窗口</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+	<style type="text/css">
+		table {
+			table-layout: fixed;
+			border-collapse: collapse;
+			margin: 10px 10px 20px 0px;
+		}
+		table td {
+			padding: 0px;
+		}
+		input[type='file'] {
+			width: 300px;
+			height: 24px;
+		}
+	</style>
+</head>
+<body>
+	<div id="divButtons" class="divButtons">
+		<input type="button" id="btnUpload" value="上传" onclick="btnUpload_click();" />
+		<input type="button" id="btnClose" value="关闭" onclick="btnClose_click();" />
+	</div>
+	<form id="frmUpload" name="frmUpload" method="post" action="" enctype="multipart/form-data" target="ifrCallback">
+		<table>
+			<tr>
+				<td><input type="file" id="file1" name="file1" onchange="btnUpload_click()" /></td>
+			</tr>
+		</table>		
+	</form>
+	<iframe src="about:blank" id="ifrCallback" name="ifrCallback" width="400" height="300" style="display:none;"></iframe>
+	<!-- <iframe src="upload_file_iframe.html" id="ifrCallback" name="ifrCallback" width="0" height="0" style="display:none;"></iframe> -->
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var localFile = "", originalName = "";
+	var fileUrl = "", filePath = "", fileName = "";
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		if (g.b.ie && g.b.ie <= 8) {
+			// -- ie低版本浏览器如果采用自动调用click，则后面frmUpload.submit()时会出现没有权限问题。--
+		}
+		else {
+			gId("file1").click();
+		}
+	}
+
+	function btnClose_click() {
+		win.close();
+	}
+</script>
+<!-- upload file -->
+<script type="text/javascript">
+	function btnUpload_click() {
+		var uploadAction = "";
+		var extName = "";
+
+		localFile = gId("file1").value;		
+		originalName = localFile;
+		if (originalName.equals("")) {
+			showWarn("请选择要上传的文件。");
+			return;
+		}
+		var arr = originalName.split("\\");
+		originalName = arr[arr.length - 1];
+		arr = originalName.split(".");
+		if (arr.length > 1) {
+			extName = arr[arr.length - 1];
+		}
+
+		if (win.para.beforeUpload) {
+		    if (!win.para.beforeUpload({ originalName: originalName, extName: extName, localFile: localFile, stateCode: win.para.stateCode, oriPara: win.para })) {
+		        return;
+		    }
+		}
+		// ------------------------------------------------
+		uploadAction = "&originalName=" + encodeURIComponent(originalName);
+		for (var key in win.para) {
+			if (!key.equals("target") && !key.equals("callback")) {
+				uploadAction += "&" + key + "=" + encodeURIComponent(win.para[key]);
+			}
+		}
+		uploadAction = g.httpServer + g.appPath + "filter.do?processType=" + win.para.target + uploadAction + "&ie=" + (g.b.ie ? g.b.ie : "");
+		frmUpload.action = uploadAction;
+		frmUpload.submit();
+	}
+
+	function callback(returnString) {
+		var jsonReturn = {};
+		var arrReturn = returnString.split(g.c.CHAR1);
+		if (arrReturn[0].equals(g.c.OK)) {
+			fileUrl = arrReturn[1];
+			filePath = arrReturn[2];
+			fileName = arrReturn[3];
+
+			for (var key in win.para) {
+				if (key.equals("callback")) continue;
+				jsonReturn[key] = win.para[key];
+			}
+			jsonReturn.fileUrl = fileUrl;
+			jsonReturn.filePath = filePath;
+			jsonReturn.fileName = fileName;
+			jsonReturn.originalName = originalName;
+			jsonReturn.localFile = localFile;
+			jsonReturn.stateCode = win.para.stateCode;
+			if (win.para.callback) {
+				win.hide();
+				win.para.callback(jsonReturn);
+			}
+			win.close();
+		}
+		else {
+			showErr(arrReturn[1]);
+		}
+	}
+</script>

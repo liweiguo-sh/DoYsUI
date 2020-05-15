@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>报表字段界面</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+	<script src="../../../../res/control/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target="">
+		<table id="tbForm" class="tbForm" style="width:745px;">
+			<tr class="trH">
+				<th style="width:160px;"></th>
+				<th style="width:210px;"></th>
+				<th style="width:160px;"></th>
+				<th style="width:210px;"></th>
+			</tr>
+			<tr>				
+				<td>字段标识：</td>
+				<td><input type="text" id="_cReport_Column_Key" value="" disabled="disabled" /></td>
+				<td>顺序：</td>
+				<td><input type="text" id="_cRc_Index" value="" /></td>
+			</tr>
+			<tr>				
+				<td>字段名称：</td>
+				<td><input type="text" id="_cRc_Name" value="" /></td>
+				<td>输出：</td>
+				<td><input type="checkbox" id="_cRc_Selected" /></td>
+			</tr>
+			<tr>				
+				<td>RDC_TYPE：</td>
+				<td><input type="text" id="_cRc_Rdc_Type" value="" /></td>
+				<td>允许配置：</td>
+				<td><input type="checkbox" id="_cRc_Allow_Config" /></td>
+			</tr>
+			<tr>
+				<td>RDC：</td>
+				<td>
+					<select id="_cRc_Rdc">
+						<option value="R">R: 行分组合并区(左侧导航区)</option>
+						<option value="D">D: 数据区</option>
+						<option value="C">C: 列分组合并区(顶部表头区)</option>
+					</select>
+				</td>
+				<td>宽度：</td>
+				<td><input type="text" id="_cRc_Width" value="" /></td>				
+			</tr>
+			<tr>				
+				<td>是否公示列：</td>
+				<td><input type="checkbox" id="_cRc_Is_Formula_Col" /></td>
+				<td>公式(后缀表达式)：</td>
+				<td><input type="text" id="_cRc_Formula" value="" title="示例：=,/,金额,数量，或者常量" /></td>
+			</tr>
+			<tr>				
+				<td>行分组公式：</td>
+				<td>
+					<select id="_cRc_Formula_Row" title="垂直纵向多行合计">
+						<option value="">无</option>
+						<option value="SUM">SUM - 求和</option>
+						<option value="AVERAGE">AVERAGE - 求平均值</option>						
+					</select>
+				<td>列分组公式：</td>
+				<td>
+					<select id="_cRc_Formula_Col" title="水平横向多行合计">
+						<option value="">无</option>
+						<option value="SUM">SUM - 求和</option>
+						<option value="AVERAGE">AVERAGE - 求平均值</option>						
+					</select>
+				</td>
+			</tr>
+			<tr>				
+				<td>分组交叉单元格公式：</td>
+				<td>
+					<select id="Select1">
+						<option value="R">行公式</option>
+						<option value="C">列公式</option>
+						<option value="N">无公式</option>
+					</select>
+				</td>
+				<td>列公式层数：</td>
+				<td>
+					<select id="_cRc_Formula_Col_Count">
+						<option value="-1">不合计</option>
+						<option value="0">仅总计</option>
+						<option value="1">1层合计</option>
+						<option value="2">2层合计</option>
+					</select>
+				</td>
+			</tr>
+			<tr>				
+				<td>显示格式：</td>
+				<td><input type="text" id="_cRc_Format" value="" /></td>
+				<td>Excel显示格式：</td>
+				<td><input type="text" id="_cRc_Format_Xls" value="" /></td>
+			</tr>
+		</table>
+		<input id="_cReport_Key" type="hidden" value="" />
+	</form>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	// ----------------------------------------------------
+	function formLoad() {
+		vf.css(gId("tbForm"));
+	}
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+	vf.beforeSave = function () {
+		// -- xTFS：判断是否已签出 ------------------------
+		if (g.a.send("processType=com.xtfs.XtfsCore&actionType=getMDataStatus", { mdataType: "report", mdataKey: frm._cReport_Key.value }, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				if (!cReturn.newMData && !cReturn.myCheckout) {
+					showWarn("主数据尚未签出，同步xTFS时修改会丢失，请谨慎操作。");
+				}
+			}
+		}
+		// ------------------------------------------------
+		return true;
+	}
+</script>

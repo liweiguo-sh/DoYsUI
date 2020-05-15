@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ajax test</title>
+    <script src="../framework/core/doys.js"></script>
+
+    <style type="text/css">
+        #divMessage {
+            width: 600px;
+            height: 300px;
+            overflow: auto;
+            margin: 20px 0px 0px 20px;
+            border: solid 1px green;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <input type="button" value="跨域GET" onclick="ajaxCrossDomainGet();" />
+        <div id="divMessage"></div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+    var domain = "192.168.169.1", port = "7000";
+    var baseUrl = "http://" + domain + ":" + port + "/xpas/filter.do?";
+    // ------------------------------------------------------------------------
+
+</script>
+<!-- ajax cross domain -->
+<script>    
+    function ajaxCrossDomainGet() {
+        var p2 = encodeURIComponent("中文");
+        var url = baseUrl + "processType=example.liweiguo.AxiosTest&actionType=action1&p1=123&p2=" + p2;
+
+        axios.post(url, { p3: "abc", p4: "参数四" })
+            .then(function (response) {
+                log(response.data);
+            })
+            .catch(function (error) {
+                log(error);
+            })
+    }
+</script>
+
+<!-- log -->
+<script>
+    var lineNo = 0;
+    var space = "&nbsp;&nbsp;&nbsp;&nbsp;"
+    var divMessage = window.document.getElementById("divMessage");
+
+    function log(msg) {
+        lineNo++;
+        divMessage.innerHTML += (new Date()).toTimeString().substring(0, 8) + space + lineNo + ":" + space + msg + "<br />";
+    }
+</script>

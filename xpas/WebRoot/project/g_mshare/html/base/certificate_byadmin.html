@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>企业信息审核</title>
+    <link href="../../../../res_plugin/bootstrap3.7/bootstrap/css/bootstrap.min.css"
+        rel="stylesheet" type="text/css" />
+    <link href="../../../../res_plugin/bootstrap3.7/bootstrap-table/css/bootstrap-table.css"
+        rel="stylesheet" type="text/css" />
+    <script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/bootstrap-table/js/bootstrap-table.js"
+        type="text/javascript"></script>
+    <script src="../../js/rstodata.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    <script src="../../../../res/control/toolbar/xwf.toolbar.js" type="text/javascript"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/util/chinese_py.js" type="text/javascript"></script>
+
+	<script src="../../../../res/control/upload/xwf.upload.js" type="text/javascript"></script>
+	<script src="../../../../res/control/upload/xwf.upload_core.js" type="text/javascript"></script>
+	<link href="../../../../res/control/upload/style3/xwf.upload.css" rel="stylesheet"	type="text/css" />
+	<script src="../../js/doc_center.js" type="text/javascript"></script>
+	<style type="text/css">
+        body
+        {
+            background-color: lightGray;
+        }
+        a
+        {
+            color: #3498DB;
+            cursor: pointer;
+        }
+        a:hover
+        {
+            color: #2980B9;
+        }
+        .self-panel-main
+        {
+			width:70%;
+			margin-left:auto;
+			margin-right:auto;
+			margin-top:20px;
+            background-color: White;
+            box-shadow: 3px 3px 3px #888888;
+            padding: 80px;
+        }
+        .self-panel-nav
+        {
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+            border: 0px solid green;
+        }
+        .self-nav-inactive
+        {
+            color: DarkGray;
+            font-size: 1.5em;
+        }
+        .self-nav-active
+        {
+            color: #3498DB;
+            font-size: 1.8em;
+        }
+        .div-title
+        {
+            font-size: 1.3em;
+            font-family: 微软雅黑;
+            color: #3498DB;
+            width: 100%;
+            border-bottom: 1px solid #3498DB;
+        }
+        .div-input-info
+        {
+            font-size: 0.9em;
+            font-family: 微软雅黑;
+            color: #2C3E50;
+            width: 90%;
+            margin-left: 20px;
+            margin-top: 50px;
+			margin-bottom: 50px;
+        }
+        .div-cert
+        {
+            width: 100%;
+            margin-bottom: 50px;
+        }
+        .div-cert td
+        {
+            text-align: center;
+            border: 0px solid red;
+        }
+        .td-field-title
+        {
+            text-align: right;
+            padding-right: 15px;
+			width:20%;
+        }
+        .td-field-content
+        {
+            text-align: left;
+            padding-bottom: 10px;
+            padding-top: 10px;
+            height: 50px;
+			width:80%;
+        }
+        .input-field-content
+        {
+            height: 30px;
+            border: 1px solid LightGray;
+            background-color: GhostWhite;
+            color: #7F8C8D;
+            padding-left: 5px;
+        }
+        .chk-field-content
+        {
+            cursor: pointer;
+        }
+        .img-cert
+        {
+            width: 200px;
+            height: 150px;
+            text-align: center;
+            font-size: 0.8em;
+        }
+        
+        .self-panel-main
+        {
+            border: 1px solid lightGray;
+            width: 80%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: White;
+            box-shadow: 3px 3px 3px #7F8C8D;
+            padding: 80px;
+        }
+		.cert-container{
+			width:60%;
+			margin-top:30px;
+			margin-left:30px;
+		}
+        h5
+        {
+            color: #7F8C8D;
+        }
+        th
+        {
+            background-color: #3498DB;
+            color: White;
+            font-size: 0.9em;
+            text-align: center;
+        }
+		</style>
+    </head>
+    <body>
+        <div id="divDC" class="self-panel-main"></div>
+		<div class="self-panel-nav">
+			<table style="width:100%">
+				<tr>
+					<td style="width:33%" class="self-nav-inactive">
+						1.企业注册
+					</td>
+					<td style="width:33%" class="self-nav-inactive">
+						2.完善资料
+					</td>
+					<td style="width:33%" class="self-nav-active">
+					<div><i class="fa fa-chevron-circle-right "></i>&nbsp;&nbsp;3.信息审核</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+        <div class="self-panel-main" style="height:auto;">
+            <div class="div-title" style="border:0px;">企业信息</div>
+            <div class="div-title"></div>
+            <div class="div-input-info" style="border:0px solid green;">
+                <table style="width:100%; font-size: 16px">
+                    <tr>
+                        <td class="td-field-title"><span style="color:red">*&nbsp;</span>企业名称 ：</td>
+                        <td class="td-field-content"><input type="text" class="input-field-content" style="width:50%;height:32px" id="_cCompany_name" disabled="disabled"/></td>
+                    </tr>
+                    <tr>
+                        <td class="td-field-title"><span style="color:red">*&nbsp;</span>营业执照号码 ：</td>
+                        <td class="td-field-content"><input type="text" class="input-field-content" style="width:50%;height:32px" id="_cCompany_code" disabled="disabled"/></td>
+                    </tr>
+                    <tr>
+                        <td class="td-field-title"><span style="color:red">*&nbsp;</span>区域 ：</td>
+                        <td class="td-field-content"><input type="text" class="input-field-content" style="width:50%;height:32px" id="_cArea_id" controlType="dropdown" fieldValue="area_id" fieldText="area_fullname" fieldsVisible="area_fullname" fieldsSearch="area_fullname" /></td>
+                    </tr>
+                    <tr>
+                        <td class="td-field-title"><span style="color:red">*&nbsp;</span>详细地址 ：</td>
+                        <td class="td-field-content"><input type="text" class="input-field-content" style="width:100%;height:32px" id="_cCompany_address" disabled="disabled"/></td>
+                    </tr>
+                    <tr>
+                        <td class="td-field-title">企业类型 ：</td>
+                        <td class="td-field-content">
+                            <input type="checkbox" class="chk-field-content" id="_cIs_manufacturer" /><label for="_cIs_manufacturer">&nbsp;&nbsp;生产厂商</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-field-title"></td>
+                        <td class="td-field-content">
+                            <input type="checkbox" class="chk-field-content" id="_cIs_commerce" /><label for="_cIs_commerce">&nbsp;&nbsp;商业公司</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-field-title"></td>
+                        <td class="td-field-content">
+                            <input type="checkbox" class="chk-field-content" id="_cIs_medical" /><label for="_cIs_medical">&nbsp;&nbsp;医疗机构</label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!--区域1 结束-->
+            <!--区域2-->
+            <div class="div-title" style="border:0px;">资料负责人</div>
+            <div class="div-title"></div>
+            <div class="div-input-info">
+                <table style="width:100%; font-size: 16px">
+                        <tr>
+                            <td class="td-field-title"><span style="color:red">*&nbsp;</span>身份证号 ：</td>
+                            <td class="td-field-content"><input type="text" class="input-field-content" style="width:50%;height:32px" id="_cCompany_user_code" disabled="disabled"/></td>
+                        </tr>
+						<tr>
+                            <td class="td-field-title"><span style="color:red">*&nbsp;</span>姓名 ：</td>
+                            <td class="td-field-content"><input type="text" class="input-field-content" style="width:30%;height:32px" id="_cCompany_contactor" disabled="disabled"/></td>
+                        </tr>
+                        <tr>
+                            <td class="td-field-title"><span style="color:red">*&nbsp;</span>手机 ：</td>
+                            <td class="td-field-content"><input type="text" class="input-field-content" style="width:30%;height:32px" id="_cCompany_contactor_mobile" disabled="disabled"/></td>
+                        </tr>
+                        <tr>
+                            <td class="td-field-title">传真 ：</td>
+                            <td class="td-field-content"><input type="text" class="input-field-content" style="width:30%;height:32px" id="_cCompany_fax" disabled="disabled"/></td>
+                        </tr>
+
+                    </table>
+            </div>
+            <!--区域2 结束-->
+			<!--区域3-->
+            <div class="div-title" style="border:0px;">请上传认证资料</div>
+            <div class="div-title"></div>
+			<div class="cert-container" id="divCertCompany"></div>
+			<div class="cert-container" id="divCertAttorney"></div>
+			<div class="cert-container" id="divCertAgentID"></div>
+			<!--区域3 结束-->
+
+        </div>
+	   <div id="divDC" class="ScreenCenter" style="display: none; width: 1000px"></div>
+       <form id="frm" action="" target="g_mshare.base.registerAdd">
+		<table id="tbForm" class="tbForm" style="width: 1205px; ">
+			<tr id="trH">
+				<th style="width: 150px;"></th>
+				<th style="width: 250px;"></th>
+				<th style="width: 150px;"></th>
+				<th style="width: 250px;"></th>
+				<th style="width: 150px;"></th>
+				<th style="width: 250px;"></th>
+			</tr>
+		</table>
+		<input type="hidden" id="_cCompany_id" />
+		<input type="hidden" id="_ccompany_real_status" />
+		<input type="hidden" id="_cCompany_user_key" />
+	</form>
+    </body>
+</html>
+<!-- formLoad -->
+<script type="text/javascript">
+	var ctlUploadCompany = null;
+	var ctlUploadAttorney = null;
+    var ctlUploadAgentID = null;
+		var pWin = null;
+    $(function () {
+        pWin = win.parentWindow;
+     });
+
+    vf.afterMove = function () {
+        var certConfig = {};
+        var Doc_id_company = null;
+        var Doc_id_attorney = null;
+        var Doc_id_agent = null;
+        var company_id = $("#_cCompany_id").val();
+        if (g.a.send("processType=g_mshare.base.certCompany&actionType=getCertificateCategory", { viewKey: "company_reg_info", company_id: company_id },true)) {
+			if (g.a.OK) {
+				certConfig = g.a.cReturn;
+				ctlUploadCompany = docService.createUploadArea({
+					divContainer: gId("divCertCompany"),
+                    certCategoryId: certConfig.companyMainCodeCert,
+                    docId: certConfig.Doc_id_company,
+					afterDocSave: null
+				});
+				ctlUploadAttorney = docService.createUploadArea({
+					divContainer: gId("divCertAttorney"),
+                    certCategoryId: certConfig.attorneyCert,
+                    docId: certConfig.Doc_id_attorney,
+					afterDocSave: null
+				});
+				ctlUploadAgentID = docService.createUploadArea({
+					divContainer: gId("divCertAgentID"),
+                    certCategoryId: certConfig.agentIDCert,
+                    docId: certConfig.Doc_id_agent,
+					afterDocSave: null
+				});
+			}
+		}
+    }
+
+   </script> 

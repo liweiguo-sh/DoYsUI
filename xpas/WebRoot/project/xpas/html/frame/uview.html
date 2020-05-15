@@ -1,0 +1,1198 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/lib/jquery/jquery.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/excel.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.css.js?v=20190813" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/_view.debug.js" type="text/javascript"></script>
+    <script src="../../js/xtfs.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/web_print.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" href="../../../../res_plugin/zui-1.8.1-dist/css/zui.min.css" />
+    <link rel="stylesheet" href="../../../../res_plugin/zui-1.8.1-dist/lib/chosen/chosen.min.css" />
+    <script src="../../../../res_plugin/zui-1.8.1-dist/js/zui.min.js"></script>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/lib/chosen/chosen.min.js"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+            margin: 0px 5px 0px 5px;
+        }
+        
+        #divGrid {
+            border-bottom: solid 0px pink;
+        }
+        
+        .xwf_grid_tbData .fa-chevron-down {
+            display: none !important;
+        }
+    </style>
+    <!-- 布局区 -->
+    <style type="text/css">
+        body {
+            overflow: hidden;
+            font-size: 11pt;
+            font-family: 微软雅黑;
+        }
+        
+        .tbLayout {
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        
+        .tdLayout {
+            padding: 0px;
+            vertical-align: top;
+        }
+        
+        #divTree {
+            overflow: auto;
+        }
+    </style>
+    <!-- 输入筛选区 -->
+    <style type="text/css">
+        .divSearchBox {
+            display: none;
+            border: solid 1px #c0c0c0;
+            margin-bottom: 5px;
+        }
+        
+        .divMain {
+            position: relative;
+            transition: all .2s;
+        }
+        
+        .divMain.active {
+            height: auto;
+        }
+        
+        .divMain-more {
+            display: none !important;
+            width: 44px;
+            height: 32px;
+            position: absolute;
+            right: 0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .divMain-more:hover {
+            background: #e9f2fb;
+        }
+        
+        .divMain-more::after {
+            content: "";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            position: absolute;
+            top: 50%;
+            right: 9px;
+            margin-top: -12px;
+            background: url('../../../xpas/images/down.png') no-repeat;
+            background-size: contain;
+        }
+        
+        .divMain-more.more-down::after {
+            background: url('../../../xpas/images/down.png') no-repeat;
+            background-size: contain;
+        }
+        
+        .divMain-more.more-up::after {
+            background: url('../../../xpas/images/up.png') no-repeat;
+            background-size: contain;
+        }
+        
+        .divButtons {
+            position: relative;
+            background: transparent;
+            padding: 10px 0;
+            text-align: center;
+        }
+        
+        .tbMain {
+            padding-top: 15px;
+        }
+        
+        .tbMain::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+        
+        .tbMain.tbMain-more {
+            height: auto;
+        }
+        
+        .tbMain .form-group {
+            display: flex;
+        }
+        
+        .tdText {
+            flex-basis: 100px;
+            line-height: 32px;
+        }
+        
+        .tdText,
+        .tdSelect {
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+        
+        .tdText span {
+            color: #3280FC;
+        }
+        
+        .tdSelect {
+            flex-basis: 115px;
+            margin-right: 10px;
+        }
+        
+        .tdSelect select {
+            display: block;
+            width: 100%;
+            height: 34px;
+            max-width: 100px;
+            font-size: 13px;
+            border: 0px;
+            background: transparent;
+        }
+        
+        .tdSelect select:active,
+        .tdSelect select:hover,
+        .tdSelect select:focus,
+        .tdSelect select:visited {
+            border: none;
+            outline: none;
+        }
+        
+        .tdSelect .chosen-container {
+            min-width: 115px;
+        }
+        
+        .tdValue {
+            flex-grow: 1;
+            flex-shrink: 1;
+            display: flex;
+        }
+        
+        .tdValue .split-line {
+            display: inline-block;
+            line-height: 30px;
+            margin: 0 2px;
+        }
+        
+        .btn-searchBox {
+            min-width: 120px;
+        }
+        
+        .btn-searchBox.btn.btn-primary {
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body scroll="no">
+    <div id="divGrid"></div>
+</body>
+</html>
+<!-- formLoad -->
+<script type="text/javascript">
+    var viewKey = "",
+        flowKey = "",
+        viewFormTarget = "";
+    var filterFirst = false;
+    var filterMust = false;
+
+    var divGrid = gId("divGrid");
+
+    var gridView = null;
+    var winFilter = null;
+    var withSumTable = false; //true 带汇总行
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        if (!win.p.windowState.equals("maximized")) {
+            window.document.body.style.backgroundColor = "White";
+        }
+        win.addEventListener("beforeClose", formUnload);
+
+        var viewFormParam = getUrlPara(win.para.viewForm);
+        if (viewFormParam.withSumTable) withSumTable = viewFormParam.withSumTable;
+
+        flowKey = win.para.flowKey;
+        viewKey = win.para.viewKey;
+        viewFormTarget = win.para.viewFormTarget || "";
+        filterFirst = win.para.filterFirst;
+        filterMust = win.para.filterMust;
+
+        // -------------------
+        if (win.para.filterType) {
+            filterType = win.para.filterType;
+        }
+        if (filterType.equals("view")) {
+            viewKey = win.para.viewKey;
+        } else if (filterType.equals("report")) {
+            reportKey = win.para.reportKey;
+        } else {
+            showErr("Unknown filterType [" + filterType + "], please check it.");
+            return;
+        }
+
+        // ------------------------------------------------
+        if (databaseType.equals("Oracle")) {
+            dtFormat = "yyyy-mm-dd hh24:mi:ss";
+        }
+
+        divGrid.innerHTML = "uview.html, viewKey = " + viewKey;
+        var divGridH = (win.p.height - divGrid.offsetTop - 8);
+        if (withSumTable) divGridH -= 30;
+        divGrid.style.height = divGridH + "px";
+        initGridView();
+
+        // ------------------------------------------------
+        initSearchBox(divGrid);
+        init();
+        formResize();
+        $('select.chosen-select').chosen({
+            no_results_text: '没有找到', // 当检索时没有找到匹配项时显示的提示文本
+            disable_search_threshold: 10, // 10 个以下的选择项则不显示检索框
+            search_contains: true // 从任意位置开始检索
+        });
+    }
+
+    function formUnload() {
+        var closeMode = win.p.closeMode || "";
+
+        if (closeMode.equals("hide")) {
+            win.hide();
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+</script>
+
+<!-- toolbar -->
+<script type="text/javascript">
+    function initToolbar() {
+        var defaultWidth = 70;
+        // ------------------------------------------------
+        gridView.toolbar.addBar({
+            type: "button",
+            key: "refresh",
+            text: "<i class='fa fa-refresh'></i>  刷新",
+            align: "left",
+            style: "Grid",
+            icon: null,
+            width: defaultWidth
+        });
+        if (gridView.dtbView.rows[0]["view_allow_addnew"].value == 1) {
+            gridView.toolbar.addBar({
+                type: "button",
+                key: "addnew",
+                text: "<i class='fa fa-plus'></i>  添加",
+                align: "left",
+                style: "Grid",
+                icon: null,
+                width: defaultWidth
+            });
+        }
+        if (win.para.viewMode && win.para.viewMode.equals("multiSelect")) {
+            gridView.toolbar.addBar({
+                type: "button",
+                key: "select",
+                text: "<i class='fa fa-check'></i>  确认选择",
+                align: "left",
+                style: "Grid",
+                icon: null,
+                width: 100
+            });
+        }
+        // -- 视图扩展按钮 --------------------------------
+        var arrExtra = gridView.dtbExtra.filter([
+            ["view_extra_type", "1"]
+        ]);
+        for (var i = 0; i < arrExtra.length; i++) {
+            var key = arrExtra[i]["view_extra_key"].value;
+            var text = arrExtra[i]["view_extra_text"].value;
+            gridView.toolbar.addBar({
+                type: "button",
+                key: key,
+                text: "<i class='fa fa-tag'></i> " + text,
+                align: "left",
+                style: "Grid",
+                icon: null
+            });
+        }
+        // toolbar 搜索
+        gridView.toolbar.addBar({
+            type: "button",
+            key: "search",
+            text: "<i class='fa fa-search'></i>  搜索",
+            align: "left",
+            style: "Grid",
+            icon: null,
+            width: defaultWidth
+        });
+        gridView.toolbar.addBar({
+            type: "button",
+            key: "close",
+            text: "<i class='fa fa-close'></i>  关闭",
+            align: "left",
+            style: "Grid",
+            icon: null,
+            width: defaultWidth
+        });
+        // -- 通用按钮 ------------------------------------
+        if (g.debug || g.local || topWin.isDeveloper) {
+            gridView.toolbar.addBar({
+                type: "button",
+                key: "config",
+                text: "<i class='fa fa-gear'></i>",
+                align: "right",
+                style: "Grid",
+                icon: null,
+                width: 35
+            });
+        }
+        if (g.debug || g.local || topWin.isDeveloper) {
+            //gridView.toolbar.addBar({ type: "text", key: "search", align: "right", icon: null, placeholder: "请输入关键字搜索" });
+        }
+        gridView.toolbar.addBar({
+            type: "button",
+            key: "filter",
+            text: "<i class='fa fa-filter'></i>",
+            align: "right",
+            style: "Grid",
+            icon: null,
+            width: 35
+        });
+        if (!gridView.dtbView.rows[0]["view_prohibit_export"].value) {
+            gridView.toolbar.addBar({
+                type: "button",
+                key: "export",
+                text: "<i class='fa fa-share'></i>",
+                align: "right",
+                style: "Grid",
+                icon: null,
+                width: 35
+            });
+        }
+
+    }
+
+    function onToolbarClick(para) {
+        if (para.key.equals("refresh")) {
+            if (filterMust) {
+                if (gridView.userFilter.equals("")) {
+                    showWarn("当前视图必需设置筛选条件，请先设置筛选条件。");
+                    btnFilter_click();
+                    return;
+                }
+                gridView.setUserFilter(gridView.userFilter);
+            } else {
+                gridView.refresh();
+            }
+        } else if (para.key.equals("addnew")) {
+            gridView.addnew();
+        } else if (para.key.equals("select")) {
+            btnSelect_click();
+        } else if (para.key.equals("export")) {
+            btnExport_click();
+        } else if (para.key.equals("filter")) {
+            if (winFilter && !winFilter.closed) {
+                winFilter.show();
+                return;
+            }
+
+            var prop = {
+                url: "project/xpas/html/frame/uview_filter.html",
+                title: "视图数据筛选条件设定界面",
+                parent: win,
+                modal: true
+            }
+            var para = {
+                viewKey: viewKey,
+                dtbViewField: gridView.dtbViewField,
+                filterMust: filterMust,
+                callback: function(userFilter) {
+                    if (filterMust && userFilter.equals("")) {
+                        showWarn("当前视图配置为必需设置筛选条件。");
+                        return;
+                    }
+                    gridView.setUserFilter(userFilter);
+                }
+            };
+            winFilter = topWin.openWindow(prop, para);
+        } else if (para.key.equals("config")) {
+            gridView.showConfig();
+        } else if (para.key.equals("close")) {
+            if (win.para.closeMode && win.para.closeMode.equals("hide")) {
+                win.hide();
+            } else {
+                win.close();
+            }
+        } else if (para.key.equals("search")) {
+            $('#divSearchBox').slideToggle();
+        } else {
+            // -- 扩展按钮 --
+            if (window.viewExtraButtonClick) {
+                window.viewExtraButtonClick({
+                    button: para.dom,
+                    btnKey: para.key,
+                    dtbViewData: gridView.dtbViewData
+                });
+            }
+        }
+    }
+
+    function setButtonVisible(btnKey, btnVisible) {
+        for (var i = 0; i < gridView.toolbar.bars.length; i++) {
+            if (gridView.toolbar.bars[i].key.equals(btnKey)) {
+                gridView.toolbar.bars[i].dom.style.display = (btnVisible ? "" : "none");
+                break;
+            }
+        }
+    }
+</script>
+<!-- viewGrid -->
+<script type="text/javascript">
+    function initGridView() {
+        var jsonToolbar = {
+            height: "M",
+            onclick: onToolbarClick
+        };
+        var prop = {
+            divContainer: divGrid,
+            toolbarVisible: true,
+            jsonToolbar: jsonToolbar,
+            flowKey: (win.para.flowKey ? win.para.flowKey : ""),
+            flowTextMenu: win.para.flowTextMenu,
+            viewKey: viewKey,
+            viewFilter: (win.para.viewFilter ? win.para.viewFilter : ""),
+            navFilter: (win.para.navFilter ? win.para.navFilter : null),
+            allowSort: true,
+            vfAllowAddnew: win.para.vfAllowAddnew,
+            vfAllowModify: win.para.vfAllowModify,
+            vfAllowDelete: win.para.vfAllowDelete,
+            vfAllowCopy: win.para.vfAllowCopy,
+            vfAllowMove: win.para.vfAllowMove,
+            autoSelectFirstRow: true,
+            viewForm: win.para.viewForm,
+            viewFormTarget: viewFormTarget,
+            viewMode: (win.para.viewMode ? win.para.viewMode : ""),
+            vfWindowState: (win.para.vfWindowState ? win.para.vfWindowState : ""),
+            fnViewName: (win.para.fnViewName ? win.para.fnViewName : ""),
+            selectCallback: (win.para.selectCallback ? win.para.selectCallback : null),
+            callbackPara: (win.para.callbackPara ? win.para.callbackPara : null),
+            // onRowSelect: rowSelect,
+            commandClick: commandClick
+        };
+        if (win.para.onceFilter) prop.onceFilter = win.para.onceFilter;
+        if (filterFirst) prop.onceFilter = "1 = 0";
+
+        gridView = new window.xwf_gridview(prop);
+        initToolbar();
+
+        if (win.para.vfAllowAddnew != undefined) {
+            gridView.dtbView.rows[0]["view_allow_addnew"].value = (win.para.vfAllowAddnew ? 1 : 0);
+        }
+        if (filterFirst) {
+            btnFilter_click();
+        }
+        try {
+            if (window.uviewformLoad) uviewformLoad();
+        } catch (e) {};
+    }
+</script>
+
+<!-- Refresh、Filter、etc -->
+<script type="text/javascript">
+    function btnRefresh_click() {
+        if (filterMust) {
+            if (gridView.userFilter.equals("")) {
+                showWarn("当前视图必需设置筛选条件，请先设置筛选条件。");
+                btnFilter_click();
+                return;
+            }
+            gridView.setUserFilter(gridView.userFilter);
+        } else {
+            gridView.refresh();
+        }
+    }
+
+    function btnFilter_click() {
+        if (winFilter && !winFilter.closed) {
+            winFilter.show();
+            return;
+        }
+
+        var prop = {
+            url: "project/xpas/html/frame/uview_filter.html",
+            title: "视图数据筛选条件设定界面",
+            parent: win,
+            modal: true
+        }
+        var para = {
+            viewKey: viewKey,
+            dtbViewField: gridView.dtbViewField,
+            filterMust: filterMust,
+            callback: function(userFilter) {
+                if (filterMust && userFilter.equals("")) {
+                    showWarn("当前视图配置为必需设置筛选条件。");
+                    return;
+                }
+                gridView.setUserFilter(userFilter);
+            }
+        };
+        winFilter = topWin.openWindow(prop, para);
+    }
+
+    function btnAddnew_click() {
+        gridView.addnew();
+    }
+
+    function btnSelect_click() {
+        if (win.para.selectCallback) {
+            var selectedRows = gridView.dtbViewData.getSelectedRows();
+            if (selectedRows.length == 0) {
+                showWarn("没有选中的记录，请选择。");
+                return false;
+            }
+            if (win.para.selectCallback(selectedRows, win.para.callbackPara)) {
+                if (win.para.closeMode && win.para.closeMode.equals("hide")) {
+                    gridView.selectAll(false);
+                    win.hide();
+                } else {
+                    win.close();
+                }
+            }
+        } else {
+            showMsg("缺少名称为(selectCallback)的回调处理函数，请检查。");
+        }
+    }
+</script>
+<!-- 数据导出 -->
+<script type="text/javascript">
+    function btnExport_click() {
+        var btnExport = g.x.getEventTarget(event);
+        var arrMenus = new Array();
+
+        arrMenus.push({
+            key: "exportData_CSV",
+            text: "数据导出到CSV文件"
+        });
+        arrMenus.push({
+            key: "exportData_XLS",
+            text: "数据导出到XLS文件",
+            title: "支持MS Office 2007及以上版本"
+        });
+        topWin.context.show({
+            menuClick: exportMenuClick,
+            arrMenus: arrMenus,
+            objDom: btnExport,
+            top: 0,
+            left: 0
+        });
+    }
+
+    function exportMenuClick(liMenu) {
+        if (liMenu.key.equals("exportData_CSV")) {
+            exportData_CSV();
+        } else if (liMenu.key.equals("exportData_XLS")) {
+            exportData_XLS();
+        } else {
+            showErr("暂未实现的导出文件类型。");
+        }
+    }
+
+    function exportData_CSV() {
+        var strHeader = "";
+        for (var i = 0; i < gridView.arrColumns.length; i++) {
+            if (gridView.arrColumns[i].type.equals("data")) {
+                strHeader += (gridView.arrColumns[i].text + ",");
+            }
+        }
+
+        if (g.a.send("processType=com.xznext.xpas.Common&actionType=exportData_CSV", {
+                viewKey: viewKey,
+                sqlUVData: gridView.sqlUVData,
+                strHeader: strHeader
+            }, true)) {
+            var c = g.a.cReturn;
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var urlFile = c.urlFile;
+                topWin.downloadFile(urlFile);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function exportData_XLS() {
+        var strHeader = "";
+        for (var i = 0; i < gridView.arrColumns.length; i++) {
+            if (gridView.arrColumns[i].type.equals("data")) {
+                strHeader += (gridView.arrColumns[i].text + ",");
+            }
+        }
+
+        if (g.a.send("processType=com.xznext.xpas.Common&actionType=exportData_XLS", {
+                viewKey: viewKey,
+                sqlUVData: gridView.sqlUVData,
+                strHeader: strHeader
+            }, true)) {
+            var c = g.a.cReturn;
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var urlFile = c.urlFile;
+                openExcel(g.xpasRunPath + urlFile);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+
+<!-- 样例及测试代码 -->
+<script type="text/javascript">
+    function rowSelect(para) {
+        var recordIndex = para.recordIndex;
+        var dataRow = para.dataRow;
+        if (recordIndex >= 0) {
+            alert(dataRow["view_name"].value);
+        } else {
+            alert("空行");
+        }
+    }
+
+    function commandClick(ctl, rowIndex) {
+        // - 样例函数 -------------------------------------
+        // -- ctl: checkbox控件 --
+        // -- rowIndex: 当前行在数据集(dtbViewData.rows[rowIndex].checked)中的下标 --
+    }
+</script>
+
+<!-- formLoad and button click -->
+<script type="text/javascript">
+    var nTreeFields = 0,
+        nKeyboardFields = 0;
+    var filterType = "view",
+        viewKey = "",
+        reportKey = "",
+        databaseType = "";
+
+    var tree = null;
+    var tbMain = null;
+    var dtbQueryField = null;
+    var arrControls = new Array();
+
+    var dtFormat = "yyyy-MM-dd hh:mm:ss";
+    //-----------------------------------------------------
+
+    function formResize() {
+        var tbLayout = gId("tbLayout");
+        var tdLeft = gId("tdLeft");
+        var tdRight = gId("tdRight");
+        var maxHeight = win.p.maxHeight - divMain.offsetTop;
+
+        //-------------------------------------------------
+        // if (divMain.offsetHeight > maxHeight) {
+        //     divMain.style.height = maxHeight + "px";
+        //     divMain.style.width = (tbMain.offsetWidth + 20) + "px";
+        //     gId("divButtons").style.width = (tbMain.offsetWidth + 20) + "px";
+        // } else {
+        //     divMain.style.height = (divMain.offsetHeight + 50) + "px";
+        // }
+
+        // if (nTreeFields == 0) {
+        //     tbLayout.style.width = "650px";
+        //     tdLeft.style.display = "none";
+        // } else if (nKeyboardFields == 0) {
+        //     tdRight.style.display = "none";
+        //     tbLayout.style.width = "350px";
+        //     divTree.style.height = "350px";
+        // } else {
+        //     tbLayout.style.width = "950px";
+        //     if (divMain.offsetHeight > 350) {
+        //         divTree.style.height = divMain.style.height;
+        //     } else {
+        //         divTree.style.height = "350px";
+        //     }
+        // }
+        // 重置样式
+        // tbLayout.style.width = "100%";
+        // ------------------------------------------------
+        win.p.top = null;
+        win.p.left = null;
+    }
+    //-----------------------------------------------------
+    function btnOK_click() {
+        var userFilter = getUserFilter();
+        gridView.setUserFilter(userFilter);
+        $('#divSearchBox').hide();
+    }
+
+    function btnClear_click() {
+        for (var i = 0; i < arrControls.length; i++) {
+            arrControls[i].ctlSelect.selectedIndex = 0;
+            arrControls[i].ctlValue0.value = "";
+            arrControls[i].ctlValue1.value = "";
+            arrControls[i].ctlValue0.rows = 1;
+            arrControls[i].ctlValue0.rows = 1;
+            // arrControls[i].ctlValue0.style.width = "400px";
+            arrControls[i].ctlValue1.style.display = "none";
+            $(arrControls[i].ctlValue1).parent().children('span').hide();
+        }
+
+        var node = null,
+            key = "";
+        if (tree) {
+            for (var i = 0; i < tree.nodeKeys.length; i++) {
+                key = tree.nodeKeys[i];
+                node = tree.nodes[key];
+                if (node.checked) {
+                    tree.setNodeChecked(key, false);
+                }
+            }
+        }
+    }
+
+    function btnClose_click() {
+        win.hide();
+    }
+</script>
+
+<!-- init and getFilter -->
+<script type="text/javascript">
+    // 初始化搜索框
+    function initSearchBox(divGrid) {
+        var divSearchBox = '<div id="divSearchBox" class="divSearchBox" onkeydown="if(event.keyCode == 14){btnOK_click();}">' +
+            '<div class="tbLayout" id="tbLayout">' +
+            '<div id="tdRight" class="tdLayout">' +
+            '<div id="divMain" class="divMain"></div>' +
+            '</div>' +
+            '</div>' +
+            '<div id="divButtons" class="divButtons">' +
+            '<button class="btn-searchBox btn btn-primary" onclick="btnOK_click(); return false;">搜索</button>' +
+            '<button class="btn-searchBox btn btn-default" onclick="btnClear_click(); return false;">重置</button>' +
+            '<i class="divMain-more" onclick="searchShowMore(event);"></i>' +
+            '</div>' +
+            '</div>';
+        if (divGrid && divGrid.children[0].id) {
+            $("#" + divGrid.children[0].id).after(divSearchBox);
+        }
+    }
+
+    function init() {
+        var divTree = gId("divTree");
+        var divMain = gId("divMain");
+        var blAjax = false;
+        var idx = 0,
+            nRowCount = 0;
+        var arrHtml = new Array();
+        var fieldKey = "",
+            fieldType = "",
+            fieldName = "";
+        var fieldQueryType = "";
+        var blDraggable = (g.debug || g.local || topWin.isDeveloper) && filterType.equals("view");
+        //-- 读取查询字段信息 -----------------------------
+        if (filterType.equals("view")) {
+            blAjax = g.a.send("processType=com.xznext.xpas.ViewAid&actionType=getViewQueryField", {
+                viewKey: viewKey
+            }, true);
+        } else if (filterType.equals("report")) {
+            blAjax = g.a.send("processType=com.xznext.report.ReportAid&actionType=getReportQueryField", {
+                reportKey: reportKey
+            }, true);
+        }
+        if (blAjax) {
+            if (g.a.OK) {
+                databaseType = g.a.cReturn.databaseType;
+                dtbQueryField = g.a.cReturn.dtbQueryField;
+                nRowCount = dtbQueryField.rowCount;
+                if (nRowCount == 0) {
+                    divMain.innerHTML = "<div style='color: red;padding: 20px;text-align: center;'>没有找到需要筛选的字段信息。</div>";
+                    $('.btn-searchBox').addClass('disabled');
+                    return;
+                } else {
+                    // $("#divSearchBox").show();
+                }
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+        //-------------------------------------------------
+
+        arrHtml[idx++] = "<div id='tbMain' class='tbMain' style='width: 100%;'>";
+
+        for (var i = 0; i < nRowCount; i++) {
+            fieldKey = dtbQueryField.rows[i]["field_key"].value;
+            fieldQueryType = dtbQueryField.rows[i]["field_query_type"].value;
+
+            if (fieldQueryType.equals("keyboard")) {
+                nKeyboardFields++;
+                arrHtml[idx++] = "<div class='form-group col-md-4'>";
+                arrHtml[idx++] = "<div fieldKey='" + fieldKey +
+                    "' class='tdText' ondragover='dragover(event)' ondrop='drop(event)'>"
+                arrHtml[idx++] = "<span fieldKey='" + fieldKey + "'" + (blDraggable ? " draggable='true'" : "") +
+                    " ondragstart='dragstart(event)'>";
+                arrHtml[idx++] = dtbQueryField.rows[i]["field_text"].value + "</span></div>";
+                arrHtml[idx++] = "<div class='tdSelect'><select id='_s_" + fieldKey + "' class='chosen-select form-control'>" +
+                    getDroplist(dtbQueryField
+                        .rows[i]["field_type"].value) + "</select></div>";
+
+                arrHtml[idx++] = "<div class='tdValue'>";
+                arrHtml[idx++] = "<input id='_v_" + fieldKey +
+                    "_0' class='form-control' title='输入后回车搜索' />";
+                arrHtml[idx++] = "<span class='_v_" + fieldKey.split('.').join('-') +
+                    "_1 split-line' style='display: none;'>-</span><input id='_v_" + fieldKey +
+                    "_1' class='form-control' style='display:none;' title='输入后回车搜索' />";
+                arrHtml[idx++] = "</div></div>";
+            } else if (fieldQueryType.equals("tree")) {
+                nTreeFields++;
+                addTreeNode(dtbQueryField.rows[i]);
+            } else {
+                showErr("Unknown field query type: " + fieldQueryType + ".");
+                continue;
+            }
+        }
+        arrHtml[idx++] = "</div>";
+        divMain.innerHTML = arrHtml.join("");
+        tbMain = gId("tbMain");
+        if (tree) tree.expand("0");
+        //-------------------------------------------------
+        for (var i = 0; i < nRowCount; i++) {
+            fieldKey = dtbQueryField.rows[i]["field_key"].value;
+            fieldType = dtbQueryField.rows[i]["field_type"].value;
+            fieldName = dtbQueryField.rows[i]["field_name"].value;
+            fieldQueryType = dtbQueryField.rows[i]["field_query_type"].value;
+
+            if (!fieldQueryType.equals("keyboard")) continue;
+            if (fieldKey.split(".").length == 2) { // -- _g字段，设定过筛选字段 --
+                fieldName = fieldKey;
+            }
+            fieldPrefix = dtbQueryField.rows[i]["field_prefix"].value;
+
+            var json = {
+                fieldKey: fieldKey,
+                fieldType: fieldType,
+                fieldName: fieldName,
+                fieldPrefix: fieldPrefix
+            };
+            arrControls.push(json);
+            json.ctlSelect = gId("_s_" + fieldKey);
+            json.ctlValue0 = gId("_v_" + fieldKey + "_0");
+            json.ctlValue1 = gId("_v_" + fieldKey + "_1");
+
+            json.ctlSelect.onchange = select_onclick(json);
+            if (fieldType.equals("datetime")) {
+                json.ctlValue0.onclick = WdatePicker;
+                json.ctlValue1.onclick = WdatePicker;
+            } else {
+                json.ctlValue0.onfocus = value_onfocus(json);
+                json.ctlValue1.onfocus = value_onfocus(json);
+                json.ctlValue0.onblur = value_onblur(json);
+                json.ctlValue1.onblur = value_onblur(json);
+            }
+        }
+    }
+
+    function searchShowMore(e) {
+        $('.divMain').toggleClass('active');
+        $('.divMain-more').toggleClass('more-up');
+    }
+
+    function getDroplist(fieldType) {
+        var optionString = "",
+            optionNumber = "";
+        optionString = "<option value='*'>包含</option>" +
+            "<option value='='>等于</option>" +
+            "<option value='<>'>不等于</option>" +
+            "<option value='!*'>不包含</option>"
+            // + "<option value='E'>表达式</option>"
+            +
+            "<option value=''></option>";
+
+        optionNumber = "<option value='='>等于</option>" +
+            "<option value='>'>大于</option>" +
+            "<option value='>='>大于等于</option>" +
+            "<option value='<'>小于</option>" +
+            "<option value='<='>小于等于</option>" +
+            "<option value='<>'>不等于</option>" +
+            "<option value='[]'>两者之间 [ ]</option>" +
+            "<option value=']['>两者之外 ( )</option>" +
+            "<option value=''></option>";
+        //-------------------------------------------------
+        if (fieldType.equals("string")) {
+            return optionString;
+        } else {
+            return optionNumber;
+        }
+    }
+
+    function addTreeNode(drRow) {
+        if (tree == null) {
+            var jsonPara = {
+                divContainer: divTree,
+                imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+                title: "查询条件导航",
+                beforeExpand: this.onNodeFirstExpand,
+                showCheckBoxs: "leaf",
+                sd: "~"
+            };
+            tree = new window.xwf_tree(jsonPara);
+        }
+
+        var fieldName = drRow["field_name"].value;
+        var fieldText = drRow["field_text"].value;
+        var nodeKey = "0" + tree.sd + fieldName;
+        tree.addNode({
+            key: nodeKey,
+            text: fieldText,
+            fieldName: fieldName,
+            fieldPrefix: drRow["field_prefix"].value
+        });
+        tree.addNode({
+            key: nodeKey + tree.sd + "loading",
+            text: "loading..."
+        });
+    }
+
+    function onNodeFirstExpand(node, blFirstExpand) {
+        if (!blFirstExpand) return;
+        tree.removeNode(node.key + tree.sd + "loading");
+
+        if (g.a.send("processType=com.xznext.xpas.ViewAid&actionType=getTreeNodeData", {
+                viewKey: viewKey,
+                fieldName: node.fieldName
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbQueryData = cReturn.dtbQueryData;
+
+                if (dtbQueryData == null) return;
+                for (var i = 0; i < dtbQueryData.rowCount; i++) {
+                    var nodeValue = dtbQueryData.rows[i][0].value;
+                    var nodeText = dtbQueryData.rows[i][1].value;
+                    tree.addNode({
+                        key: node.key + tree.sd + nodeValue,
+                        text: nodeText,
+                        fieldName: node.fieldName,
+                        fieldValue: nodeValue
+                    });
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+<!-- getFilter -->
+<script type="text/javascript">
+    function getUserFilter() {
+        var idx = 0,
+            index = 0;
+        var arrFilter = new Array(),
+            arrValue0 = null,
+            arrValue1 = null;
+        var selectType = "",
+            fieldType = "",
+            fieldKey = "",
+            fieldName = "",
+            fieldPrefix = "";
+        var andOr = "",
+            symbol = "",
+            fieldPrefix = "";
+        // -- 输入查询条件 --------------------------------
+        for (var i = 0; i < arrControls.length; i++) {
+            arrControls[i].ctlValue0.value = arrControls[i].ctlValue0.value.trim();
+            arrControls[i].ctlValue1.value = arrControls[i].ctlValue1.value.trim();
+
+            selectType = arrControls[i].ctlSelect.value;
+            fieldType = arrControls[i].fieldType;
+            fieldKey = arrControls[i].fieldKey;
+            fieldName = arrControls[i].fieldName;
+            fieldPrefix = arrControls[i].fieldPrefix;
+            if (fieldPrefix.equals("")) { // -- 多表有相同字段，用于区分查询字段属于哪张表 --
+                fieldKey = fieldName;
+            } else {
+                fieldKey = fieldPrefix + "." + fieldName;
+            }
+            symbol = fieldType.equals("number") ? "" : "'";
+            andOr = (selectType.equals("*") || selectType.equals("=")) ? " OR " : " AND ";
+
+            arrValue0 = arrControls[i].ctlValue0.value.replaceAll("\r", "").split("\n");
+            arrValue1 = arrControls[i].ctlValue1.value.replaceAll("\r", "").split("\n");
+
+            if (selectType.equals("") || (arrValue0.length == 1 && arrValue0[0].equals("")) ||
+                (selectType.indexOf("[") >= 0 && arrValue1[0].equals(""))) continue;
+            //-------------------------
+            if (selectType.equals("*") || selectType.equals("!*")) {
+                for (var j = 0; j < arrValue0.length; j++) {
+                    arrValue0[j] = fieldKey + (selectType.equals("*") ? " LIKE" : " NOT LIKE") + " '%" + arrValue0[j] +
+                        "%'";
+                }
+                arrFilter[idx++] = "(" + arrValue0.join(andOr) + ")";
+            } else if (selectType.equals("=") || selectType.equals("<>")) {
+                for (var j = 0; j < arrValue0.length; j++) {
+                    if (fieldType.equals("datetime")) {
+                        if (databaseType.equals("Oracle")) {
+                            arrValue0[j] = "TO_CHAR(" + fieldKey + ",'" + dtFormat.substr(0, arrValue0[j].length) +
+                                "') " + selectType + " '" + arrValue0[j] + "'";
+                        } else if (databaseType.equals("SQLServer")) {
+                            arrValue0[j] = "CONVERT(varchar(" + arrValue0[j].length + "), " + fieldKey + ", 120) " +
+                                selectType + " '" + arrValue0[j] + "'";
+                        } else if (databaseType.equals("MySQL")) {
+                            arrValue0[j] = "DATE_FORMAT(" + fieldKey + ",'%Y-%m-%d') " + selectType + " '" + arrValue0[
+                                j] + "'";
+                        } else {
+
+                        }
+                    } else {
+                        arrValue0[j] = fieldKey + " " + selectType + " '" + arrValue0[j] + "'";
+                    }
+                }
+                arrFilter[idx++] = "(" + arrValue0.join(andOr) + ")";
+            } else if (selectType.equals(">") || selectType.equals(">=") || selectType.equals("<") || selectType.equals(
+                    "<=")) {
+                if (fieldType.equals("datetime")) {
+                    if (databaseType.equals("Oracle")) {
+                        arrFilter[idx++] = "(TO_CHAR(" + fieldKey + ",'" + dtFormat.substr(0, arrValue0[0].length) +
+                            "') " + selectType + " '" + arrValue0[0] + "' )";
+                    } else if (databaseType.equals("SQLServer")) {
+                        arrFilter[idx++] = "(CONVERT(varchar(" + arrValue0[0].length + "), " + fieldKey + ", 120) " +
+                            selectType + " '" + arrValue0[0] + "' )";
+                    } else if (databaseType.equals("MySQL")) {
+                        arrFilter[idx++] = "(DATE_FORMAT(" + fieldKey + ",'%Y-%m-%d') " + selectType + " '" + arrValue0[
+                            0] + "' )";
+                    } else {
+
+                    }
+                } else {
+                    arrFilter[idx++] = "(" + fieldKey + " " + selectType + " '" + arrValue0[0] + "' )";
+                }
+            } else if (selectType.equals("[]")) {
+                if (fieldType.equals("datetime")) {
+                    if (databaseType.equals("Oracle")) {
+                        arrFilter[idx++] = "(TO_CHAR(" + fieldKey + ",'" + dtFormat.substr(0, arrValue0[0].length) +
+                            "') >= '" + arrValue0[0] + "' AND TO_CHAR(" + fieldKey + ",'" + dtFormat.substr(0,
+                                arrValue0[0].length) + "') <= '" + arrValue1[0] + "')";
+                    } else if (databaseType.equals("SQLServer")) {
+                        arrFilter[idx++] = "(CONVERT(varchar(" + arrValue0[0].length + "), " + fieldKey +
+                            ", 120) >= '" + arrValue0[0] + "' AND CONVERT(varchar(" + arrValue0[0].length + "), " +
+                            fieldKey + ", 120) <= '" + arrValue1[0] + "')";
+                    } else if (databaseType.equals("MySQL")) {
+                        arrFilter[idx++] = "(DATE_FORMAT(" + fieldKey + ",'%Y-%m-%d') >= '" + arrValue0[0] +
+                            "' AND DATE_FORMAT(" + fieldKey + ",'%Y-%m-%d') <= '" + arrValue1[0] + "')";
+                    } else {
+
+                    }
+                } else {
+                    arrFilter[idx++] = "(" + fieldKey + " >= '" + arrValue0[0] + "' AND " + fieldKey + " <= '" +
+                        arrValue1[0] + "')";
+                }
+            } else if (selectType.equals("][")) {
+                if (fieldType.equals("datetime")) {
+                    if (databaseType.equals("Oracle")) {
+                        arrFilter[idx++] = "(TO_CHAR(" + fieldKey + ",'" + dtFormat.substr(0, arrValue0[0].length) +
+                            "') < '" + arrValue0[0] + "' OR TO_CHAR(" + fieldKey + ",'" + dtFormat.substr(0, arrValue0[
+                                0].length) + "') > '" + arrValue1[0] + "')";
+                    } else if (databaseType.equals("SQLServer")) {
+                        arrFilter[idx++] = "(CONVERT(varchar(" + arrValue0[0].length + "), " + fieldKey + ", 120) < '" +
+                            arrValue0[0] + "' OR CONVERT(varchar(" + arrValue0[0].length + "), " + fieldKey +
+                            ", 120) > '" + arrValue1[0] + "')";
+                    } else if (databaseType.equals("MySQL")) {
+                        arrFilter[idx++] = "(DATE_FORMAT(" + fieldKey + ",'%Y-%m-%d') < '" + arrValue0[0] +
+                            "' OR DATE_FORMAT(" + fieldKey + ",'%Y-%m-%d') > '" + arrValue1[0] + "')";
+                    } else {
+
+                    }
+                } else {
+                    arrFilter[idx++] = "(" + fieldKey + " < '" + arrValue0[0] + "' OR " + fieldKey + " > '" + arrValue1[
+                        0] + "')";
+                }
+            } else {
+                showErr("error, please debug here.");
+            }
+        }
+        // -- 导航查询条件 --------------------------------
+        if (tree) {
+            var nodeRoot = tree.nodes["0"];
+            var nodeP = null,
+                nodeC = null;
+            var arrAND = new Array();
+            for (var i = 0; i < nodeRoot.keys.length; i++) {
+                nodeP = tree.nodes[nodeRoot.keys[i]];
+                fieldPrefix = (nodeP.fieldPrefix.equals("") ? "" : nodeP.fieldPrefix + ".");
+                var arrOR = new Array();
+                for (var j = 0; j < nodeP.keys.length; j++) {
+                    nodeC = tree.nodes[nodeP.keys[j]];
+                    if (!nodeC.checked) continue;
+                    arrOR.push(fieldPrefix + nodeC.fieldName + " = '" + nodeC.fieldValue + "'");
+                }
+                if (arrOR.length > 0) {
+                    arrFilter[idx++] = "(" + arrOR.join(" OR ") + ")";
+                }
+            }
+        }
+        // -- 返回查询条件 --------------------------------
+        if (idx == 0) return "";
+        return arrFilter.join(" AND ");
+    }
+</script>
+
+<!-- 控件事件控制 -->
+<script type="text/javascript">
+    function select_onclick(json) {
+        return function() {
+            if (json.ctlSelect.value.indexOf("[") >= 0) {
+                json.ctlValue1.style.display = "";
+                $(json.ctlValue1).parent().children("span").show();
+                //$('.'+json.ctlValue1.id.split('.').join('-')+'').show();
+            } else {
+                json.ctlValue0.style.width = "100%";
+                json.ctlValue1.style.display = "none";
+                //$('.'+json.ctlValue1.id.split('.').join('-')+'').hide();
+                $(json.ctlValue1).parent().children("span").hide();
+            }
+            // $('.'+json.ctlValue1.id.split('.').join('-')+'').parent().find('input').eq(0).focus()[0].click();
+            $(json.ctlValue1).parent().children('input:eq(0)').focus()[0].click();
+        };
+    }
+
+    function value_onfocus(json) {
+        return function(event) {
+            json.ctlValue0.rows = 3;
+            json.ctlValue1.rows = 3;
+        };
+    }
+
+    function value_onblur(json) {
+        return function(event) {
+            var nRows = Math.max(json.ctlValue0.value.split("\n").length, json.ctlValue1.value.split("\n").length);
+            nRows = Math.min(nRows, 3);
+            json.ctlValue0.rows = nRows;
+            json.ctlValue1.rows = nRows;
+        };
+    }
+</script>

@@ -1,0 +1,438 @@
+﻿<!DOCTYPE html />
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>企业认证(企业填写)</title>
+    <link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="../../../../res_plugin/bootstrap4.0/my_bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../../../res/control/upload/style3/xwf.upload.css" rel="stylesheet" />
+
+    <script src="../../../../res_plugin/bootstrap4.0/my_bootstrap/jquery-3.2.1.slim.min.js"></script>
+    <script src="../../../../res_plugin/bootstrap4.0/my_bootstrap/popper.min.js"></script>
+    <script src="../../../../res_plugin/bootstrap4.0/my_bootstrap/bootstrap.min.js"></script>
+
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+    <script src="../../../../res/jscript/xwf.datatable.js"></script>
+
+    <script src="../../../../res/control/upload/xwf.upload.js"></script>
+    <script src="../../../../res/control/upload/xwf.upload_core.js"></script>
+    <script src="../../js/doc_center.js"></script>
+
+    <style type="text/css">
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .container-fluid {
+            width: 1200px;
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        
+        .form-control {
+            margin-bottom: 20px;
+        }
+        
+        .doc {
+            width: 100%;
+            border: dotted 0px green;
+            margin-left: 15px;
+            height: 280px;
+            overflow: auto;
+        }
+        
+        required {
+            color: red;
+            margin-left: 5px;
+        }
+        
+        .divWinDisabled {
+            color: white;
+            text-align: center;
+            cursor: not-allowed;
+            background-color: #000;
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+            /*IE8*/
+            filter: alpha(opacity=60);
+            /*-- IE5、IE5.5、IE6、IE7 --*/
+            opacity: 0.6;
+            /*-- Opera9.0+、Firefox1.5+、Safari、Chrome --*/
+        }
+        
+        .divTitleDisabled {
+            font-size: 32px;
+            padding: 10px;
+            letter-spacing: 5px;
+        }
+        
+        .btn-close-real,
+        .btn-submit-real {
+            width: 10%;
+            cursor: pointer;
+        }
+        
+        .btn-close-real {
+            margin-right: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <h4>企业认证申请单</h4>
+        <div class="card card-primary">
+            <div class="card-header bg-primary text-white">企业信息</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label>企业名称</label>
+                        <input type="text" id="_cCompany_name" class="form-control" placeholder="请输入企业全称" disabled="disabled" />
+                        <label>证照号码<required>*</required></label>
+                        <input type="text" id="_cCompany_code" class="form-control" placeholder="请输入营业执照号码" />
+                        <label>企业类型<required>*</required></label>
+                        <select class="form-control" id="_cCompany_type">
+                            <option value="is_commerce" >供应商</option>
+                            <option value="is_medical">医疗机构</option>
+                        </select>
+                        <!-- <button type="button" class="btn btn-link">&nbsp;</button> -->
+                        <label>联系人</label>
+                        <input type="text" id="_cCompany_contacts" class="form-control" placeholder="请输入日常业务联系人" />
+                        <label>联系人电话</label>
+                        <input type="text" id="_cCompany_contacts_mobile" class="form-control" placeholder="请输入联系人手机号码" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label>企业变更名称</label>
+                        <input type="text" id="_cCompany_name_new" class="form-control" placeholder="请输入将要变更的企业名称" />
+                        <label>邮编</label>
+                        <input type="text" id="_cCompany_zip" class="form-control" placeholder="请输入邮编" />
+                        <label>详细地址</label>
+                        <input type="text" id="_cCompany_address" class="form-control">
+                        <!-- <label>地区</label>
+                        <input type="text" id="_cArea_name" class="form-control" />						    
+                        <button type="button" class="btn btn-link" onclick="btnArea_click();">地区选择</button> -->
+                        <label>传真</label>
+                        <input type="text" id="_cCompany_fax" class="form-control" placeholder="请输入传真" />
+                        <label>备注</label>
+                        <input type="text" id="_cCompany_real_remark" class="form-control" placeholder="" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="divDocCompany" class="doc divDocCompany"></div>
+                </div>
+            </div>
+        </div>
+        <h1>&nbsp;</h1>
+        <div class="card card-primary">
+            <div class="card-header bg-info text-white">申请人信息</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label>申请人<required>*</required></label>
+                        <input type="text" id="_cApplicant" class="form-control" placeholder="请输入申请人姓名" />
+                        <label>身份证<required>*</required></label>
+                        <input type="text" id="_cApplicant_code" class="form-control" placeholder="请输入申请人身份证号" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label>手机<required>*</required></label>
+                        <input type="text" id="_cApplicant_mobile" class="form-control" placeholder="请输入申请人手机号码" />
+                        <label>邮箱</label>
+                        <input type="text" id="_cApplicant_email" class="form-control" placeholder="请输入申请人电子邮箱" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="divDocAgent" class="doc col-sm-12 divDocAgent"></div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="col-sm-12 text-center">
+            <button type="button" class="btn btn-default btn-close-real" onclick="win.close();">关闭</button>
+            <a href="javascript:;" id="btnSubmit" class="btn btn-primary btn-submit-real" onclick="btnSubmit_click();return false;">提交</a>
+        </div>
+        <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">消息提示</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var docIdCompany = 0,
+        docIdAgent = 0,
+        docCompanyId = 0,
+        astatus = 0;
+    var uaCompany = null,
+        uaAgent = null;
+    var $btnSubmit = $('.btn-submit-real');
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        init();
+        // 身份证号码最多两个上传区域
+        if (uaAgent && uaAgent.validCount == 2) {
+            $('.divDocAgent').find('.xwf_upload_td_image')[2].style.display = 'none';
+        }
+    }
+
+    function init() {
+        // ------------------------------------------------
+        if (g.a.send("processType=g_mshare.company_real.CompanyReal&actionType=getCompanyReal", {
+                companyRealId: topWin.companyRealId
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtb = cReturn.dtbCompanyReal;
+                if (dtb.rowCount > 0) {
+                    if (dtb.rows.length > 1) {
+                        // 审核状态为 -1 或者企业认证申请有多条记录时，企业类型不能再修改
+                        gId('_cCompany_type').setAttribute('disabled', 'disabled');
+                    }
+                    // -- 1. 加载界面字段内容 --
+                    gId("_cCompany_name").value = dtb.rows[0]["company_name"].value;
+                    gId("_cCompany_name_new").value = dtb.rows[0]["company_name_new"].value;
+                    gId("_cCompany_code").value = dtb.rows[0]["company_code"].value;
+                    gId("_cCompany_zip").value = dtb.rows[0]["company_zip"].value;
+                    gId("_cCompany_address").value = dtb.rows[0]["company_address"].value;
+                    gId("_cCompany_fax").value = dtb.rows[0]["company_fax"].value;
+                    gId("_cCompany_contacts").value = dtb.rows[0]["company_contacts"].value;
+                    gId("_cCompany_contacts_mobile").value = dtb.rows[0]["company_contacts_mobile"].value;
+                    gId("_cCompany_real_remark").value = dtb.rows[0]["company_real_remark"].value;
+                    // gId("_cArea_name").value = dtb.rows[0]["area_fullname"].value.replaceAll("\\\\", " \\ ");
+                    if (dtb.rows[0]["is_medical"].value == 1) {
+                        gId("_cCompany_type").value = "is_medical";
+                    } else {
+                        gId("_cCompany_type").value = "is_commerce";
+                    }
+
+                    gId("_cApplicant").value = dtb.rows[0]["applicant"].value;
+                    gId("_cApplicant_code").value = dtb.rows[0]["applicant_code"].value;
+                    gId("_cApplicant_mobile").value = dtb.rows[0]["applicant_mobile"].value;
+                    gId("_cApplicant_email").value = dtb.rows[0]["applicant_email"].value;
+
+                    // -- 2. 加载DOC --
+                    docCompanyId = dtb.rows[0]["doc_id_company"].value;
+                    docIdAgent = dtb.rows[0]["doc_id_agent"].value;
+                    astatus = dtb.rows[0]["astatus"].value;
+
+                    loadUA_company(docCompanyId);
+                    loadUA_agent(docIdAgent);
+
+                    // -- 3. 状态提示 --
+                    if (astatus == 0) {
+                        $('#myModal').modal('show').find('p').text('您的企业需要认证，请填写认证信息后提交认证申请。');
+                    } else if (astatus == 1) {
+                        win.setDisabled(true, "<div class='divTitleDisabled'>信息审核中...</div>");
+                    } else if (astatus == 2) {
+                        $('#myModal').modal('show').find('p').text('您的企业认证申请未能通过审核，请修改后重新提交。');
+                    } else if (astatus == -1) {
+                        // 审核状态为 -1 的话，企业类型不能再修改
+                        gId('_cCompany_type').setAttribute('disabled', 'disabled');
+                    }
+                    topWin.companyRealId = dtb.rows[0]["company_real_id"].value;
+                    topWin.companyRealStatus = astatus;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+
+<!-- control event -->
+<script type="text/javascript">
+    function btnArea_click() {
+        alert("地区选择");
+    }
+
+    function btnSubmit_click() {
+        doSubmit();
+    }
+</script>
+
+<!-- 文档 -->
+<script type="text/javascript">
+    function loadUA_company(docId) {
+        uaCompany = docService.createUploadArea({
+            divContainer: gId("divDocCompany"),
+            docId: docId,
+            certCategoryId: 1, // -- 营业执照 --
+            showTitle: true,
+            showNotes: true,
+            allowView: false,
+            showSign: true,
+            showRemove: true,
+            showDownload: false,
+            //readonly: win.para.readonly,
+            //fileCount: 5,
+            allowView: true,
+            allowDownload: true,
+            afterDocSave: afterDocSave_company
+        });
+    }
+
+    function afterDocSave_company(para) {
+        docIdCompany = para.docId;
+        if (g.a.send("processType=g_mshare.company_real.CompanyReal&actionType=setDocId", {
+                companyRealId: topWin.companyRealId,
+                docType: "company",
+                docId: docIdCompany
+            }, true)) {
+            if (g.a.OK) {
+                // -- OK --
+                loadUA_company(docCompanyId);
+                if (para.files[0].fileName != '') {
+                    $btnSubmit.removeClass('disabled');
+                } else {
+                    $btnSubmit.addClass('disabled');
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function loadUA_agent(docId) {
+        uaAgent = docService.createUploadArea({
+            divContainer: gId("divDocAgent"),
+            docId: docId,
+            notes: '说明：文件类型限定为*.*;单个文件大小不能超过2048KB，并且身份证必须上传正反面。',
+            certCategoryId: 28, // -- 申请人身份证 --
+            showTitle: true,
+            showNotes: true,
+            allowView: false,
+            showSign: true,
+            showRemove: true,
+            showDownload: false,
+            //readonly: win.para.readonly,
+            // fileCount: 2,
+            allowView: true,
+            allowDownload: true,
+            afterDocSave: afterDocSave_agent
+        });
+    }
+
+    function afterDocSave_agent(para) {
+        docIdCompany = para.docId;
+        if (g.a.send("processType=g_mshare.company_real.CompanyReal&actionType=setDocId", {
+                companyRealId: topWin.companyRealId,
+                docType: "agent",
+                docId: docIdCompany
+            }, true)) {
+            if (g.a.OK) {
+                loadUA_agent(docIdAgent);
+                if (uaAgent.validCount == 2) {
+                    $btnSubmit.removeClass('disabled');
+                    $('.divDocAgent').find('.xwf_upload_td_image')[2].style.display = 'none';
+                } else {
+                    $btnSubmit.addClass('disabled');
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+<!-- 提交申请 -->
+<script type="text/javascript">
+    function doSubmit() {
+        var para = {
+            companyRealId: topWin.companyRealId,
+            companyRealStatus: topWin.companyRealStatus
+        };
+
+        // -- 提交前检查 ------------------------------------
+        /*
+        if (uaCompany.docId == 0 || uaCompany.validCount == 0) {
+            $('#myModal').modal('show').find('p').text('请上传营业执照。');
+            return;
+        }
+        if (uaAgent.docId == 0 || uaAgent.validCount == 0) {
+            $('#myModal').modal('show').find('p').text('请上传申请人身份证。');
+            return;
+        } else if (uaAgent.validCount != 2) {
+            $('#myModal').modal('show').find('p').text('申请人身份证必须上传正反面。');
+            return;
+        }
+        */
+
+        para.companyCode = gId("_cCompany_code").value.trim();
+        if (para.companyCode.length < 10) {
+            $('#myModal').modal('show').find('p').text('请正确填写企业证照号码。');
+            // showErr("请正确填写企业证照号码。");
+            gId("_cCompany_code").focus();
+            return;
+        }
+        para.companyZip = gId("_cCompany_zip").value.trim();
+        para.companyAddress = gId("_cCompany_address").value.trim();
+        if (gId("_cCompany_type").value.equals("is_medical")) {
+            para.isMedical = 1;
+        } else {
+            para.isMedical = 0;
+        }
+        para.companyNameNew = gId("_cCompany_name_new").value.trim();
+        para.companyFax = gId("_cCompany_fax").value.trim();
+        para.companyContacts = gId("_cCompany_contacts").value.trim();
+        para.companyContactsMobile = gId("_cCompany_contacts_mobile").value.trim();
+        para.companyRealRemark = gId("_cCompany_real_remark").value.trim();
+
+        para.applicant = gId("_cApplicant").value.trim();
+        if (para.applicant.equals("")) {
+            $('#myModal').modal('show').find('p').text('请填写申请人姓名。');
+            // showErr("请填写申请人姓名。");
+            gId("_cApplicant").focus();
+            return;
+        }
+        para.applicantCode = gId("_cApplicant_code").value.trim();
+        if (para.applicantCode.length != 18) {
+            $('#myModal').modal('show').find('p').text('请正确填写申请人身份证号码。');
+            // showErr("请正确填写申请人身份证号码。");
+            gId("_cApplicant_code").focus();
+            return;
+        }
+        para.applicantMobile = gId("_cApplicant_mobile").value.trim();
+        if (para.applicantMobile.length != 11) {
+            $('#myModal').modal('show').find('p').text('请正确填写申请人手机号码。');
+            // showErr("请正确填写申请人手机号码。");
+            gId("_cApplicant_mobile").focus();
+            return;
+        }
+        para.applicantEmail = gId("_cApplicant_email").value.trim();
+
+        // -- 提交申请 --------------------------------------
+        if (g.a.send("processType=g_mshare.company_real.CompanyReal&actionType=saveCompanyReal", para, true)) {
+            if (g.a.OK) {
+                showMsg("您的申请已成功提交，平台审核后会电话通知您。");
+                win.close();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>

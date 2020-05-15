@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>供应商退货出库单</title>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script> 
+		
+	<script src="../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+        #divGrid input[type='text'] {
+            border: 0px;
+        }
+        #txtScan {
+            border: solid 1px blue;
+        }
+    </style>
+</head>
+<body>
+	<div id="divDC"></div>
+    <div class="PanelA">
+	<form id="frm" target="h_spd.wo.VIEW_wo"> 
+		<table id="tbForm" class="tbForm" style="width:1080px;">
+			<tr class="trH">
+				<th style="width:12%;"></th>
+				<th style="width:25%;"></th>
+				<th style="width:12%;"></th>
+				<th style="width:18%;"></th>
+                <th style="width: 12%; "></th>
+				<th style="width:16%;"></th>
+			</tr>
+			<tr>				
+				<td>单号</td>
+				<td><input type="text" id="_cWo_key" value="" disabled="disabled" /></td>
+				<td>日期</td>
+				<td><input type="text" id="_cWo_Date" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+                <td>金额</td>
+                <td><input type="text" id="_cAmount" value="" disabled="disabled" /></td>
+			</tr>
+            <tr>				
+				<td>供应商</td>
+                <td><input id="_cSP_ID" type="text" controlType="dropdown" fieldValue="sp_id" fieldText="sp_name" fieldsSearch="sp_name,sp_name_py" /></td>
+				<td>库存地</td>
+				<td><input type="text" id="_gStorage_name" value="" disabled="disabled" /></td>
+                <td>发货人</td>
+                <td><input type="text" id="_cWo_sender" /></td>
+			</tr>
+			<tr>
+				<td>备注</td>
+                <td colspan="3"><input type="text" id="_cWo_Remark" /></td>
+                <td>收货人</td>
+                <td><input type="text" id="_cWo_receiver" /></td>
+			</tr>
+            <tr>
+                <td></td>
+                <td id="tdScan"><input type="text" id="txtScan" placeholder="SN、RFID扫码区" /></td>
+            </tr>
+		</table>		
+		<input id="_cWO_ID" type="hidden" value="" />
+        <input id="_cSTORAGE_ID" type="hidden" value="" />
+        <input id="_cWo_type" type="hidden" value="" />  
+        <input id="_cRef_type" type="hidden" value="" />                
+	</form>
+    <div id="divGrid" style="height:360px;"></div> 
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var astatusNav = 0;
+
+    var frmParent = null, nodeNav = null;
+
+    var txtScan = gId("txtScan");
+
+    var gridview = null;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        frmParent = win.parentWindow;
+        nodeNav = frmParent.gridView.tree.selectedNode;
+        astatusNav = (nodeNav.level > 1 ? nodeNav.value : 0);
+
+        vf.css(gId("tbForm"));
+        g.x.bindEnterEvent(txtScan, onTxtScanEnter);
+
+        initGridview();
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+	vf.afterAddnew = function () {
+        frm._cWo_Date.value = (new Date).toString();
+        frm._cRef_type.value = "MANUAL";
+        frm._cWo_type.value = "SP_RETURN";
+        frm._cAmount.value = "0";        
+        frm._cWo_sender.value = topWin.userName;
+
+        frm._cSTORAGE_ID.value = topWin.stationStorageId;
+        frm._gStorage_name.value = topWin.stationStorageName;
+	}
+
+    vf.afterMove = function () {
+        var woId = frm._cWO_ID.value.toInt();
+        var astatus = vf.getStatus();
+
+        if (astatus != 0 && astatus != 2 ) {
+            txtScan.style.display = "none";
+        }
+
+        gridview.setViewFilter("wo_id = " + woId);
+	}	
+</script>
+<!-- gridview -->
+<script type="text/javascript">
+    function initGridview() {
+        var allowDelete = (astatusNav == 0 || astatusNav == 2);
+        var prop = {
+            divContainer: divGrid,
+            viewKey: "wo_sp_return_dtl",
+            viewFilter: "1 = 0",
+            allowDelete: allowDelete,
+            afterDelete: gridRowAfterDelete,
+            toolbarVisible: allowDelete,
+            cellBlur: cellBlur,
+            jsonToolbar: { height: "M", onclick: onToolbarClick }
+        };
+        gridview = new window.xwf_gridview(prop);
+        gridview.toolbar.addBar({ type: "button", key: "selectMatr", text: "<i class='fa fa-plus'></i>选择退货明细" });
+    }
+
+    function gridRowAfterDelete() {
+        vf.refreshRecord();
+    }
+    function cellBlur(para) {
+        var dataRow = para.drRow;
+        var newValue = para.newValue;
+        var woDtlId = dataRow["wo_dtl_id"].value;
+        var stockId = dataRow["stock_id"].value;
+
+        var woId = frm._cWO_ID.value.toInt();
+        var jsonPara = {
+            viewKey: "wo_sp_return_dtl",
+            woId: woId,
+            woDtlId: woDtlId,
+            stockId: stockId,
+            qtyNew: newValue
+        };
+        // ------------------------------------------------
+        if (para.newValue == para.oldValue) {
+            return true;
+        }
+        if (newValue <= 0) {
+            showErr("请输入正确的数字。")
+            return false;
+        }
+
+        if (g.a.send("processType=h_spd.wo.VIEW_woDtl&actionType=updateQtyByEdit", jsonPara, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var stockIdNew = cReturn.stockIdNew;
+
+                gridview.setValue(gridview.recordRow, "stock_id", stockIdNew);
+                vf.refreshRecord();
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+
+<!-- 选择退货明细 -->
+<script type="text/javascript">
+    function onToolbarClick(para) {
+        var woId = frm._cWO_ID.value.toInt();
+        var spId = frm._cSP_ID.underValue.toInt();
+        var viewFilter = "";
+        // ------------------------------------------------
+        if (para.key.equals("selectMatr")) {
+            if (vf.status.equals("addnew") || vf.checkNeedSave()) {
+                if (!vf.save()) {
+                    return false;
+                }
+                woId = frm._cWO_ID.value.toInt();
+            }
+
+            viewFilter = "sp_id = " + spId + " AND stock_id NOT IN (SELECT wo_dtl_id FROM T_WO_DTL WHERE wo_id = " + woId + ")";
+            var prop = {
+                title: "请选择退货明细...",
+                width: 1300,
+                height: 600,
+                parent: win
+            };
+            var para = {
+                viewKey: "stock_for_sp_return",
+                viewMode: "multiSelect",
+                viewFilter: viewFilter,
+                selectCallback: callbackAddMatr
+            };
+            topWin.openSelectView(prop, para);
+        }
+        else {
+            showErr("unknown button " + para.key);
+        }
+    }
+    function callbackAddMatr(arrDataRow) {
+        var woId = frm._cWO_ID.value.toInt();
+        var stockIds = "";
+        var arrIds = new Array();
+
+        for (var i = 0; i < arrDataRow.length; i++) {
+            arrIds.push(arrDataRow[i]["stock_id"].value);
+        }
+        stockIds = arrIds.join(",");
+
+        if (g.a.send("processType=h_spd.wo.VIEW_woDtl&actionType=addDtlBySelect", { viewKey: "wo_sp_return_dtl", woId: woId, stockIds: stockIds }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                vf.refreshRecord();
+                gridview.refresh();
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+<!-- txtScan -->
+<script type="text/javascript">
+    function onTxtScanEnter() {
+        var rfid = txtScan.value.trim();
+        var woId = frm._cWO_ID.value.toInt();       
+        var spId = frm._cSP_ID.underValue.toInt();
+        var storageId = frm._cSTORAGE_ID.value.toInt();
+        // ------------------------------------------------
+        if (rfid.equals("")) return;
+        if (vf.status.equals("addnew")) {
+            if (frm._cSP_ID.underValue.toInt() == 0) {
+                setSpIdByRfid(rfid);
+            }
+            if (!vf.save()) {
+                return;
+            }
+            woId = frm._cWO_ID.value.toInt();
+            spId = frm._cSP_ID.underValue.toInt();
+            storageId = frm._cSTORAGE_ID.value.toInt();
+        }
+
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.wo.VIEW_woDtl&actionType=addDtlByScan", { viewKey: "wo_sp_return", woId: woId, spId: spId, storageId: storageId, rfid: rfid}, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                vf.refreshRecord();
+                gridview.refresh();
+                
+                txtScan.value = "";
+                txtScan.focus();
+            }
+            else {
+                txtScan.select();
+                txtScan.focus();
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function setSpIdByRfid(rfid) {
+        if (g.a.send("processType=h_spd.wo.VIEW_woDtl&actionType=getSpByRfid", { viewKey: "wo_sp_return", rfid: rfid }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var spId = cReturn.spId;
+
+                frm._cSP_ID.setValue(spId);
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

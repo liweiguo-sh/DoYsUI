@@ -1,0 +1,118 @@
+﻿body {
+    margin: 0px 0px 0px 0px;
+}
+/* Data Control */
+#divDC {
+    height: 36px;
+    overflow: hidden;
+}
+
+.xwf_vf_tbDC {
+    border-collapse: collapse;
+}
+.xwf_vf_tbDC td {
+    padding: 0px;
+    white-space: nowrap;
+}
+
+/* 移动及操作按钮*/
+.xwf_vf_btnAnchor {
+    width: 30px;
+    height: 30px;
+    border: solid 0px Red;
+    background-color: White;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+.xwf_vf_btnMove {
+    width: 30px;
+    height: 30px;
+    border: solid 1px Gray;
+}
+.xwf_vf_btnDC {
+    width: auto;
+    min-width: 60px;
+    overflow: visible;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-right: 2px;
+    height: 30px;
+    font-size: 11pt;
+    line-height: 26px;
+    border: 1px solid gray;
+    border-top-right-radius: 4px;
+}
+.xwf_vf_btnDC:hover {
+    color: red;
+}
+
+.xwf_vf_btnDC_Flow {
+    width: auto;
+    min-width: 60px;
+    overflow: visible;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-right: 2px;
+    height: 30px;
+    font-size: 11pt;
+    line-height: 26px;
+    border: 1px solid gray;
+    border-top-right-radius: 4px;
+    color: Blue;
+}
+.xwf_vf_btnDC_Flow:hover {
+    color: red;
+}
+
+.xwf_vf_btnDC_Extra {
+    color: red;
+    width: auto;
+    min-width: 60px;
+    overflow: visible;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-right: 2px;
+    height: 30px;
+    font-size: 11pt;
+    line-height: 26px;
+    border: 1px solid gray;
+    border-top-right-radius: 4px;
+}
+.xwf_vf_btnDC_Extra:hover {
+    color: Orange;
+}
+
+.xwf_vf_spanStatus {
+    color: Red;
+    font-size: 11pt;
+}
+
+/* tbForm */
+.tbForm {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+.tbForm th {
+    padding: 0px;
+    border-top: solid 0px blue;
+}
+.tbForm td {
+    border: solid 1px #e6e6e6;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.tbForm span {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.tbForm input[type='text'] {
+}
+.tbForm textarea {
+    white-space: pre;
+}
+
+/* 字段标题样式 */
+.xwf_vf_tdTextNullable {
+    color: Red;
+}

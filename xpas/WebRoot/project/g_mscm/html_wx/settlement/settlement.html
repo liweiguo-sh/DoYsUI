@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>结算单明细</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript_mobile/xmf.wx_css.js"></script>
+    <link rel="stylesheet" href="../../css/common.css">
+    <script src="../../js/g_mscm_wechat.js"></script>
+    <style>
+        #tab {
+            box-shadow: 0px 1px 4px 0px #e6e6e6;
+        }
+        .container {
+            top: 52px;
+            height: calc(100% - 72px);
+        }
+        .list {
+            position: relative;
+            border-bottom: solid 1px #e8e8e8;
+            margin: 0 10px 0 15px;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+        .list:last-child {
+            border-bottom: solid 0 #e8e8e8;
+        }
+        .list-title,
+        .list-sub {
+            display: flex;
+            justify-content: space-between;
+        }
+        .list-title {
+            font-size: 18px;
+            color: #0a0a0a;
+        }
+        .list-sub {
+            font-size: 16px;
+            color: #b9bdc0;
+            padding-top: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <nav id="tab">
+        <span class="back" onclick="win.close();"></span>
+        <div class="tab-title">结算单明细</div>
+    </nav>
+    <div id="main">
+        <div class="container" id="container"></div>
+    </div>
+    <div id="empty-data">
+        <div class="empty-assist"></div>
+        <div class="empty-content">暂无数据</div>
+    </div>
+    <div class="toast toast-loading">
+        <div class="spinner">
+            <div class="spinner-container container1">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container2">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container3">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+        </div>
+        <div class="toast-content">加载中...</div>
+    </div>
+    <div class="toast toast-error">
+        <div class="icon-error"></div>
+        <div class="toast-content">请求失败</div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var settlement = {};
+    settlement.init = function (win) {
+        var setKey = win.para;
+        // 加载中...
+        $('.toast-loading').show();
+        if (g.a.send("processType=g_mscm.weixin.BillSp&actionType=getSettlementDtl", { "setKey": setKey }, true)) {
+            if (g.a.OK) {
+                var setDtl = g.a.cReturn.setDtl;
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                if (setDtl.rowCount) {
+                    $('#empty-data').hide().siblings('#main').find('.container').html('').show();
+                    var array = getArray(setDtl);
+                    var listDom = "";
+                    var conDom = document.getElementById('container');
+                    conDom.innerHTML = "";
+                    for(var j in array) {
+                        listDom += '<div class="list">'
+                                        +'<div class="list-title">'
+                                            +'<div class="title-key">品名</div>'
+                                            +'<div class="title-name">'+ array[j]["matr_name"] +'</div>'
+                                        +'</div>'
+                                        +'<div class="list-sub">'
+                                            +'<div class="sub-key">数量</div>'
+                                            +'<div class="sub-value">'+ array[j]["matr_name_qty"] +'</div>'
+                                        +'</div>'
+                                    +'</div>';
+                    }
+                    conDom.innerHTML = listDom;
+                } else {
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }
+            } else {
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                $('.toast-error').show();
+                // 请求失败
+                setTimeout(function () {
+                    $('.toast-error').hide();
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }, 2000);
+                return false;
+            }
+        }
+    }
+
+    function formLoad() {
+        settlement.init(win);
+    }
+</script>

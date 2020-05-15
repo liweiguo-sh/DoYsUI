@@ -1,0 +1,56 @@
+﻿.xwf_taskbarBG {
+    background-color: #4e5465;
+}
+
+.xwf_taskbar_tbBar {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+.xwf_taskbar_tbBar td {
+    padding: 0px;
+    height: 36px;
+    line-height: 36px;
+    white-space: nowrap;
+    font-family: 微软雅黑;
+    font-size: 11pt;
+    color: White;    
+}
+
+/* desktop及任务条文本样式 */
+.xwf_taskbar_tdDesktop {
+    width: 80px;
+    cursor: pointer;
+}
+.xwf_taskbar_tdDesktopActive {
+    width: 80px;
+    background-color: #19a2d5;
+    cursor: pointer;
+}
+
+.xwf_taskbar_divText {
+    margin-left: 10px;
+    margin-right: 20px;
+    overflow: hidden;
+}
+
+/* 任务条选中及非选中样式 */
+.xwf_taskbar_tdBar {
+    cursor: pointer;
+}
+.xwf_taskbar_tdBarActive {
+    background-color: #19a2d5;
+    cursor: default;
+}
+.xwf_taskbar_tdFlashBar {
+    background-color: Orange;
+}
+
+/* 关闭图标样式 */
+.xwf_taskbar_divClose {
+    position: absolute;
+    color: White;
+    width: 20px;
+    height: 30px;
+    line-height: 30px;
+    cursor: default;
+}

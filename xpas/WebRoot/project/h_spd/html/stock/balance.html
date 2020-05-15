@@ -1,0 +1,493 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>仓库日清、月结平衡表</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/tree/xwf.tree.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/excel.js"></script>
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #tbLayout {
+            border-collapse: collapse;
+        }
+        .tdLayout {
+            padding: 0px;
+            overflow: hidden;
+            vertical-align: top;
+        }
+        #tdLayoutLeft {
+            border-top: solid 1px #c0c0c0;
+            border-left: solid 1px #c0c0c0;
+            border-right: solid 1px #c0c0c0;
+            border-bottom: solid 1px #c0c0c0;
+        }
+        #tdLayoutRight {
+            border-top: solid 1px #c0c0c0;
+            border-left: solid 1px #c0c0c0;
+            border-right: solid 1px #c0c0c0;
+            border-bottom: solid 1px #c0c0c0;
+        }
+
+        #divTree {
+            overflow: auto;
+        }
+
+        .cellPointerRed {
+            cursor: pointer;
+            font-weight: bold;
+            color: Red;
+            padding-left: 15px;
+            padding-right: 3px;
+        }
+        .cellPointerBlue {
+            cursor: pointer;
+            font-weight: bold;
+            color: Blue;
+            padding-left: 15px;
+            padding-right: 3px;
+        }
+        .cellErrorStock {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <table id="tbLayout">
+        <tr>
+            <td id="tdLayoutLeft" class="tdLayout">
+                <div id="divTree">
+                    <div id="divPeriod"></div>
+                    <div id="divStorage"></div>
+                </div>
+            </td>
+            <td id="tdLayoutRight" class="tdLayout">
+                <div id="divGrid"></div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var tbLayout = gId("tbLayout");
+    var divTree = gId("divTree");
+    var divPeriod = gId("divPeriod");
+    var divStorage = gId("divStorage");
+    var divGrid = gId("divGrid");
+
+    var gridView = null;
+    var treePeriod, treeStorage;
+
+    var viewKey = urlPara["viewKey"];
+    var balanceType = urlPara["balanceType"];
+    var balanceName = "月结", periodName = "期号";    
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        if (balanceType.equals("D")) {
+            balanceName = "日结";
+            periodName = "日期";
+        }
+
+        formResize();
+
+        initGrid();
+        initTreePeriod();
+        initTreeStorage();
+
+        doQuery();
+    }
+    function formResize() {
+        divTree.style.width = (300) + "px";
+
+        divTree.style.height = (win.p.height - 2 * tbLayout.offsetTop - divTree.offsetTop) + "px";
+        divGrid.style.width = (win.p.width - 2 * tbLayout.offsetLeft - divTree.offsetWidth) + "px";
+        divGrid.style.height = (win.p.height - 2 * tbLayout.offsetTop - divGrid.offsetTop) + "px";
+    }
+</script>
+
+<!-- 导航树 -->
+<script type="text/javascript">
+    function initTreePeriod() {
+        var rootKey = "", firstKey = "";
+        var jsonPara = {
+            divContainer: gId("divPeriod"),
+            imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+            nodeClick: onNodeClickPeriod
+        };
+        treePeriod = new window.xwf_tree(jsonPara);
+
+        rootKey = "0" + treePeriod.sd + "R";
+        treePeriod.addNode({ key: rootKey, text: periodName, certCategoryId: 0 });
+
+        if (g.a.send("processType=h_spd.stock.balance.BalanceManual&actionType=getPeriod", { balanceType: balanceType }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var arrPeriod = c.periods.split(",");
+                for (var i = 0; i < arrPeriod.length; i++) {
+                    var period = arrPeriod[i];
+                    var key = rootKey + treePeriod.sd + period;
+                    if (i == 0) {
+                        firstKey = key;
+                    }
+                    treePeriod.addNode({ key: key, text: period, period: period });
+                }
+
+                treePeriod.expand(rootKey);
+                treePeriod.setNodeSelected(firstKey);
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+    function onNodeClickPeriod(node) {
+        if (node.period) {
+            doQuery();
+        }
+    }
+
+    function initTreeStorage() {
+        var rootKey = "", firstKey = "";
+        var jsonPara = {
+            divContainer: gId("divStorage"),
+            imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+            nodeClick: onNodeClickStorage
+        };
+        treeStorage = new window.xwf_tree(jsonPara);
+
+        rootKey = "0" + treeStorage.sd + "R";
+        treeStorage.addNode({ key: rootKey, text: "库存地" });
+
+        if (g.a.send("processType=h_spd.stock.balance.BalanceManual&actionType=getStorage", { balanceType: balanceType }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtb = c.dtbStorage;
+                for (var i = 0; i < dtb.rowCount; i++) {
+                    var storageId = dtb.rows[i]["storage_id"].value;
+                    var storageName = dtb.rows[i]["storage_name"].value;
+                    var storageFullname = dtb.rows[i]["storage_fullname"].value;
+                    var storageNodeKey = dtb.rows[i]["node_key"].value;
+
+                    var key = rootKey + treeStorage.sd;
+                    if (false) {
+                        var arrNodeKey = new Array();
+                        for (var j = 0; j < storageNodeKey.length / 3; j++) {
+                            arrNodeKey.push(storageNodeKey.substring(3 * j, 3 * j + 3));
+                        }
+                        key += arrNodeKey.join(treeStorage.sd);
+                    }
+                    else {
+                        key += storageId;
+                    }
+                    var title = storageId + "  " + storageNodeKey;
+
+                    if (i == 0) {
+                        firstKey = key;
+                    }
+                    treeStorage.addNode({ key: key, text: storageFullname, title: title, storageId: storageId });
+                }
+                treeStorage.expand(rootKey);
+                if (firstKey) treeStorage.setNodeSelected(firstKey);
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+    function onNodeClickStorage(node) {
+        if (node.storageId) {
+            doQuery();
+        }
+    }
+</script>
+<!-- 网格初始化、网格工具栏 -->
+<script type="text/javascript">
+    function initGrid(floatCols) {
+        var prop = {
+            divContainer: divGrid,            
+            viewKey: viewKey,
+            floatCols: floatCols,
+            viewFilter: "1 = 0",
+            rowFill: rowFill,
+            cellClick: cellClick,
+            toolbarVisible: true,
+            jsonToolbar: { height: "M", onclick: onToolbarClick }
+        };
+        gridView = new window.xwf_gridview(prop);
+
+        gridView.toolbar.addBar({ type: "button", key: "refresh", text: "<i class='fa fa-refresh'></i> 刷新", align: "left", style: "Grid" });
+        gridView.toolbar.addBar({ type: "button", key: "reBalance", text: "<i class='fa fa-calculator'></i> 重新" + balanceName, align: "left", style: "Grid" });
+        gridView.toolbar.addBar({ type: "checkbox", key: "moreColumns", text: "显示详细列", value: (floatCols > 5) });
+
+        gridView.toolbar.addBar({ type: "button", key: "export", text: "<i class='fa fa-share'></i>", align: "right", style: "Grid", icon: null, width: 35 });
+        gridView.toolbar.addBar({ type: "button", key: "close", text: "<i class='fa fa-close'></i> 关闭", align: "right", style: "Grid", icon: null });
+    }
+
+    function onToolbarClick(para) {
+        if (para.key.equals("refresh")) {
+            gridView.refresh();
+        }
+        else if (para.key.equals("reBalance")) {
+            reBalance();
+        }
+        else if (para.key.equals("moreColumns")) {
+            if (para.dom.checked) {
+                initGrid(15 );
+            }
+            else {
+                initGrid(5 );
+            }
+            doQuery();
+        }
+        else if (para.key.equals("export")) {
+            btnExport_click();
+        }
+        else if (para.key.equals("close")) {
+            win.close();
+        }
+        else {
+            showErr("unknown button " + para.key);
+        }
+    }
+</script>
+<!-- 网格事件 -->
+<script type="text/javascript">
+    function rowFill(para) {
+        var dataRow = para.drRow;
+        var qty9 = dataRow["qty_9"].value;
+        var qtyStock = dataRow["qty_stock"].value;
+
+        dataRow["qty_in_s"].className = "cellPointerBlue";
+        dataRow["qty_out_s"].className = "cellPointerBlue";
+
+        dataRow["qty_in_sp"].className = "cellPointerBlue";
+        dataRow["qty_in_dept"].className = "cellPointerBlue";
+        dataRow["qty_in_patient"].className = "cellPointerBlue";
+
+        dataRow["qty_out_patient"].className = "cellPointerBlue";
+        dataRow["qty_out_dept"].className = "cellPointerBlue";
+        dataRow["qty_out_sp"].className = "cellPointerBlue";
+
+        if (qty9 != qtyStock) {
+            dataRow["qty_stock"].className = "cellErrorStock";
+        }
+    }
+    function cellClick(para) {
+        var colName = para.fieldName;
+
+        if (treeStorage.selectedNode.level < 2) {
+            showMsg("请先选择库存地。");
+            return;
+        }
+        if (treePeriod.selectedNode.level < 2) {
+            showMsg("请先选择期号。");
+            return;
+        }
+        // ------------------------------------------------
+        var sqlPeriod = "", sqlWiType = "", sqlWoType = "";
+        var period = treePeriod.selectedNode.period;
+        var storageId = treeStorage.selectedNode.storageId;
+        var materialId = para.drRow["material_id"].value;
+
+        if (viewKey.equals("stock_balance_m_dept")) {
+            sqlPeriod = "CONVERT(VARCHAR(7), wi_date, 120) = '" + period + "'";
+        }
+        else {
+            sqlPeriod = "CONVERT(VARCHAR(10), wi_date, 120) = '" + period + "'";
+        }
+        // ------------------------------------------------
+        if (colName.equals("qty_in_s")) {
+            sqlPeriod = sqlPeriod.replaceAll("wi_date", "ws_date");
+            var para = {
+                viewKey: "balance_ws_in",
+                viewFilter: "dtl.storage_id_to = " + storageId + " AND " + sqlPeriod + " AND dtl.material_id = " + materialId
+            };
+            topWin.openTopView({ text: "移库(入)明细查询" }, para);
+        }
+        else if (colName.equals("qty_out_s")) {
+            sqlPeriod = sqlPeriod.replaceAll("wi_date", "ws_date");
+            var para = {
+                viewKey: "balance_ws_out",
+                viewFilter: "dtl.storage_id_from = " + storageId + " AND " + sqlPeriod + " AND dtl.material_id = " + materialId
+            };
+            topWin.openTopView({ text: "移库(出)明细查询" }, para);
+        }
+        else if (colName.indexOf("qty_in_") >= 0) {
+            if (colName.equals("qty_in_sp")) {
+                sqlWiType = "wi_type IN ('SP', 'ASN', 'CONSIGN_HIGH', 'PURCHASE_LOW', 'CONSIGN_LOW')";
+            }
+            else if (colName.equals("qty_in_dept")) {
+                sqlWiType = "wi_type IN ('DEPT_RETURN', 'dept', 'DEPT_RETURN_ALL')";
+            }
+            else if (colName.equals("qty_in_patient")) {
+                sqlWiType = "wi_type IN ('HIS_RETURN', 'patient')";
+            }
+            else {
+                alert("debug here.");
+            }
+            var para = {
+                viewKey: "balance_wi",
+                viewFilter: "wi.storage_id = " + storageId + " AND " + sqlWiType + " AND " + sqlPeriod + " AND dtl.material_id = " + materialId
+            };
+            topWin.openTopView({ text: "入库明细查询" }, para);
+        }
+        else if (colName.indexOf("qty_out_") >= 0) {
+            if (para.fieldName.equals("qty_out_patient")) {
+                sqlWoType = "wo_type IN ('DEPT_USE', 'HIS', 'patient', 'PATIENT_USE', 'PATIENT_USE_RED')";
+            }
+            else if (para.fieldName.equals("qty_out_dept")) {
+                sqlWoType = "wo_type IN ('DEPT_DIST', 'dept', 'WO_APPLY')";
+            }
+            else if (para.fieldName.equals("qty_out_sp")) {
+                sqlWoType = "wo_type IN ('SP_RETURN', 'sp')";
+            }
+            else {
+                alert("debug here.");
+            }
+
+            sqlPeriod = sqlPeriod.replaceAll("wi_date", "wo_date");
+            var para = {
+                viewKey: "balance_wo",
+                viewFilter: "wo.storage_id = " + storageId + " AND " + sqlWoType + " AND " + sqlPeriod + " AND dtl.material_id = " + materialId
+            };
+            topWin.openTopView({ text: "出库明细查询" }, para);
+        }
+        else {
+            // debug("待处理的列：" + colName + "，请检查。");
+        }
+    }
+</script>
+
+<!-- 查询、月结(日结) -->
+<script type="text/javascript">
+    function doQuery() {
+        if (!treePeriod.selectedNode || !treePeriod.selectedNode.period) {
+            return;
+        }
+        if (!treeStorage.selectedNode || !treeStorage.selectedNode.storageId) {
+            return;
+        }
+
+        var period = treePeriod.selectedNode.period;
+        var storageId = treeStorage.selectedNode.storageId;
+
+        gridView.setViewFilter("storage_id = " + storageId + " AND period = '" + period + "'");
+    }
+
+    function reBalance() {
+        if (!treePeriod.selectedNode || !treePeriod.selectedNode.period) {
+            showWarn("请先选择要操作的" + periodName + "。");
+            return;
+        }
+        if (!treeStorage.selectedNode || !treeStorage.selectedNode.storageId) {
+            showWarn("请先选择要操作的库存地。");
+            return;
+        }
+
+        var period = treePeriod.selectedNode.period;
+        var storageId = treeStorage.selectedNode.storageId;
+
+        if (g.a.send("processType=h_spd.stock.balance.BalanceManual&actionType=balance", { storageId: storageId, period: period, balanceType: balanceType }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+
+                doQuery();
+                showMsg("当前操作成功执行完成。");
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+</script>
+<!-- 数据导出 -->
+<script type="text/javascript">
+    function btnExport_click() {
+        var btnExport = g.x.getEventTarget(event);
+        var arrMenus = new Array();
+
+        arrMenus.push({ key: "exportData_CSV", text: "数据导出到CSV文件" });
+        arrMenus.push({ key: "exportData_XLS", text: "数据导出到XLS文件", title: "支持MS Office 2007及以上版本" });
+        topWin.context.show({ menuClick: exportMenuClick, arrMenus: arrMenus, objDom: btnExport, top: 0, left: 0 });
+    }
+    function exportMenuClick(liMenu) {
+        if (liMenu.key.equals("exportData_CSV")) {
+            exportData_CSV();
+        }
+        else if (liMenu.key.equals("exportData_XLS")) {
+            exportData_XLS();
+        }
+        else {
+            showErr("暂未实现的导出文件类型。");
+        }
+    }
+
+    function exportData_CSV() {
+        var strHeader = "";
+        for (var i = 0; i < gridView.arrColumns.length; i++) {
+            if (gridView.arrColumns[i].type.equals("data")) {
+                strHeader += (gridView.arrColumns[i].text + ",");
+            }
+        }
+
+        if (g.a.send("processType=com.xznext.xpas.Common&actionType=exportData_CSV", { viewKey: viewKey, sqlUVData: gridView.sqlUVData, strHeader: strHeader }, true)) {
+            var c = g.a.cReturn;
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var urlFile = c.urlFile;
+                topWin.downloadFile(urlFile);
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    function exportData_XLS() {
+        var strHeader = "";
+        for (var i = 0; i < gridView.arrColumns.length; i++) {
+            if (gridView.arrColumns[i].type.equals("data")) {
+                strHeader += (gridView.arrColumns[i].text + ",");
+            }
+        }
+
+        if (g.a.send("processType=com.xznext.xpas.Common&actionType=exportData_XLS", { viewKey: viewKey, sqlUVData: gridView.sqlUVData, strHeader: strHeader }, true)) {
+            var c = g.a.cReturn;
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var urlFile = c.urlFile;
+                openExcel(g.xpasRunPath + urlFile);
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

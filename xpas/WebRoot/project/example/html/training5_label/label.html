@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>标签定义</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+	<script src="../../../../res/control/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target="">
+		<table id="tbForm" class="tbForm" style="width:705px;">
+			<tr id="trH">
+				<th style="width:150px;"></th>
+				<th style="width:200px;"></th>
+				<th style="width:150px;"></th>
+				<th style="width:200px;"></th>
+			</tr>
+			<tr>				
+				<td>标签名称：</td>
+				<td colspan="3"><input type="text" id="_cLabel_name" value="" /></td>
+			</tr>
+			<tr>		
+				<td>标签版本：</td>
+				<td><input type="text" id="_cLabel_version" value="" /></td>
+				<td>打印机点数：</td>
+				<td><input type="text" id="_cLabel_point" value="" /></td>
+			</tr>
+			<tr>				
+				<td>宽度(毫米)：</td>
+				<td><input type="text" id="_cLabel_width" value="" /></td>
+                <td>高度(毫米)：</td>
+				<td><input type="text" id="_cLabel_height" value="" /></td>
+			</tr>
+			<tr>
+				<td>备注：</td>
+				<td colspan="3"><textarea id="_cLabel_remark" rows="3" cols="0"></textarea></td>
+			</tr>
+			<tr>				
+				<td>创建人：</td>
+				<td><span id="_cCreator"></span></td>
+				<td>创建时间：</td>
+				<td><span id="_cCDate"></span></td>		
+			</tr>
+			<tr>				
+				<td>修改人：</td>
+				<td><span id="_cModifier"></span></td>
+				<td>修改时间：</td>
+				<td><span id="_cMDate"></span></td>		
+			</tr>
+		</table>
+		<input id="_cLabel_id" type="hidden" value="" />
+	</form>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    // ----------------------------------------------------
+	function formLoad() {
+		vf.addExtraButton({ key: "labelDesign", text: "设计标签(L)"  });
+        vf.css(gId("tbForm"));
+    }
+</script>
+
+<!-- vf事件处理 -->
+<script type="text/javascript">
+	vf.afterAddnew = function () {
+		frm._cLabel_name.focus();
+		frm._cLabel_name.value = "";
+		frm._cLabel_version.value = "1";
+		frm._cLabel_width.value = "80";
+		frm._cLabel_height.value = "40";
+		frm._cLabel_point.value = "600";
+	}
+
+	vf.beforeClick = function (prop) {
+		if (prop.buttonKey.equals("labelDesign")) {
+			if (vf.status.equals("view")) {
+				labelDesign();
+			}
+			else {
+				showMsg("请先保存当前记录。");
+			}
+			return false;
+		}
+		else {
+			showWarn("未知的扩展按钮，缺少处理程序。");
+			return false;
+		}
+	}
+</script>
+<!-- 标签设计 -->
+<script type="text/javascript">
+	function labelDesign() {
+		var labelId = frm._cLabel_id.value;
+		var prop = {
+			url: g.appPath + "project/example/html/training5_label/label_design.html",
+			text: "标签设计",
+			title: "标签设计 - " + labelId
+		};
+		var para = {
+			labelId: labelId,
+			width: frm._cLabel_width.value,
+			height: frm._cLabel_height.value,
+			point: frm._cLabel_point.value
+		};
+		topWin.openFullWindow(prop, para);
+		return false;
+	}
+</script>

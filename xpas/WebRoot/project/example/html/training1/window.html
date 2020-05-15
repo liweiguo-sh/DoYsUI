@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>父窗口</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divButton" class="divButtons">
+		<input type="button" id="btnOpenModalWindow" onclick="btnOpenModalWindow_click();" value="打开模态窗口" />
+		<input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+	</div>
+	<div id="divResult" style="width:500px;height:250px;border:solid 1px blue;">
+	
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var parentWin = null;
+	var urlPara = getUrlPara();
+	// ----------------------------------------------------
+	function formLoad() {
+		parentWin = win.parentWindow;
+	}
+
+	function btnOpenModalWindow_click() {
+		var prop = {
+			url: g.appPath + "project/example/html/training1/window_modal.html?para1=abc&para2=def",
+			text: "子窗口001",
+			parent: win,
+			modal: true
+		};
+		var para = {
+			para3: "参数值3",
+			para4: 4444,
+			callback: callbackFunction
+		};
+		topWin.openWindow(prop, para);
+	}
+	function callbackFunction(para1) {
+		gId("divResult").innerHTML = "收到回传参数：" + para1;
+	}
+
+	function btnClose_click() {
+		win.close();
+	}
+</script>

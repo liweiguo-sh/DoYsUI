@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>空白窗口</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divButton" class="divButtons">
+		<input type="button" id="btnOperate" onclick="btnOperate_click();" value="操作" />
+		<input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+	</div>
+	<div class="PanelA">
+		空白窗口...
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	function formLoad() {
+	}
+
+    function btnOperate_click() {
+        if (g.a.send("processType=h_spd.sys_maintain.Test&actionType=actionA", {}, true)) {
+            if (g.a.OK) {
+                showMsg("当前操作成功。");
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+	function btnClose_click() {
+		win.close();
+	}
+</script>
+
+<!-- xxx -->
+<script type="text/javascript">
+
+</script>

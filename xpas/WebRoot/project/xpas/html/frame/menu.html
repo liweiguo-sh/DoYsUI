@@ -1,0 +1,296 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>菜单管理</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+	<script src="../../js/xtfs.js" type="text/javascript"></script>
+
+	<style type="text/css">
+	    body {
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target="com.xznext.xpas.Menu">
+	<table id="tbForm" class="tbForm" style="width: 665px;">
+		<tr class="trH">
+			<th style="width: 130px;"></th>
+			<th style="width: 200px;"></th>
+			<th style="width: 130px;"></th>
+			<th style="width: 200px;"></th>
+		</tr>
+		<tr>			
+			<td>菜单标识：</td>
+			<td><input id="_cMENU_KEY" type="text" value="" disabled="disabled" /></td>
+			<td>序号：</td>
+			<td><input id="_cMenu_Order" type="text" value="" /></td>
+		</tr>
+		<tr>
+			<td>菜单类型：</td>
+			<td><input id="_cMenu_Type" type="text" controlType="dropdown" fieldValue="menuKey" fieldText="menuText" dataSource="[['menuKey','menuText'],['menu','菜单'],['uview','数据视图'],['report','报表'],['echart','图表'],['reportSIMP','报表简单'],['window','标准窗口'],['redirect','重定向',],['single','新页面'],['click','自定义']]" visibleSearch="false" /></td>
+			<td>图标：</td>
+			<td><input id="_cMenu_icon" type="text" value="" /></td>
+		</tr>
+		<tr>
+			<td>菜单标题：</td>
+			<td><input id="_cMenu_Text" type="text" value="" /></td>
+			<td>VF允许添加：</td>
+			<td><input id="_cMenu_uview_addnew" type="text" controlType="dropdown" fieldValue="b" fieldText="a" dataSource="[['a','b'],['不控制',0],['不允许添加',-1],['允许添加',1]]" visibleSearch="false" /></td>
+		</tr>
+		<tr>
+			<td>类型值：</td>
+			<td colspan="3"><input id="_cMenu_Type_Value" type="text" value="" /></td>
+		</tr>
+		<tr>
+			<td>参数：</td>
+			<td colspan="3"><textarea id="_cMenu_Parameter" rows="2" cols="0"></textarea></td>
+		</tr>
+		<tr>
+			<td>窗口url：</td>
+			<td colspan="3"><input id="_cMenu_Url" type="text" value="" ondblclick="menuUrl_dblClick(this);" /></td>
+		</tr>
+		<tr style="display:none;">
+			<td>菜单提示条：</td>
+			<td colspan="3"><input id="_cMenu_Tooltip" type="text" value="" /></td>
+		</tr>
+		<tr>
+			<td>菜单客户端：</td>
+            <td colspan="3">
+                <input type="checkbox" id="_cMenu_is_pc" /><label for="_cMenu_is_pc">PC端菜单</label>&nbsp;&nbsp;
+                <input type="checkbox" id="_cMenu_is_pda" /><label for="_cMenu_is_pda">PDA菜单</label>
+                <input type="checkbox" id="_cMenu_is_weixin" /><label for="_cMenu_is_weixin">微信菜单</label>
+                <input type="checkbox" id="_cMenu_is_app" /><label for="_cMenu_is_app">APP菜单</label>&nbsp;&nbsp;
+                <!--<input type="checkbox" id="_cMenu_is_pad" /><label for="_cMenu_is_pad">PAD端菜单</label>&nbsp;&nbsp;-->
+            </td>
+		</tr>
+		<tr>
+			<td>窗口类型：</td>
+			<td colspan="3">
+				<input type="checkbox" id="_cMenu_window_maximized" /><label for="_cMenu_window_maximized">全屏窗口</label>&nbsp;&nbsp;
+				<input type="checkbox" id="_cMenu_window_modal" /><label for="_cMenu_window_modal">模态窗口</label>
+			</td>
+		</tr>		
+        <tr>
+            <td>tooltip：</td>
+			<td colspan="3"><input type="text" id="_cMenu_tooltip" title="给用户的提示"/></td>
+        </tr>
+		<tr>
+			<td>功能描述：</td>
+			<td colspan="3"><textarea id="_cMenu_Display" rows="3" cols="0" title="给开发及维护人员的提示"></textarea></td>
+		</tr>
+		<tr>
+			<td>首次筛选：</td>
+			<td><input id="_cMenu_filter_first" type="checkbox" /></td>
+			<td>必需筛选：</td>
+			<td><input id="_cMenu_filter_must" type="checkbox" /></td>
+		</tr>
+		<tr>
+			<td>禁止重复打开：</td>
+			<td><input id="_cMenu_onlyone" type="checkbox" /></td>
+			<td>禁用：</td>
+			<td><input id="_cMenu_inactive" type="checkbox" /></td>
+		</tr>
+		<tr>
+			<td><b>实施流程：</b></td>
+			<td colspan="3"><input id="_gFlow_key" type="text" controlType="dropdown" fieldValue="flow_key" fieldText="flow_desc" fieldsVisible="flow_key,flow_name" fieldsSearch="flow_key,flow_name" widthFields="37,63" /></td>			
+		</tr>
+		<tr>
+			<td>默认流程：</td>
+			<td colspan="2"><input id="_cFlow_key_default" type="text" controlType="dropdown" fieldValue="flow_key" fieldText="flow_desc" fieldsVisible="flow_key,flow_name" fieldsSearch="flow_key,flow_name" widthFields="37,63" /></td>			
+			<td><input id="_gFlow_text_menu" type="text" placeholder="流程标题" title="实施用，生产环境有效" /></td>
+		</tr>
+		<tr>
+            <td>区域编号</td>
+			<td><input id="_cWb_area" type="text" /></td>
+			<td>工作台提示</td>
+			<td><input id="_cWb_flag" type="checkbox" /></td>			
+		</tr>
+		<tr>
+			<td>提示标题：</td>
+			<td colspan="3"><input type="text" id="_cWb_title"/></td>
+		</tr>
+		<tr>
+			<td>提示条件：</td>
+			<td colspan="3"><input type="text" id="_cWb_view_filter"/></td>
+		</tr>
+		<tr>
+			<td>备注：</td>
+			<td colspan="3"><textarea id="_cMenu_Remark" rows="2" cols="0"></textarea></td>
+		</tr>
+	</table>
+	<input type="hidden" id="_cPNode_KeY" />
+	<input type="hidden" id="_cNode_Key" />
+	</form>
+</body>
+</html>
+<!-- formLoad -->
+<script type="text/javascript">
+	var tree = null;	
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		vf.addExtraButton({ key: "xTFS", text: "xTFS" });
+		vf.css(gId("tbForm"));	
+	}
+
+	function initClientType() {
+		var dtb = new window.xwf_datatable();
+		dtb.addColumn({ name: "client_type_name" });
+		dtb.addColumn({ columnType: "number", name: "client_type_id" });
+
+		dtb.addRow();
+		dtb.rows[dtb.rowCount - 1]["client_type_id"].value = 0;
+		dtb.rows[dtb.rowCount - 1]["client_type_name"].value = "PC";
+		dtb.addRow();
+		dtb.rows[dtb.rowCount - 1]["client_type_id"].value = 1;
+		dtb.rows[dtb.rowCount - 1]["client_type_name"].value = "微信";
+		dtb.addRow();
+		dtb.rows[dtb.rowCount - 1]["client_type_id"].value = 2;
+		dtb.rows[dtb.rowCount - 1]["client_type_name"].value = "PC&微信";
+		dtb.addRow();
+		dtb.rows[dtb.rowCount - 1]["client_type_id"].value = -1;
+		dtb.rows[dtb.rowCount - 1]["client_type_name"].value = "APP";
+
+		vf.initDataSource(frm._cMenu_Client_Type, dtb);
+	}
+
+	function menuUrl_dblClick(txt) {
+		if (!vf.gridView) return;
+
+		var systemName = "system_name";
+		var currentNode = vf.gridView.tree.selectedNode;
+		// ------------------------------------------------
+		while (currentNode.level > 2) {
+			currentNode = currentNode.parent;
+		}
+		systemName = currentNode.Columns.system_name;
+		// ------------------------------------------------
+		txt.value = txt.value.trim();
+		if (txt.value.equals("")) {
+			txt.value = systemName + "/html/module_name/xxxxx.html";
+		}
+	}
+</script>
+<!-- vf.events -->
+<script type="text/javascript">
+	vf.beforeAddnew = function () {
+		var currentNode = vf.gridView.tree.selectedNode;
+		if (currentNode.level < 2) {
+			showWarn("顶级节点不能添加子菜单，请选择正确的父菜单节点。");
+			return false;
+		}
+		else if (currentNode.level > 4) {
+			showWarn("末级菜单不能再添加子菜单，请选择正确的父菜单节点。");
+			return false;
+		}
+		return true;
+	}
+	vf.beforeSave = function () {
+		// -- xTFS：判断是否已签出 ------------------------
+		if (g.a.send("processType=com.xtfs.XtfsCore&actionType=getMDataStatus", { mdataType: "menu", mdataKey: frm._cMENU_KEY.value }, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				if (!cReturn.newMData && !cReturn.myCheckout) {
+					showWarn("主数据尚未签出，同步xTFS时修改会丢失，请谨慎操作。");
+				}
+			}
+		}
+		// ------------------------------------------------
+		var menuType = frm._cMenu_Type.underValue;
+		if (frm._cMenu_Order.value.equals("")) {
+			frm._cMenu_Order.value = "999";
+		}
+
+		if (menuType.equals("menu")) {
+		}
+		else if (menuType.equals("uview")) {
+			if (frm._cMenu_Type_Value.value.equals("")) {
+				alert("菜单类型为用户视图，菜单类型值不允许为空。\n\n请输入数据视图标识(view_key)。");
+				frm._cMenu_Type_Value.focus();
+				return false;
+			}
+		}
+		else if (menuType.equals("report")) {
+			if (frm._cMenu_Type_Value.value.equals("")) {
+				alert("菜单类型为报表，菜单类型值不允许为空。\n\n请输入报表标识(report_key)。");
+				frm._cMenu_Type_Value.focus();
+				return false;
+			}
+		}
+		else if (menuType.equals("echart")) {
+			if (frm._cMenu_Type_Value.value.equals("")) {
+				alert("菜单类型为图表，菜单类型值不允许为空。\n\n请输入报表标识(report_key)。");
+				frm._cMenu_Type_Value.focus();
+				return false;
+			}
+		}
+		else if (menuType.equals("reportSIMP")) {
+			if (frm._cMenu_Type_Value.value.equals("")) {
+				alert("菜单类型为简单报表，菜单类型值不允许为空。\n\n请输入报表标识(report_key)。");
+				frm._cMenu_Type_Value.focus();
+				return false;
+			}
+		}
+		else if (menuType.equals("click")) {
+
+		}
+		else {
+			if (frm._cMenu_Url.value.equals("")) {
+				alert("请输入菜单要打开的url。");
+				frm._cMenu_Url.focus();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	vf.afterAddnew = function () {
+		frm._cMenu_is_pc.checked = true;
+		frm._cMenu_onlyone.checked = true;
+
+		frm._cMenu_uview_addnew.setValue(0);
+
+		frm._cWb_area.value = "0";
+	}
+	vf.afterSave = function () {
+		reloadParentNode();
+	}
+	vf.afterDelete = function () {
+		reloadParentNode();
+	}
+
+	function reloadParentNode() {
+		var nodeP = null;
+
+		if (tree == null) {
+			if (!vf.gridView) return;
+			tree = vf.gridView.tree;
+		}
+		nodeP = tree.selectedNode;
+		if (nodeP.generated || nodeP.children == 0) {
+			// -- 父节点已展开，需要重新加载 --
+			if (nodeP.level < 4) {
+				tree.reloadNode(nodeP);
+			}
+		}
+	}
+
+	vf.beforeClick = function (prop) {
+		if (prop.buttonKey.equals("xTFS")) {
+			var jsonPara = {
+				mdataType: "menu",
+				mdataKeys: "'" + frm._cMENU_KEY.value + "'",
+				objDom: prop.button
+			}
+			xTFS.openMenu(jsonPara);
+		}
+		return false;
+	}
+</script>

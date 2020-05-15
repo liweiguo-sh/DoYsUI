@@ -1,0 +1,591 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>新增授权</title>
+    <link href="../../../../res_plugin/bootstrap3.7/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../../../res_plugin/bootstrap3.7/bootstrap-table/css/bootstrap-table.css" rel="stylesheet" />
+	<link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/bootstrap-table/js/bootstrap-table.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/bootstrap-table/js/bootstrap-table-local-zh-CN.js" type="text/javascript"></script>
+	<!-- 日期选择 -->
+	<link href="../../../../res_plugin/bootstrap3.7/dtpicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+	<script src="../../../../res_plugin/bootstrap3.7/dtpicker/js/bootstrap-datetimepicker.min.js"	type="text/javascript"></script>
+	<script src="../../../../res_plugin/bootstrap3.7/dtpicker/js/locales/bootstrap-datetimepicker.zh-CN.js"	type="text/javascript"></script>
+
+    <script src="../../js/rstodata.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    <script src="../../../../res/control/toolbar/xwf.toolbar.js" type="text/javascript"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+    <link href="../../../../res/control/upload/style3/xwf.upload.css" rel="stylesheet" />
+    <script src="../../../../res/control/upload/xwf.upload.js" type="text/javascript"></script>
+    <script src="../../../../res/control/upload/xwf.upload_core.js" type="text/javascript"></script>
+
+    <script src="../../../../res_plugin/util/chinese_py.js" type="text/javascript"></script>
+    <script src="../../js/doc_center.js" type="text/javascript"></script>
+	
+	<link href="../../../../res/control/tree/style1/xwf.tree.css" rel="stylesheet" />
+	<script src="../../../../res/control/tree/xwf.tree.js" type="text/javascript"></script>
+	<!-- <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script> -->
+    <style type="text/css">
+        body {
+            background-color: lightgray;
+        }
+        .self-panel-main {
+			width:80%;
+			margin-left:auto;
+			margin-right:auto;
+			margin-top:20px;
+            background-color: white;
+            box-shadow: 3px 3px 3px #888888;
+            padding: 80px;
+        }
+       
+        .div-title {
+            font-size: 1.3em;
+            font-family: 微软雅黑;
+            color: #3498DB;
+            width: 100%;
+            border-bottom: 1px solid #3498DB;
+        }
+        .div-input-info {
+            font-size: 0.9em;
+            font-family: 微软雅黑;
+            color: #2C3E50;
+            width: 90%;
+            margin-left: 20px;
+            margin-top: 50px;
+			margin-bottom: 50px;
+        }
+		.form-group label {
+			color: gray;
+		}
+        #divProductCert th {
+            background-color: #3498DB;
+            color: white;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .alert.alert-success {
+        	display: none;
+        }
+    </style>
+</head>
+<body>
+	<div id="divDC" class="ScreenCenter" style="display:none"></div>
+	<!-- 新增授权书开始 -->
+    <div class="self-panel-main">
+        <form id="frm" role="form" action="" target="">
+			<!--区域1 -->
+			<div class="div-title" style="border:0px;">授权书基本信息</div>
+			<div class="div-title"></div>
+			<br />
+			<br />
+			<div class="row form-group">
+				<div class="col-xs-3"  style="text-align:right;"><label><span style="color:red">&nbsp;*</span>授权方名称：</label></div>
+				<div class="col-xs-6"><input type="text"  class="form-control" id="_cAuth_company_from" /></div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="row form-group">
+				<div class="col-xs-3"  style="text-align:right;"><label>被授权方名称：</label></div>
+				<div class="col-xs-6"><input type="text"  class="form-control" id="_cAuth_company_to" /></div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="row form-group">
+				<div class="col-xs-3"  style="text-align:right;"><label>授权书标题：</label></div>
+				<div class="col-xs-6"><input type="text"  class="form-control" id="_cAuth_title" /></div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="row form-group">
+				<div class="col-xs-3"  style="text-align:right;"><label for="_cAuth_version"><span style="color:red">&nbsp;*</span>版本号：</label></div>
+				<div class="col-xs-6"><input type="text"  class="form-control" id="_cAuth_version" value="1" disabled /></div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="row form-group">
+				<div class="col-xs-3"  style="text-align:right;"><label>授权起始日期：</label></div>
+				<div class="col-xs-6">
+					<div class="input-group date" id="auth_date0" data-date="" data-date-format="yyyy-mm-dd">
+						<input class="form-control" size="16" type="text" id="_cAuth_date0" />
+						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+					</div>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="row form-group">
+				<div class="col-xs-3"  style="text-align:right;"><label>授权截至日期：</label></div>
+				<div class="col-xs-6">
+					<div class="input-group date" id="auth_date1" data-date="" data-date-format="yyyy-mm-dd">
+						<input class="form-control" size="16" type="text" id="_cAuth_date1" />
+						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+					</div>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="row form-group">
+				<div class="col-xs-3" style="text-align: right;"><label><span style="color:red">&nbsp;*</span>授权书分类：</label></div>
+				<div class="col-xs-6">
+					<div class="input-group">
+						<input type="text" class="form-control" id="_gCategory_name" />
+						<span class="input-group-addon" style="cursor: pointer;" data-toggle="modal" data-target="#material-sort"><i class="fa fa-search"></i></span>
+					</div>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<input type="hidden" class="form-control" id="_cAuth_id" />
+			<input type="hidden"  class="form-control" id="_cCompany_id" />
+			<input type="hidden"  class="form-control" id="_cDoc_id" />
+			<input type="hidden"  class="form-control" id="_cAuth_order" />
+			<input type="hidden" class="form-control" id="_gMatr_category_id" />
+			<!--区域1 结束-->
+			<!--区域2-->
+			<br />
+			<br />
+			<!--区域2 结束-->
+		</form>
+		<div>
+			<label for="divCertUpload">附件</label>
+			<div id="divCertUpload" style="width:100%;height:300px;border:0px solid green"></div>
+		</div>
+		<div style="text-align:center; width:100%">
+			<button type="button" class="btn btn-success" onclick="saveAuthInfo();" style="width: 200px;margin-top: 25px;">保存授权书信息</button>
+			<button type="button" class="btn btn-danger" onclick="delAuthInfo();" style="width: 200px;margin-top: 25px;">删除授权书信息</button>
+		</div>
+		<br />
+		<br />
+		<!-- 信息提示部分 -->
+		<div class="alert alert-success alert-dismissble" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			<p id="tip-content"></p>
+		</div>
+    </div>
+    <!-- 新增授权书结束 -->
+    <!-- 授权书类别选择框开始 -->
+    <div id="material-sort" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="myModalLabel">
+    	<div class="modal-dialog">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<button class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    				<h4 class="modal-title" id="myModalLabel">请选择授权书类别</h4>
+    			</div>
+    			<div class="modal-body">
+    				<div id="material-sort-tree"></div>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+    				<button type="button" class="btn btn-primary" id="save-material-sort" onclick="saveMaterialSort();">确定</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+    <!-- 授权书类别选择框结束 -->
+</body>
+</html>
+<script type="text/javascript">
+	
+</script>
+
+<script type="text/javascript">
+	var authId;
+	var materialSortTree = gId("material-sort-tree");
+	var treeMenu = null;
+
+	$(function () {
+		// 初始化授权起始日期
+		$('#auth_date0').datetimepicker({
+			format: 'yyyy-MM-dd',
+			weekStart: 0,
+			autoclose: true,
+			startView: 2,
+			minView:2,
+			maxView: 4,
+			todayBtn: false,
+			todayHighlight: true,
+			initialDate: (new Date()).toString("yyyy-MM-dd"),
+			forceParse: 0,
+			bootcssVer: 3,
+			language: "zh-CN"
+		}).on('changeDate', function() {
+			// 初始日期不能大于截至日期
+			var start = $('#_cAuth_date0').val();
+			$('#auth_date1').datetimepicker("setStartDate", start);
+		});
+
+		// 初始化授权截至日期
+		$('#auth_date1').datetimepicker({
+			format: 'yyyy-MM-dd',
+			weekStart: 0,
+			autoclose: true,
+			startView: 2,
+			minView:2,
+			maxView: 4,
+			todayBtn: false,
+			todayHighlight: true,
+			initialDate: (new Date()).toString("yyyy-MM-dd"),
+			forceParse: 0,
+			bootcssVer: 3,
+			language: "zh-CN"
+		}).on('changeDate', function() {
+			// 截至日期不能大于初始日期
+			var end = $('#_cAuth_date1').val();
+			$('#auth_date0').datetimepicker("setEndDate", end);
+		});
+
+	});
+
+	// 新增窗口记录
+	vf.afterAddnew = function() {
+		frm._cAuth_version.value = 1;
+		frm._cAuth_order.value = win.para.count + 1;
+		frm._gCategory_name.value = "请选择授权书类别";
+		if(vf.status.equals("addnew")) {
+			$(".btn.btn-danger").hide();
+		}
+		return true;
+	}
+
+	// 编辑窗口记录
+	vf.afterMove = function() {
+		if(vf.status.equals("addnew")) {
+			frm._cDoc_id.value = 0;
+		}
+		// 初始化文件上传
+        var upLoadFile = docService.createUploadArea({
+        	divContainer: gId("divCertUpload"),
+        	docId: frm._cDoc_id.value.toInt(),
+        	showTitle: false,
+        	showNotes: true,
+        	allowView: false,
+        	showSign: true,
+        	showRemove: true,
+        	showDownload: false,
+        	afterDocSave: afterDocSave
+        });
+
+        // 初始化授权书分类
+        initTree_Matr();
+        // 授权书信息维护
+        if(vf.status.equals("view")) {
+        	var authId = frm._cAuth_id.value;
+        	setTree_Matr(authId);
+    	}
+
+    	
+	}
+
+	function afterDocSave(ctl) {
+		frm._cDoc_id.value = ctl.docId;
+		debug("文档:" + frm._cDoc_id.value + "-saved!");
+	}
+
+	// 加载授权书分类树
+	function initTree_Matr() {
+		var jsonPara = {
+			divContainer: materialSortTree,
+			imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+			title: "授权书所属类别",
+			sd: "-",
+			showCheckBoxs: "all",
+			selecteMode: "single",
+			nodeCheck: nodeCheck
+		};
+		treeMenu = new window.xwf_tree(jsonPara);
+
+		if(g.a.send("processType=g_mshare.auth.Auth&actionType=getMaterialTree", { "viewKey": "mart_category_chose" }, true)) {
+			if(g.a.OK) {
+				var c = g.a.cReturn;
+				var MatrAll = c.MatrAll;
+				for(var i = 0; i < MatrAll.rowCount; i++) {
+					var nodeKey = "0";
+					var node_key = MatrAll.rows[i]["node_key"].value;
+					var nodeText = MatrAll.rows[i]["node_text"].value;
+					var martCategoryId = MatrAll.rows[i]["mart_category_id"].value;
+					for(var j = 0; j < node_key.length / 3; j++) {
+						nodeKey += treeMenu.sd + node_key.substring(3 * j, 3 * j + 3);
+					}
+					treeMenu.addNode({ key: nodeKey, text: nodeText, martCategoryId: martCategoryId });
+				}
+				treeMenu.expand("0-000");
+			} else {
+				return;
+			}
+		} else {
+			return;
+		}
+
+	}
+
+	// 节点check后事件回调函数
+	function nodeCheck(node) {
+		unCheckedChildren(treeMenu, node);
+		nodeCheck_(node);
+
+	}
+
+	// 判断选择的子类的父类是否被选中，如果选中，则该子类不能被选择
+	function nodeCheck_(node) {
+		if(node.parent.isTop) {
+			return;
+		}
+		var nodeParent = node.parent;
+
+		if(nodeParent.checked) {
+			unCheckedChildren(treeMenu, nodeParent);
+			alert('"' + nodeParent.text + '"已被选中，故不能再选择该子分类！');
+		} else {
+			nodeCheck_(nodeParent);
+		}
+	}
+
+	// 将选中分类的子分类设置为未选中状态
+	function unCheckedChildren(menu, nodeP) {
+		var node = null, tdC = null;
+	    var urlImage = "url(\"" + menu.imgPath + "check0.gif\")";
+
+	    for (var i = 0; i < nodeP.keys.length; i++) {
+	        node = menu.nodes[nodeP.keys[i]];
+	        node.checked = 0;
+	        if (node.selfGenerated) {
+	            tdC = gId(menu.prefix + "tdC_" + node.key);
+	            tdC.style.backgroundImage = urlImage;
+	        }
+	        menu.checkChildren(node);
+	    }
+	}
+
+	// 设置授权书分类树
+	function setTree_Matr(authId) {
+		if(g.a.send("processType=g_mshare.auth.Auth&actionType=getMatrInfo", { "viewKey": "mart_category_chose", "authId": authId }, true)) {
+        	if(g.a.OK) {
+        		var c = g.a.cReturn;
+        		var checkedMatr = c.checkedMatr;
+        		frm._gCategory_name.value = "";
+        		for(var i = 0; i < checkedMatr.rowCount; i++) {
+        			var nodeKey = "0";
+        			var node_key = checkedMatr.rows[i].node_key.value;
+        			for(var j = 0; j < node_key.length / 3; j++) {
+						nodeKey += treeMenu.sd + node_key.substring(3 * j, 3 * j + 3);
+					}
+					// 将授权书分类展开
+					treeMenu.expand(nodeKey);
+					// 将选中的授权书分类标记显示
+					treeMenu.setNodeChecked(nodeKey);
+					// 授权书分类内容显示
+        			frm._gCategory_name.value = frm._gCategory_name.value + checkedMatr.rows[i].node_text.value + "、";
+        		}
+        	} else {
+        		return;
+        	}
+        } else {
+        	return;
+        }
+	}
+
+	// 保存授权书分类
+	function saveMaterialSort() {
+		var arr = treeMenu.getCheckedKeys();
+		var typeName = "";
+		var arrayId = [];
+		for(var i = 0; i < arr.length; i++) {
+			var node = treeMenu.nodes[arr[i]];
+			typeName = typeName + node.text + "、";
+			arrayId.push(node.martCategoryId);
+		}
+		$("#material-sort").modal('hide');
+		frm._gCategory_name.value = typeName;
+		return arrayId;
+	}
+
+	// 保存授权书信息
+	function saveAuthInfo() {
+		var authCompanyFrom = $("#_cAuth_company_from").val(); // 授权方名称
+		var authCompanyTo = $("#_cAuth_company_to").val(); // 被授权方名称
+		var authTitle = $("#_cAuth_title").val(); // 授权书标题
+        var authVersion = $("#_cAuth_version").val(); // 版本号
+        var authDate0 = $("#_cAuth_date0").val(); // 授权起始日期
+        authDate0 = dateTo(authDate0);
+		var authDate1 = $("#_cAuth_date1").val(); // 授权截至日期
+		authDate1 = dateTo(authDate1);
+		var docId = frm._cDoc_id.value; // 文档编号
+		var matrCategoryId = saveMaterialSort(); // 授权书分类
+
+		var jsonPara = {
+			authCompanyFrom: authCompanyFrom,
+            authCompanyTo: authCompanyTo,
+            authTitle: authTitle,
+			authVersion: authVersion,
+			authDate0: authDate0,
+			authDate1: authDate1,
+			docId: docId,
+			matrCategoryId: matrCategoryId,
+			viewKey: "mart_category"
+		};
+
+		if(vf.status.equals("addnew")) {
+			var authOrder = frm._cAuth_order.value;
+			jsonPara.authOrder = authOrder;
+			if (g.a.send("processType=g_mshare.auth.Auth&actionType=setAuth", jsonPara, true)) {
+				if (g.a.OK) {
+					var cReturn = g.a.cReturn;
+					var result = cReturn.msg;
+					if(result.equals("success")) {
+						var successMag = '授权书信息添加成功！';
+						$("#tip-content").html(successMag);
+						$(".alert").show().addClass('.alert-success').removeClass('.alert-warning');
+						setTimeout(function() {
+							$(".alert").hide();
+						}, 2000);
+
+						// 修改授权书信息后，重新更新内容
+						if (win.para.callback) {
+							win.para.callback();
+						}
+
+					} else {
+						var warningMag = '授权书信息添加失败！';
+						$("#tip-content").html(warningMag);
+						$(".alert").show().addClass('.alert-warning').removeClass('.alert-success');
+						setTimeout(function() {
+							$(".alert").hide();
+						}, 2000);
+					}
+					
+				} else {
+					return false;
+				}
+			}
+		} else if(vf.status.equals("view")) {
+			authId = frm._cAuth_id.value;
+			var companyId = frm._cCompany_id.value;
+			jsonPara.authVersion = parseInt(jsonPara.authVersion) + 1;
+			jsonPara.authId = authId;
+			jsonPara.companyId = companyId;
+			if (g.a.send("processType=g_mshare.auth.Auth&actionType=updateAuth", jsonPara, true)) {
+				if (g.a.OK) {
+					var cReturn = g.a.cReturn;
+					var result = cReturn.msg;
+					if(result.equals("success")) {
+						var successMag = '授权书信息更新成功！';
+						$("#tip-content").html(successMag);
+						$(".alert").show().addClass('.alert-success').removeClass('.alert-warning');
+						setTimeout(function() {
+							$(".alert").hide();
+						}, 2000);
+
+						// 修改授权书信息后，重新更新内容
+						if (win.para.callback) {
+							win.para.callback();
+						}
+
+					} else {
+						var warningMag = '授权书信息更新失败！';
+						$("#tip-content").html(warningMag);
+						$(".alert").show().addClass('.alert-warning').removeClass('.alert-success');
+						setTimeout(function() {
+							$(".alert").hide();
+						}, 2000);
+					}
+					
+				} else {
+					return false;
+				}
+			}
+		}
+
+	}
+
+	// 删除授权书信息
+	function delAuthInfo() {
+		if(confirm("是否要删除该条记录？")) {
+			if (g.a.send("processType=g_mshare.auth.Auth&actionType=delAuth", { "viewKey": "v_auth", "authId": frm._cAuth_id.value, "companyId": frm._cCompany_id.value }, true)) {
+				if (g.a.OK) {
+					var cReturn = g.a.cReturn;
+					var result = cReturn.msg;
+					if(result.equals("success")) {
+						var successMag = '授权书信息删除成功！';
+						$("#tip-content").html(successMag);
+						$(".alert").show().addClass('.alert-success').removeClass('.alert-warning');
+						setTimeout(function() {
+							$(".alert").hide();
+						}, 2000);
+
+						// 删除授权书信息后，重新更新内容
+						if (win.para.callback) {
+							win.para.callback();
+						}
+
+					} else {
+						var warningMag = '授权书信息删除失败！';
+						$("#tip-content").html(warningMag);
+						$(".alert").show().addClass('.alert-warning').removeClass('.alert-success');
+						setTimeout(function() {
+							$(".alert").hide();
+						}, 2000);
+					}
+					
+				} else {
+					return false;
+				}
+			}
+		} else {
+
+		}
+	}
+
+	// 日期格式处理
+	function dateTo(date) {
+		if(date !== "" && date !== undefined) {
+			if(date.indexOf("十一月") != -1) {
+				date = date.replace(/十一月/, '11');
+				return date;
+			} else if(date.indexOf("十二月") != -1) {
+				date = date.replace(/十二月/, '12');
+				return date;
+			} else if(date.indexOf("一月") != -1) {
+				date = date.replace(/一月/, '01');
+				return date;
+			} else if(date.indexOf("二月") != -1) {
+				date = date.replace(/二月/, '02');
+				return date;
+			} else if(date.indexOf("三月") != -1) {
+				date = date.replace(/三月/, '03');
+				return date;
+			} else if(date.indexOf("四月") != -1) {
+				date = date.replace(/四月/, '04');
+				return date;
+			} else if(date.indexOf("五月") != -1) {
+				date = date.replace(/五月/, '05');
+				return date;
+			} else if(date.indexOf("六月") != -1) {
+				date = date.replace(/六月/, '06');
+				return date;
+			} else if(date.indexOf("七月") != -1) {
+				date = date.replace(/七月/, '07');
+				return date;
+			} else if(date.indexOf("八月") != -1) {
+				date = date.replace(/八月/, '08');
+				return date;
+			} else if(date.indexOf("九月") != -1) {
+				date = date.replace(/九月/, '09');
+				return date;
+			} else if(date.indexOf("十月") != -1) {
+				date = date.replace(/十月/, '10');
+				return date;
+			} else {
+				return date;
+			}
+		} else {
+			date = new Date();
+			return date;
+		}
+	}
+    
+</script>

@@ -1,0 +1,198 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>流程节点定义</title>
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+
+    <script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+</head>
+
+<body>
+    <div id="divDC"></div>
+    <form id="frm" action="" target="">
+        <table id="tbForm" class="tbForm" style="width:855px;">
+            <tr class="trH">
+                <th style="width:125px;"></th>
+                <th style="width:300px;"></th>
+                <th style="width:125px;"></th>
+                <th style="width:300px;"></th>
+            </tr>
+            <tr>
+                <td>节点标识</td>
+                <td><input id="_cFN_KEY" type="text" value="" /></td>
+                <td>序号</td>
+                <td><input id="_cFn_order" type="text" value="" /></td>
+            </tr>
+            <tr>
+                <td>节点名称</td>
+                <td><input id="_cFn_name" type="text" value="" /></td>
+                <td>显示选项</td>
+                <td><input id="_cFn_show_option" type="text" controlType="dropdown" fieldValue="a" fieldText="b" dataSource="[['a','b'],[1,'显示(无权限时SQL增加1=0)'],[0,'根据权限决定'],[-1,'禁用']]" visibleSearch="false" /></td>
+            </tr>
+            <tr>
+                <td>节点数据条件</td>
+                <td colspan="3"><textarea id="_cFn_filter" rows="4" cols="0"></textarea></td>
+            </tr>
+            <tr>
+                <td>节点控制</td>
+                <td colspan="2">
+                    <input type="checkbox" id="_cFn_allow_addnew" /><label for="_cFn_allow_addnew">允许添加</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" id="_cFn_allow_update" /><label for="_cFn_allow_update">允许修改</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" id="_cFn_allow_delete" /><label for="_cFn_allow_delete">允许删除</label>
+                </td>
+                <td><input id="_cFn_inactive" type="checkbox" /><label for="_cFn_inactive">暂停使用</label></td>
+            </tr>
+            <tr>
+                <td>权限用户组</td>
+                <td class="combo">
+                    <textarea id="_gGroup_keys" rows="5" cols="0" disabled="disabled"></textarea>
+                    <div class="fa fa-search" onclick="selectGroup();"></div>
+                </td>
+                <td>权限用户</td>
+                <td class="combo">
+                    <textarea id="_gUser_keys" rows="5" cols="0" disabled="disabled"></textarea>
+                    <div class="fa fa-search" onclick="selectUser();"></div>
+                </td>
+            </tr>
+            <tr>
+                <td>备注</td>
+                <td colspan="3"><textarea id="_cFn_Remark" rows="3" cols="0"></textarea></td>
+            </tr>
+            <tr>
+                <td>权限用户组X</td>
+                <td colspan="3"><input id="_cFn_groups" type="text" value="" disabled="disabled" /></td>
+            </tr>
+            <tr>
+                <td>权限用户X</td>
+                <td colspan="3"><input id="_cFn_users" type="text" value="" disabled="disabled" /></td>
+            </tr>
+        </table>
+        <input type="hidden" id="_cFLOW_KEY" value="" />
+    </form>
+</body>
+
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var frmParent = null;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        frmParent = win.parentWindow.frm;
+        vf.css(gId("tbForm"));
+    }
+</script>
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.beforeSave = function() {
+        // -- xTFS：判断是否已签出 ------------------------
+        if (g.a.send("processType=com.xtfs.XtfsCore&actionType=getMDataStatus", {
+                mdataType: "flow",
+                mdataKey: frm._cFLOW_KEY.value
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                if (!cReturn.newMData && !cReturn.myCheckout) {
+                    showWarn("主数据尚未签出，同步xTFS时修改会丢失，请谨慎操作。");
+                }
+            }
+        }
+        // ------------------------------------------------
+        return true;
+    }
+
+    vf.afterAddnew = function() {
+        frm._cFLOW_KEY.value = frmParent._cFLOW_KEY.value;
+        if (!vf.copyAdd) {
+            frm._cFn_groups.value = "";
+            frm._cFn_allow_addnew.checked = true;
+            frm._cFn_allow_update.checked = true;
+            frm._cFn_allow_delete.checked = true;
+            frm._cFn_show_option.value = "1";
+        }
+    }
+</script>
+
+<!-- acl -->
+<script type="text/javascript">
+    function selectGroup() {
+        var jsonProp = {
+            title: "请选择用户组...",
+            parent: win,
+            modal: true,
+            url: g.appPath + "project/xpas/html/flow/group_select.html"
+        }
+        var jsonPara = {
+            groupKeys: frm._gGroup_keys.value,
+            callback: onGroupSelect
+        };
+
+        topWin.openWindow(jsonProp, jsonPara);
+    }
+
+    function onGroupSelect(para) {
+        var flowKey = frm._cFLOW_KEY.value;
+        var fnKey = frm._cFN_KEY.value;
+        var groupKeys = para.groupKeys;
+
+        // ------------------------------------------------
+        if (g.a.send("processType=com.system.flow.FlowAcl&actionType=setFlowNodeGroup", {
+                flowKey: flowKey,
+                fnKey: fnKey,
+                groupKeys: groupKeys
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                frm._gGroup_keys.value = groupKeys;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function selectUser() {
+        var jsonProp = {
+            title: "请选择用户组...",
+            parent: win,
+            modal: true,
+            url: g.appPath + "project/xpas/html/flow/user_select.html"
+        }
+        var jsonPara = {
+            userKeys: frm._gUser_keys.value,
+            callback: onUserSelect
+        };
+
+        topWin.openWindow(jsonProp, jsonPara);
+    }
+
+    function onUserSelect(para) {
+        var flowKey = frm._cFLOW_KEY.value;
+        var fnKey = frm._cFN_KEY.value;
+        var userKeys = para.userKeys;
+
+        // ------------------------------------------------
+        if (g.a.send("processType=com.system.flow.FlowAcl&actionType=setFlowNodeUser", {
+                flowKey: flowKey,
+                fnKey: fnKey,
+                userKeys: userKeys
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                frm._gUser_keys.value = userKeys;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>

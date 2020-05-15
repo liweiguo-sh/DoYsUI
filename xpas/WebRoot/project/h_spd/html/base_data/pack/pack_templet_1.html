@@ -1,0 +1,362 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>耗材包模板定义</title>
+	<script src="../../../../../res/jscript/xwf.js?v=20200109"></script>
+	<script src="../../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../../res/jscript/xwf.const.js"></script>
+     
+	<script src="../../../../../res/control/uvform/xwf.uvform.js"></script>
+    <script src="../../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../../res/control/grid/xwf.gridview.js"></script>
+
+    <script src="../../../../../res_plugin/util/chinese_py.js"></script>
+	<script src="../../../../../res/jscript/xwf.css.js"></script>
+	<script src="../../../../../res_plugin/zui-1.8.1-dist/lib/jquery/jquery.js" type="text/javascript"></script>
+	<style type="text/css">
+		body {
+			overflow: hidden;
+		}
+		
+		#divGridDtl input {
+			border: 0px;
+		}
+	</style>
+</head>
+<body>
+	<div id="divDC" class="ScreenCenter"></div>
+	<form id="frm" action="" target="h_spd.base_data.pack.VIEW_PackTemplet_1">
+		<div class ="PanelA ScreenCenter" style="width:980px;display: none;" id="msgBox">
+		</div>
+		<div class ="PanelA ScreenCenter" style="width:980px;" >
+            <table id="tbForm" class="tbForm" style="width:100%;">
+			    <tr id="trH">
+				    <th style="width: 12%;"></th>
+	                <th style="width: 30%;"></th>
+	                <th style="width: 11%;"></th>
+	                <th style="width: 20%;"></th>
+					<th style="width: 11%;"></th>
+	                <th style="width: 16%;"></th>
+			    </tr>
+			    <tr>		
+					<td>耗材包名称</td>
+				    <td colspan="5"><input type="text" id="_cMaterial_name" onchange="onMatrNameChang();" /></td>
+			    </tr>
+			    <tr>		
+				    <td>GTIN</td>
+				    <td><input type="text" id="_cMaterial_GTIN" /></td>
+                    <td>助记码</td>
+				    <td colspan="3"><input type="text" id="_cMaterial_name_py" /></td>
+			    </tr>
+                <tr>		
+					<td>品规</td>
+				    <td><input type="text" id="_cMaterial_spec" /></td>
+                    <td>厂商：</td>
+                    <td colspan="3"><input id="_cManufacturer_id" type="text" controlType="dropdown" fieldValue="manufacturer_id" fieldText="manufacturer_name" fieldsSearch="manufacturer_name"  /></td>	
+			    </tr>
+                <tr id="trSP">
+                    <td>供应商</td>
+                    <td colspan="3"><input id="_cSp_id" type="text" controlType="dropdown" fieldValue="sp_id" fieldText="sp_name" fieldsSearch="sp_name,sp_shortname,sp_name_py" /></td>
+                    <td>唯一编码</td>
+				    <td><input type="checkbox"  id="_cUnique_code_status"/><label for="_cUnique_code_status">开启唯一编码</label></td>
+                </tr>
+                <tr>
+                    <td>备注</td>
+                    <td><input type="text" id="_cMaterial_remark" /></td>
+                    <td>单位</td>
+				    <td><input type="text" id="_cMaterial_unit" /></td>
+                    <td>金额</td>
+				    <td><input type="text" id="_gAmount" disabled="disabled" /></td>
+                </tr>
+		    </table>
+        </div>
+        <input type="hidden" id="_cMATERIAL_ID" />
+        <input type="hidden" id="_gPACK_ID" />
+        <input type="hidden" id="_xPack_type" />
+        <input type="hidden" id="_cBrand_name"/>
+        
+        <input type="hidden" id="_cManufacturer_name"/>
+        <input type="hidden" id="_cIs_omoc"/>
+    </form>
+    <div class ="PanelA ScreenCenter" style="width:980px;margin-top:5px;" >
+        <div id="divGridDtl" style="height:350px;"></div>
+    </div>    
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript"> 
+    var gridParent = null;
+    var nodeParent = null;
+
+    var packType = "";
+    var isDesignateSp = false;
+    var isSingleDtl = false;
+
+    var gvDtl = null,msgBox; 
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        gridParent = win.parentWindow.gridView; 
+        nodeParent = gridParent.tree.selectedNode;
+		msgBox=$("#msgBox");
+        if (nodeParent.Columns) {
+            isDesignateSp = (nodeParent.Columns["is_designate_sp"] == 1);
+            packType = nodeParent.Columns["pack_type"];
+            frm._xPack_type.value = packType;
+            if (packType.equals("SFQ")) { //单一物料定数包
+                isSingleDtl = true;
+            }
+        }
+        if (!isDesignateSp) {
+            gId("trSP").style.display = "none";
+            gId("_cSp_id").id = "";
+        }
+
+        vf.css(gId("tbForm"));
+    }
+</script>
+
+<!-- control.events -->
+<script type="text/javascript">
+   function onBrandSelect(para) {
+        var dataRow = para.dataRow;
+        frm._cBrand_name.value = dataRow["brand_name"].value;
+        frm._cManufacturer_id.value = dataRow["manufacturer_id"].value;
+        frm._cManufacturer_name.value = dataRow["manufacturer_name"].value;
+        return true;
+    }
+    function onMatrNameChang() {
+        var py = makePy(frm._cMaterial_name.value.trim());
+        if (py.length > 1) {
+            showMsg("请留意名称中的多音字并校正拼音码！");
+        }
+        frm._cMaterial_name_py.value = py[0].substring(0, 10);
+    }
+</script>
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.afterLoad = function () {
+        frm._cManufacturer_id.instance.rowClick = function (dataRow) {
+            frm._cManufacturer_name.value = dataRow.dataRow["manufacturer_name"].value;
+            return true;
+        };
+        
+        if(isSingleDtl && "addnew".equals(vf.status)){
+        	 msgBox.html("耗材包类型:"+nodeParent.Columns["node_text"]+"").show();
+	         gId("_cManufacturer_id").setEnabled(false);
+	         
+	         $("#_cManufacturer_id").css("background-color","#ebebe4")
+	         $("#_cMaterial_name,#_cMaterial_GTIN,#_cMaterial_name_py,#_cMaterial_spec,#_cMaterial_unit").prop("disabled",true);
+             msgBox.append("<br/>耗材包名称自动获取,格式【耗材名称+规格+定数包+包内耗材数量+标】");
+             msgBox.append("<br/>如果该格式长度超过50字符，则耗材包名称只保留左侧剩余长度字符");
+        }
+        
+    }
+
+    vf.beforeAddnew = function () { 
+        if (packType.equals("")) {
+            showErr("请先选择左侧包类型。");
+            return false;
+        }        
+        return true;
+    }
+    vf.afterAddnew = function () {
+        frm._xPack_type.value = packType;   
+        frm._cIs_omoc.value = "1";
+        frm._cMaterial_unit.value = "包";
+    }
+
+    vf.beforeSave = function () {
+        if (packType.equals("")) { 
+            return false;
+        }
+        return true;
+    }
+
+    vf.afterMove = function () {
+        var packId = frm._gPACK_ID.value.toInt();
+        if (gvDtl == null) {
+            var prop = {
+                divContainer: gId("divGridDtl"),
+                toolbarVisible: true,
+                viewKey: "pack_templet_dtl",
+                viewFilter: "t.pack_templet_id = " + packId,
+                cellBlur: cellBlur,
+                afterDelete: function (para) {//行删除后执行 
+                    if (isSingleDtl)  vf.fillForm(null,true);
+
+                },
+                jsonToolbar: { height: "M", onclick: onToolbarClick }
+            };
+            gvDtl = new window.xwf_gridview(prop);
+            gvDtl.toolbar.addBar({ type: "button", key: "addMatr", text: "<i class='fa fa-plus'></i>添加包内耗材", align: "left", style: "Grid", icon: null });
+        }
+        else {
+            gvDtl.setViewFilter("t.pack_templet_id = " + packId);
+        }
+    }
+    
+    vf.fillForm=function(matrNewNum,isAfterDelete){
+    	var mname="",manufacturer_id=0,manufacturer_name="";
+    	if(gvDtl.dtbViewData.rowCount  == 1 && !isAfterDelete){
+    		var dataRow=gvDtl.dtbViewData.rows[0];
+	    	//mname+=dataRow.material_name.value;
+	    	
+	    	
+	    	mname+=dataRow.material_spec.value;
+	    	mname+="定数包";
+	    	if(matrNewNum){
+		    	mname+=matrNewNum;
+	    	}else{
+		    	mname+=dataRow.material_qty?dataRow.material_qty.value:1;
+	    	}
+	    	mname+="标";
+	    	
+	    	
+	    	//长度超过100，则品名只保留有效长度位数
+	    	var chineseRegex = /[^\x00-\xff]/g;
+	    	var strlen=mname.replace(chineseRegex, "**").length;
+	    	var strlenAppend=dataRow.material_name.value.replace(chineseRegex, "**").length;
+	    	if(strlen+strlenAppend >50){
+	    		mname=g.x.subStr(dataRow.material_name.value,50-strlen,false)+mname;
+	    	}else{
+	    		mname=dataRow.material_name.value+mname;
+	    	}
+	    	
+	    	manufacturer_id=dataRow.manufacturer_id?dataRow.manufacturer_id.value:0;
+	    	gId("_cManufacturer_id").setValue(manufacturer_id);
+    	} 
+    	
+    	//去掉一些特殊字符
+    	mname=mname.replace(/<p>/g,"");
+    	mname=mname.replace(/"/g,"");
+    	mname=mname.replace(/'/g,"");
+    	mname=mname.replace(/\s+/g,"");
+    	
+    	//只保留字母和数字
+    	
+    	$("#_cMaterial_name").val(mname);
+    	
+    	onMatrNameChang();
+    	vf.save();
+         gId("_cManufacturer_id").setEnabled(true);
+         $("#_cMaterial_name,#_cMaterial_GTIN,#_cMaterial_name_py,#_cMaterial_spec,#_cMaterial_unit").prop("disabled",false);
+    }
+    
+</script>
+
+<!-- 耗材添加 -->
+<script type="text/javascript">
+    function onToolbarClick(para) {
+        var viewFilter = "material_ptype = 0";
+        // ------------------------------------------------
+        if (para.key.equals("addMatr")) {
+            if (vf.status.equals("addnew")) {
+                if (!vf.save()) {
+                    return false;
+                }
+            }
+            if (isSingleDtl) {
+                if (gvDtl.dtbViewData.rowCount > 0) {
+                    showWarn("当前耗材包只允许定义一种耗材明细, 请先删除已定义的明细记录。");
+                    return false;
+                }
+                viewFilter += " AND is_omoc = 0";
+            }
+            if (isDesignateSp) {
+                viewFilter += " AND m.sp_id = " + gId("_cSp_id").underValue;
+            }
+
+            var prop = {
+                title: "请选择耗材...",
+                width: 1000,
+                height: 0.8,
+                parent: win
+            };
+            var para = {
+                viewKey: "matr_select_for_pack",
+                viewMode: (isSingleDtl ? "singleSelect" : "multiSelect"),
+                viewFilter: viewFilter,
+                selectCallback: callbackAddMatr
+            };
+            topWin.openSelectView(prop, para);
+        }
+        else {
+            showErr("unknown button " + para.key);
+        }
+    }
+    function callbackAddMatr(para) {
+        var packId = frm._gPACK_ID.value.toInt();
+
+        var dataRow = null;
+        var arrDataRow = null;        
+        var arrMartId = new Array();
+
+        var materialIds = "";
+        // ------------------------------------------------
+        if (isSingleDtl) {
+            dataRow = para;
+            arrMartId.push(dataRow["material_id"].value);
+        }
+        else {
+            arrDataRow = para;
+            for (var i = 0; i < arrDataRow.length; i++) {
+                arrMartId.push(arrDataRow[i]["material_id"].value);
+            }
+        }
+
+        materialIds = arrMartId.join(",");
+        if (g.a.send("processType=h_spd.base_data.pack.PackTempletDtl&actionType=addMatr", { packTempletId: packId, materialIds: materialIds }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                gvDtl.refresh();
+                vf.refreshRecord();
+                
+                 if (isSingleDtl) {
+		            vf.fillForm();
+		        }
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function cellBlur(para) {
+        var dataRow = para.drRow;
+
+        var packTempletId = dataRow["pack_templet_id"].value;
+        var packTempletDtlId = dataRow["pack_templet_dtl_id"].value;
+        var newValue = para.newValue;
+
+        if (para.newValue == para.oldValue) {
+            return true;
+        }
+        if (newValue <= 0) {
+            showErr("请输入正确的数字。")
+            return false;
+        }
+        
+        
+        
+        if (g.a.send("processType=h_spd.base_data.pack.PackTempletDtl&actionType=updateMatrQty", { packTempletId: packTempletId, packTempletDtlId: packTempletDtlId, materialQty: newValue }, true)) {
+            if (g.a.OK) {
+                vf.refreshRecord();
+		       	if(isSingleDtl){
+		       		vf.fillForm(newValue);
+		      	 }
+                return true;
+            }
+            else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>

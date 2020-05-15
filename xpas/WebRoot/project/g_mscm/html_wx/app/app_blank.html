@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>App扫码登录页面</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+
+	<script src="../../../../res_plugin/app/WebView.js"></script>
+    <script src="../../../../res/jscript_mobile/xmf.sqlite.js"></script>
+	<script src="../../../../res/jscript_mobile/xmf.app.js"></script>
+	<style type="text/css">
+		body {
+			margin: 100px 10px 0px 10px;
+		}
+
+		#tbMain {
+			width: 100%;
+			table-layout: fixed;
+			border-collapse: collapse;		
+		}
+		#tbMain td {
+			padding: 0px;
+			overflow: hidden;
+			vertical-align: middle;
+			border: solid 0px gray;
+		}
+
+		#tdUrl {
+			text-align: left;
+		}
+		#txtUrl {
+			width: 98%;
+			font-family: 微软雅黑;
+			border: solid 1px Green;
+		}
+
+		#tdScan {
+			 background-image: url('../../../xpas/images/app/scan.png');
+			 background-position: center center;
+			 background-repeat: no-repeat;
+		}
+
+		#tdLoadUrl {
+			text-align: right;
+			height: 100px;
+		}
+		#btnLoadUrl {
+			font-size: 12pt;
+			line-height: 36px;
+			background-color: #e8ebf2;
+			border: solid 1px Green;
+			padding-right: 5px;
+			width: 120px;
+			height: 36px;
+			border-radius: 3px;
+		}
+	</style>
+</head>
+<body onload="formLoad();">
+	<div id="divLayout" style="display:none;">
+		<table id="tbMain">
+			<tr>
+				<td style="width:85%;"></td>
+				<td style="width:15%;"></td>
+			</tr>
+			<tr>
+				<td colspan="2" style="height:50px;">APP初次使用请扫码登录：</td>
+			</tr>
+			<tr>
+				<td id="tdUrl"><textarea id="txtUrl" rows="2" cols="0"></textarea></td>
+				<td id="tdScan" onclick="tdScan_click();"></td>
+			</tr>
+			<tr>
+				<td id="tdLoadUrl"><input type="button" id="btnLoadUrl" onclick="btnLoadUrl_click();" value="确认登录" /></td>
+				<td></td>
+			</tr>
+		</table>
+	</div>	
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var dbPath = "E:\\AndroidApp\\MSCM_RES\\AppSQLite\\";	// -- 用于PC端模拟调试 --
+	var appKey = "g_mscm"; 				                    // -- App标识, 本地SQLite数据库名称与appKey同名 --
+
+	var urlAppLogin = "";
+	var txtUrl = gId("txtUrl");
+	var divLayout = gId("divLayout");
+	// ------------------------------------------------------------------------
+	function formLoad() {	    
+	    if (!db.openDatabase(appKey, dbPath)) {	        
+	        showErr("打开本地SQLite数据库遇到意外错误，请重试。");
+	        return;
+	    }
+		// ------------------------------------------------
+        getUrlAppLogin();
+        txtUrl.value = urlAppLogin;
+        if (!checkLoginUrl()) {
+	        divLayout.style.display = "";
+			return;
+        }
+		// ------------------------------------------------
+        loadLoginUrl();
+	}
+
+	function tdScan_click() {
+		getUrlByScan();
+	}
+    function btnLoadUrl_click() {
+        if (!checkLoginUrl()) return;
+        if (!updateUrlAppLogin()) return;
+
+        loadLoginUrl();
+	}
+
+	function getUrlAppLogin() {
+		var nResult = 0;
+		var sql = "";
+		// ------------------------------------------------
+		nResult = db.getInt("SELECT COUNT(*) num1 FROM sqlite_master WHERE type = 'table' AND name = 'T_APP_BLANK'");
+		if (nResult == 0) {
+			// -- 表 T_APP_BLANK 不存在 --
+			sql = "CREATE TABLE T_APP_BLANK (app_blank_key VARCHAR(255), app_blank_value VARCHAR(255))";
+			nResult = db.execSQL(sql);
+		}
+
+		sql = "SELECT * FROM T_APP_BLANK WHERE app_blank_key = 'url_app_login'";
+		dtb = db.getDataTable(sql);
+		if (dtb.rowCount == 0) {
+			sql = "INSERT INTO T_APP_BLANK (app_blank_key, app_blank_value) VALUES ('url_app_login', '')";
+			nResult = db.execSQL(sql);
+		}
+		else {
+			urlAppLogin = dtb.rows[0]["app_blank_value"].value;
+		}
+    }
+    function checkLoginUrl() {
+        txtUrl.value = txtUrl.value.trim();
+        urlAppLogin = txtUrl.value.trim();
+        if (urlAppLogin.length < 30 || urlAppLogin.indexOf("[app_login]") != 0) {
+            if (urlAppLogin.length > 0) {
+                showWarn("网址不正确，请从系统登录页面重新扫码。");
+            }
+            return false;
+        }
+        return true;
+    }
+    function updateUrlAppLogin() {
+        var nResult = 0;
+        var sql = "";
+        // ------------------------------------------------
+        try {
+            sql = "UPDATE T_APP_BLANK SET app_blank_value = '" + urlAppLogin + "' WHERE app_blank_key = 'url_app_login'";
+            nResult = db.execSQL(sql);
+        }
+        catch (e) {
+            showErr(e.toString());
+            return false;
+        }
+        return true;
+    }
+    
+    function loadLoginUrl() {
+        var url = urlAppLogin;
+
+
+        url = urlAppLogin.substring(11) + (url.indexOf("?") > 0 ? "&" : "?") + "rnd=" + Math.random();
+        App.loadUrl(url);
+    }
+</script>
+
+<!-- 扫码登录 -->
+<script type="text/javascript">
+	function getUrlByScan() {
+		try {
+			App.scanBarcode(scanCallback);
+		}
+		catch (e) {
+			alert(e.toString());
+		}
+	}
+	function scanCallback(barcode) {
+		txtUrl.value = barcode;
+		urlAppLogin = barcode;
+	}
+</script>

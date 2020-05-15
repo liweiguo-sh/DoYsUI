@@ -1,0 +1,972 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>科室配送单</title>
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/lib/jquery/jquery.js"></script>
+    <script src="../../../../res/jscript/web_print.js"></script>
+    <style type="text/css">
+        .tbLayout {
+            border-collapse: collapse;
+        }
+        
+        .tdLayout {
+            padding: 0px;
+            overflow: hidden;
+            vertical-align: top;
+        }
+        
+        .divTip {
+            font-size: 14pt;
+            padding: 8px 0px 8px 5px;
+            background-color: #d0d0d0;
+            width: 486px;
+            margin-bottom: 8px;
+            border-radius: 4px 4px 0px 0px;
+        }
+        
+        .btnCommand {
+            border: 0px;
+            height: 36px;
+            background-color: #3280FA;
+            color: white;
+            border-radius: 4px;
+        }
+        
+        .btnCommand:hover {
+            color: yellow;
+        }
+        
+        .btnCommand:disabled {
+            color: gray;
+        }
+        
+        .cellZeroStock {
+            color: red;
+        }
+        
+        #txtScan {
+            ime-mode: disabled;
+            border: solid 2px blue;
+            color: red;
+            height: 32px;
+            line-height: 32px;
+        }
+        
+        #divGrid input[type='text'] {
+            border: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="divDC"></div>
+    <table class="tbLayout">
+        <tr>
+            <td id="tdLayoutLeft" class="tdLayout">
+                <div class="divTip">配送单信息</div>
+                <form id="frm" action="" target="h_spd.op.VIEW_thdDist">
+                    <table id="tbForm" class="tbForm" style="width:505px;">
+                        <tr class="trH">
+                            <th style="width:100px;"></th>
+                            <th style="width:150px;"></th>
+                            <th style="width:100px;"></th>
+                            <th style="width:150px;"></th>
+                        </tr>
+                        <tr>
+                            <td>配送单号</td>
+                            <td><input type="text" id="_cDist_key" value="" disabled="disabled" /></td>
+                            <td>金额</td>
+                            <td><input type="text" id="_cAmount" value="" disabled="disabled" /></td>
+                        </tr>
+                        <tr>
+                            <td>创建日期</td>
+                            <td><input type="text" id="_ccdate" disabled="disabled" /></td>
+                            <td>配送日期</td>
+                            <td><input type="text" id="_cDist_date" class="Wdate" onclick="WdatePicker()" /></td>
+
+                        </tr>
+                        <tr id="trDept">
+                            <td>配送至科室</td>
+                            <td colspan="1"><input id="_cDept_id" type="text" controltype="dropdown" fieldvalue="dept_id" fieldtext="dept_name" fieldssearch="dept_name" /></td>
+                            <td>出库仓库</td>
+                            <td><input type="text" id="_cStorage_name" value="" disabled="disabled" /></td>
+                        </tr>
+                        <tr id="trStorageTo">
+                            <td>配送至库存地</td>
+                            <td colspan="3"><input id="_cStorage_id_to" type="text" controltype="dropdown" fieldvalue="storage_id" fieldtext="storage_name" fieldssearch="storage_name" /></td>
+                        </tr>
+                        <tr>
+                            <td>拣货人</td>
+                            <td><input type="text" id="_cPick_user" value="" controltype="dropdown" fieldvalue="staff_name" fieldtext="staff_name" fieldssearch="staff_name" /></td>
+                            <td>配送人</td>
+                            <td><input type="text" id="_cDeliver_user" value="" controltype="dropdown" fieldvalue="staff_name" fieldtext="staff_name" fieldssearch="staff_name" /></td>
+                        </tr>
+                        <tr>
+                            <td>保管员</td>
+                            <td><input type="text" id="_xUsername" class="username" value="" disabled /></td>
+                        </tr>
+                        <tr>
+                            <td>备注</td>
+                            <td colspan="3"><textarea id="_cRemark" rows="3" cols="0"></textarea></td>
+                        </tr>
+                    </table>
+                    <input id="_cDIST_ID" type="hidden" value="" />
+                    <input id="_cAStatus" type="hidden" value="" />
+
+                    <input id="_cDist_type" type="hidden" value="" />
+                    <input id="_cStorage_id" type="hidden" value="" />
+                    <input id="_cauditor" type="hidden" value="" />
+                    <input id="_cDept_name" type="hidden" value="" />
+                    <input id="_cStorage_name_to" type="hidden" value="" />
+                    <input id="_cReceive_user" type="hidden" value="" />
+                    <input id="_cPick_date_from" type="hidden" value="" />
+                    <input id="_cPick_date_to" type="hidden" value="" />
+                    <input id="_cDeliver_date_from" type="hidden" value="" />
+                    <input id="_cDeliver_date_to" type="hidden" value="" />
+                </form>
+                <div id="div2" class="divTip" style="margin-top:20px;">商品信息</div>
+                <table id="tbForm2" class="tbForm" style="width:505px;">
+                    <tr class="trH">
+                        <th style="width:100px;"></th>
+                        <th style="width:150px;"></th>
+                        <th style="width:100px;"></th>
+                        <th style="width:150px;"></th>
+                    </tr>
+                    <tr>
+                        <td>品名</td>
+                        <td colspan="3">
+                            <input id="_fMatr_name" type="text" controlType="dropdown" disabled="disabled" fieldValue="stock_id" fieldText="material_name" fieldsVisible="material_name, material_spec, qty_stock, price, lot, manufacturer_name" fieldsSearch="material_name, material_name_py, material_spec,lot"
+                                widthPanel="1200" thNames="序号, 品名, 品规, 库存, 单价, 批次, 厂商" thWidths="40px,350px,250px,60px,60px,100px,250px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>品规</td>
+                        <td colspan="3"><input type="text" id="_fMatr_spec" disabled="disabled" /></td>
+                    </tr>
+                    <tr>
+                        <td>包装单位</td>
+                        <td><input type="text" id="_fPackage_unit" /></td>
+                        <td>包装数量</td>
+                        <td><input type="text" id="_fPackage_qty" value="" onblur="_fPackage_qty_onblur();" /></td>
+                    </tr>
+                    <tr>
+                        <td>单价</td>
+                        <td><input type="text" id="_fMatr_price" disabled="disabled" /></td>
+                        <td>数量</td>
+                        <td><input type="text" id="_fMatr_qty" disabled="disabled" /></td>
+                    </tr>
+                    <tr>
+                        <td>备注</td>
+                        <td colspan="3"><textarea id="_fRemark" rows="2" cols="0"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <input type="button" id="btnAddDtl" class="btnCommand" onclick="btnAddDtl_click();" value="添加到明细" />
+                        </td>
+                    </tr>
+                </table>
+                <table id="tbFormScan" class="tbForm" style="width:505px;">
+                    <tr class="trH">
+                        <th style="width:100px;"></th>
+                        <th style="width:150px;"></th>
+                        <th style="width:100px;"></th>
+                        <th style="width:150px;"></th>
+                    </tr>
+                    <tr id="trScan">
+                        <td colspan="4">
+                            <input type="text" id="txtScan" placeholder="请扫描 RFID 或 SN ..." />
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+            <td id="tdLayoutRight" class="tdLayout">
+                <div class="PanelA">
+                    <div id="divGrid"></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var astatusNav = 0;
+    var distType = urlPara["dist_type"];
+
+    var viewKey = "thd_dist";
+    var viewKeyDtl = "thd_dist_dtl";
+
+    var txtScan = gId("txtScan");
+    var txtMatr = gId("_fMatr_name");
+    var txtPackageQty = gId("_fPackage_qty");
+    var divGrid = gId("divGrid");
+
+    var nodeNav = null;
+    var gridview = null;
+    var dataRowStock = null,
+        dataRowUnit = null; // -- 当前选中的库存明细记录行，当前选中的包装记录行 --
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        if (topWin.serverName == 'SDwuhan6') { // 加载所在项目所需的js
+            var vScript = document.createElement('script');
+            vScript.src = '../../../g_spd/js/wuhan_print.js';
+            document.getElementsByTagName('head')[0].appendChild(vScript);
+        } else if (topWin.serverName == 'SPD_BJTT') {
+            var vScript = document.createElement('script');
+            vScript.src = '../../../g_spd/js/bjtt_print.js';
+            document.getElementsByTagName('head')[0].appendChild(vScript);
+        }
+
+        frm._xUsername.value = topWin.userName;
+        if (win.parentWindow && win.parentWindow.gridView) {
+            var gvParent = win.parentWindow.gridView;
+            if (gvParent.viewKey.equals("thd_dist")) { // -- 标准入口 --
+                nodeNav = gvParent.tree.selectedNode;
+                astatusNav = (nodeNav.level > 1 ? nodeNav.value : 0);
+            } else if (gvParent.viewKey.equals("thd_dist_receive_wo") || gvParent.viewKey.equals("thd_dist_receive_ws")) { // -- 科室收货入口 --
+                nodeNav = gvParent.tree.selectedNode;
+                astatusNav = (nodeNav.level > 1 ? nodeNav.value : 0);
+            }
+        }
+        if (!distType) {
+            distType = win.para["distType"];
+        }
+        if (distType.equals("WO")) distType = "DEPT_DIST";
+        if (distType.equals("WS")) distType = "STORAGE_DIST";
+
+
+        gId("trDept").style.display = (distType.equals("DEPT_DIST") ? "" : "none");
+        gId("trStorageTo").style.display = (distType.equals("STORAGE_DIST") ? "" : "none");
+
+        formResize();
+        vf.css(gId("tbForm"));
+        vf.css(gId("tbForm2"));
+        vf.css(gId("tbFormScan"));
+        vf.addExtraButton({
+            key: "printDistDtl",
+            text: "打印配送单明细",
+            title: "按照右侧网格显示数据进行打印"
+        });
+        vf.addExtraButton({
+            key: "printDistSum",
+            text: "打印配送单汇总",
+            title: "将同一耗材合并起来进行打印"
+        });
+        vf.addExtraButton({
+            key: "electricPick",
+            text: "电子标签拣货",
+            title: ""
+        });
+
+        g.x.bindEnterEvent(txtPackageQty, function() {
+            btnAddDtl_click();
+        });
+        if (distType.equals("STORAGE_DIST")) {
+            gId("div2").innerHTML = "扫码区";
+            gId("tbForm2").style.display = "none";
+            gId("tbFormScan").style.display = "";
+            txtScan.focus();
+
+            g.x.bindEnterEvent(txtScan, function() {
+                txtScan_onEnter();
+            });
+        } else {
+            gId("tbForm2").style.display = "";
+            gId("tbFormScan").style.display = "none";
+
+            initData();
+        }
+        initGridView();
+    }
+
+    function formResize() {
+        var widthRight = win.p.width - gId("tbForm").offsetWidth - 50;
+
+        divGrid.style.width = widthRight + "px";
+        divGrid.style.height = (win.p.height - 80) + "px";
+    }
+</script>
+<!-- 初始化 -->
+<script type="text/javascript">
+    function initData() {
+        var allowAddDtl = (astatusNav == 0 || astatusNav == 2 || astatusNav == 3 || astatusNav == 4);
+
+        if (!allowAddDtl) {
+            gId("tdLayoutLeft").disabled = "disabled";
+            gId("btnAddDtl").disabled = "disabled";
+            return;
+        }
+        if (g.a.send("processType=h_spd.op.VIEW_thdDist&actionType=getViewInitData", {
+                viewKey: viewKey,
+                distType: distType
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbStock = cReturn.dtbStock;
+
+                var jsonProp = {
+                    txtHost: txtMatr,
+                    dtbSource: dtbStock,
+                    visibleSN: true,
+                    rowClick: onRowClick_stock
+                };
+                txtMatr.dropdown = new window.xwf_dropdown(jsonProp);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function onRowClick_stock(para) {
+        dataRowStock = para.dataRow;
+        var stockId = dataRowStock["stock_id"].value;
+        var materialUnit = dataRowStock["material_unit"].value;
+
+        if (stockId == 0) {
+            showWarn("库存数量为0，当前商品不能申领，请与仓库管理员联系。");
+            return false;
+        }
+
+        gId("_fMatr_price").value = dataRowStock["price"].value;
+        gId("_fMatr_spec").value = dataRowStock["material_spec"].value;
+        gId("_fPackage_qty").value = "1";
+        gId("_fPackage_qty").select();
+        gId("_fPackage_qty").focus();
+
+        var pkgUnitX = "";
+        var pkgQtyX = 0;
+
+        var dtbSource = new window.xwf_datatable();
+        dtbSource.addColumn({
+            name: "package",
+            dataType: "varchar",
+            columnType: "string"
+        });
+        dtbSource.addColumn({
+            name: "unit",
+            dataType: "varchar",
+            columnType: "string"
+        });
+        dtbSource.addColumn({
+            name: "rate",
+            dataType: "int",
+            columnType: "number"
+        });
+
+        for (var i = 3; i > 0; i--) {
+            pkgUnitX = dataRowStock["material_package" + i + "_unit"].value;
+            pkgQtyX = dataRowStock["material_package" + i + "_qty"].value;
+            if (!pkgUnitX.equals("") && pkgQtyX > 0) {
+                dtbSource.addRow();
+                dtbSource.rows[dtbSource.rowCount - 1]["package"].value = pkgUnitX + "（" + pkgQtyX + " " + materialUnit + "）";
+                dtbSource.rows[dtbSource.rowCount - 1]["unit"].value = pkgUnitX;
+                dtbSource.rows[dtbSource.rowCount - 1]["rate"].value = pkgQtyX;
+            }
+        }
+        dtbSource.addRow();
+        dtbSource.rows[dtbSource.rowCount - 1]["package"].value = materialUnit;
+        dtbSource.rows[dtbSource.rowCount - 1]["unit"].value = materialUnit;
+        dtbSource.rows[dtbSource.rowCount - 1]["rate"].value = 1;
+
+        var jsonProp = {
+            txtHost: gId("_fPackage_unit"),
+            dtbSource: dtbSource,
+            visibleSN: false,
+            fieldValue: "unit",
+            fieldText: "package",
+            fieldsVisible: "package",
+            pageMaxRows: 5,
+            rowClick: function(para) {
+                return calQty();
+            }
+        };
+        gId("_fPackage_unit").dropdown = new window.xwf_dropdown(jsonProp);
+        gId("_fPackage_unit").setValue(dtbSource.rows[0]["unit"].value);
+        return true;
+    }
+
+    function _fPackage_qty_onblur() {
+        calQty();
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.afterAddnew = function() {
+        frm._cAStatus.value = "0";
+        frm._xUsername.value = topWin.userName;
+        frm._cDist_date.value = (new Date).toString();
+
+        frm._cDist_type.value = distType;
+        frm._cStorage_id.value = topWin.stationStorageId;
+        frm._cStorage_name.value = topWin.stationStorageName;
+    }
+    vf.beforeSave = function() {
+        if (frm._cStorage_id.value.toInt() == 0) {
+            showWarn("请先配置当前工位库存地.");
+            return false;
+        }
+        if (distType.equals("DEPT_DIST")) {
+            if (frm._cDept_id.underValue == 0) {
+                showWarn("请选择科室。");
+                frm._cDept_id.focus();
+                return false;
+            }
+            frm._cDept_name.value = frm._cDept_id.value;
+        } else if (distType.equals("STORAGE_DIST")) {
+            if (frm._cStorage_id_to.underValue == 0) {
+                showWarn("请选择配送至库存地。");
+                frm._cStorage_id_to.focus();
+                return false;
+            }
+            frm._cStorage_name_to.value = frm._cStorage_id_to.value;
+        } else {}
+        return true;
+    }
+
+    vf.afterMove = function() {
+        var distId = frm._cDIST_ID.value.toInt();
+        var astatus = frm._cAStatus.value.toInt();
+
+        if (astatus == 0 || astatus == 2) {
+            gId("btnAddDtl").style.display = "";
+        } else {
+            gId("btnAddDtl").style.display = "none";
+        }
+
+        gridview.setViewFilter("dist_id = " + distId);
+
+        //根据设置是否需要显示电子标签拣货
+        needElectricPick();
+    }
+
+    vf.beforeFlowClick = function(para) {
+        if (gridview.dtbViewData.rowCount == 0) {
+            showWarn("请先录入配送单明细。");
+            return false;
+        }
+        return true;
+    }
+
+    vf.beforeClick = function(para) {
+        var btnKey = para.buttonKey;
+
+        if (btnKey.indexOf("printDist") >= 0 || btnKey == "electricPick") {
+            printBill(btnKey);
+        }
+        return false;
+    }
+
+    vf.afterSetStatus = function() {
+        //根据设置是否需要显示电子标签拣货
+        needElectricPick();
+    }
+
+    function needElectricPick() {
+        if (g.a.send("processType=g_spd.base.UserDefine&actionType=getUserDefKey", {
+                groupKey: "TAPPLY_DIST",
+                udKey: 'electricPick'
+            }, true)) {
+            if (g.a.OK) {
+                var electricPickTag = g.a.cReturn.electricPickTag;
+                if (electricPickTag == 0) {
+                    vf.buttons["electricPick"].style.display = "none";
+                } else if (vf.status === "view") {
+                    if (g.a.send("processType=h_spd.op.VIEW_thdDist&actionType=needElectricPick", {
+                            dist_id: frm._cDIST_ID.value,
+                            viewkey: "wo_apply"
+                        }, true)) {
+                        if (g.a.OK) {
+                            var electricPickIng = g.a.cReturn.electricPickIng;
+                            if (electricPickIng == 1) {
+                                vf.buttons["electricPick"].style.display = "none";
+                            } else {
+                                vf.buttons["electricPick"].style.display = "block";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+</script>
+<!-- gridview -->
+<script type="text/javascript">
+    function initGridView() {
+        var allowModify = (astatusNav == 0 || astatusNav == 2 || astatusNav == 3 || astatusNav == 4);
+        if (topWin.serverName == 'SPD_BJTT') {
+            viewKeyDtl = 'thd_dist_dtl_bjtt';
+        } else {
+            viewKeyDtl = 'thd_dist_dtl';
+        }
+        var prop = {
+            divContainer: divGrid,
+            viewKey: viewKeyDtl,
+            viewFilter: "1 = 0",
+            rowFill: rowFill,
+            cellBlur: (allowModify ? cellBlur : null),
+            allowModify: allowModify,
+            allowDelete: allowModify,
+            afterDelete: gridRowAfterDelete
+        };
+        gridview = new window.xwf_gridview(prop);
+    }
+
+    function cellBlur(para) {
+        var dataRow = para.drRow;
+        var distDtlId = dataRow["dist_dtl_id"].value;
+        var distId = frm._cDIST_ID.value.toInt();
+        var jsonPara = {
+            viewKey: "thd_dist_dtl",
+            distDtlId: distDtlId,
+            distId: distId,
+            qtyNew: para.newValue
+        };
+        // ------------------------------------------------
+        if (para.newValue == para.oldValue) {
+            return true;
+        }
+        if (para.newValue <= 0) {
+            showErr("请输入正确的数字。")
+            return false;
+        }
+
+        if (g.a.send("processType=h_spd.op.VIEW_thdDistDtl&actionType=updateQtyByEdit", jsonPara, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var stockIdNew = cReturn.stockIdNew;
+                var amount = (dataRow["price"].value * para.newValue).toFixed(2);
+
+                gridview.setValue(gridview.recordRow, "stock_id", stockIdNew);
+                gridview.setValue(gridview.recordRow, "amount", amount);
+
+                vf.refreshRecord();
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function gridRowAfterDelete() {
+        vf.refreshRecord();
+    }
+
+    function rowFill(para) {
+        var dataRow = para.drRow;
+        var stockId = dataRow["stock_id"].value;
+
+        if (stockId == 0) {
+            dataRow["matr_name"].className = "cellZeroStock";
+        }
+    }
+</script>
+
+<!-- 申请处理 -->
+<script type="text/javascript">
+    function txtScan_onEnter() {
+        var distId = frm._cDIST_ID.value.toInt();
+        var rfid = txtScan.value.trim();
+
+        if (rfid.equals("")) return;
+        if (vf.status.equals("addnew")) {
+            if (!vf.save()) return;
+            distId = frm._cDIST_ID.value.toInt();
+        }
+
+        if (g.a.send("processType=h_spd.op.VIEW_thdDist&actionType=addDistDtlByScan", {
+                viewKey: viewKey,
+                distId: distId,
+                rfid: rfid
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                vf.refreshRecord();
+                gridview.refresh();
+                resetSelectArea();
+
+                txtScan.value = "";
+                txtScan.focus();
+            } else {
+                txtScan.select();
+                txtScan.focus();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function btnAddDtl_click() {
+        if (!calQty(true)) return;
+        if (vf.status.equals("addnew")) {
+            if (!vf.save()) return;
+        }
+
+        var distId = frm._cDIST_ID.value.toInt();
+        var stockId = dataRowStock["stock_id"].value;
+        var matrId = dataRowStock["material_id"].value;
+        var qty = gId("_fMatr_qty").value;
+        var remark = gId("_fRemark").value;
+
+        if (g.a.send("processType=h_spd.op.VIEW_thdDist&actionType=addDistDtlBySelect", {
+                viewKey: viewKey,
+                distId: distId,
+                stockId: stockId,
+                matrId: matrId,
+                qty: qty,
+                remark: remark
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                vf.refreshRecord();
+                gridview.refresh();
+                resetSelectArea();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function calQty(check) {
+        if (txtPackageQty.value.trim().equals("")) return false;
+        if (dataRowStock == null) {
+            showWarn("请先选择您要申领单商品。");
+            return false;
+        }
+        var qtyStock = dataRowStock["qty_stock"].value;
+        var qty = 0,
+            rate = 0;
+        var qtyPackage = gId("_fPackage_qty").value;
+
+        if (!g.x.isFloat2(gId("_fPackage_qty").value, 99999999)) {
+            showWarn("数量应该大于0并且小数位不超过2位并且不超过99999999。");
+            return false;
+        }
+
+        var ist = gId("_fPackage_unit").instance;
+
+        if (ist == null) {
+            return false;
+        }
+        dataRowUnit = ist.dataRow;
+        if (dataRowUnit == null) {
+            if (check) {
+                showWarn("请选择包装单位。");
+                gId("_fPackage_unit").focus();
+            }
+            return false;
+        }
+        rate = dataRowUnit["rate"].value;
+
+        if (qtyPackage <= 0) {
+            if (check) {
+                showWarn("请输入包装数量。");
+                gId("_fPackage_qty").select();
+                gId("_fPackage_qty").focus();
+            }
+            return false;
+        }
+        qty = qtyPackage * rate;
+        gId("_fMatr_qty").value = qty;
+
+        if (qty > qtyStock) {
+            if (check) {
+                showWarn("请领数量(" + qty + ")超过库存数量（" + qtyStock + "），请检查。");
+                gId("_fPackage_qty").select();
+                gId("_fPackage_qty").focus();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    function resetSelectArea() {
+        dataRowStock = null;
+
+        gId("_fMatr_name").value = "";
+        gId("_fMatr_spec").value = "";
+        gId("_fPackage_unit").value = "";
+        gId("_fPackage_qty").value = "";
+        gId("_fMatr_price").value = "";
+        gId("_fMatr_qty").value = "";
+        gId("_fRemark").value = "";
+    }
+</script>
+
+<!-- 单据打印 -->
+<script type="text/javascript">
+    function printBill(buttonKey) {
+        //网格显示数量放大
+        var viewFilter = gridview.viewFilter;
+        gridview.pageMaxRows = 99999;
+        gridview.setViewFilter(viewFilter);
+
+        var data;
+        var totalpriceAll = 0,
+            param = {},
+            dist_type_name = "配送单",
+            dist_type_name2 = "明细";
+        var nName = frm._cReceive_user.value
+        if (distType == "STORAGE_DIST") dist_type_name = "库存地配送移库";
+        if (distType == "DEPT_DIST") dist_type_name = "科室配送出库";
+        if (buttonKey == 'printDistSum') dist_type_name2 = "汇总";
+        if(topWin.serverName == "SDZL") nName = ""
+
+        var tostorage = frm._cStorage_name_to.value;
+        tostorage = frm._cDept_name.value + "（" + frm._cStorage_name_to.value + "）";
+       
+
+        param = {
+            title: dist_type_name + "(" + dist_type_name2 + ")" + "(" + frm._cDist_key.value + ")",
+            pageRowNum: 25, //每页数量
+            colNumThs: 3, //表头每行多少列，默认为4
+            colNumTfooters: 3, //表尾每行多少列，默认为4
+
+            form: {
+                ths: [{
+                    text: "出库仓库",
+                    value: frm._cStorage_name.value
+                }, {
+                    text: "配送日期",
+                    value: frm._cDist_date.value
+                }, {
+                    text: "入库仓库",
+                    value: tostorage
+                }, {
+                    text: "金额",
+                    value: frm._cAmount.value
+                }, {
+                    text: "备注",
+                    value: frm._cRemark.value
+                }, ],
+                tfooters: [{
+                    text: "库管员",
+                    value: nName
+                }, {
+                    text: "领用人",
+                    value: frm._cReceive_user.value
+                }, {
+                    text: "送货人",
+                    value: frm._cDeliver_user.value
+                }]
+            },
+            grid: null
+        };
+        if (buttonKey == 'printDistDtl') { //打印明细
+            data = gridview.dtbViewData;
+            if (topWin.serverName == 'SDwuhan6') {
+                wh_distprint(distType, param, data);
+                return;
+            } else if (topWin.serverName == 'SPD_BJTT') {
+                bjtt_distprint(distType, param, data);
+                return;
+            }
+            if (distType.equals("DEPT_DIST")) {
+                param.sumTableFun = function(jqPageTable) {
+                    var trRet = ["<tr>"];
+
+                    //合计标题列和空列
+                    trRet.push("<td>合计</td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+
+                    //合计数量
+                    var sumqty = 0;
+                    jqPageTable.find(".datarow").each(function() {
+                        var tr = $(this);
+                        var thqtyin = parseFloat(tr.children("td:eq(4)").text());
+                        if (!isNaN(thqtyin)) sumqty += thqtyin;
+                    });
+                    trRet.push("<td>" + sumqty.toFixed(2) + "</td>");
+                    //合计金额
+                    var sumamount = 0;
+                    jqPageTable.find(".datarow").each(function() {
+                        var tr = $(this);
+                        var thqtyin = parseFloat(tr.children("td:eq(5)").text());
+                        if (!isNaN(thqtyin)) sumamount += thqtyin;
+                    });
+                    trRet.push("<td>" + sumamount.toFixed(4) + "</td>");
+
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("</tr>");
+                    return trRet.join("");
+                };
+                param.grid = {
+                    ths: ["序号", "品名", "品规", "单位", "单价", "数量", "金额", '批次', '生产日期', '有效期', "厂商", "注册证号", "备注"],
+                    thwidths: ["40px", "auto", "200px", "80px", "80px", "80px", "80px", "80px", "80px", "80px", "180px", "120px"],
+                    thstyles: [null, null, null, null, null, null, null, null, null, null, null, "white-space:normal", null],
+                    tdstyles: [null, null, null, null, null, null, null, null, null, null, null, "white-space:normal", null],
+                    data: (function() {
+                        var arr = [],
+                            row;
+                        if (data && data.rowCount > 0) {
+                            for (var i in data.rows) {
+                                row = data.rows[i];
+                                var manufacture_date = row["mfg_date"].value ? row["mfg_date"].value.toDate().toString("yyyy-MM-dd") : "";
+                                var expired_date = row["exp_date"].value ? row["exp_date"].value.toDate().toString("yyyy-MM-dd") : "";
+                                arr.push([(parseInt(i) + 1), row["matr_name"].value, row["matr_spec"].value, row["matr_unit"].value, row["price"].value, row["qty"].value, row["amount"].value,
+                                    row["lot"].value, manufacture_date, expired_date,
+                                    row["mfg_name"].value, row["reg_no"].value, row["remark"].value
+                                ]);
+                            }
+                        }
+                        return arr;
+                    })()
+                };
+            } else {
+                param.sumTableFun = function(jqPageTable) {
+                    var trRet = ["<tr>"];
+
+                    //合计标题列和空列
+                    trRet.push("<td>合计</td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+
+                    //合计数量
+                    var sumqty = 0;
+                    jqPageTable.find(".datarow").each(function() {
+                        var tr = $(this);
+                        var thqtyin = parseFloat(tr.children("td:eq(4)").text());
+                        if (!isNaN(thqtyin)) sumqty += thqtyin;
+                    });
+                    trRet.push("<td>" + sumqty.toFixed(2) + "</td>");
+                    //合计金额
+                    var sumamount = 0;
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("<td></td>");
+                    trRet.push("</tr>");
+                    return trRet.join("");
+                };
+                param.grid = {
+                    ths: ["序号", "品名", "品规", "单位", "单价", "金额", '批次', '生产日期', '有效期', "厂商", "SN", "备注", "单包内耗材数量"],
+                    thwidths: ["40px", "auto", "200px", "80px", "80px", "80px", "80px", "80px", "80px", "180px", "180px", "120px", "50px"],
+                    data: (function() {
+                        var arr = [],
+                            row;
+                        if (data && data.rowCount > 0) {
+                            for (var i in data.rows) {
+                                row = data.rows[i];
+                                var manufacture_date = row["mfg_date"].value ? row["mfg_date"].value.toDate().toString("yyyy-MM-dd") : "";
+                                var expired_date = row["exp_date"].value ? row["exp_date"].value.toDate().toString("yyyy-MM-dd") : "";
+                                arr.push([(parseInt(i) + 1), row["matr_name"].value, row["matr_spec"].value, row["matr_unit"].value, row["price"].value, row["amount"].value, row["lot"].value, manufacture_date, expired_date, row["mfg_name"].value, row["sn_no"].value, row["remark"].value, row["material_qty"].value]);
+                            }
+                        }
+                        return arr;
+                    })()
+                };
+            }
+        } else if (buttonKey == 'printDistSum') { //配送单汇总
+            //获取该配送单按照耗材分组的数据列表
+            if (g.a.send("processType=h_spd.op.VIEW_thdDist&actionType=getDistDtlGBMatr", {
+                    viewKey: 'thd_dist_dtl',
+                    distId: frm._cDIST_ID.value
+                }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+                    data = cReturn.dtbDtlSum;
+                }
+            }
+            var qty_all = 0;
+            param.sumTableFun = function(jqPageTable) {
+                var trRet = ["<tr>"];
+
+                //合计标题列和空列
+                trRet.push("<td>合计</td>");	//1列
+                trRet.push("<td></td>");	//2列
+                trRet.push("<td></td>");	//3列
+                trRet.push("<td></td>");	//4列
+
+                //合计数量
+                var sumqty = 0;
+                jqPageTable.find(".datarow").each(function() {
+                    var tr = $(this);
+                    var thqtyin = parseFloat(tr.children("td:eq(4)").text());
+                    if (!isNaN(thqtyin)) sumqty += thqtyin;
+                });
+                trRet.push("<td>" + sumqty.toFixed(2) + "</td>");		//5列
+                //合计金额
+                var sumamount = 0;
+                jqPageTable.find(".datarow").each(function() {
+                    var tr = $(this);
+                    var thqtyin = parseFloat(tr.children("td:eq(5)").text());
+                    if (!isNaN(thqtyin)) sumamount += thqtyin;
+                });
+                trRet.push("<td>" + sumamount.toFixed(4) + "</td>");	//6列
+                trRet.push("<td></td>");			//7列
+                trRet.push("</tr>");
+                return trRet.join("");
+            };
+            param.grid = {
+                ths: ["序号", "品名", "品规", "单价", "数量", "金额", "单包内耗材数量"],
+                thwidths: ["40px", "auto", "200px", "80px", "80px", "80px", "50px"],
+                data: (function() {
+                    var arr = [],
+                        row;
+                    if (data && data.rowCount > 0) {
+                        for (var i in data.rows) {
+                            row = data.rows[i];
+                            if (row["material_qty"].value == null) {
+                                row["material_qty"].value = ' ';
+                            }
+                            qty_all += row["qty_sum"].value;
+                            arr.push([(parseInt(i) + 1), row["matr_name"].value, row["matr_spec"].value, row["price"].value, row["qty_sum"].value, row["amount_sum"].value, row["material_qty"].value]);
+                        }
+                    }
+                    return arr;
+                })()
+            };
+            param.form.ths.push({
+                text: "总数",
+                value: parseFloat(qty_all)
+            });
+        } else if (buttonKey == 'electricPick') {
+            if (!confirm("是否进行电子标签拣货?")) return false;
+            if (g.a.send("processType=h_spd.op.VIEW_thdDist&actionType=electricPick", {
+                    dist_id: frm._cDIST_ID.value.toInt(),
+                    viewkey: "wo_apply"
+                }, true)) {
+                if (g.a.OK) {
+                    vf.buttons["electricPick"].style.display = "none";
+                }
+            }
+        }
+        if (buttonKey !== 'electricPick') {
+            if (!data || data.rowCount < 1) {
+                alert("该配送单没有可打印的明细数据");
+                return;
+            }
+            WebPrint.goPrintFormModel(param);
+        }
+    }
+</script>

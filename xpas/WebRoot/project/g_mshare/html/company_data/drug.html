@@ -1,0 +1,389 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>药品维护</title>
+    <link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="../../../../res/control/upload/style3/xwf.upload.css" rel="stylesheet" type="text/css" />
+
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/tab/xwf.tab.js" type="text/javascript"></script>
+    <script src="../../../../res/control/tree/xwf.tree.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/upload/xwf.upload.js" type="text/javascript"></script>
+    <script src="../../../../res/control/upload/xwf.upload_core.js" type="text/javascript"></script>
+    <script src="../../js/doc_center.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+    <div id="divDC"></div>
+    <div id="divTab" class="xwf_tab_divContainer" style="width: 965px;">
+        <div id="divForm">
+            <form id="frm" action="" target="g_mshare.company_data.Matr">
+                <table id="tbForm" class="tbForm" style="width: 965px;">
+                    <tr class="trH">
+                        <th style="width: 120px;"></th>
+                        <th style="width: 200px;"></th>
+                        <th style="width: 120px;"></th>
+                        <th style="width: 200px;"></th>
+                        <th style="width: 120px;"></th>
+                        <th style="width: 200px;"></th>
+                    </tr>
+                    <tr>
+                        <td>品类</td>
+                        <td colspan="5" class="combo">
+						    <input type="text" id="_gCfname" disabled="disabled" />
+						    <div id="divStorageTo" class="fa fa-search" onclick="selectMatrCategory();"></div>
+					    </td>
+                    </tr>
+                    <tr>
+                        <td>品名</td>
+                        <td colspan="3"><input type="text" id="_cMatr_name" value="" /></td>
+                        <td>单位</td>
+                        <td><input type="text" id="_cMatr_unit" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td>品规</td>
+                        <td colspan="3"><input type="text" id="_cMatr_spec" value="" /></td>  
+                        <td>剂型</td>
+                        <td><input type="text" id="_cMatr_dosage" value="" /></td>                        
+                    </tr>
+                    <tr>
+                        <td>商品名</td>
+                        <td colspan="3"><input type="text" id="_cMatr_trade_name" value="" /></td>
+                        <!--
+                        <td>进口/国产</td>
+                        <td><input type="checkbox" id="_cIs_import" /><label for="_cIs_import">进口耗材</label></td>   
+                        -->
+                    </tr>                    
+                    <tr>
+                        <td>厂商</td>
+                        <td colspan="3"><input type="text" id="_cManufacturer_id" controltype="dropdown" fieldValue="manufacturer_id" fieldText="manufacturer_name" fieldsVisible="manufacturer_name" /></td>
+                        <!--
+                        <td>GTIN</td>
+                        <td><input type="text" id="_cMatr_gtin" value="" /></td>
+                        -->
+                    </tr>
+                    <tr>
+                        <td>生产许可证</td>
+                        <td colspan="3"><input type="text" id="_cProduction_licence" value="" /></td>
+                        <!--
+                        <td>HIBC</td>
+                        <td><input type="text" id="_cMatr_hibc" value="" /></td>  
+                        -->
+                    </tr>   
+                    <tr>
+                        <td>执行标准</td>
+                        <td><input type="text" id="_cExecutive_standard" value="" /></td>  
+                        <td>批准文号</td>
+                        <td><input type="text" id="_cApproval_no" value="" /></td>
+                        <td>内部代码</td>
+                        <td><input type="text" id="_cErp_code" value="" placeholder="供方内部代码" /></td>
+                    </tr>
+                    <tr>
+                        <td>注册证号</td>
+                        <td colspan="3"><input type="text" id="_cRegister_no" value="" /></td>
+                        <td>注册证效期</td>
+                        <td><input type="text" id="_cRegister_exp" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+                    </tr>
+                    <tr>
+                        <td>小包装单位</td>
+                        <td><input type="text" id="_cMatr_pkg1_unit" value="" /></td>  
+                        <td>小包装数量</td>
+                        <td><input type="text" id="_cMatr_pkg1_qty" value="" /></td>
+                        <td>默认配送单位</td>
+                        <td><input type="text" id="_cMatr_rep_unit" value=""  placeholder="" /></td>
+                    </tr>
+                    <tr>
+                        <td>中包装单位</td>
+                        <td><input type="text" id="_cMatr_pkg2_unit" value="" /></td>  
+                        <td>中包装数量</td>
+                        <td><input type="text" id="_cMatr_pkg2_qty" value="" /></td>
+                        <td>默认配送数量</td>
+                        <td><input type="text" id="_cMatr_rep_qty" value="" disabled="disabled" /></td>
+                    </tr>
+                    <tr>
+                        <td>大包装单位</td>
+                        <td><input type="text" id="_cMatr_pkg3_unit" value="" /></td>  
+                        <td>大包装数量</td>
+                        <td><input type="text" id="_cMatr_pkg3_qty" value="" /></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>备注</td>
+                        <td colspan="5"><textarea id="_cMatr_remark" rows="3" cols="0"></textarea></td>
+                    </tr>
+                </table>
+                <input id="_cMATR_ID" type="hidden" value="" />
+                <input id="_cCATEGORY_ID" type="hidden" value="" />
+                <input id="_cMatr_type" type="hidden" value="" />
+                <input id="_cDoc_id" type="hidden" value="" />
+                <input id="_cDoc_id_qua" type="hidden" value="" />
+            </form>
+        </div>
+        <div id="divGridB" style="display: none">
+            <div id="divQuaUpload" style="width: 100%; height: 430px; border: 0px solid green; overflow: auto;"></div>
+
+        </div>
+        <div id="divGridP" style="display: none">
+            <div id="divCertUpload" style="width: 100%; height: 430px; border: 0px solid green; overflow: auto;"></div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var treeParent = null;
+    var tabs = null;
+    var gridviewB = null;
+    var categoryId = 0;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        treeParent = win.parentWindow.tree;
+        categoryId = treeParent.selectedNode.categoryId;
+        vf.css(gId("tbForm"));
+
+        tabs = new window.xwf_tab({ divContainer: gId("divTab"), tabClick: tab_click });
+        tabs.addTab({ key: "tabA", text: "耗材信息", control: gId("divForm") });
+        tabs.addTab({ key: "tabB", text: "合格证", title: "合格证", control: gId("divGridB") });
+        tabs.addTab({ key: "tabP", text: "产品图片", title: "", control: gId("divGridP") });
+    }
+
+    function tab_click(tab) {
+        var matrId = frm._cMATR_ID.value.toInt();
+
+        if (tab.key == "tabA") {
+
+        }
+        else if (tab.key == "tabB") {
+            loadDocQua();
+        }
+        else if (tab.key == "tabP") {
+            loadDoc();
+        }
+        return true;
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.beforeAddnew = function () {
+        if (!categoryId || categoryId <= 1) {
+            showWarn("添加新纪录前，请先从左侧导航树中选择品类。");
+            return false;
+        }        
+        return true;
+    }
+    vf.afterAddnew = function () {
+        frm._cMatr_type.value = "1";  // -- 药品 --
+        frm._cCATEGORY_ID.value = treeParent.selectedNode.categoryId;
+        frm._gCfname.value = treeParent.selectedNode.text;
+    }
+    vf.afterCopy = function () {
+        frm._cDoc_id.value = "0";
+        frm._cDoc_id_qua.value = "0";
+    }
+
+    vf.beforeSave = function () {
+        if (frm._cMatr_name.value.equals("")) {
+            frm._cMatr_name.value = treeParent.selectedNode.text;
+        }
+        if (frm._cMatr_unit.value.equals("")) {
+            showWarn("单位不能为空，请输入。");
+            frm._cMatr_unit.focus();
+            return false;
+        }
+
+        // -- 大/中/小包装校验 --
+        if (!frm._cMatr_pkg1_unit.value.equals("")) {
+            if (frm._cMatr_pkg1_qty.value.toInt() < 2) {
+                showWarn("小包装数量不正确，请检查。");
+                frm._cMatr_pkg1_qty.focus();
+                return false;
+            }
+        }
+        else {
+            frm._cMatr_pkg1_qty.value = "0";
+        }
+        if (!frm._cMatr_pkg2_unit.value.equals("")) {
+            if (frm._cMatr_pkg2_qty.value.toInt() < 4) {
+                showWarn("中包装数量不正确，请检查。");
+                frm._cMatr_pkg2_qty.focus();
+                return false;
+            }
+        }
+        else {
+            frm._cMatr_pkg2_qty.value = "0";
+        }
+        if (!frm._cMatr_pkg3_unit.value.equals("")) {
+            if (frm._cMatr_pkg3_qty.value.toInt() < 4) {
+                showWarn("大包装数量不正确，请检查。");
+                frm._cMatr_pkg3_qty.focus();
+                return false;
+            }
+        }
+        else {
+            frm._cMatr_pkg3_qty.value = "0";
+        }
+
+        if (!frm._cMatr_pkg3_unit.value.equals("")) {
+            if (!frm._cMatr_pkg2_unit.value.equals("")) {
+                if (frm._cMatr_pkg3_unit.value.equals(frm._cMatr_pkg2_unit.value)) {                    
+                    showWarn("大包装不能与中包装单位相同，请检查。")
+                    frm._cMatr_pkg3_unit.focus();
+                    return false;
+                }
+                if (frm._cMatr_pkg3_qty.value.toInt() <= frm._cMatr_pkg2_qty.value.toInt()) {                    
+                    showWarn("大包装数量必需大于中包装数量，请检查。")
+                    frm._cMatr_pkg3_qty.focus();
+                    return false;
+                }
+            }
+            if (!frm._cMatr_pkg1_unit.value.equals("")) {
+                if (frm._cMatr_pkg3_unit.value.equals(frm._cMatr_pkg1_unit.value)) {
+                    showWarn("大包装不能与小包装单位相同，请检查。")
+                    frm._cMatr_pkg3_unit.focus();
+                    return false;
+                }
+                if (frm._cMatr_pkg3_qty.value.toInt() <= frm._cMatr_pkg1_qty.value.toInt()) {
+                    showWarn("大包装数量必需大于小包装数量，请检查。")
+                    frm._cMatr_pkg3_qty.focus();
+                    return false;
+                }
+            }
+        }
+        if (!frm._cMatr_pkg2_unit.value.equals("")) {
+            if (!frm._cMatr_pkg1_unit.value.equals("")) {
+                if (frm._cMatr_pkg2_unit.value.equals(frm._cMatr_pkg1_unit.value)) {
+                    showWarn("中包装不能与小包装单位相同，请检查。")
+                    frm._cMatr_pkg2_unit.focus();
+                    return false;
+                }
+                if (frm._cMatr_pkg2_qty.value.toInt() <= frm._cMatr_pkg1_qty.value.toInt()) {
+                    showWarn("中包装数量必需大于小包装数量，请检查。")
+                    frm._cMatr_pkg2_qty.focus();
+                    return false;
+                }
+            }
+        }
+
+        // -- 默认配送包装校验 --
+        if (frm._cMatr_rep_unit.value.equals("")) {
+            frm._cMatr_rep_unit.value = frm._cMatr_unit.value;
+            frm._cMatr_rep_qty.value = "1";
+        }
+        else {
+            if (frm._cMatr_rep_unit.value.equals(frm._cMatr_pkg1_unit.value)) {
+                frm._cMatr_rep_qty.value = frm._cMatr_pkg1_qty.value;
+            }
+            else if (frm._cMatr_rep_unit.value.equals(frm._cMatr_pkg2_unit.value)) {
+                frm._cMatr_rep_qty.value = frm._cMatr_pkg2_qty.value;
+            }
+            else if (frm._cMatr_rep_unit.value.equals(frm._cMatr_pkg3_unit.value)) {
+                frm._cMatr_rep_qty.value = frm._cMatr_pkg3_qty.value;
+            }
+            else if (frm._cMatr_rep_unit.value.equals(frm._cMatr_unit.value)) {
+                frm._cMatr_rep_qty.value = "1";
+            }
+            else {
+                showWarn("默认配送包装单位必需是大中小包装单位之一或单品单位，请检查。")
+                frm._cMatr_rep_unit.focus();
+                return false;
+            }
+        }
+
+        // ------------------------------------------------
+        return true;
+    };
+
+    vf.afterMove = function () {
+        tab_click(tabs.tabSelected);
+    }
+</script>
+
+<!-- 选择耗材品类、添加注册证 -->
+<script type="text/javascript">
+    function selectMatrCategory() {
+        var prop = {
+            url: "project/g_mshare/html/common_select/matr_category.html?category_type=1",
+            text: "耗材品类选择...",
+            parent: win,
+            modal: true
+        };
+        var para = {
+            callback: onMatrCategorySelect
+        };
+        topWin.openWindow(prop, para);
+    }
+    function onMatrCategorySelect(para) {
+        frm._cCATEGORY_ID.value = para.categoryId;
+        frm._gCfname.value = para.categoryFullname;
+    }
+
+    function onToolbarClickB(para) {
+        if (para.key.equals("addRegisterNo")) {
+            gridviewB.addnew();
+        }
+        else {
+            showErr("unknown button " + para.key);
+        }
+    }
+</script>
+
+<!-- doc -->
+<script type="text/javascript">
+    function loadDoc() {
+        var upA = docService.createUploadArea({
+            divContainer: gId("divCertUpload"),
+            docId: frm._cDoc_id.value.toInt(),
+            certCategoryId: 16, // -- 产品图片 --
+            showTitle: false,
+            showNotes: true,
+            allowView: false,
+            showSign: true,
+            showRemove: true,
+            showDownload: false,
+            //readonly: win.para.readonly,
+            //fileCount: 5,
+            allowView: true,
+            allowDownload: true,
+            afterDocSave: afterDocSave
+        });
+    }
+    function afterDocSave(ctl) {
+        frm._cDoc_id.value = ctl.docId;
+        vf.save();
+    }
+
+
+    function loadDocQua() {
+        var upA = docService.createUploadArea({
+            divContainer: gId("divQuaUpload"),
+            docId: frm._cDoc_id_qua.value.toInt(),
+            certCategoryId: 33, // -- 产品图片 --
+            showTitle: false,
+            showNotes: true,
+            allowView: false,
+            showSign: true,
+            showRemove: true,
+            showDownload: false,
+            //readonly: win.para.readonly,
+            //fileCount: 5,
+            allowView: true,
+            allowDownload: true,
+            afterDocSave: afterDocQuaSave
+        });
+    }
+    function afterDocQuaSave(ctl) {
+        frm._cDoc_id_qua.value = ctl.docId;
+        vf.save();
+    }
+</script>

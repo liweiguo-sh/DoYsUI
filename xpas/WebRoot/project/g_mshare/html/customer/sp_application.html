@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>供方资格申请单</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="divDC"></div>
+    <div class="PanelA">
+        <form id="frm" action="" target="g_mshare.customer.VIEW_SpApplication">
+            <table id="tbForm" class="tbForm" style="width:765px;">
+                <tr class="trH">
+                    <th style="width:130px;"></th>
+                    <th style="width:300px;"></th>
+                    <th style="width:130px;"></th>
+                    <th style="width:200px;"></th>
+                </tr>
+                <tr>
+                    <td>单号：</td>
+                    <td><input type="text" id="_cSpa_key" value="" disabled="disabled" /></td>
+                    <td>日期：</td>
+                    <td><input type="text" id="_cSpa_date" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+                </tr>
+                <tr>
+                    <td>院方机构：</td>
+                    <td><input type="text" id="_cCompany_id_mi" value="" controltype="dropdown" fieldValue="company_id" fieldText="company_name" fieldsVisible="company_name" /></td>
+                    <td>申请人：</td>
+                    <td><input type="text" id="_cSpa_applicant" /></td>
+                </tr>
+                <tr>
+                    <td>申请说明：</td>
+                    <td colspan="3"><textarea id="_cSpa_content" rows="5" cols="0"></textarea></td>
+                </tr>
+                <tr id="trRefuse">
+                    <td>退回原因：</td>
+                    <td colspan="3"><textarea id="_cSpa_refuse" rows="5" cols="0"></textarea></td>
+                </tr>
+            </table>
+            <input id="_cSP_APPLICATION_ID" type="hidden" value="" />
+            <input id="_cCOMPANY_ID_SP" type="hidden" value="" />
+            <input id="_cAstatus" type="hidden" value="" />
+        </form>
+    </div>
+</body>
+
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        vf.css(gId("tbForm"));
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.beforeAddnew = function() {
+        frm._cAstatus.value = "0";
+        return true;
+    }
+    vf.afterAddnew = function() {
+        frm._cSpa_date.value = (new Date).toString();
+        frm._cSpa_applicant.value = topWin.userName;
+        frm._cAstatus.value = "0";
+    }
+
+    vf.afterMove = function() {
+        if (frm._cAstatus.value.toInt() == 2) {
+
+        } else {
+            gId("trRefuse").style.display = "none";
+        }
+    }
+</script>

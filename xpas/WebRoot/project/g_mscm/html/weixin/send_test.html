@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html />
+<html>
+<head>
+    <title>发送微信消息测试页面</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+    <div id="divButton" class="divButtons">
+        <input type="button" id="btnOperate" onclick="btnOperate_click();" value="发送测试" />
+        <input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+    </div>
+    <div class="PanelA">
+        <input type="text" id="userKey" value="liweiguo" /><br />
+        <br />
+        <input type="text" id="message" value="测试消息" />
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    function formLoad() {
+    }
+
+    function btnClose_click() {
+        win.close();
+    }
+</script>
+
+<!-- 微信消息发送测试 -->
+<script type="text/javascript">
+    function btnOperate_click() {
+        var userKey = gId("userKey").value;
+        var message = gId("message").value;
+
+        if (g.a.send("processType=g_mscm.weixin.SendMessageTest&actionType=sendTxtMessage", { userKey: userKey, message: message }, true)) {
+            if (g.a.OK) {
+                debug("微信消息发送成功。");
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

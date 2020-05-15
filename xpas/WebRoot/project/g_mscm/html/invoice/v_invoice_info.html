@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>结算单信息</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/excel.js" type="text/javascript"></script>
+    <script src="../../js/resource_print.js" type="text/javascript"></script>
+    <script src="../../js/select_stock.js" type="text/javascript"></script>
+    <script src="../../js/select_storage.js" type="text/javascript"></script>
+    <script src="../../js/barcode_parse.js" type="text/javascript"></script>
+    <link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+	    #tbLayout {
+	        border-collapse: collapse;
+	    }
+	    #scanBox {
+	        font-size: 1em;
+	        font-family: Arial;
+	        height: 26px;
+	        line-height: 24px;
+	        border: 2px solid #19A2D5;
+	    }
+	    .fa-medkit {
+	        font-size: 1.5em;
+	        color: #19A2D5;
+	    }
+	    .import-alert {
+	        font-weight: bolder;
+	    }
+	    .a-small {
+	        font-size: 0.9em;
+	        color: Blue;
+	    }
+	    .a-small:hover {
+	        cursor: pointer;
+	        color: #19A2D5;
+	    }
+    </style>
+</head>
+<body>
+    <div id="divDC" style="width:100%" class="ScreenCenter"></div>
+    <div class="PanelA">
+        <form id="frm" action="" target="g_mscm.invoice.Invoice">
+            <table id="tbForm" class="tbForm" style="width:100%">
+                <tr id="trH">
+                    <th style="width: 10%;"></th>
+                    <th style="width: 25%;"></th>
+                    <th style="width: 10%;"></th>
+                    <th style="width: 30%;"></th>
+                    <th style="width: 10%;"></th>
+                    <th style="width: 25%;"></th>
+                </tr>
+                <tr>
+                    <td>Manager</td>
+                    <td colspan="3">
+                        <input id="scanBox" type="text" placeholder="在此设置光标，开始扫描发票条码" onkeydown="parseInvoiceClick(event)" />
+                    </td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>发票号</td>
+                    <td colspan="3">
+                        <textarea id="_cinvoice_no" disabled="disabled" rows="5"></textarea>
+                    </td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>院方</td>
+                    <td colspan="3" class="combo">
+                        <input type="text" id="_gmedical_name" disabled="disabled" />
+                        <div id="btnChooseMedical" class="fa fa-search" onclick="btnChooseMedical_click();"></div>
+                    </td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>开票日期</td>
+                    <td>
+                        <input type="text" id="_cinvoice_date" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+                    </td>
+                    <td>开票金额</td>
+                    <td>
+                        <input type="text" id="_cinvoice_amount" />
+                    </td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>开票摘要</td>
+                    <td colspan="5">
+                        <input type="text" id="_cinvoice_summary" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>备注</td>
+                    <td colspan="5">
+                        <input type="text" id="_cinvoice_remark" />
+                    </td>
+                </tr>
+            </table>
+            <input type="hidden" id="_ccompany_id_mi" value="0" />
+            <input type="hidden" id="_ccompany_id" value="0" />
+            <input type="hidden" id="_cinvoice_id" value="0" />
+            <input type="hidden" id="_xcustomerFilterValue" value="0" />
+        </form>
+    </div>
+    <div class="PanelA" style="margin-top: 20px; height: 450px;">
+        <div>
+            <div id="mainDiv" style="height:400px;cursor:pointer; width: 100; margin-top: 10px;"></div>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    var selectedId = new Array();
+    var leftGrid = null;
+    var frmParent = null;
+    var repNotifyId = 0;
+    var companyId = 0;
+    var userName = "";
+    var repreqDtl = null;
+    var officeId = 0;
+
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        frmParent = win.parentWindow.frm;
+        companyId = topWin.officeId;
+        userName = topWin.userName
+        officeId = topWin.officeId;
+        vf.css(gId("tbForm"));
+    }
+
+    var showMainGrid = function(viewFilter) {
+        var gridViewFilter = "";
+        if (viewFilter) {
+            gridViewFilter = "1=1";
+            if (!gId("_cinvoice_id").value.equals("")) {
+                gridViewFilter += " and invoice_id = '" + gId("_cinvoice_id").value + "'";
+            }
+            gridViewFilter += " and company_id_mi = '" + gId("_ccompany_id_mi").value + "'";
+        } else {
+            gridViewFilter = "1=0";
+        }
+        if (repreqDtl == null) {
+            var prop = {
+                divContainer: gId("mainDiv"),
+                viewKey: "v_invoice_bill_info",
+                viewFilter: gridViewFilter,
+                toolbarVisible: true,
+                viewForm: "project/g_mscm/html/bill/v_bill_info.html",
+                jsonToolbar: { height: "M", onclick: toolbarClick }
+            };
+            repreqDtl = new window.xwf_gridview(prop);
+            repreqDtl.commandClick = function(ctl, rowIndex) {
+                if (ctl.checked) {
+                    //选中
+                    gridRowsChecked(rowIndex);
+                } else {
+                    //取消选中
+                    gridRowsUnChecked(rowIndex);
+                }
+
+            }
+
+            /*   添加明细   */
+            //repreqDtl.toolbar.addBar({ type: "button", key: "btnAddDetail", text: "<i class='fa fa-plus-square' aria-hidden='true'></i>  添加明细信息", align: "left", style: "Grid", icon: null });
+            //repreqDtl.toolbar.addBar({ type: "button", key: "btnSelectDetail", text: "<i class='fa fa-plus-square' aria-hidden='true'></i>  按需添加配送", align: "left", style: "Grid", icon: null });
+            repreqDtl.toolbar.addBar({ type: "button", key: "btnDelete", text: "<i class='fa fa-minus-square' aria-hidden='true'></i>  删除信息", align: "left", style: "Grid", icon: null });
+
+        } else {
+            repreqDtl.setViewFilter(gridViewFilter);
+        }
+
+    }
+
+    //按钮事件
+    var toolbarClick = function(para) {
+        if (para.key.equals("btnDelete")) {
+            btnDelete_click();
+        }
+    }
+    
+    var btnDelete_click = function() {
+        var arrSelectedRows = new Array();
+        for (var i = 0; i < repreqDtl.dtbViewData.rowCount; i++) {
+            if (repreqDtl.dtbViewData.rows[i].checked) {
+                arrSelectedRows.push(repreqDtl.dtbViewData.rows[i]["bill_sp_id"].value);
+            }
+        }
+        if (arrSelectedRows.length == 0) {
+            showErr("请勾选需要删除的明细");
+            return false;
+        }
+        var confirm = showConfirm("删除明细后无法恢复，请谨慎操作");
+        if (confirm) {
+            var keys = arrSelectedRows.join(",");
+            if (g.a.send("processType=g_mscm.invoice.Invoice&actionType=initBillSpInvoice", { keys: keys, viewKey: 'v_invoice_bill_info' }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+                    showMsg("选中的记账单已去除！");
+                    showMainGrid(true);
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    //选中操作
+    var gridRowsChecked = function(rowIndex) {
+        switch (rowIndex) {
+            case -1:
+                for (var i = 0; i < repreqDtl.dtbViewData.rowCount; i++) {
+                    selectedId.push(repreqDtl.dtbViewData.rows[i]["bill_sp_id"].value);
+                }
+                gId("_cinvoice_amount").value = allamount;
+                break;
+            default:
+                selectedId.push(repreqDtl.dtbViewData.rows[rowIndex]["bill_sp_id"].value);
+                break;
+        }
+        var customerFilterValue = selectedId.join(",");
+        gId("_xcustomerFilterValue").value = customerFilterValue;
+    }
+
+    //取消操作
+    var gridRowsUnChecked = function(rowIndex) {
+        switch (rowIndex) {
+            case -1:
+                selectedId = new Array();
+                gId("_cinvoice_amount").value = "0";
+                break;
+            default:
+                if (selectedId.length > 0) {
+                    for (var i = 0; i < selectedId.length; i++) {
+                        if (selectedId[i].equals(leftGrid.dtbViewData.rows[rowIndex]["bill_sp_id"].value)) {
+                            selectedId.splice(i, 1);
+                        }
+                    }
+                }
+                break;
+        }
+        var customerFilterValue = selectedId.join(",");
+        gId("_xcustomerFilterValue").value = customerFilterValue;
+    }
+
+    // 录入发票条码
+    var parseInvoiceClick = function(e) {
+        var keyNum = 0;
+        if (window.event) { // IE
+            keyNum = e.keyCode
+        } else if (e.which) { // Netscape/Firefox/Opera
+            keyNum = e.which
+        }
+        if (keyNum == 13) { //回车
+            if (!e.currentTarget.value.equals("")) {
+                var flag = checkInvoiceNo(e.currentTarget.value);
+                if (flag) {
+                    if (gId("_cinvoice_no").value.equals("")) {
+                        gId("_cinvoice_no").value = e.currentTarget.value;
+                    } else {
+                        gId("_cinvoice_no").value += "," + e.currentTarget.value;
+                    }
+                }
+            }
+            e.currentTarget.value = "";
+        }
+    }
+
+    //----检查发票号----
+    var checkInvoiceNo = function(invoiceNo) {
+        if (g.a.send("processType=g_mscm.invoice.Invoice&actionType=checkInvoiceNo", { invoiceNo: invoiceNo, viewKey: 'v_invoice_mscm' }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var msg = cReturn.executResult;
+                if (!msg.equals("OK")) {
+                    showWarn("发票号重复！");
+                    return false;
+                } else {
+                    var cInvoiceNo = "," + gId("_cinvoice_no").value + ",";
+                    if (cInvoiceNo.indexOf("," + invoiceNo + ",") >= 0) {
+                        showWarn("发票号重复扫描！");
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    var arrSelectedRows = null;
+    vf.afterMove = function() {
+        frm._ccompany_id.value = companyId;
+        showMainGrid(true);
+    }
+
+    vf.afterSave = function() {
+        var id = gId("_cinvoice_id").value;
+    }
+    vf.beforeSave = function() {
+        var dtl = gId("_xcustomerFilterValue").value;
+        if (dtl.equals("")) {
+            showWarn("没有记账单无法开票");
+            return false;
+        }
+        return true;
+    }
+
+    var drMedical = null;
+    var drPools = null;
+    //==选择院方==
+    function btnChooseMedical_click() {
+        var prop = {
+            title: "请选择院方...",
+            width: 0.6,
+            height: 0.8,
+            parent: win
+        };
+        var viewFilter = "(1=1) and a.company_id='" + companyId + "'";
+        var para = {
+            viewKey: "v_medical_info",
+            viewFilter: viewFilter,
+            userFilter: "",
+            viewMode: "singleSelect",
+            selectCallback: onMedicalSelected
+        };
+        topWin.openSelectView(prop, para);
+    }
+
+    function onMedicalSelected(dr) {
+        drMedical = dr;
+        fillEditFormByMedical(dr.company_id_bp.value);
+        return true;
+    }
+    //==填充编辑界面(通过选择一个院方）==
+    function fillEditFormByMedical(medical_id) {
+        //选院方
+        gId("_gmedical_name").value = drMedical["company_name"].value;
+        gId("_ccompany_id_mi").value = drMedical["company_id_bp"].value;
+        showMainGrid(true);
+    }
+</script>

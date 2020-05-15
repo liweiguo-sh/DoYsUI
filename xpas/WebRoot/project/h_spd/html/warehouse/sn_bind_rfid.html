@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>SN绑定RFID</title>
+	<script>
+        var css_xwf_uvform = true;
+	</script>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js"></script>
+
+	<script src="../../../../res/jscript/web_print.js"></script>
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+	
+	<style type="text/css">
+		body {
+			overflow: hidden;
+		}
+		#snScanBox, #rfScanBox{
+			font-size:1em;font-family:Arial;height:26px;line-height:24px;border:2px solid #19A2D5;
+		}
+		.PanelA{
+			width:980px;
+			margin-left:auto;
+			margin-right:auto;
+		}
+	    .tdTip {
+			text-align: center;
+			height: 60px;
+			line-height: 60px;
+		}
+	    .tips-ok {
+	        font-size: 1.3em;
+	        font-family: 微软雅黑;
+	        color: DarkGreen;
+	    }
+		.tips-err{
+			font-size:1.3em;font-family:微软雅黑;color:Red;
+		}
+	</style>
+</head>
+<body>
+	<div class="PanelA" style="margin-top:5px;">
+		<table id="tbStockInfo" class="tbForm" style="width:100%;">
+			<tr class="trH">
+				<th style="width: 10%"></th>
+				<th style="width: 15%"></th>
+				<th style="width: 10%"></th>
+				<th style="width: 15%"></th>
+				<th style="width: 10%"></th>
+				<th style="width: 15%"></th>
+				<th style="width: 10%"></th>
+				<th style="width: 15%"></th>
+			</tr>			
+			<tr>
+				<td>品名</td>
+				<td colspan="3"><input type="text" id="_fMaterial_name" disabled="disabled" /></td>
+				<td>品规</td>
+				<td colspan="3"><input type="text" id="_fMaterial_spec" disabled="disabled" /></td>
+			</tr>
+			<tr>				
+				<td>批次</td>
+				<td><input type="text" id="_fLot" disabled="disabled" /></td>
+				<td>效期</td>
+				<td><input type="text" id="_fExp_date" disabled="disabled" /></td>
+			</tr>
+			<tr>	
+				<td>SN</td>
+				<td colspan="3"><input type="text" id="_fSn_no" disabled="disabled"/></td>
+				<td>RFID</td>
+				<td colspan="3"><input type="text" id="_fRfid" disabled="disabled"/></td>				
+			</tr>
+		</table>
+	</div>
+	<div class="PanelA" style="margin-top:5px;">
+		<table id="tbScan" class="tbForm" style="width:100%;">
+			<tr class="trH">
+				<th style="width: 10%"></th>
+				<th style="width: 15%"></th>
+				<th style="width: 10%"></th>
+				<th style="width: 15%"></th>
+				<th style="width: 10%"></th>
+				<th style="width: 15%"></th>
+				<th style="width: 10%"></th>
+				<th style="width: 15%"></th>
+			</tr>
+			<tr>
+				<td>SN</td>
+				<td colspan="3"><input type="text" id="txtSn"   autocomplete="off" style="ime-mode:disabled" /></td>
+				<td>RFID</td>
+				<td colspan="3"><input type="text" id="txtRfid" autocomplete="off" style="ime-mode:disabled" /></td>				
+			</tr>
+			<tr>
+				<td colspan="5" class="tdTip"><span id="spanTip">&nbsp;</span></td>
+				<td colspan="3" class="pageButtons">
+					<input type="button" id="btnBind" value="绑定RFID" onclick="btnBind_click();" />
+					<input type="button" id="btnPring" value="重新打印SN" onclick="btnPring_click();" />
+					<input type="button" id="btnUnbind" value="解绑RFID" onclick="btnUnbind_click();" />
+				</td>
+			</tr>
+		</table>
+		<input type="hidden" id="_fSTOCK_ID" value="0" />
+		<audio id="audio">
+			<source src="/xpas/res/sound/mp3/msg1.mp3"  />
+		</audio>
+	</div>	
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+    var txtSn = gId("txtSn");
+    var txtRfid = gId("txtRfid");
+	// ----------------------------------------------------
+	function formLoad() {
+        cssFormat(gId("tbStockInfo"));
+        cssFormat(gId("tbScan"));
+
+        clearForm();
+
+        g.x.bindEnterEvent(txtSn, onTxtSnEnter);
+        g.x.bindEnterEvent(txtRfid, onTxtRfidEnter);
+	}
+</script>
+
+<!-- buttons event -->
+<script>
+    function onTxtSnEnter() {
+        var sn = gId("txtSn").value.trim();
+		// ------------------------------------------------------
+        if (sn.equals("")) return;
+        if (g.a.send("processType=h_spd.warehouse.SnBindRfid&actionType=getStockBySn", { sn: sn }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbStock = cReturn.dtbStock;
+
+                fillForm(dtbStock.rows[0]);
+
+                txtRfid.disabled = false;
+                txtRfid.value = "";
+                txtRfid.focus();
+                return true;
+            }
+            else {
+                clearForm();
+                txtSn.value = sn;
+                txtSn.select();
+                txtSn.focus();
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    function onTxtRfidEnter() {
+        bindRfid();
+    }
+
+    function btnBind_click() {
+        bindRfid();
+    }
+    function btnUnbind_click() {
+        unbindRfid();
+    }
+
+    function btnPring_click() {
+        var stockId = gId("_fSTOCK_ID").value.toInt();
+
+        if (stockId == 0) {
+            showWarn("请先扫描要打印的SN。");
+            clearForm();
+            return;
+        }
+        if (g.a.send("processType=h_spd.warehouse.SnBindRfid&actionType=getStockForPrint", { stockId: stockId }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbStock = cReturn.dtbStock;
+
+                if (dtbStock.rowCount == 1) {
+                    printSn(dtbStock);
+                }
+                else {
+                    showWarn("异常：库存已不存在, 请重新扫描SN。");
+                }
+                return true;
+            }
+            else {
+                txtRfid.value = "";
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+<!-- bind/unbind -->
+<script>
+    function clearForm() {
+        gId("_fSTOCK_ID").value = "";
+
+        gId("_fMaterial_name").value = "";
+        gId("_fMaterial_spec").value = "";
+        gId("_fLot").value = "";
+        gId("_fExp_date").value = "";
+        gId("_fSn_no").value = "";
+        gId("_fRfid").value = "";
+
+        txtSn.disabled = false;
+        txtSn.value = "";
+        txtSn.focus();
+
+        txtRfid.disabled = true;
+        txtRfid.value = "";
+    }
+    function fillForm(dataRow) {
+        gId("_fSTOCK_ID").value = dataRow["stock_id"].value;
+
+        gId("_fMaterial_name").value = dataRow["material_name"].value;
+        gId("_fMaterial_spec").value = dataRow["material_spec"].value;
+        gId("_fLot").value = dataRow["lot"].value;
+        gId("_fExp_date").value = dataRow["expired_date"].value.substring(0,10);
+        gId("_fSn_no").value = dataRow["sn_no"].value;
+        gId("_fRfid").value = dataRow["rfid"].value;
+    }
+
+    function bindRfid() {
+        var sn = gId("txtSn").value.trim();
+        var rfid = gId("txtRfid").value.trim();
+        // ------------------------------------------------------
+        if (sn.equals("") || rfid.equals("")) return;
+
+        if (g.a.send("processType=h_spd.warehouse.SnBindRfid&actionType=bindRfid", { sn: sn, rfid: rfid }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbStock = cReturn.dtbStock;
+
+                fillForm(dtbStock.rows[0]);
+
+                clearForm();
+                win.flashTitle("RFID绑定成功.");
+                return true;
+            }
+            else {
+                txtRfid.value = "";
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    function unbindRfid() {
+        var sn = gId("txtSn").value.trim();
+        // ------------------------------------------------------
+        if (sn.equals("") ) return;
+        if (!showConfirm("您确定要解除当前RFID绑定关系吗？")) return;
+
+        if (g.a.send("processType=h_spd.warehouse.SnBindRfid&actionType=unbindRfid", { sn: sn }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                clearForm();
+                win.flashTitle("RFID解除绑定成功.");
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+
+<!-- print SN -->
+<script>
+    function printSn(dtbStock) {
+        var param = { snFieldName: "sn_no" };
+        param.list = [
+            { text: "耗材编号", name: "material_code", lableCol: 3, valueCol: 9 },
+            { text: "品名", name: "material_name", lableCol: 3, valueCol: 9 },
+            { text: "品规", name: "material_spec", lableCol: 3, valueCol: 9 },
+            { text: "批次", name: "lot", lableCol: 3, valueCol: 9 },
+            { text: "生产日期", name: "manufacture_date", lableCol: 3, valueCol: 3, isYMD: true },
+            { text: "效期", name: "expired_date", lableCol: 3, valueCol: 3, isYMD: true },
+            { text: "厂商", name: "manufacturer_name", lableCol: 3, valueCol: 9 }
+        ];
+
+        WebPrint.goPrintBarCodeModel(dtbStock.rows, param);
+    }
+</script>

@@ -1,0 +1,27 @@
+<configuration>
+	<property name="LOG_FILE_PATH" value="E:/xpasProject/xpas/work/logs" />
+	<appender name="fileRolling" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_FILE_PATH}/log.txt</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_FILE_PATH}/log_%d{yyyy-MM-dd_HH}.%i.txt.zip</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>1MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy> 
+			<maxHistory>1000</maxHistory>
+		</rollingPolicy> 
+		<encoder>
+			<pattern>%d{MM-dd_HH:mm:ss.SSS} %-5level %logger{0} %caller{1} -- %msg%n </pattern>
+		</encoder>
+	</appender> 
+	
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %-5level %logger{0} %caller{1} -- %msg%n </pattern>
+		</encoder> 
+	</appender>
+	
+	<root level="debug">
+		<appender-ref ref="fileRolling" />
+		<appender-ref ref="console" />
+	</root>
+</configuration>

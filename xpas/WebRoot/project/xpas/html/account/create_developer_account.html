@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>一键创建开发人员账户</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        #divResult {
+            width: 420px;
+            height: 200px;
+            
+            font-size: 16pt;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+	<div id="divButton" class="divButtons">
+		<input type="button" id="btnCreateDeveloper" onclick="btnCreateDeveloper_click();" value="一键创建开发人员账户" />
+		<input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+	</div>
+	<div class="PanelA">
+		<div id="divResult"></div>
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript"> 
+	// ------------------------------------------------------------------------
+	function formLoad() { 
+	}
+
+	function btnClose_click() {
+		win.close();
+	}
+</script>
+
+<!-- 开发人员账户 -->
+<script type="text/javascript">
+    function btnCreateDeveloper_click() {
+        if (g.a.send("processType=com.system.Account&actionType=createDeveloperAccount", {}, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var result = cReturn.result;
+
+                gId("divResult").innerHTML = (new Date()).toString("HH:mm:ss") + "<br />" + result;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

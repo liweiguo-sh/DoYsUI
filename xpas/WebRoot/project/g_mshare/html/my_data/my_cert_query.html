@@ -1,0 +1,565 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>我的供方资质综合查询</title>
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+
+    <script src="../../../../res/control/tree/xwf.tree.js"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+        
+        #tbLayout {
+            border-collapse: collapse;
+        }
+        
+        .tdLayout {
+            padding: 0px;
+            overflow: hidden;
+            vertical-align: top;
+        }
+        
+        .tdLayoutLeft {
+            display: inline-block;
+            margin-right: -1px;
+            border: solid 1px #c0c0c0;
+        }
+        
+        .xwf_gridview_divToolbar {
+            border: solid 1px #c0c0c0;
+            border-bottom: solid 0 transparent;
+        }
+        
+        .tdLayoutRight .xwf_toolbar_tdLayout {
+            padding-left: 10px;
+        }
+        
+        .divTree {
+            overflow: auto;
+        }
+        
+        .tdLayoutRight .xwf_toolbar_tdLayout {
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body scroll="no">
+    <table id="tbLayout">
+        <tr>
+            <td id="tdLayoutLeft" class="tdLayout tdLayoutLeft">
+                <div id="divTree" class="divTree">
+                    <div id="divTreeCC"></div>
+                    <div id="divTreeMC"></div>
+                </div>
+            </td>
+            <td id="tdLayoutRight" class="tdLayout tdLayoutRight">
+                <div id="divGrid"></div>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var tbLayout = gId("tbLayout");
+    var divTree = gId("divTree");
+    var divTreeCC = gId("divTreeCC");
+    var divTreeMC = gId("divTreeMC");
+    var divGrid = gId("divGrid");
+
+    var gridView = null;
+    var treeCC, treeMC;
+    var nodeRootCC;
+
+    var certCategoryType = "all";
+    var viewKey = "my_cert_query";
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        certCategoryType = urlPara["certCategoryType"] || certCategoryType;
+        if (certCategoryType.equals("A")) {
+            viewKey = "my_cert_A_query";
+        }
+
+        divTree.style.width = (win.p.width * 0.20) + "px";
+        divTree.style.height = (win.p.height - 2 * tbLayout.offsetTop - divTree.offsetTop - 4) + "px";
+        divGrid.style.width = (win.p.width - 2 * tbLayout.offsetLeft - divTree.offsetWidth) + "px";
+        divGrid.style.height = (win.p.height - 2 * tbLayout.offsetTop - divGrid.offsetTop) + "px";
+
+        initGrid();
+        inittreeCC();
+        initTreeMC();
+    }
+</script>
+
+<!-- 导航树 -->
+<script type="text/javascript">
+    function inittreeCC() {
+        var rootKey = "";
+        var jsonPara = {
+            divContainer: gId("divTreeCC"),
+            imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+            showCheckBoxs: "all",
+            nodeCheck: onNodeCheckCC
+        };
+        treeCC = new window.xwf_tree(jsonPara);
+
+        rootKey = "0" + treeCC.sd + "R";
+        if (certCategoryType.equals("A")) {
+            treeCC.addNode({
+                key: rootKey,
+                text: "授权书分类",
+                certCategoryId: 0
+            });
+        } else {
+            treeCC.addNode({
+                key: rootKey,
+                text: "资质类别",
+                certCategoryId: 0
+            });
+        }
+        nodeRootCC = treeCC.nodes[rootKey];
+
+        if (g.a.send("processType=g_mshare.my_data.MyCertQuery&actionType=getCertCategory", {
+                certCategoryType: certCategoryType
+            }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtb = c.dtbCertCategory;
+                for (var i = 0; i < dtb.rowCount; i++) {
+                    var certCategoryId = dtb.rows[i]["cert_category_id"].value;
+                    var certCategoryName = dtb.rows[i]["cert_category_name"].value;
+                    var title = certCategoryName;
+
+                    if (g.debug) {
+                        title = certCategoryId + " - " + certCategoryName;
+                    }
+                    treeCC.addNode({
+                        key: rootKey + treeCC.sd + certCategoryId,
+                        text: certCategoryName,
+                        certCategoryId: certCategoryId,
+                        title: title
+                    });
+                }
+                treeCC.expand();
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    function onNodeCheckCC() {
+        doQuery();
+    }
+
+    function initTreeMC() {
+        var rootKey = "";
+        var jsonPara = {
+            divContainer: gId("divTreeMC"),
+            imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+            beforeExpand: beforeNodeExpand,
+            nodeClick: onNodeClick
+        };
+        treeMC = new window.xwf_tree(jsonPara);
+
+        rootKey = "0" + treeMC.sd + "R";
+        treeMC.addNode({
+            key: rootKey,
+            text: "供方企业",
+            nodeType: "QUICK"
+        });
+        //treeMC.addNode({ key: rootKey + treeMC.sd + "ALL", text: "所有企业", nodeType: "COMPANY_ALL" });
+        //treeMC.addNode({ key: rootKey + treeMC.sd + "ALL" + treeMC.sd + "loading", text: "loading..." });
+
+        if (g.a.send("processType=g_mshare.my_data.MyCertQuery&actionType=getMyCompanySP", {}, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtb = c.dtbCompany;
+                for (var i = 0; i < dtb.rowCount; i++) {
+                    var key = rootKey + treeMC.sd + companyId;
+                    var companyId = dtb.rows[i]["company_id"].value;
+                    var companyName = dtb.rows[i]["company_name"].value;
+                    var title = companyName;
+
+                    if (g.debug) {
+                        title = companyId + " - " + companyName;
+                    }
+                    treeMC.addNode({
+                        key: key,
+                        text: companyName,
+                        title: title,
+                        nodeType: "COMPANY_ROOT",
+                        companyId: companyId,
+                        categoryId: 1
+                    });
+                    if (certCategoryType.equals("all")) {
+                        treeMC.addNode({
+                            key: key + treeMC.sd + "COMPANY",
+                            text: "企业资质",
+                            nodeType: "COMPANY_ALL",
+                            typeValue: "C"
+                        });
+                        treeMC.addNode({
+                            key: key + treeMC.sd + "MATR",
+                            text: "耗材资质",
+                            nodeType: "MATR_ALL",
+                            typeValue: "M"
+                        });
+                        treeMC.addNode({
+                            key: key + treeMC.sd + "AUTH",
+                            text: "授权书",
+                            nodeType: "AUTH_ALL",
+                            typeValue: "A"
+                        });
+                    } else {
+                        treeMC.addNode({
+                            key: key + treeMC.sd + "loading",
+                            text: "loading"
+                        });
+                    }
+                }
+                treeMC.expand(rootKey);
+                treeMC.textClick(rootKey);
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    function beforeNodeExpand(node, firstExpand) {
+        if (!firstExpand) return;
+        treeMC.removeNode(node.key + treeMC.sd + "loading");
+
+        if (node.nodeType.equals("QUICK")) {
+            return;
+        } else if (node.nodeType.equals("COMPANY")) {
+            loadCategoryNode(node, 1);
+        } else {
+            if (node.nodeType.equals("CATEGORY")) {
+                //if (node.lastCategory) {
+                loadMatrNode(node, node.categoryId);
+                //}
+            }
+            if (!node.lastCategory) {
+                loadCategoryNode(node, node.categoryId);
+            }
+        }
+    }
+
+    function loadCategoryNode(nodeParent, categoryId) {
+        var nodeKeyParent = nodeParent.key;
+        var nodeP = nodeParent;
+        // ------------------------------------------------
+        while (!nodeP.companyId) {
+            nodeP = nodeP.parent;
+        }
+        companyIdSp = nodeP.companyId;
+        // ------------------------------------------------
+        if (g.a.send("processType=g_mshare.my_data.MyCertQuery&actionType=getCategoryNodeData", {
+                categoryId: categoryId,
+                companyIdSp: companyIdSp
+            }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtb = c.dtbCategory;
+                for (var i = 0; i < dtb.rowCount; i++) {
+                    var categoryId = dtb.rows[i]["category_id"].value;
+                    var nodeText = dtb.rows[i]["category_name"].value;
+                    var nodeKey = dtb.rows[i]["node_key"].value;
+                    var lastCategory = (dtb.rows[i]["category_is_last_node"].value == 1 ? true : false);
+                    var title = "";
+
+                    if (g.debug) {
+                        title = categoryId + " - " + nodeText;
+                    }
+
+                    treeMC.addNode({
+                        key: nodeKeyParent + treeMC.sd + categoryId,
+                        text: nodeText,
+                        categoryId: categoryId,
+                        nodeKey: nodeKey,
+                        title: title,
+                        lastCategory: lastCategory,
+                        nodeType: "CATEGORY"
+                    });
+                    treeMC.addNode({
+                        key: nodeKeyParent + treeMC.sd + categoryId + treeMC.sd + "loading",
+                        text: "loading..."
+                    });
+                }
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    function loadMatrNode(nodeParent, categoryId) {
+        var companyIdSp = 0;
+        var nodeKeyParent = nodeParent.key;
+        var nodeCompany = nodeParent;
+        // ------------------------------------------------
+        while (!nodeCompany.companyId) {
+            nodeCompany = nodeCompany.parent;
+        }
+        companyIdSp = nodeCompany.companyId;
+        // ------------------------------------------------
+        if (g.a.send("processType=g_mshare.my_data.MyCertQuery&actionType=getMatrNodeData", {
+                companyIdSp: companyIdSp,
+                categoryId: categoryId
+            }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtb = c.dtb;
+                for (var i = 0; i < dtb.rowCount; i++) {
+                    var matrId = dtb.rows[i]["matr_id"].value;
+                    var matrName = dtb.rows[i]["matr_name"].value;
+                    var matrSpec = dtb.rows[i]["matr_spec"].value;
+                    var manufacturerId = dtb.rows[i]["manufacturer_id"].value;
+                    var matrText = matrName + " (" + matrSpec + ")";
+                    var title = matrSpec;
+
+                    if (!g.debug) {
+                        title = matrId + " - " + matrText;
+                    }
+
+                    treeMC.addNode({
+                        key: nodeKeyParent + treeMC.sd + matrId,
+                        text: matrText,
+                        matrId: matrId,
+                        manufacturerId: manufacturerId,
+                        title: title,
+                        nodeType: "MATR"
+                    });
+                }
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    function onNodeClick(node) {
+        doQuery();
+    }
+</script>
+<!-- 网格 -->
+<script type="text/javascript">
+    function initGrid() {
+        var prop = {
+            divContainer: divGrid,
+            toolbarVisible: true,
+            viewKey: viewKey,
+            viewForm: "project/g_mshare/html/receive/cert_info.html",
+            viewFilter: "1 = 0",
+            jsonToolbar: {
+                height: "M",
+                onclick: onToolbarClick
+            }
+        };
+        gridView = new window.xwf_gridview(prop);
+
+        gridView.toolbar.addBar({
+            type: "button",
+            key: "refresh",
+            text: "<i class='fa fa-refresh'></i> 刷新",
+            align: "left",
+            style: "Grid"
+        });
+        gridView.toolbar.addBar({
+            type: "checkbox",
+            key: "include_up",
+            text: "包含上级品类",
+            value: true,
+            align: "left"
+        });
+        gridView.toolbar.addBar({
+            type: "checkbox",
+            key: "include_down",
+            text: "包含下级品类",
+            align: "left"
+        });
+
+        gridView.toolbar.addBar({
+            type: "button",
+            key: "close",
+            text: "<i class='fa fa-close'></i> 关闭",
+            align: "right",
+            style: "Grid",
+            icon: null
+        });
+    }
+</script>
+
+<!-- 网格工具栏 -->
+<script type="text/javascript">
+    function onToolbarClick(para) {
+        if (para.key.equals("refresh")) {
+            gridView.refresh();
+        } else if (para.key.equals("query")) {
+            doQuery();
+        } else if (para.key.equals("include_up") || para.key.equals("include_down") || para.key.equals("include_down2")) {
+            doQuery();
+        } else if (para.key.equals("close")) {
+            win.close();
+        } else {
+            showErr("unknown button " + para.key);
+        }
+    }
+
+    function doQuery() {
+        var node = null;
+        var arrKeys, arrIds;
+        var arrFilter = new Array();
+        var viewFilter = "",
+            filterCC = "",
+            filterSP = "",
+            filterMC = "";
+        var sqlUp = "",
+            sqlDown = "",
+            sqlDown2 = "";
+        var blCheckUp = gridView.toolbar.Bars["include_up"].checked;
+        var blCheckDown = gridView.toolbar.Bars["include_down"].checked;
+        //var blCheckDown2 = gridView.toolbar.Bars["include_down2"].checked;
+
+        // -- 资质类别范围 --------------------------------------
+        if (nodeRootCC.checked == 2) {
+            arrIds = new Array();
+            arrKeys = treeCC.getCheckedKeys();
+            for (var i = 0; i < arrKeys.length; i++) {
+                node = treeCC.nodes[arrKeys[i]];
+                if (node.certCategoryId > 0) {
+                    arrIds.push(node.certCategoryId);
+                }
+            }
+            filterCC = arrIds.join(",");
+
+            filterCC = "c.cert_category_id IN (" + arrIds.join(",") + ")";
+            arrFilter.push(filterCC);
+        }
+
+        // -- 供方范围 ----------------------------------------
+        filterSP = getFilterSP();
+        if (!filterSP.equals("")) {
+            arrFilter.push(filterSP);
+        }
+
+        // -- 品类范围 --------------------------------------
+        node = treeMC.selectedNode;
+        if (node.nodeType.equals("QUICK")) {
+
+        } else if (node.nodeType.equals("COMPANY_ROOT")) {
+
+        } else if (node.nodeType.equals("COMPANY_ALL")) {
+            arrFilter.push("cert_category_type = 'C'");
+        } else if (node.nodeType.equals("MATR_ALL")) {
+            arrFilter.push("cert_category_type = 'M'");
+        } else if (node.nodeType.equals("AUTH_ALL")) {
+            arrFilter.push("cert_category_type = 'A'");
+        } else if (node.nodeType.equals("CATEGORY") || node.nodeType.equals("MATR")) {
+            var nodeCategory = node;
+            if (node.nodeType.equals("MATR")) {
+                nodeCategory = node.parent;
+            }
+            sqlUp = getSqlUp(nodeCategory.nodeKey);
+            sqlDown = getSqlDown(nodeCategory.nodeKey);
+            //sqlDown2 = getSqlDown2(node.nodeKey);
+
+            if (blCheckUp && blCheckDown) {
+                filterMC = "((" + sqlUp + ") OR (" + sqlDown + "))";
+            } else if (blCheckUp) {
+                filterMC = sqlUp;
+            } else if (blCheckDown) {
+                filterMC = sqlDown;
+            } else {
+                filterMC = "c.cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id = " + nodeCategory.categoryId + ")";
+            }
+
+            if (node.nodeType.equals("MATR")) {
+                filterMC = filterMC + " OR (c.cert_id IN (SELECT cert_id FROM T_CERT_MATR WHERE matr_id = " + node.matrId + "))"
+                filterMC = "(" + filterMC + ") AND (c.manufacturer_scope = 0 OR c.cert_id IN (SELECT cert_id FROM T_CERT_MANUFACTURER WHERE manufacturer_id = " + node.manufacturerId + "))";
+            }
+            arrFilter.push(filterMC);
+        } else if (node.nodeType.equals("MATR")) {
+            filterMC = "c.cert_id IN (SELECT cert_id FROM T_CERT_MATR WHERE matr_id = " + node.matrId + ")";
+            arrFilter.push(filterMC);
+        } else {
+            showErr("debug here.");
+        }
+
+        // ------------------------------------------------
+        if (arrFilter.length > 0) {
+            viewFilter = arrFilter.join(" AND ");
+        }
+        gridView.setViewFilter(viewFilter);
+    }
+
+    function getFilterSP() {
+        var companyId = 0;
+        var sqlFilter = "";
+        var node = null,
+            nodeP = null;
+        // ------------------------------------------------
+        node = treeMC.selectedNode;
+        if (node.nodeType.equals("QUICK")) {
+            sqlFilter = "1 = 0";
+        } else if (node.nodeType.equals("COMPANY_ROOT")) {
+            sqlFilter = "c.company_id = " + node.companyId;
+        } else if (node.nodeType.equals("COMPANY_ALL") || node.nodeType.equals("MATR_ALL") || node.nodeType.equals("AUTH_ALL")) {
+            sqlFilter = "c.company_id = " + node.parent.companyId;
+        } else {
+            nodeP = node.parent;
+            while (nodeP.nodeType.equals("CATEGORY")) {
+                nodeP = nodeP.parent;
+            }
+
+            if (nodeP.nodeType.equals("COMPANY_ROOT")) {
+                sqlFilter = "c.company_id = " + nodeP.companyId;
+            } else {
+                showErr("DEBUG HERE");
+            }
+        }
+        // ------------------------------------------------
+        return sqlFilter;
+    }
+
+    function getSqlUp(nodeKey) {
+        var sql = "";
+        var arrNodeKey = new Array();
+        for (var i = 0; i < nodeKey.length / 3; i++) {
+            arrNodeKey.push(nodeKey.substring(0, 3 * i + 3));
+        }
+        sql = "SELECT category_id FROM TG_MATR_CATEGORY WHERE node_key IN ('" + arrNodeKey.join("', '") + "')";
+        sql = "SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id IN (" + sql + ")";
+        sql = "c.cert_id IN (" + sql + ")";
+
+        return sql;
+    }
+
+    function getSqlDown(nodeKey) {
+        var sql = "";
+        sql = "SELECT category_id FROM TG_MATR_CATEGORY WHERE LEFT(node_key, " + nodeKey.length + ") = '" + nodeKey + "'";
+        sql = "SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id IN (" + sql + ")";
+        sql = "c.cert_id IN (" + sql + ")";
+        return sql;
+    }
+
+    function getSqlDown2(nodeKey) {
+        var sql = "";
+        return sql;
+    }
+</script>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>供应链协同平台 - 微信端</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <script type="text/javascript">
+        var cssStyle = "style2";
+    </script>
+    <link href="../../../res/control/window/style2/xwf.window.css" rel="stylesheet" type="text/css" />
+    <link href="../../../res/control_mobile/menu/style2/xmf.menu.css" rel="stylesheet" type="text/css" />
+    <link href="../../../res/css_mobile/style2/xmf.wx_main.css" rel="stylesheet" />
+
+    <script src="../../../res_plugin/jquery/jquery-3.1.1.min.js"></script>
+    <!-- 基础类 -->
+    <script src="../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    <script src="../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+
+    <!-- app -->
+    <script src="../../../res_plugin/app/WebView.js" type="text/javascript"></script>
+    <script src="../../../res/jscript_mobile/xmf.app.js" type="text/javascript"></script>
+    <script src="../../../res/jscript_mobile/xmf.sqlite.js" type="text/javascript"></script>
+    <script src="../../../res/jscript_mobile/xmf.app_main.js"></script>
+
+    <script src="../../../res/control/window/xwf.window.js"></script>
+    <script src="../../../res/control_mobile/menu/xmf.menu.js"></script>
+    <script src="../../../res/control_mobile/context/xmf.context.js"></script>
+    
+    <style type="text/css">
+        html,body {
+            height: 100%;
+        }
+        .xwf_win_divWinMax {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+        }
+
+        .xwf_win_ifrWinMax {
+            width: 100% !important;
+            max-width: 100%;
+            height: 100% !important;
+            padding: 0;
+        }
+        .xmf_menu_tbM1 {
+            bottom: 0 !important;
+        }
+    </style>
+</head>
+<body onload="formLoad();">
+    <div style="display:none;">
+        <button onclick="click1();" >重置登录</button>
+        <button onclick="click2();" >震动</button>
+        <button onclick="click3();" >启动服务</button>
+        <button onclick="click4();" >停止服务</button>
+        </div>
+    <div style="text-align: center;">
+        <img id="imgTop" src="../images/weixin/main_top.jpg" alt="" style="width: 100%;" />
+    </div>
+    <div id="divMenu">menu loading...</div>
+</body>
+</html>
+
+<!-- formLoad() -->
+<script type="text/javascript">
+    var dbPath = "E:\\AndroidApp\\MSCM_RES\\AppSQLite\\";	// -- 用于PC端模拟调试 --
+    var appKey = "g_mscm"; 									// -- App标识, 本地SQLite数据库名称与appKey同名 --
+    var nTimes = 0;
+
+    var dtbMenu;
+    var menu;
+    //---------------------------------------------------------------------------
+    function formLoad() {
+        topWin.systemName = "g_mscm";
+        g.systemPath = g.appPath + "project/" + topWin.systemName + "/";
+
+        initTopWin();
+        loadMenu();
+        return;
+        // -- app环境预处理--------------------------------
+        topWin.offline = false;
+        if (App.os.equals("")) {
+            if (nTimes++ > 10) {
+                alert("App无响应，请尝试强制关闭后再重新打开。");
+            }
+            else {
+                setTimeout("formLoad()", 100);
+            }
+            return;
+        }
+        else {
+            topWin.os = App.os;
+        }
+        // ------------------------------------------------
+        if (!db.openDatabase(appKey, dbPath)) {
+            showErr("打开本地SQLite数据库遇到意外错误，请重试。");
+            return;
+        }
+        // ------------------------------------------------
+        initTopWin();
+        loadMenu();
+
+        if (App.os.equals("android")) {
+            topWin.userKey = "liweiguo";
+            var serverUrl = "ws://192.168.2.124:7000/xpas/ws_app_message";
+            try {
+                App.startAndroidService_01(serverUrl, topWin.userKey, "1");
+            }
+            catch (e) {
+                showErr(e.toString());
+            }
+        }
+    }
+</script>
+
+<!-- 菜单 -->
+<script type="text/javascript">
+    function loadMenu() {
+        var dataRow = null;
+        // ------------------------------------------------
+        try {
+            // -- 1、取微信端菜单 ----------------------------
+            if (g.a.send("processType=com.xznext.Framework&actionType=getMenu", { systemKey: "PG3", clientType: "Weixin" }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+
+                    dtbMenu = cReturn.dtbMenu;
+                    topWin.dtbMenu = dtbMenu;
+                    if (dtbMenu.rowCount == 0) {
+                        alert("尚未为您分配当前系统访问权限，请与系统管理员联系。");
+                        return false;
+                    }
+                    // -- 获取子系统下传的数据 --
+                    for (var key in cReturn) {
+                        if (key.equals("ok") || key.equals("dtbMenu")) continue;
+                        topWin[key] = cReturn[key];
+                    }
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+
+            // -- 2. 添加菜单 -----------------------------
+            menu = new window.xmf_menu({
+                divContainer: divMenu,
+                click: onMenuClick,
+                imagePathP: "../images/weixin/menu/",
+                imagePathC: "../../../res/control_mobile/menu/" + top.cssStyle + "/"
+            });
+
+            for (var iRow = 0; iRow < dtbMenu.rowCount; iRow++) {
+                dataRow = dtbMenu.rows[iRow];
+                menu.addMenu({
+                    menuKey: dataRow["menu_key"].value,
+                    menuText: dataRow["menu_text"].value,
+                    menuIcon: dataRow["menu_icon"].value,
+                    dataRow: dataRow
+                });
+            }
+            // --------------------------------------------
+        }
+        catch (e) {
+            showErr(e.toString());
+            return;
+        }
+    }
+    function onMenuClick(menu) {
+        var drMenu = menu.dataRow;
+        var menuType = drMenu["menu_type"].value;
+        var menuKey = drMenu["menu_key"].value;
+        var menuUrl = drMenu["menu_url"].value;
+
+        var html_wx = g.systemPath + "html_wx/";
+        var url = html_wx + menuUrl + (menuUrl.indexOf("?") > 0 ? "&" : "?") + "rnd=" + Math.random();
+        // ------------------------------------------------
+        if (menuType.equals("window")) {
+            // $('#divMenu').hide();
+            topWin.openFullWindow({ url: url }, { drMenu: drMenu });
+        } else if (menuType.equals("menu") && menuKey.equals("PG3002001006")) {
+            // 登出系统
+            if (g.a.send("processType=com.xznext.xpas.Login&actionType=logout", {}, true)) {
+                if (g.a.OK) {
+                    var c = g.a.cReturn;
+                    window.location.href = "/xpas/project/g_mscm/html_wx/login.html?loginout=1";
+                }
+            }
+        }
+        else {
+            showErr("微信客户端不支持的菜单类型 [" + menuType + "]，请检查。");
+        }
+        return true;
+    }
+</script>
+<!-- app 测试 -->
+<script type="text/javascript">
+    function click1() { 
+        sql = "SELECT * FROM T_APP_BLANK WHERE app_blank_key = 'url_app_login'";
+        dtb = db.getDataTable(sql);
+        if (dtb.rowCount == 0) {
+            showMsg("urlAppLogin 为空");
+        }
+        else {
+            var urlAppLogin = dtb.rows[0]["app_blank_value"].value;
+            db.execSQL("DELETE FROM T_APP_BLANK");
+            showMsg("已重置登录，原登录地址为：" + urlAppLogin);
+        }
+    }
+
+    function click2() {        
+        try {
+            App.shake();
+        }
+        catch (e) {
+            showErr(e.toString());
+        }
+    }
+    function click3() {
+        try {
+            topWin.userKey = "liweiguo";
+            var serverUrl = "ws://192.168.2.124:7000/xpas/ws_app_message";
+            try { 
+                App.startAndroidService_01(serverUrl, topWin.userKey, "1"); 
+            }
+            catch (e) {
+                showErr(e.toString());
+            }
+        }
+        catch (e) {
+            showErr(e.toString());
+        }
+    }
+    function click4() {
+        try { 
+            try {                
+                App.stopAndroidService_01();
+            }
+            catch (e) {
+                showErr(e.toString());
+            }
+        }
+        catch (e) {
+            showErr(e.toString());
+        }
+    }
+</script>

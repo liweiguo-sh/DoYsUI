@@ -1,0 +1,54 @@
+﻿/* 遮挡层iframe样式 */
+.xwf_context_ifrLayer {
+    position: absolute;
+    border: 0px solid red;
+    background-color: #1f3853;
+    border-radius: 4px;
+}
+.xwf_context_divContainer {
+    position: absolute;
+    padding: 6px;
+    background-color: #1f3853;
+    border-radius: 4px;
+}
+
+.xwf_context_ulMenu {
+    margin-top: 0px;
+    margin-left: 0px;
+    padding: 2px;
+    border-radius: 3px;
+}
+.xwf_context_ulMenu li {
+    cursor: pointer;
+    list-style: none;
+}
+
+/* 菜单项样式表 */
+.xwf_context_tbLi {
+    border-collapse: collapse;
+}
+.xwf_context_tbLi td {
+    overflow: hidden;
+}
+
+.xwf_context_tdImage {
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    padding-top: 6px;
+}
+.xwf_context_tdImage img {
+    width: 16px;
+    height: 16px;
+}
+
+.xwf_context_tdText {
+    color: GhostWhite;
+    font-size: 11pt;
+    font-family: 微软雅黑;
+    white-space: nowrap;
+    padding: 8px 20px 5px 5px;
+}
+.xwf_context_tdText:hover {
+    color: Blue;
+}

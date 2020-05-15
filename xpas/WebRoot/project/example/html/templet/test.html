@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>空白窗口</title>
+    <script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js"></script>
+</head>
+<body onload="formLoad()">
+    <div id="divButton" class="divButtons">
+        <input type="button" id="btnOperate" onclick="btnOperate_click();" value="操作" />
+        <input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+    </div>
+    <br /><br /><br />
+    <div class="PanelA">
+        空白窗口...
+    </div>
+    <br /><br /><br />
+    <input type="text" id="txt1" onkeydown="enterPress(event)" />
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var txt1 = window.document.getElementById("txt1");
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        return;
+        jQuery(txt1).keyup(function (e) {
+            var key = e.which;
+            if (key == 13) {
+                alert("回车.")
+            }
+        });
+    }
+
+    function enterPress(evt) {
+        alert("key down");
+    }
+</script>

@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>手术需求维护</title>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script>
+
+    <script src="../../../../res/control/grid/xwf.grid.js"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+        #divPanelA {
+            overflow: auto; 
+        }
+        #divOprt {
+            cursor: pointer;
+        }
+        
+        #tdLeft, #tdRight {
+            overflow: hidden;
+            vertical-align: top;
+        }
+
+        #tbMatr {
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        #tbMatr td {
+            overflow: hidden;
+            padding: 0px 0px 8px 0px;
+            --border: solid 1px red;
+        }
+        #txtMatr {
+            height: 24px;
+            line-height: 24px;
+            border: solid 1px;
+        }
+        #txtNum {
+            color: red;
+            height: 24px;
+            line-height: 24px;
+        }
+        #btnImport {
+            width: 80%;
+            height: 32px;
+            color: white;
+            background: #3280FC;
+        }
+        #btnImport:hover {            
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+	<div id="divPanelA" class="PanelA">
+		<table>
+            <tr>
+                <td id="tdLeft">
+                    <table id="tbOprt" class="tbForm" style="width:455px;display:none">
+                        <tr class="trH">
+				            <th style="width:100px;"></th>
+				            <th style="width:150px;"></th>
+				            <th style="width:100px;"></th>
+				            <th style="width:150px;"></th>
+			            </tr>
+                        <tr>
+                            <td>医生</td>
+                            <td>张三</td>
+                            <td>手术日期</td>
+                            <td>2019-08-09</td>
+                        </tr>
+                    </table>
+                    <div id="divOprt"></div>
+                </td>
+                <td id="tdRight">
+                    <table id="tbMatr">
+                        <tr class="trH"> 
+				            <th style="width:50%;"></th>
+                            <th style="width:50%;"></th>
+			            </tr>
+                        <tr>
+                            <td colspan="2">
+                                <input id="txtMatr" type="text" disabled="disabled" controlType="dropdown"
+                                    fieldValue="material_id" fieldText="matr" 
+                                    fieldsVisible="material_name, material_spec, price_sp, manufacturer_name" 
+                                    fieldsSearch="material_name, material_spec" 
+                                    widthPanel="1200" thNames="序号, 品名, 品规, 单价, 厂商" 
+                                    thWidths="40px,350px,250px,60px,250px" />
+                            </td>                            
+                        </tr>
+                        <tr>
+                            <td><input type="text" id="txtNum" onkeydown="txtNum_keydown(event);" /></td>
+                            <td style="text-align:right;"><input type="button" id="btnImport" value="从手术需求模板导入" onclick="btnImport_click();" /></td>
+                        </tr>
+                    </table>
+                    <div id="divMatr">手术耗材列表</div>
+                </td>
+            </tr>
+		</table>
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var role = urlPara["role"];             // -- 医生（只看自己的手术）、科室（只看本科室的手术）、库存地（只看服务范围的手术）--
+
+    var oprtId = 0;                         // -- 当前选中的手术单 --
+    var oprtIds = "";                       // -- 当前选中的手术单ID集合 --
+
+    var txtMatr = gId("txtMatr");
+    var txtNum = gId("txtNum");
+
+    var gvOprt = null, gvMatr = null;
+	// ------------------------------------------------------------------------
+    function formLoad() {
+        formResize();
+
+        initGridMatr();
+        initGridOprt();
+        initMatr();
+    }
+
+    function formResize() {
+        var width = win.p.width;
+        var height = win.p.height;
+
+        gId("divPanelA").style.height =(height - gId("divPanelA").offsetTop-30) + "px";
+
+        gId("tdLeft").style.width = (width / 2) + "px";
+        gId("tdRight").style.width = (gId("divPanelA").clientWidth - gId("tdLeft").offsetWidth ) + "px";
+
+        gId("divOprt").style.height = (gId("divPanelA").clientHeight - gId("divOprt").offsetTop - 25) + "px";
+        gId("divMatr").style.height = (gId("divPanelA").clientHeight - gId("divMatr").offsetTop - 25) + "px";
+
+        gId("tbMatr").style.width = (gId("divMatr").offsetWidth + 12) + "px";
+        gId("txtMatr").style.width = (gId("tbMatr").offsetWidth -4)+ "px";
+    }
+</script>
+
+<!-- 初始化 -->
+<script type="text/javascript">
+    function initMatr() {
+        if (g.a.send("processType=h_spd.oprt.OprtMatr&actionType=getInitData", {}, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbMatr = cReturn.dtbMatr;
+
+                var jsonProp = {
+                    txtHost: txtMatr,
+                    visibleSN: true,
+                    dtbSource: dtbMatr,
+                    rowClick: function () {
+                        txtNum.value = "1";
+                        txtNum.select();
+                        txtNum.focus();
+                        return true;
+                    },
+                };
+                txtMatr.dropdown = new window.xwf_dropdown(jsonProp);
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+
+<!-- gridview：手术单列表 -->
+<script type="text/javascript">
+    function initGridOprt() {
+        var prop = {
+            divContainer: gId("divOprt"),
+            viewKey: "thd_oprt_m1",
+            viewFilter: "",
+            rowClick: onRowClick_oprt
+        };
+        gvOprt = new window.xwf_gridview(prop);
+    }
+
+    function onRowClick_oprt(para) {
+        var dataRow = para.dataRow;
+        if (dataRow == null) return;
+
+        oprtId = dataRow["oprt_id"].value;
+
+        gvMatr.setViewFilter("oprt_id = " + oprtId);
+    }
+</script>
+<!-- gridview：手术耗材列表 -->
+<script type="text/javascript">
+    function initGridMatr() {
+        var prop = {
+            divContainer: gId("divMatr"),
+            viewKey: "thd_oprt_matr_m1",
+            viewFilter: "1 = 0",
+            cellBlur: onCellBlur_qty
+        };
+        gvMatr = new window.xwf_gridview(prop);
+    }
+
+    function onCellBlur_qty(para) {
+        var qtyNew = para.newValue;
+        var oprtMatrId = para.dataRow["oprt_matr_id"].value;
+
+        if (g.a.send("processType=h_spd.oprt.OprtMatr&actionType=setOprtMatrQty", { oprtMatrId: oprtMatrId, qtyNew: qtyNew }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn; 
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+
+<!-- 添加明细 -->
+<script type="text/javascript">
+    function txtNum_keydown(evt) {
+        evt = evt || window.event;
+        if (evt.keyCode == 13) {
+            addMatrToDtl();
+        }
+    }
+
+    function addMatrToDtl() {
+        var matrId = txtMatr.underValue;
+        var qty = txtNum.value.toInt();
+
+        // ------------------------------------------------
+        if (!getOprtIds(false)) {
+            return false;
+        }
+
+        if (!matrId) {
+            showWarn("请先选择要添加的耗材。");
+            txtMatr.focus();
+            return false;
+        }
+        if (qty < 1) {
+            showWarn("请输入正确的数量。");
+            txtNum.focus();
+            return false;
+        }
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.oprt.OprtMatr&actionType=addMatrToDtl", { oprtIds: oprtIds, matrId: matrId, qty: qty }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbMatr = cReturn.dtbMatr;
+
+                gvMatr.refresh();
+                txtNum.value = "";
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function btnImport_click() {
+        if (!getOprtIds(true)) {
+            return false;
+        }
+        // ----------------------------------------------------
+        var prop = {
+            title: "请选择手术需求模板...",
+            width: 960,
+            height: 0.8,
+            parent: win
+        };
+        var para = {
+            viewKey: "pack_templet_select",
+            viewMode: "singleSelect",
+            viewFilter: "pack_type = 'OPRT_MATR_TEMPLET' AND dept_id = " + topWin.officeId,
+            selectCallback: onPackTempletSelect
+        };
+        topWin.openSelectView(prop, para);
+    }
+    function onPackTempletSelect(dataRow) {
+        var packTempletId = dataRow["pack_templet_id"].value;
+
+        // ----------------------------------------------------
+        if (g.a.send("processType=h_spd.oprt.OprtMatr&actionType=addMatrToDtlByTemplet", { packTempletId: packTempletId, oprtIds: oprtIds }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbMatr = cReturn.dtbMatr;
+
+                gvMatr.refresh();
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+
+        // ----------------------------------------------------
+        return true;
+    }
+
+    function getOprtIds(fromTemplet) {
+        var bIn = false;                    // -- 当前选中行（高亮行）是否在勾选行集合范围内 --
+        var arrSelectedRows = new Array();
+        // ----------------------------------------------------
+        oprtIds = "";
+
+        for (var i = 0; i < gvOprt.dtbViewData.rowCount; i++) {
+            if (gvOprt.dtbViewData.rows[i].checked) {
+                arrSelectedRows.push(gvOprt.dtbViewData.rows[i]["oprt_id"].value);
+                if (gvOprt.dtbViewData.rows[i]["oprt_id"].value == oprtId) {
+                    bIn = true;
+                }
+            }
+        }
+
+        if (arrSelectedRows.length == 0) {
+            if (oprtId == 0) {
+                showWarn("请先选中要操作的手术。");
+                return false;
+            }
+            oprtIds = "" + oprtId;
+        }
+        else if (arrSelectedRows.length == 1) {
+            if (!bIn) {
+                showWarn("您当前选中的高亮行不在您勾选的记录范围内。如果您一次只操作一条记录，请不要使用勾选。");
+                return false;
+            }
+            oprtIds = "" + arrSelectedRows[0];
+        }
+        else {
+            if (!bIn) {
+                showWarn("您当前选中的高亮行不在您勾选的记录范围内。如果您一次只操作一条记录，请不要使用勾选。");
+                return false;
+            }
+            if (!showConfirm("您勾选了多条手术记录，是要批量添加手术需求明细吗？")) {
+                return false;
+            }
+            oprtIds = arrSelectedRows.join(",");
+        }
+
+        if (fromTemplet) {
+            if (!showConfirm("从模板导入手术需求，会覆盖您当前选择的手术需求明细，要继续吗？")) {
+                return false;
+            }
+        }
+
+        // ----------------------------------------------------
+        return true;
+    }
+</script>

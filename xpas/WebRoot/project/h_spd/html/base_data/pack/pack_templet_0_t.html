@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>虚拟包模板定义</title>
+  <link rel="stylesheet" href="../../../../../res_plugin/zui-1.8.1-dist/css/zui.min.css" />
+  <link rel="stylesheet" href="../../../../../res_plugin/zui-1.8.1-dist/css/zuiExt.css" />
+  <script src="../../../../../res_plugin/zui-1.8.1-dist/lib/jquery/jquery.js"></script>
+  <script src="../../../../../res_plugin/zui-1.8.1-dist/js/zui.min.js"></script>
+  <script src="../../../../../res_plugin/zui-1.8.1-dist/js/zuiExt.js"></script>
+  <script src="../../../js/xwf.js"></script>
+  <script src="../../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script> 
+  <script src="../../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+  <script src="../../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+  <script src="../../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+  <script src="../../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+  <script src="../../../../../res_plugin/util/chinese_py.js" type="text/javascript"></script>
+  <script src="../../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+  <style type="text/css">
+    body {
+      overflow: hidden;
+    }
+    #divGridDtl input {
+      border: 0px;
+    }
+  </style>
+</head>
+<body>
+  <div id="divDC" class="ScreenCenter"></div>
+  <form id="frm" action="" target="h_spd.base_data.pack.VIEW_PackTemplet_0">
+    <div class ="PanelA ScreenCenter" style="width:980px;" >
+      <table id="tbForm" class="tbForm" style="width:100%;">
+        <tr id="trH">
+          <th style="width: 12%;"></th>
+          <th style="width: 30%;"></th>
+          <th style="width: 11%;"></th>
+          <th style="width: 20%;"></th>
+          <th style="width: 11%;"></th>
+          <th style="width: 16%;"></th>
+        </tr>
+        <tr>    
+          <td>虚拟包包名称</td>
+          <td><input type="text" id="_cPack_templet_name" /></td>
+          <td>耗材包代码</td>
+          <td><input type="text" id="_cPack_templet_code"/></td> 
+        </tr>
+        <tr id="trDept">
+          <td>科室</td>
+          <td colspan="3"><input id="_gDept_name" type="text" disabled="disabled" /></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>备注：</td>
+          <td colspan="3"><input type="text" id="_cPack_templet_remark" /> </td>
+          <td></td>
+          <td></td>
+        </tr>
+      </table>
+    </div>
+    <input type="hidden" id="_cPACK_TEMPLET_ID" />
+    <input type="hidden" id="_cPack_type" />
+    <input type="hidden" id="_cDept_id" />
+  </form>
+  <div class ="PanelA ScreenCenter" style="width:980px;margin-top:5px;" >
+    <div id="divGridDtl" style="height:350px;"></div>
+  </div>    
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript"> 
+    var gridParent = null;
+    var nodeParent = null;
+
+    var packType = "";
+    var isDesignateDept = 0;
+
+    var gvDtl = null; 
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        gridParent = win.parentWindow.gridView; 
+        nodeParent = gridParent.tree.selectedNode;
+        if (nodeParent.Columns) {
+            isDesignateDept = nodeParent.Columns["is_designate_dept"];
+            packType = nodeParent.Columns["pack_type"];
+            frm._cPack_type.value = packType;            
+        }
+        if (!isDesignateDept) {
+            gId("trDept").style.display = "none";
+            gId("_cDept_id").id = "";
+        }
+
+        vf.css(gId("tbForm"));
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.beforeAddnew = function () { 
+        if (packType.equals("")) {
+            showErr("请先选择左侧包类型。");
+            return false;
+        }
+        return true;
+    }
+    vf.afterAddnew = function () {
+      frm._cDept_id.value = topWin.officeId;
+      frm._gDept_name.value = topWin.officeName;
+      frm._cPack_type.value = packType;         
+    }
+
+    vf.afterMove = function () {
+        var packTempletId = frm._cPACK_TEMPLET_ID.value.toInt();
+        if (gvDtl == null) {
+            var prop = {
+                divContainer: gId("divGridDtl"),
+                toolbarVisible: true,
+                viewKey: "pack_templet_dtl",
+                viewFilter: "t.pack_templet_id = " + packTempletId,
+                cellBlur: cellBlur,
+                jsonToolbar: { height: "M", onclick: onToolbarClick }
+            };
+            gvDtl = new window.xwf_gridview(prop);
+
+            gvDtl.toolbar.addBar({ type: "button", key: "addMatr", text: "<i class='fa fa-plus'></i>添加包内耗材", align: "left", style: "Grid", icon: null });
+        }
+        else {
+            gvDtl.setViewFilter("t.pack_templet_id = " + packTempletId);
+        }
+    }
+</script>
+<!-- 耗材添加 -->
+<script type="text/javascript">
+    function onToolbarClick(para) {
+        var viewFilter = "material_ptype = 0";
+        // ------------------------------------------------
+        if (para.key.equals("addMatr")) {
+            if (vf.status.equals("addnew")) {
+                if (!vf.save()) {
+                    return false;
+                }
+            }
+            if (isDesignateDept) {
+                viewFilter += " AND m.material_id IN (SELECT matr_id FROM TDEPT_R_MATR WHERE dept_id = " + gId("_cDept_id").value + ")";
+            }
+
+            var prop = {
+                title: "请选择耗材...",
+                width: 0.8,
+                height: 0.9,
+                parent: win
+            };
+            var para = {
+                viewKey: "matr_select_tiantan",
+                viewMode: "multiSelect",
+                viewFilter: viewFilter, 
+                selectCallback: callbackAddMatr
+            };
+
+            // 请领模板中添加包内耗材页面根据分辨率调整大小
+            if (topWin.cWin.maxWidth < 1360) {
+                prop.width = 0.98;
+                prop.height = 0.98;
+            } else {
+                prop.width = 0.8;
+                prop.height = 0.9;
+            }
+            topWin.openSelectView(prop, para);     
+        }
+        else {
+            showErr("unknown button " + para.key);
+        }
+    }
+    function callbackAddMatr(arrDataRow) {
+        var packTempletId = frm._cPACK_TEMPLET_ID.value.toInt();
+        var arrIds = new Array();
+
+        for (var i = 0; i < arrDataRow.length; i++) {
+            arrIds.push(arrDataRow[i]["material_id"].value);
+        }
+
+        if (g.a.send("processType=h_spd.base_data.pack.PackTempletDtl&actionType=addMatr", { packTempletId: packTempletId, materialIds: arrIds.join(",") }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                gvDtl.refresh();
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function cellBlur(para) {
+        var dataRow = para.drRow;
+        var packTempletDtlId = para.drRow["pack_templet_dtl_id"].value.toInt();
+        var newValue = para.newValue;
+
+        if (para.newValue == para.oldValue) {
+            return true;
+        }
+        if (newValue <= 0) {
+            showErr("请输入正确的数字。")
+            return false;
+        }
+
+        var params = {
+            packTempletDtlId: packTempletDtlId,
+            materialQty: newValue
+        };
+
+        if (g.a.send("processType=h_spd.base_data.pack.PackTempletDtl&actionType=updateMatrQty", params, true)) {
+            if (g.a.OK) {
+                zuiExt.msg({
+                    msg: "数量更新成功！",
+                    type: "success",
+                    time: "2000"
+                });
+                return true;
+            }
+            else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>

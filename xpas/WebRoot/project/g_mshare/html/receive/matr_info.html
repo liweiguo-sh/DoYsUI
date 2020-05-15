@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>耗材综合查询</title>
+    <link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="../../../../res/control/upload/style3/xwf.upload.css" rel="stylesheet" />
+
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+
+    <script src="../../../../res/control/tab/xwf.tab.js"></script>
+    <script src="../../../../res/control/tree/xwf.tree.js"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+
+    <script src="../../../../res/control/upload/xwf.upload.js"></script>
+    <script src="../../../../res/control/upload/xwf.upload_core.js"></script>
+    <script src="../../js/doc_center.js"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="divDC"></div>
+    <div id="divTab" class="xwf_tab_divContainer" style="width: 965px;">
+        <div id="divForm">
+            <form id="frm" action="" target="">
+                <table id="tbForm" class="tbForm" style="width: 965px;">
+                    <tr class="trH">
+                        <th style="width: 120px;"></th>
+                        <th style="width: 200px;"></th>
+                        <th style="width: 120px;"></th>
+                        <th style="width: 200px;"></th>
+                        <th style="width: 120px;"></th>
+                        <th style="width: 200px;"></th>
+                    </tr>
+                    <tr>
+                        <td>品类</td>
+                        <td colspan="5"><input type="text" id="_xCfname" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td>品名</td>
+                        <td colspan="3"><input type="text" id="_xMatr_name" value="" /></td>
+                        <td>单位</td>
+                        <td><input type="text" id="_xMatr_unit" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td>品规</td>
+                        <td colspan="3"><input type="text" id="_xMatr_spec" value="" /></td>
+                        <td>剂型</td>
+                        <td><input type="text" id="_xMatr_dosage" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td>商品名</td>
+                        <td><input type="text" id="_xMatr_trade_name" value="" /></td>
+                        <td>流水号</td>
+                        <td><input type="text" id="_xProvincial_platform" value="" /></td>
+                        <td>是否高耗</td>
+                        <td><input type="checkbox" id="_xIs_higher" /><label for="_xIs_higher">高耗</label></td>
+                    </tr>
+                    <tr>
+                        <td>厂商</td>
+                        <td colspan="3"><input type="text" id="_xManufacturer" value="" /></td>
+                        <td>进口/国产</td>
+                        <td><input type="checkbox" id="_xIs_import" /><label for="_xIs_import">进口耗材</label></td>
+                    </tr>
+                    <tr>
+                        <td>生产许可证</td>
+                        <td colspan="3"><input type="text" id="_xProduction_licence" value="" /></td>
+                        <td>GTIN</td>
+                        <td><input type="text" id="_xMatr_gtin" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td>执行标准</td>
+                        <td><input type="text" id="_xExecutive_standard" value="" /></td>
+                        <td>批准文号</td>
+                        <td><input type="text" id="_xApproval_no" value="" /></td>
+                        <td>HIBC</td>
+                        <td><input type="text" id="_xMatr_hibc" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td>注册证号</td>
+                        <td colspan="3"><input type="text" id="_xRegister_no" value="" /></td>
+                        <td>注册证效期</td>
+                        <td><input type="text" id="_xRegister_exp" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td>备注</td>
+                        <td colspan="5"><textarea id="_xMatr_remark" rows="5" cols="0"></textarea></td>
+                    </tr>
+                </table>
+                <input id="_cMATR_ID" type="hidden" value="" />
+            </form>
+        </div>
+        <div id="divGridR" style="display: none">
+            <div id="divDocQuaUpload" style="width: 100%; height: 430px; border: 0px solid green; overflow: auto;"></div>
+        </div>
+        <div id="divGridP" style="display: none">
+            <div id="divCertUpload" style="width: 100%; height: 430px; border: 0px solid green; overflow: auto;"></div>
+        </div>
+        <div id="divGridCertAll" style="display: none">CertAll</div>
+        <div id="divGridA" style="display: none">A</div>
+        <div id="divGridC" style="display: none">C</div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var tabs = null;
+    var gvCertAll = null, gridviewR = null, gridviewA = null, gridviewC = null;
+
+    var matrId = 0, matrCompanyId = 0, docId = 0, docQuaId = 0;
+    var matrCategoryIds = "";
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        var serverName = topWin.serverName;
+
+        vf.css(gId("tbForm"));
+
+        tabs = new window.xwf_tab({ divContainer: gId("divTab"), tabClick: tab_click });
+        tabs.addTab({ key: "tabInfo", text: "耗材信息", control: gId("divForm") });
+        tabs.addTab({ key: "tabCertAll", text: "全部资质", title: "跟当前耗材相关的所有资质信息", control: gId("divGridCertAll") });
+        if (!serverName.equals("SD_ZhongLiu")) {
+            tabs.addTab({ key: "tabR", text: "合格证", title: "", control: gId("divGridR") });
+            tabs.addTab({ key: "tabP", text: "产品图片", title: "", control: gId("divGridP") });
+            tabs.addTab({ key: "tabA", text: "授权书", title: "", control: gId("divGridA") });
+            tabs.addTab({ key: "tabC1", text: "品类资质", title: "", control: gId("divGridC") });
+            tabs.addTab({ key: "tabC2", text: "企业资质", title: "", control: gId("divGridC") });
+        }
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.afterMove = function() {
+        matrId = frm._cMATR_ID.value.toInt();
+
+        getMatrInfo();
+
+        tab_click(tabs.tabSelected);
+    }
+</script>
+<!-- 加载耗材数据 -->
+<script type="text/javascript">
+    function getMatrInfo() {
+        if (g.a.send("processType=g_mshare.receive.MatrQueryAll&actionType=getMatrInfoByMatrId", {
+                matrId: matrId
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbMatr = cReturn.dtbMatr;
+                if (dtbMatr.rowCount == 1) {
+                    gId("_xCfname").value = dtbMatr.rows[0]["category_fullname"].value;
+                    gId("_xMatr_name").value = dtbMatr.rows[0]["matr_name"].value;
+                    gId("_xMatr_spec").value = dtbMatr.rows[0]["matr_spec"].value;
+                    gId("_xMatr_unit").value = dtbMatr.rows[0]["matr_unit"].value;
+                    gId("_xMatr_dosage").value = dtbMatr.rows[0]["matr_dosage"].value;
+                    gId("_xMatr_trade_name").value = dtbMatr.rows[0]["matr_trade_name"].value;
+                    gId("_xProvincial_platform").value = dtbMatr.rows[0]["provincial_platform"].value;
+                    gId("_xMatr_gtin").value = dtbMatr.rows[0]["matr_gtin"].value;
+                    gId("_xMatr_hibc").value = dtbMatr.rows[0]["matr_hibc"].value;
+                    gId("_xManufacturer").value = dtbMatr.rows[0]["manufacturer_name"].value;
+                    gId("_xIs_higher").checked = dtbMatr.rows[0]["is_higher"].value ? true : false;
+                    gId("_xIs_import").checked = dtbMatr.rows[0]["is_import"].value ? true : false;
+                    gId("_xProduction_licence").value = dtbMatr.rows[0]["production_licence"].value;
+                    gId("_xApproval_no").value = dtbMatr.rows[0]["approval_no"].value;
+                    gId("_xRegister_no").value = dtbMatr.rows[0]["register_no"].value;
+                    gId("_xRegister_exp").value = dtbMatr.rows[0]["register_exp"].value.substring(0, 10);
+                    gId("_xExecutive_standard").value = dtbMatr.rows[0]["executive_standard"].value;
+                    gId("_xMatr_remark").value = dtbMatr.rows[0]["matr_remark"].value;
+
+                    matrCategoryIds = dtbMatr.rows[0]["category_ids_all"].value === '' ? 0 :
+                        dtbMatr.rows[0]["category_ids_all"].value;
+                    matrCompanyId = dtbMatr.rows[0]["company_id"].value;
+                    docId = dtbMatr.rows[0]["doc_id_active"].value;
+                    docQuaId = dtbMatr.rows[0]["doc_id_qua"].value;
+                } else {
+                    showErr("耗材信息获取失败，请检查。");
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function tab_click(tab) {
+        if (tab.key == "tabInfo") {
+            // -- do nothing --
+        }
+        else if (tab.key == "tabR") {
+            var upA = docService.createUploadArea({
+                divContainer: gId("divDocQuaUpload"),
+                docId: docQuaId,
+                certCategoryId: 33, // -- 产品图片 --
+                showTitle: false,
+                showNotes: true,
+                allowView: false,
+                showDownload: false,
+                readonly: true,
+                allowView: true,
+                allowDownload: true
+            });
+        }
+        else if (tab.key == "tabP") {
+            var upA = docService.createUploadArea({
+                divContainer: gId("divCertUpload"),
+                docId: docId,
+                certCategoryId: 16, // -- 产品图片 --
+                showTitle: false,
+                showNotes: true,
+                allowView: false,
+                showDownload: false,
+                readonly: true,
+                allowView: true,
+                allowDownload: true
+            });
+        }
+        else if (tab.key == "tabCertAll") {
+            var viewFilter = "company_id = " + matrCompanyId + " AND (" +
+                "cert_id IN (SELECT cert_id FROM T_CERT_MATR WHERE matr_id = " + matrId + ") OR " +
+                "cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id IN (" + matrCategoryIds + "))" +
+                ") AND (company_scope = 0 OR cert_id IN (SELECT cert_id FROM T_CERT_COMPANY WHERE company_id_to = %companyId%))";
+            if (gvCertAll == null) {
+                var prop = {
+                    divContainer: gId("divGridCertAll"),
+                    viewKey: "matr_cert_query_all",
+                    viewFilter: viewFilter,
+                    viewForm: "project/g_mshare/html/receive/cert_info.html"
+                };
+                gvCertAll = new window.xwf_gridview(prop);
+            }
+            else {
+                gvCertAll.setViewFilter(viewFilter);
+            }
+        }
+        else if (tab.key == "tabA") {
+            var viewFilter = "company_id = " + matrCompanyId + " AND (" +
+                "cert_id IN (SELECT cert_id FROM T_CERT_MATR WHERE matr_id = " + matrId + ") OR " +
+                "cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id IN (" + matrCategoryIds + "))" +
+                ") AND (company_scope = 0 OR cert_id IN (SELECT cert_id FROM T_CERT_COMPANY WHERE company_id_to = %companyId%))";
+
+            if (gridviewA == null) {
+                var prop = {
+                    divContainer: gId("divGridA"),
+                    viewKey: "matr_cert_query_a",
+                    viewFilter: viewFilter,
+                    viewForm: "project/g_mshare/html/receive/cert_info.html"
+                };
+                gridviewA = new window.xwf_gridview(prop);
+            } else {
+                gridviewA.setViewFilter(viewFilter);
+            }
+        }
+        else if (tab.key == "tabC1") {
+            var viewFilter = "company_id = " + matrCompanyId + " AND cert_category_type = 'M' AND (" +
+                "cert_id IN (SELECT cert_id FROM T_CERT_MATR WHERE matr_id = " + matrId + ") OR " +
+                "cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id IN (" + matrCategoryIds + "))" +
+                ") AND (company_scope = 0 OR cert_id IN (SELECT cert_id FROM T_CERT_COMPANY WHERE company_id_to = %companyId%))";
+
+            if (gridviewC == null) {
+                var prop = {
+                    divContainer: gId("divGridC"),
+                    viewKey: "matr_cert_query_cm",
+                    viewFilter: viewFilter,
+                    viewForm: "project/g_mshare/html/receive/cert_info.html"
+                };
+                gridviewC = new window.xwf_gridview(prop);
+            }
+            else {
+                gridviewC.setViewFilter(viewFilter);
+            }
+        }
+        else if (tab.key == "tabC2") {
+            var viewFilter = "company_id = " + matrCompanyId + " AND cert_category_type = 'C' AND (" +
+                "cert_id IN (SELECT cert_id FROM T_CERT_MATR WHERE matr_id = " + matrId + ") OR " +
+                "cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id IN (" + matrCategoryIds + "))" +
+                ") AND (company_scope = 0 OR cert_id IN (SELECT cert_id FROM T_CERT_COMPANY WHERE company_id_to = %companyId%))";
+
+            var viewFilter = "company_id = " + matrCompanyId + " AND cert_category_type = 'C' " +
+                "AND (company_scope = 0 OR cert_id IN (SELECT cert_id FROM T_CERT_COMPANY WHERE company_id_to = %companyId%))";
+            if (gridviewC == null) {
+                var prop = {
+                    divContainer: gId("divGridC"),
+                    viewKey: "matr_cert_query_cm",
+                    viewFilter: viewFilter,
+                    viewForm: "project/g_mshare/html/receive/cert_info.html"
+                };
+                gridviewC = new window.xwf_gridview(prop);
+            }
+            else {
+                gridviewC.setViewFilter(viewFilter);
+            }
+        }
+        return true;
+    }
+</script>

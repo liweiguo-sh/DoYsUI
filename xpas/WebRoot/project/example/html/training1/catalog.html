@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>产品类别定义</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head> 
+<body>
+    <div id="divDC" allowMove="false"></div>
+    <form id="frm" action="" target="">
+        <table id="tbForm" class="tbForm" style="width:705px;">
+            <tr class="trH">
+                <th style="width:150px;"></th>
+                <th style="width:200px;"></th>
+                <th style="width:150px;"></th>
+                <th style="width:200px;"></th>
+            </tr>
+            <tr>
+                <td>类别名称：</td>
+                <td><input type="text" id="_cCatalog_name" value="" /></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>备注：</td>
+                <td colspan="3"><textarea id="_cCatalog_remark" rows="3" cols="0"></textarea></td>
+            </tr>
+        </table>
+        <input id="_cCATALOG_ID" type="hidden" value="" />
+    </form>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	function formLoad() {
+		vf.css(gId("tbForm"));
+	}
+</script>

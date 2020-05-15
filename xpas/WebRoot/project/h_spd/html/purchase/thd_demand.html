@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>科室需求单(浏览)</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script> 
+		
+	<script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target="h_spd.dept.VIEW_thdDemand"> 
+		<table id="tbForm" class="tbForm" style="width:907px;">
+			<tr class="trH">
+				<th style="width:130px;"></th>
+				<th style="width:170px;"></th>
+				<th style="width:130px;"></th>
+				<th style="width:170px;"></th>
+                <th style="width:130px;"></th>
+				<th style="width:170px;"></th>
+			</tr>
+			<tr>				
+				<td>单号：</td>
+				<td><input type="text" id="_cDemand_key" value="" /></td>
+				<td>日期：</td>
+				<td><input type="text" id="_cDemand_date" value="" /></td>
+                <td>金额：</td>
+				<td><input type="text" id="_cAmount" value="" /></td>
+			</tr>
+			<tr>				
+				<td>科室：</td>
+				<td><input type="text" id="_cDept_name" value="" /></td>
+				<td>申请人：</td>
+				<td><input type="text" id="_cDemand_username" value="" /></td>
+			</tr>
+			<tr>
+				<td>备注：</td>
+				<td colspan="5"><textarea id="_cRemark" rows="2" cols="0"></textarea></td>
+			</tr>
+		</table>		
+		<input id="_cDEMAND_ID" type="hidden" value="" />
+	</form>
+    <div id="divGrid"></div> 
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var gridview = null;
+
+    var divGrid = gId("divGrid");
+	// ------------------------------------------------------------------------
+	function formLoad() {
+        vf.css(gId("tbForm"));
+        formResize();
+
+        initGridview();
+    }
+    function formResize() {
+        var gridHeight = win.p.maxHeight - gId("tbForm").offsetHeight - 100;
+        divGrid.style.height = gridHeight + "px";
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.afterMove = function () {
+        var demandId = frm._cDEMAND_ID.value.toInt();
+
+        gridview.setViewFilter("demand_id = " + demandId);
+	}	
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    function initGridview() {
+        var prop = {
+            divContainer: divGrid,
+            viewKey: "thd_demand_dtl_info",
+            viewFilter: "demand_id = 0"
+        };
+        gridview = new window.xwf_gridview(prop);
+    }
+</script>

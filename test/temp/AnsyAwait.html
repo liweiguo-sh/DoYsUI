@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <input type="button" onclick="test(1)" value="foo" />
+    <input type="button" onclick="test(2)" value="bar" />
+</body>
+</html>
+
+<script>
+    function test(x) {
+        if (x == 1) {
+            foo();
+        }
+        else if (x == 2) {
+            bar();
+        }
+
+        window.document.writeln("end.");
+    }
+
+    async function foo() {
+        await sleep(3);
+        await sleep(3);
+
+        return 'done';
+    }
+
+    async function bar() {
+        const s1 = sleep(3);
+        const s2 = sleep(3);
+        await s1;
+        await s2;
+        return 'done';
+    }
+
+
+</script>

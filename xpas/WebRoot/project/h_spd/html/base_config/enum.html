@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="divDC"></div>
+	<div class="PanelA">
+		<form id="frm" action="" target="h_spd.base_config.VIEW_enum">
+            <table id="tbForm" class="tbForm" style="width: 685px;">
+             <tr class="trH">
+				    <th style="width:150px;"></th>
+				    <th style="width:180px;"></th>
+				    <th style="width:150px;"></th>
+				    <th style="width:200px;"></th>
+			    </tr>
+                <tr>
+                    <td>字典标识</td>
+                    <td>
+                        <input id="_cenum_key" type="text" value=""/></td>
+                    <td>字典名称<span style="color:chocolate;"	> *</span></td>
+                    <td>
+                        <input id="_cenum_name" type="text" value=""/></td>
+                </tr>
+                <tr>
+                    <td>备注</td>
+				    <td colspan="3">
+				   		<textarea id="_cenum_remark" rows="3" cols="0" placeholder="请在这里输入字典描述"></textarea>
+				    </td>
+                </tr>
+            </table>
+        </form>
+	</div>
+</body>
+</html>
+<!-- formLoad -->
+<script type="text/javascript">
+	var parentWin = null;
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		vf.css(gId("tbForm"));
+		parentWin = win.parentWindow;
+	}
+</script>

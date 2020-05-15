@@ -1,0 +1,57 @@
+﻿#tbReport {
+    margin-left: 0px;
+    border-collapse: collapse;
+    border-right: solid 2px #c0c0c0;
+    border-bottom: solid 2px #c0c0c0;
+}
+#tbReport td {    
+    height: 26px;
+    padding: 2px 8px 2px 8px;    
+    border: solid 1px #c0c0c0;
+}
+
+.Title {
+    font-weight: bold;
+    text-align: center;
+    background-color: #e0e0e0;
+}
+/* 分组区 */
+.RC {
+    --font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    background-color: whitesmoke;
+}
+.GC {
+    --font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    background-color: whitesmoke;
+}
+.GR {
+    --font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+}
+.GR_FormulaS {
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 数据区 */
+.Data {
+    font-size: 11pt;
+    text-align: right;
+    vertical-align: middle;
+}
+.Data_Formula {
+    font-weight: bold;
+    text-align: right;
+    vertical-align: middle;
+}
+.Data_FormulaS {
+    font-weight: bold;
+    text-align: right;
+    vertical-align: middle;
+}

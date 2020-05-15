@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>模态子窗口</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divButton" class="divButtons">
+		<input type="button" id="btnGetPara" onclick="btnGetPara_click();" value="取参数" />
+		<input type="button" id="btnCallback" onclick="btnCallback_click();" value="回调父窗口函数" />
+		<input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+	</div>
+	<div id="divResult" style="width:300px;height:200px;border:solid 1px red;"></div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var parentWin = null;
+	var urlPara = getUrlPara();
+	var divResult = gId("divResult");
+	// ----------------------------------------------------
+	function formLoad() {
+		parentWin = win.parentWindow;
+
+		win.addEventListener("afterClose",
+			function () {
+				if (win.para.callback) {
+					win.para.callback("我要关掉了，再见！");
+				}
+			}
+		);
+	}
+
+	function btnGetPara_click() {
+		var arrHtml = new Array();
+
+		arrHtml.push("参数1 = " + urlPara["para1"]);
+		arrHtml.push("参数2 = " + urlPara["para2"]);
+		arrHtml.push("参数3 = " + win.para.para3);
+		arrHtml.push("参数4 = " + win.para.para4);
+		divResult.innerHTML = arrHtml.join("<br />");
+	}
+
+	function btnCallback_click() {
+		win.para.callback("你好！");
+	}
+	function btnClose_click() {
+		win.close();
+	}
+</script>

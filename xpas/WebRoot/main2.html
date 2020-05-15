@@ -1,0 +1,632 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>xPas (eXtensible programer assist system - xpas-next.com)</title>
+    <script type="text/javascript">
+        var cssStyle = "style2";
+    </script>
+    <!-- 基础类 -->
+    <script src="res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="res/jscript/xwf.const.js" type="text/javascript"></script>
+    <!-- UI控件类 -->
+    <script src="res/jscript/xwf.ui.js" type="text/javascript"></script>
+    <script src="res/control/menu2/xwf.menu2.js" type="text/javascript"></script>
+    <script src="res/control/window/xwf.window.js" type="text/javascript"></script>
+    <script src="res/control/context/xwf.context.js" type="text/javascript"></script>
+    <script src="res/control/taskbar/xwf.taskbar.js" type="text/javascript"></script>
+    <script src="res/control/statusbar/xwf.statusbar.js" type="text/javascript"></script>
+    <script src="res/control/dropgrid/xwf.dropgrid.js" type="text/javascript"></script>
+    <script src="res/jscript/xwf.css.js" type="text/javascript"></script>
+    <!-- 主界面js -->
+    <script src="res/jscript/xwf.main.js" type="text/javascript"></script>
+    <script src="res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+    
+     <script src="res_plugin/zui-1.8.1-dist/js/zui.js"></script>
+    <script src="res_plugin/zui-1.8.1-dist/js/zuiExt.js"></script>
+    <link href="res_plugin/zui-1.8.1-dist/css/zuiExt.css" rel="stylesheet" />
+    <style>
+        #divDebug {
+            top: auto !important;
+            bottom: 37px;
+        }
+        
+        #tdTopLeft {
+            background-size: contain !important;
+        }
+        
+        @media screen and (max-width: 980px) {
+            #tdTopLeft {
+                width: 100px;
+                height: 50px;
+            }
+            #tbImages {
+                margin-bottom: 6px;
+            }
+            .xwf_menu2_divMenu1 {
+                top: 0 !important;
+            }
+            .xwf_menu2_divMenu1 {
+                padding: 6px;
+            }
+            .tdTopRight {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body onload="main();" scroll="no">
+    <table id="tbTop">
+        <tr>
+            <td id="tdTopLeft" class="tdTopLeft"></td>
+            <td id="tdMenu" class="tdMenu"></td>
+            <td id="tdTopRight" class="tdTopRight">
+                <table id="tbImages">
+                    <tr>
+                        <td><img id="imgSubSystem" src="res/images/frame/sub_system.png" onclick="showSubSystem(this);" alt="" title="切换子系统" /></td>
+                        <td><img id="imgUser" src="res/images/frame/user.png" onclick="showUserCenter(this);" alt="" title="用户中心" /></td>
+                        <td><img id="imgMessage" src="res/images/frame/msg0.png" onclick="showMessage('测试消息');" alt="" title="消息中心" /></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div id="divTaskbar" class="xwf_taskbarBG"></div>
+    <div id="divContainer">
+        <iframe id="ifrBack" frameborder="0" style="border:0px"></iframe>
+    </div>
+    <div id="divStatus"></div>
+</body>
+</html>
+
+<!-- 模块变量定义 -->
+<script type="text/javascript">
+    var lastSystemIndex = 0; // -- 末次选中的子系统下标 --
+
+    var tbTop = gId("tbTop");
+    var divTaskbar = gId("divTaskbar");
+    var divContainer = gId("divContainer");
+    var ifrBack = gId("ifrBack");
+    var divStatus = gId("divStatus");
+
+    var dtbSystem = new window.xwf_datatable();
+
+    var cMenu = null;
+    var taskbar = new window.xwf_taskbar();
+    var statusBar = null;
+</script>
+<!-- Form_Load() -->
+<script type="text/javascript">
+    // ------------------------------------------------------------------------
+    function main() {
+        if (window.opener != null) {
+            try {
+                var openerWindow = window.opener.window;
+                openerWindow.opener = null;
+                if (g.b.ie) {
+                    openerWindow.open("", "_self");
+                }
+                else {
+                    openerWindow.open("about:blank", "_self");
+                }
+                openerWindow.close();
+            } catch (e) {
+                // -- debug(e.message);
+            }
+        }
+        //-- 初始化任务栏 ---------------------------------
+        var jsonProp = {
+            divContainer: gId("divTaskbar"),
+            barSelect: barSelect,
+            barClose: barClose
+        };
+        taskbar = new window.xwf_taskbar(jsonProp);
+        initStatusBar();
+        //-- 初始化背景 -----------------------------------
+        resize();
+        //-- 初始化窗口类 ---------------------------------
+        var jsonProp = {
+            zIndex: 30000,
+            taskbar: taskbar,
+            rangeContainer: ifrBack
+        };
+        topWin.cWin = new window.xwf_window(jsonProp);
+
+        topWin.dropgrid = new window.xwf_dropgrid({
+            topDoc: document
+        });
+        topWin.context = new window.xwf_context({
+            menuClick: null
+        });
+        
+        
+        topWin.initPopNotice=function(){
+        	g.a.initPopNotice(true);
+        }
+
+        //-------------------------------------------------
+        if (!initSystem()) return;
+
+        topWin.cStatusBar.setValue("user", topWin.userKey);
+    }
+
+    function resize() {
+        var nH = document.documentElement.clientHeight - divContainer.offsetTop;
+        if (divStatus.style.display.equals("")) {
+            nH -= divStatus.offsetHeight;
+        }
+        divContainer.style.height = nH + "px";
+
+        ifrBack.style.height = (divContainer.clientHeight - 5) + "px";
+        ifrBack.style.width = (divContainer.clientWidth - ifrBack.offsetLeft) + "px";
+    }
+</script>
+
+<!-- 子系统 -->
+<script type="text/javascript">
+    function initSystem() {
+        if (g.a.send("processType=com.xznext.Framework&actionType=getSystem", {}, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                dtbSystem = cReturn.dtbSystem;
+                if (dtbSystem.rowCount == 0) {
+                    alert("尚未为您分配系统访问权限，请与系统管理员联系。");
+                    return false;
+                }
+
+                topWin.serverName = cReturn.serverName;
+
+                topWin.eoId = cReturn.eoId;
+                topWin.doId = cReturn.doId;
+                topWin.office0Id = cReturn.office0Id;
+                topWin.office0Name = cReturn.office0Name;
+                topWin.office0Shortname = cReturn.office0Shortname;
+                topWin.officeId = cReturn.officeId;
+                topWin.officeName = cReturn.officeName;
+                topWin.office1Id = cReturn.office1Id;
+                topWin.office1Name = cReturn.office1Name;
+                topWin.officeNodeKey = cReturn.officeNodeKey;
+                topWin.officeLevel = cReturn.officeLevel;
+                topWin.officeShortname = cReturn.officeShortname;
+
+                topWin.userKey = cReturn.userKey;
+                topWin.userName = cReturn.userName;
+                topWin.nickname = cReturn.nickname;
+                topWin.groupKeys = cReturn.groupKeys;
+                topWin.isDeveloper = topWin.matchGroup("developers");
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        // -- 初始化子系统 --------------------------------
+        if (!getLocalItem("lastSystemIndex").equals("")) {
+            lastSystemIndex = parseInt(getLocalItem("lastSystemIndex"));
+            if (lastSystemIndex >= dtbSystem.rowCount) {
+                lastSystemIndex = 0;
+            }
+        }
+        systemClick(lastSystemIndex);
+        // ------------------------------------------------
+        return true;
+    }
+
+    function systemClick(subSystemIndex) {
+        var urlBackground = "";
+        var systemKey = dtbSystem.rows[subSystemIndex]["system_key"].value;
+        var systemName = dtbSystem.rows[subSystemIndex]["system_name"].value;
+
+        //-- 关闭当前已打开的所有窗口及背景窗口 --
+        while (topWin.cWin && topWin.cWin.arrWindows.length) {
+            topWin.cWin.arrWindows[0].close();
+        }
+        //gId("divMessage").innerHTML = "";
+        //gId("divMessage").onclick = null;
+
+        //---------------------------------------------
+        g.systemPath = g.appPath + "project/" + systemName + "/";
+        initMenu(systemKey);
+
+        if (systemName.equals("xpas")) {
+            urlBackground = "./project/" + systemName + "/html/background.html";
+        } else {
+            if (urlPara.loginPath) {
+                urlBackground = "./project/" + systemName + "/html/login/" + urlPara.loginPath + "/background.html";
+            } else {
+                urlBackground = "./project/" + systemName + "/html/background.html";
+            }
+        }
+        ifrBack.src = urlBackground + "?rnd=" + Math.random();
+
+        setLocalItem("lastSystemIndex", subSystemIndex);
+        lastSystemIndex = subSystemIndex;
+    }
+</script>
+<!-- 菜单 -->
+<script type="text/javascript">
+    function initMenu(systemKey) {
+        // -- 1、初始化菜单控件 ------------------------------
+        var prop = {
+            zIndex: 60000,
+            imgPath: "res/control/menu2/" + top.cssStyle + "/",
+            top: tbTop.offsetTop + 18,
+            left: gId("tdMenu").offsetLeft,
+            maxWidth: gId("tdMenu").offsetWidth,
+            menuClick: menu_click
+        };
+        if (cMenu) {
+            cMenu.destroy();
+        }
+        cMenu = new window.xwf_menu(prop);
+        topWin.cMenu = cMenu;
+
+        // -- 2、取菜单数据 ---------------------------------
+        if (!topWin.getMenus(systemKey, "PC")) {
+            return false;
+        }
+
+        var M3 = 0;
+        for (var i = 0; i < topWin.dtbMenu.rowCount; i++) {
+            var drMenu = topWin.dtbMenu.rows[i];
+            var menuId = "";
+            var nodeKey = drMenu["node_key"].value;
+            var menuText = drMenu["menu_text"].value;
+            var menuLevel = nodeKey.length / 3 - 1;
+
+            // -- 判断特殊菜单（分隔符）是否需要加载 --
+            if (menuText.equals("-")) {
+                if (i == topWin.dtbMenu.rowCount - 1 || menuLevel < 3 || M3 == 0) {
+                    continue;
+                }
+                if (topWin.dtbMenu.rows[i - 1]["menu_text"].value.equals("-")) {
+                    continue;
+                }
+            }
+            if (menuLevel == 3) {
+                M3++;
+            } else {
+                M3 = 0;
+            }
+
+            // -- 添加菜单项 --
+            for (j = 0; j < nodeKey.length / 3; j++) {
+                menuId += "_" + nodeKey.substr(j * 3, 3);
+            }
+            menuId = menuId.substring(1);
+
+            cMenu.addMenu({
+                id: menuId,
+                key: "0_" + menuId.substring(4),
+                menuKey: drMenu["menu_key"].value,
+                text: drMenu["menu_text"].value,
+                icon: drMenu["menu_icon"].value,
+                title: drMenu["menu_tooltip"].value,
+                level: nodeKey.length / 3 - 1,
+                drMenu: drMenu
+            });
+        }
+
+        if (cMenu.expand) {
+            cMenu.expand();
+            cMenu.addEventListener("afterExpand", resize);
+        }
+    }
+
+    function menu_click(jsonMenu, evt) {
+        var drMenu = jsonMenu.drMenu;
+        var menuType = drMenu["menu_type"].value;
+        var menuLevel = drMenu["node_key"].value.length / 3 - 1;
+        var windowState = (drMenu["menu_window_maximized"].value ? "maximized" : ""); // -- vf窗口是否全屏 --
+        var vfAllowAddnew = drMenu["menu_uview_addnew"].value;
+        // ------------------------------------------------
+        if (evt.ctrlKey || evt.altKey) {
+            menuRightClick(drMenu["menu_key"].value, drMenu["menu_text"].value, (evt.ctrlKey ? "ctrl" : "alt"));
+            return false;
+        }
+        if (drMenu["menu_onlyone"].value == 1) {
+            if (jsonMenu.level == 3 && jsonMenu.opened) {
+                if (jsonMenu.win) {
+                    jsonMenu.win.bar.flashBar("");
+                    return;
+                }
+            }
+            jsonMenu.opened = true;
+        }
+        // ------------------------------------------------
+        if (menuType.equals("uview")) {
+            var prop = {
+                menu: jsonMenu,
+                text: drMenu["menu_text"].value,
+                title: "视图窗口：" + drMenu["menu_text"].value
+            };
+            var para = {
+                viewKey: drMenu["menu_type_value"].value,
+                viewForm: g.appPath + "project/" + drMenu["menu_url"].value,
+                viewFormTarget: drMenu["view_form_target"].value,
+                viewFilter: drMenu.menu_parameter.value,
+                filterFirst: drMenu["menu_filter_first"].value,
+                filterMust: drMenu["menu_filter_must"].value,
+                flowKey: drMenu["flow_key"].value || drMenu["flow_key_default"].value,
+                flowTextMenu: drMenu["flow_text_menu"].value,
+                vfWindowState: windowState,
+                vfAllowAddnew: (vfAllowAddnew == 0 ? undefined : (vfAllowAddnew == 1))
+            };
+            topWin.openTopView(prop, para);
+        } else if (menuType.equals("report")) {
+            var prop = {
+                menu: jsonMenu,
+                text: drMenu["menu_text"].value,
+                title: "报表窗口：" + drMenu["menu_text"].value
+            };
+            var para = {
+                reportKey: drMenu["menu_type_value"].value,
+                reportFilter: drMenu.menu_parameter.value
+            };
+            topWin.openReport(prop, para);
+        } else if (menuType.equals("echart")) {
+            var prop = {
+                menu: jsonMenu,
+                viewForm: g.appPath + "project/" + drMenu["menu_url"].value,
+                text: drMenu["menu_text"].value,
+                url: g.appPath + "project/xpas/html/frame/echartModel.html",
+                title: "图表窗口：" + drMenu["menu_text"].value
+            };
+            var para = {
+                vfWindowState: windowState,
+                viewKey: drMenu["menu_type_value"].value
+            };
+            topWin.openFullWindow(prop, para);
+        } else if (menuType.equals("reportSIMP")) {
+        	var reportHtml="project/xpas/html/frame/reportSIMPModel.html";
+        	var menu_parameter=drMenu.menu_parameter?drMenu.menu_parameter.value:"";
+        	if(menu_parameter && menu_parameter.split(",").length >1) reportHtml="project/xpas/html/frame/reportSIMPSUMModel.html";
+            var prop = {
+                menu: jsonMenu,
+                viewForm: g.appPath + "project/" + drMenu["menu_url"].value,
+                text: drMenu["menu_text"].value,
+                url: g.appPath +reportHtml,
+                title: "报表简单窗口：" + drMenu["menu_text"].value
+            };
+            var para = {
+                vfWindowState: windowState,
+                viewKey: drMenu["menu_type_value"].value
+            };
+            topWin.openFullWindow(prop, para);
+        } else if (menuType.equals("window")) {
+            var prop = {
+                menu: jsonMenu,
+                text: drMenu["menu_text"].value,
+                url: g.appPath + "project/" + drMenu["menu_url"].value
+            };
+            var para = {};
+            if (windowState.equals("maximized")) {
+                prop.windowState = "maximized";
+                prop.noTitle = true;
+            }
+            topWin.openWindow(prop, para);
+        } else if (menuType.equals("single")) {
+            // var url = g.appPath + "project/" + drMenu["menu_url"].value;
+            // 菜单自定义类型更改为新页面类型，临时添加
+            var officeName = topWin.office0Name ? topWin.office0Name : '';
+            var stationStorageName = topWin.stationStorageName ? topWin.stationStorageName : '';
+            var url = g.appPath + "project/" + drMenu["menu_url"].value + "?officeName=" + encodeURIComponent(officeName) +
+                "&stationName=" + encodeURIComponent(stationStorageName) + "&rnd=" + Math.random();
+            var properties = "channelmode=1,resizable=1";
+            if (!g.b.ie) {
+                properties = "channelmode=1,width=" + (screen.availWidth - 10) + ",height=" + (screen.availHeight - 52) +
+                    ",left=0,top=0,resizable=1";
+            }
+            window.open(url, "", properties);
+        } else if (menuType.equals("click")) {
+            alert("main2.html页面代码：\n菜单 " + drMenu["menu_key"].value + " (" + drMenu["menu_text"].value + ") Click.");
+        } else {
+            if (menuLevel == 3) {
+                alert("unknown menu type [" + menuType + "].");
+            }
+        }
+        return true;
+    }
+
+    function menuRightClick(menuKey, menuText, ctrlAlt) {
+        if (g.debug || g.local || topWin.isDeveloper) {
+            if (ctrlAlt.equals("ctrl")) {
+                var prop = {
+                    title: "菜单：" + menuText,
+                    url: g.appPath + "project/xpas/html/frame/menu.html"
+                };
+                var para = {
+                    flowKey: "",
+                    viewKey: "fv_menu",
+                    primaryKey: "menu_key," + menuKey,
+                    allowModify: true
+                };
+                topWin.openWindow(prop, para);
+            } else {
+                topWin.openTopView({
+                    text: "菜单管理"
+                }, {
+                    viewKey: "fv_menu",
+                    flowKey: "",
+                    viewForm: g.appPath + "project/xpas/html/frame/menu.html"
+                });
+            }
+        }
+    }
+</script>
+<!-- 任务栏 -->
+<script type="text/javascript">
+    function barSelect(bar) {
+        return true;
+    }
+
+    function barClose(bar) {
+        return true;
+    }
+</script>
+<!-- 状态栏 -->
+<script type="text/javascript">
+    function initStatusBar() {
+        var json = {
+            domContainer: divStatus,
+            height: "M",
+            onclick: null
+        };
+
+        statusBar = new window.xwf_statusbar(json);
+        statusBar.addBar({
+            type: "text",
+            key: "station",
+            width: 120
+        });
+        statusBar.addBar({
+            type: "text",
+            key: "user",
+            width: 80
+        });
+        statusBar.addBar({
+            type: "text",
+            key: "date",
+            width: 75,
+            text: (new Date()).toString()
+        });
+        statusBar.addBar({
+            type: "text",
+            key: "info",
+            width: 200,
+            text: "xpas-next"
+        });
+
+        topWin.cStatusBar = statusBar;
+    }
+
+    var nTimes = 0;
+    var statusText = "";
+
+    function showStatus(strStatus, blFlash) {
+        statusText = strStatus;
+        divStatus1.innerHTML = statusText;
+        if (blFlash == undefined || blFlash) {
+            setTimeout("statusFlash();", 100);
+        }
+    }
+
+    function statusFlash() {
+        if (nTimes++ > 10) {
+            nTimes = 0;
+            divStatus1.className = "status";
+            return;
+        }
+        divStatus1.className = "status" + (nTimes % 2);
+        setTimeout("statusFlash();", 100 * nTimes);
+    }
+</script>
+
+<!-- 子系统、用户中心 -->
+<script type="text/javascript">
+    function showSubSystem(objDom) {
+        var imgPath = "/xpas/res/control/context/" + top.cssStyle + "/";
+        var arrMenus = new Array();
+        // ------------------------------------------------
+        for (var i = 0; i < dtbSystem.rowCount; i++) {
+            var systemKey = dtbSystem.rows[i]["system_key"].value;
+            var systemText = dtbSystem.rows[i]["system_text"].value;
+            var systemImage = "";
+            if (i == lastSystemIndex) {
+                systemImage = imgPath + "check.png";
+            }
+            arrMenus.push({
+                key: systemKey,
+                text: systemText,
+                image: systemImage,
+                title: "单击切换子系统",
+                subSystemIndex: i
+            });
+        }
+        // ------------------------------------------------
+        topWin.context.show({
+            arrMenus: arrMenus,
+            objDom: objDom,
+            top: 14,
+            left: 0,
+            menuClick: function(jspnPara) {
+                systemClick(jspnPara.subSystemIndex);
+            }
+        });
+    }
+
+    function showUserCenter(objDom) {
+        var arrContext = new Array();
+        arrContext.push({
+            key: "changePassword",
+            text: "修改密码",
+            title: "重新设置新密码"
+        });
+        arrContext.push({
+            key: "relogin",
+            text: "重新登录",
+            title: "注销当前用户，重新登录系统"
+        });
+        arrContext.push({
+            key: "logout",
+            text: "退出",
+            title: "退出登录"
+        });
+        topWin.context.show({
+            arrMenus: arrContext,
+            menuClick: userCenterClick,
+            objDom: objDom,
+            top: 14,
+            left: 0
+        });
+    }
+
+    function userCenterClick(context) {
+        if (context.key.equals("changePassword")) {
+            var prop = {
+                url: "./project/xpas/html/organization/change_password.html",
+                modal: true
+            };
+            topWin.openWindow(prop, {
+                invoker: "changePassword"
+            });
+        }
+        else if (context.key.equals("relogin")) {
+            window.document.location = topWin.loginUrl;
+        }
+        else if (context.key.equals("logout")) {
+            if (g.a.send("processType=com.xznext.xpas.Login&actionType=logout", {}, true)) {
+                if (g.a.OK) {
+                }
+                else {
+                    return false;
+                }
+            }
+            window.document.location = topWin.loginUrl;
+        }
+    }
+
+    function showMessage(strMessage) {
+        topWin.cStatusBar.showMessage(strMessage);
+    }
+</script>
+
+<script type="text/javascript">
+    document.write('<audio style="display:none;" id="SoundPlayer"></audio>');
+
+    function playSound(url) {
+        try {
+            gId("SoundPlayer").src = g.httpServer + g.appPath + "res/sound/" + url;
+            // gId("SoundPlayer").play();
+        } catch (e) {
+        }
+    }
+
+    function stopSound() {
+        try {
+            gId("SoundPlayer").stop();
+        } catch (e) {
+        }
+    }
+</script>

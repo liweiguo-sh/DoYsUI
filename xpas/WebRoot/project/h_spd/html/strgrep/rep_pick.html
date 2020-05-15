@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>拣货单</title>
+   	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+	<script src="../../../../res/control/folding/xwf.folding.js" type="text/javascript"></script>
+    <link href="../../../../res/control/folding/style2/xwf.folding.css" rel="stylesheet"  type="text/css" />
+     <script src="../../../../res/jscript/excel.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    
+    <script src="../../js/select_storage.js" type="text/javascript"></script>
+     <script src="../../js/barcode_parse.js" type="text/javascript"></script>
+     <script src="../../js/resource_print.js" type="text/javascript"></script>
+    <style type="text/css">
+    	.curr_poi{
+    		cursor: pointer !important;
+    	}
+    	
+    	.reset-none{
+    		resize:none;
+    	}
+    	
+    	.pannel-fll{
+    		float: left;s
+    		width: 48%;
+    	}
+    	
+    	#mybody .xwf_gridview_tdMain{
+    		padding:0px;
+    	}
+    </style>
+</head>
+<body  id="mybody">
+	<div id="divDC" class="ScreenCenter"  style="width:90%;"></div>
+	<div id="divFolding"  style="width:90%;"  class="ScreenCenter">
+        <div id="divPage1" class="PanelA">
+            <form id="frm" action="" target="">
+                <table id="tbBase" class="tbForm" style="width:100%;">
+                    <tr name="trH">
+                        <th style="width:15%"></th>
+                        <th style="width:15%"></th>
+                        <th style="width:25%"></th>
+                        <th style="width:15%"></th>
+                        <th style="width:15%"></th>
+                        <th style="width:15%"></th>
+                    </tr>
+                    <tr>
+						<td>拣货单号</td>
+						<td><input type="text" id="_cpick_key"  disabled="disabled"/></td>
+						<td>拣货人</td>
+						<td><input type="text" id="_cpicker"  disabled="disabled"/></td>
+						<td>拣货日期</td>
+						<td><input type="text" id="_cpick_time" disabled="disabled"/></td>
+					</tr>
+					 <tr>
+						<td>当前库存地</td>
+						<td><input type="text" id="_xcurrent_storage_name"  disabled="disabled"/></td>
+						<td>需求库存地</td>
+						<td><input type="text" id="_gstorage_name"  disabled="disabled"/></td>
+					</tr>
+					<tr>
+						<td>备注</td>
+						<td colspan="6"><textarea id="_cpick_remark" rows="3" cols="0" placeholder="请输入"  class="reset-none"></textarea></td>
+					</tr>
+					<tr>
+	                	<td colspan="6">
+				        	<div id="divPage2List" style="height:550px;"></div>
+	                	</td>
+                    </tr>
+                    <input id="_cid" type="hidden"  />
+                </table>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+	function formLoad() {
+		//初始化页面样式
+		vf.css(gId("tbBase"));
+		vf.addExtraButton({ type: "button", key: "review", text: "审核完成", highlight: false,onclick:review})
+		vf.addExtraButton({ key: "printpick", text: "打印拣货单" });
+		
+	}
+	vf.afterLoad=function(){
+		gId("_xcurrent_storage_name").value = topWin.stationStorageName;
+		//创建收缩面板
+		createFolding(true);
+		
+	}
+	vf.beforeClick = function (prop) {
+		var buttonKey = prop.buttonKey;
+		if (buttonKey.equals("review")) {
+			review();
+		}else if (buttonKey.equals("printpick")) {
+			printpick();
+        }else {
+			showWarn("未知的功能扩展：" + buttonKey + "，请检查。");
+			return false;
+		}
+		return false;
+	}
+	//审核完成
+	function review(){
+		if (!confirm("是否审核完成该拣货任务？")) return false;
+		if (g.a.send("processType=h_spd.strgrep.PickingController&actionType=review", {
+				pickKey:gId("_cpick_key").value,
+				id:gId("_cid").value,
+				remark:gId("_cpick_remark").value
+			}, true)) {
+			if (g.a.OK) {
+				var errString = g.a.cReturn.errString;
+				if (!errString.equals("")) {
+					showMsg(errString);
+				} else {
+					vf.close();
+				}
+			}
+		}
+		return false;
+	}
+	// -- 打印移库单 --------------------------------------------------------------
+    function printpick() {
+        var pid = gId("_cid").value;
+        if (g.a.send("processType=h_spd.strgrep.PickingController&actionType=printpick", { pid: pid }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var pickmain = cReturn.pickmain;
+                var pickdetail = cReturn.pickdetail;
+                // --------------------
+                openExcel("c:\\spd2\\pick" + ".xls", true);
+                out("B", 2, pickmain.rows[0]["pick_key"].value);
+                out("D", 2, pickmain.rows[0]["picker"].value);
+                out("F", 2, pickmain.rows[0]["pick_time"].value);
+                out("B", 3, pickmain.rows[0]["storage_fullname"].value);
+                out("D", 3, pickdetail.rows[0]["storage_name"].value);
+                var nRowBegin = 6, nRowNo = 0;
+                var nRowCount = pickdetail.rowCount;
+                var drRow = null;
+                for (var iRow = 0; iRow < nRowCount; iRow++) {
+                    nRowNo = nRowBegin + iRow;
+                    drRow = pickdetail.rows[iRow];
+                    if (nRowNo > 25) {
+                        copyRow(nRowNo - 1);
+                    }
+                    out("A", nRowNo, (iRow + 1));
+                    out("B", nRowNo, drRow["storage_name_res"].value);
+                    out("C", nRowNo, drRow["matr_name"].value);
+                    out("D", nRowNo, drRow["matr_spec"].value);
+                    out("E", nRowNo, drRow["manufacturer_name"].value);
+                    out("F", nRowNo, drRow["qty_pick"].value);
+                }
+                // --------------------
+                oWorkSheet.Range("A1:A1").Select;
+                ExcelApp.Visible = true;
+            }
+        }
+	}
+	//创建收缩面板
+	var divPage2List=null;
+	function createFolding(firstLoad) {
+        var pickKey=gId("_cpick_key").value;
+        if(pickKey.equals("")) pickKey=-1;
+        if (divPage2List == null) {
+            var prop = {
+                divContainer: gId("divPage2List"),
+                viewKey: "strgrep_pick_detail",
+                viewFilter: "pick_key='"+pickKey+"'",
+                toolbarVisible: false,
+                }
+            divPage2List = new window.xwf_gridview(prop);
+           	//divPage2List.toolbar.addBar({ type: "button", key: "choicePickPool", text: "选择需求", highlight: false });
+        } else {
+        	divPage2List.setViewFilter(" tarep_pick_id="+pickId);
+        }
+    }
+</script>

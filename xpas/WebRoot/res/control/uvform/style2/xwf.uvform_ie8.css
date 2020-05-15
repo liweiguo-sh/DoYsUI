@@ -1,0 +1,207 @@
+﻿body {
+    margin: 0px 0px 0px 0px;
+}
+/* Data Control */
+#divDC {
+    height: 30px;
+    overflow: hidden;
+    padding: 5px 0px 0px 0px;
+    margin-bottom: 10px;
+    background-color: #EFEFEF;
+}
+
+.xwf_vf_tbDC {
+    border-collapse: collapse;
+}
+.xwf_vf_tbDC td {
+    padding: 0px;
+    white-space: nowrap;
+}
+.xwf_vf_tbDC input[type='button'] {
+    font-family: 微软雅黑;
+    height: 22px;
+    line-height: 22px;
+    overflow: visible;
+    cursor: pointer;
+}
+
+/* 移动及操作按钮*/
+.xwf_vf_btnAnchor {
+    width: 30px;
+    border: solid 0px Gray;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.xwf_vf_btnMove {
+    width: 30px;
+    border: solid 0px Gray;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #EFEFEF;
+}
+.xwf_vf_btnMove:hover {
+    cursor: pointer;
+    background-size: 120%;
+}
+.xwf_vf_btnDC {
+    font-size: 10pt;
+    width: auto;
+    min-width: 75px;
+    color: Black; /*#455a70*/
+    border: 0px;
+    border-left: 0px solid Gray;
+    background-color: #EFEFEF;
+    background-position: left,top;
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    text-align: left;
+    padding: 0px 10px 10px 24px;
+    height: 30px;
+    line-height: 30px;
+    margin-right: 10px;
+}
+.xwf_vf_btnDC:hover {
+    background-color: #19a2d5;
+}
+
+.xwf_vf_btnDC_Extra {
+    font-size: 10pt;
+    width: auto;
+    min-width: 75px;
+    color: Black; /*#455a70*/
+    border: 0px;
+    border-left: 0px solid Gray;
+    background-color: #EFEFEF;
+    background-position: left,top;
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    text-align: left;
+    padding: 0px 10px 10px 24px;
+    height: 30px;
+    line-height: 30px;
+    margin-right: 10px;
+}
+.xwf_vf_btnDC_Extra:hover {
+    background-color: #19a2d5;
+}
+
+.xwf_vf_btnDC_Flow {
+    font-size: 10pt;
+    width: auto;
+    min-width: 75px;
+    color: Black; /*#455a70*/
+    border: 0px;
+    border-left: 0px solid Gray;
+    background-color: #EFEFEF;
+    background-position: left,top;
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    text-align: left;
+    padding: 0px 10px 10px 24px;
+    height: 30px;
+    line-height: 30px;
+    margin-right: 10px;
+}
+.xwf_vf_btnDC_Flow:hover {
+    background-color: #19a2d5;
+}
+
+.xwf_vf_spanStatus {
+    color: Red;
+    font-size: 10pt;
+}
+
+/* tbForm */
+.tbForm {
+    table-layout: fixed;
+    border-collapse: collapse;
+    --margin: 2px 55px 10px 5px;
+}
+.tbForm th {
+    padding: 0px;
+    border-top: solid 0px blue;
+}
+.tbForm td {
+    padding: 0px 0px 0px 15px;
+    overflow: hidden;
+    color: Black;
+    font-size: 10pt;
+    --font-family: 华文中宋;
+    border-bottom: solid 0px gray;
+    white-space: nowrap;
+    border: solid 0px red;
+    height: 30px;
+}
+.tbForm span {
+    white-space: nowrap;
+    overflow: hidden;
+    border-bottom: 0px solid lightGray;
+    font-size: 10pt;
+    --font-family: 微软雅黑;
+}
+
+input[type='text'] {
+    --border-top: 0px;
+    --border-left: 0px;
+    --border-right: 0px;
+    border: solid 1px lightGray;
+    height: 24px;
+    line-height: 24px;
+    font-size: 10pt;
+    --font-family: 微软雅黑;
+}
+
+input[type='text']:focus {
+    border: solid 1px #519BE1;
+}
+input[type='text']:disabled {
+    color: #5B5B5B;
+}
+select {
+    font-size: 10pt;
+    border: solid 1px lightGray;
+    height: 24px;
+    line-height: 24px;
+}
+textarea {
+    border: solid 1px lightGray;
+    white-space: pre;
+    --margin-top: 10px;
+}
+textarea:focus {
+    border: solid 1px #519BE1;
+}
+/* 字段标题样式 */
+.xwf_vf_tdTextNullable {
+    color: Red;
+}
+
+#xwf_vf_addnew, #xwf_vf_copy {
+}
+#xwf_vf_addnew:hover, #xwf_vf_copy:hover {
+    background-color: #19a2d5;
+}
+
+#xwf_vf_delete {
+}
+#xwf_vf_delete:hover {
+    background-color: #19a2d5;
+}
+
+#xwf_vf_save {
+}
+#xwf_vf_save:hover {
+    background-color: #19a2d5;
+}
+
+#xwf_vf_cancel {
+}
+#xwf_vf_cancel:hover {
+    background-color: #19a2d5;
+}
+
+#xwf_vf_close {
+}
+#xwf_vf_close:hover {
+    background-color: #19a2d5;
+}

@@ -1,0 +1,269 @@
+<!DOCTYPE html />
+<html>
+<head>
+    <title>耗材信息变更单</title>
+    <script src="../../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../../res/jscript/xwf.const.js"></script>
+
+    <script src="../../../../../res/control/folding/xwf.folding.js"></script>
+    <script src="../../../../../res/control/uvform/xwf.uvform.js"></script>
+    <script src="../../../../../res_plugin/util/chinese_py.js"></script>
+
+    <script src="../../../../../res/jscript/xwf.css.js"></script>
+    <style type="text/css">
+        body {
+            --overflow: hidden;
+        }
+        
+        input {
+            text-indent: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="divDC" style="width:1200px" class="ScreenCenter"></div>
+    <form id="frm" action="" target="h_spd.base_data.matr.VIEW_matrChange">
+        <div id="divFolding" style="width:1200px" class="ScreenCenter">
+            <div class="PanelA">
+                <table id="tbInfo" class="tbForm" style="width:100%;">
+                    <tr class="trH">
+                        <th style="width:10%;"></th>
+                        <th style="width:15%;"></th>
+                        <th style="width:10%;"></th>
+                        <th style="width:15%;"></th>
+                        <th style="width:10%;"></th>
+                        <th style="width:15%;"></th>
+                        <th style="width:10%;"></th>
+                        <th style="width:15%;"></th>
+                    </tr>
+                    <tr>
+                        <td>变更单号</td>
+                        <td><input type="text" id="_cMatr_change_key" disabled="disabled" /></td>
+                        <td>变更日期</td>
+                        <td><input type="text" id="_cMatr_change_date" class="Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" /></td>
+                        <td>更新关联数据</td>
+                        <td colspan="3"><input type="checkbox" id="_cUpdate_history_data_name" /><label for="_cUpdate_history_data_name">所有关联业务(库存、入库、配送、记帐等)，只更新品名品规2项内容</label></td>
+                    </tr>
+                    <tr>
+                        <td>摘要</td>                  
+                        <td colspan="7"><textarea id="_cSummary" rows="3" cols="0" disabled="disabled" ></textarea></td>
+                        <td>备注</td>                  
+                        <td colspan="7"><textarea id="_cRemark" rows="3" cols="0" disabled="disabled" ></textarea></td>
+                    </tr>
+                </table>                          
+            </div>
+            <div id="divPage1" class="PanelA page">
+                <table id="tbNew" class="tbForm" style="width:100%;">
+                    <tr class="trH">
+                        <th style="width: 9%;"></th>
+                        <th style="width:16%;"></th>
+                        <th style="width: 9%;"></th>
+                        <th style="width:16%;"></th>
+                        <th style="width: 9%;"></th>
+                        <th style="width:16%;"></th>
+                        <th style="width: 9%;"></th>
+                        <th style="width:16%;"></th>
+                    </tr>
+                    <tr>
+                        <td>品名</td>
+                        <td class="combo" colspan="3"><input type="text" id="_cMatr_name_n" onkeyup="onMatrNameChange();" />
+                            <div id="divSelectMatr" class="fa fa-search" onclick="selectMatr();"></div>
+                        </td>
+                        <td>助记码</td>
+                        <td><input type="text" id="_cMatr_name_py_n" /></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>品规</td>
+                        <td colspan="3"><input type="text" id="_cMatr_spec_n" /></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>                          
+            </div>
+            <div id="divPage2" class="PanelA page">
+                <table id="tbOld" class="tbForm" style="width:100%;">
+                    <tr class="trH">
+                        <th style="width: 9%;"></th>
+                        <th style="width:16%;"></th>
+                        <th style="width: 9%;"></th>
+                        <th style="width:16%;"></th>
+                        <th style="width: 9%;"></th>
+                        <th style="width:16%;"></th>
+                        <th style="width: 9%;"></th>
+                        <th style="width:16%;"></th>
+                    </tr>
+                    <tr>
+                        <td>品名</td>
+                        <td colspan="3"><input type="text" id="_cMatr_name" disabled="disabled" /></td>
+                        <td>助记码</td>
+                        <td><input type="text" id="_cMatr_name_py" disabled="disabled" /></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>品规</td>
+                        <td colspan="3"><input type="text" id="_cMatr_spec" disabled="disabled" /></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>        
+        </div>
+        <input type="hidden" id="_cMATR_CHANGE_ID" />  
+        <input type="hidden" id="_cMATERIAL_ID" />  
+    </form>
+</body>
+</html>
+<!-- formLoad -->
+<script>
+    var winSeletMatr = null;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        initFolding();
+
+        vf.css(gId("tbInfo"));
+        vf.css(gId("tbNew"));
+        vf.css(gId("tbOld"));
+    }
+
+    function initFolding() {
+        foldingCtl = new window.xwf_folding({
+            divContainer: gId("divFolding"),
+            beforeExpand: beforeExpand,
+            imgPath: "../../../../../res/control/folding/style2/"
+        });
+        foldingCtl.addPage({
+            key: "page1",
+            text: "变更信息",
+            containerCtl: gId("divPage1"),
+            canExpand: true,
+            expand: true
+        });
+        foldingCtl.addPage({
+            key: "page2",
+            text: "变更前信息",
+            containerCtl: gId("divPage2"),
+            canExpand: true,
+            expand: true
+        });
+    }
+    function beforeExpand(page, status) {
+        return true;
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.afterAddnew = function () {
+        gId("_cMatr_change_date").value = (new Date()).toString();
+    }
+    vf.beforeSave = function () {
+        var strSummary = "";
+        var arrItem = new Array();
+
+        // ------------------------------------------------
+        if (frm._cUpdate_history_data_name.checked) {
+            arrItem.push("更新关联数据");
+        }
+        if (!frm._cMatr_name_n.value.equals(frm._cMatr_name.value)) {
+            arrItem.push("品名");
+        }
+        if (!frm._cMatr_name_py_n.value.equals(frm._cMatr_name_py.value)) {
+            arrItem.push("助记码");
+        }
+        if (!frm._cMatr_spec_n.value.equals(frm._cMatr_spec.value)) {
+            arrItem.push("品规");
+        }
+        strSummary = arrItem.join("、");
+        if (!strSummary.equals("")) {
+            strSummary = "变更内容：" + strSummary;
+        }
+        frm._cSummary.value = strSummary;
+
+        // ------------------------------------------------
+        return true;
+    }
+
+    vf.beforeFlowClick = function (para) {
+        if (frm._cSummary.value.equals("")) {
+            showWarn("没有任何数据项发生变动，请检查。");
+            return false;
+        }
+        return true;
+    }
+
+    vf.afterMove = function () {
+        var materialId = frm._cMATERIAL_ID.value.toInt();
+
+        if (vf.status.equals("addnew") || materialId == 0) {
+            gId("divSelectMatr").style.display = "";
+        }
+        else {
+            gId("divSelectMatr").style.display = "none";
+        }
+    }
+</script>
+
+<!-- control.events -->
+<script>
+    function onMatrNameChange() {
+        var py = makePy(frm._cMatr_name_n.value.trim());
+        frm._cMatr_name_py_n.value = py[0].substring(0, 10);
+    }
+
+    function selectMatr() {
+        if (winSeletMatr == null) {
+            var prop = {
+                title: "请选择耗材...",
+                width: 0.6,
+                height: 0.8,
+                parent: win,
+                closeMode: "hide"
+            };
+            var para = {
+                viewKey: "select_matr_for_change",
+                viewMode: "singleSelect",                
+                selectCallback: onMatrSelect
+            };
+            winSeletMatr = topWin.openSelectView(prop, para);
+        }
+        else {
+            winSeletMatr.show();
+        }
+    }
+
+    function onMatrSelect(dataRow) {
+        var materialId = dataRow["material_id"].value;
+        var matrChangeId = 0;
+        // ------------------------------------------------
+        frm._cMATERIAL_ID.value = "0";
+        if (!vf.save()) {
+            return;
+        }
+        matrChangeId = frm._cMATR_CHANGE_ID.value.toInt();
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.base_data.matr.VIEW_matrChange&actionType=setMaterialBySelect", { viewKey: "select_matr_for_change", matrChangeId: matrChangeId, materialId: materialId }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                vf.refreshRecord();
+                gId("divSelectMatr").style.display = "none";
+            }
+            else {
+                vf.refreshRecord();
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+        return true;
+    }
+</script>

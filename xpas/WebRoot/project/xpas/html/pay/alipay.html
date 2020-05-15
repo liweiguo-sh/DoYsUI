@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>支付宝支付引导页面</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+</head>
+<body onload="formLoad()">
+	<div id="divTemp">支付宝支付引导页面，请等待...</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var urlPara = getUrlPara();
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		var json = {
+			WIDout_trade_no: urlPara.poPaymentNo,
+			WIDsubject: urlPara.poPaymentDesc,
+			WIDtotal_fee: urlPara.poPaymentPrice,
+			WIDshow_url: urlPara.successUrl,
+			WIDbody: "订单描述: 高校驾吧学车券",
+			WIDit_b_pay: "",
+			WIDextern_token: ""
+		};
+		if (g.a.send("processType=dmp.payment.Alipay&actionType=buildRequest", json, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				var alipayRequest = cReturn.alipayRequest;
+
+				window.document.write(alipayRequest);
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+</script>

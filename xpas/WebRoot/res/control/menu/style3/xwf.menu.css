@@ -1,0 +1,180 @@
+﻿/* -- 1级菜单 -- */
+.xwf_menu_tbMenu1 {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    color: White;
+    font-size: 10.5pt;
+    font-family: 微软雅黑;
+    cursor: pointer;
+    background-color: #42485B;
+}
+
+    .xwf_menu_tbMenu1:hover {
+        background-color: #4e5465;
+    }
+
+    .xwf_menu_tbMenu1 td {
+        overflow: hidden;
+        height: 42px;
+        line-height: 42px;
+        white-space: nowrap;
+    }
+
+.xwf_menu_tdIndent1 {
+    width: 15px;
+}
+
+.xwf_menu_tbMenu1_E {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    color: White;
+    font-size: 10.5pt;
+    font-family: 微软雅黑;
+    background-color: #42485B;
+    cursor: pointer;
+}
+
+    .xwf_menu_tbMenu1_E td {
+        overflow: hidden;
+        height: 42px;
+        line-height: 42px;
+        white-space: nowrap;
+    }
+
+.xwf_menu_tbMenu1_S {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    color: White;
+    font-size: 11pt;
+    font-family: 微软雅黑;
+    background-color: #19a2d5;
+    cursor: pointer;
+}
+
+    .xwf_menu_tbMenu1_S td {
+        overflow: hidden;
+        height: 42px;
+        line-height: 42px;
+        white-space: nowrap;
+    }
+
+/* -- 2级菜单 -- */
+.xwf_menu_tbMenu2 {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    color: #c2c2c2;
+    font-size: 10pt;
+    font-family: 微软雅黑;
+    cursor: pointer;
+}
+
+    .xwf_menu_tbMenu2:hover {
+        background-color: #4e5465;
+    }
+
+    .xwf_menu_tbMenu2 td {
+        overflow: hidden;
+        height: 40px;
+        line-height: 40px;
+        white-space: nowrap;
+    }
+
+.xwf_menu_tdIndent2 {
+    width: 30px;
+}
+
+.xwf_menu_tbMenu2_E {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    color: White;
+    font-size: 10pt;
+    font-family: 微软雅黑;
+    background-color: #23262e;
+    cursor: pointer;
+}
+
+    .xwf_menu_tbMenu2_E td {
+        overflow: hidden;
+        height: 40px;
+        line-height: 40px;
+        white-space: nowrap;
+    }
+
+.xwf_menu_tbMenu2_S {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    color: White;
+    font-size: 10pt;
+    font-family: 微软雅黑;
+    background-color: #19a2d5;
+    cursor: pointer;
+}
+
+    .xwf_menu_tbMenu2_S td {
+        overflow: hidden;
+        height: 40px;
+        line-height: 40px;
+        white-space: nowrap;
+    }
+
+/* -- 3级菜单 -- */
+.xwf_menu_tbMenu3 {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    color: #c2c2c2;
+    font-size: 9pt;
+    font-family: 微软雅黑;
+    cursor: pointer;
+}
+
+    .xwf_menu_tbMenu3:hover {
+        background-color: #4e5465;
+    }
+
+    .xwf_menu_tbMenu3 td {
+        overflow: hidden;
+        height: 36px;
+        line-height: 36px;
+        white-space: nowrap;
+    }
+
+.xwf_menu_tdIndent3 {
+    width: 45px;
+}
+.xwf_menu_tdLine3 {
+    border: solid 1px red;
+    height: 100px;
+}
+
+.xwf_menu_tbMenu3_S {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    color: White;
+    font-size: 9pt;
+    font-family: 微软雅黑;
+    background-color: #19a2d5;
+    cursor: pointer;
+}
+
+    .xwf_menu_tbMenu3_S td {
+        overflow: hidden;
+        height: 36px;
+        line-height: 36px;
+        white-space: nowrap;
+    }
+
+/* -- 其它 -- */
+.xwf_menu_tdUpDown {
+    width: 22px;
+    text-align: left;
+    font-size: 10.5pt;
+    color: #c2c2c2;
+}

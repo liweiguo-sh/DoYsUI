@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>view.html</title>
+    <script src="../../../../framework/core/doys.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="divButton" class="divButtons">
+            <input type="button" id="btnOperate" onclick="btnOperate_click();" value="操作" />
+            <input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+        </div>
+        <div class="PanelA">
+            view.html
+        </div>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+
+        },
+    });
+
+    // ------------------------------------------------------------------------
+    function winLoad() {
+
+    }
+
+    function btnClose_click() {
+        win.close();
+    }
+</script>
+
+<!-- xxx -->
+<script type="text/javascript">
+    function btnOperate_click() {
+
+    }
+</script>

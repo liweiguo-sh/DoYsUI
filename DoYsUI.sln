@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30105.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "DoYsUI", "http://localhost/DoYsUI", "{521DA449-52F3-4741-96B3-3B14E7721E26}"
+	ProjectSection(WebsiteProperties) = preProject
+		UseIISExpress = "false"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv2.0"
+		Debug.AspNetCompiler.VirtualPath = "/DoYsUI"
+		Debug.AspNetCompiler.PhysicalPath = "..\DoYsUI\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\DoYsUI\"
+		Debug.AspNetCompiler.Updateable = "false"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/DoYsUI"
+		Release.AspNetCompiler.PhysicalPath = "..\DoYsUI\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\DoYsUI\"
+		Release.AspNetCompiler.Updateable = "false"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		SlnRelativePath = "..\DoYsUI\"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{521DA449-52F3-4741-96B3-3B14E7721E26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{521DA449-52F3-4741-96B3-3B14E7721E26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6FBBFCA6-7A76-401C-9F0C-2A7C3734E08F}
+	EndGlobalSection
+EndGlobal

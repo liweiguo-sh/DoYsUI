@@ -1,0 +1,78 @@
+﻿/* -- 窗口容器 -- */
+.xwf_win_divWin, .xwf_win_divWinMax {
+    position: absolute;
+    background-color: #519BE1;
+}
+.xwf_win_divWin {
+    padding: 0px 0px 0px 1px;
+    border-radius: 2px;
+    box-shadow: 3px 3px 3px #888888;
+}
+.xwf_win_divWinMax {
+    /* -- 无边框窗口(最大化时) -- */
+    padding: 0px 0px 0px 0px;
+    background-color: #D7E5F2;
+}
+
+/* -- 标题栏 -- */
+.xwf_win_tbWin {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+.xwf_win_tbWin td {
+    padding: 0px;
+    height: 30px;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.xwf_win_tdIcon {
+    width: 5px;
+}
+.xwf_win_tdTitle {
+    color: White;
+    font-size: 11pt;
+    font-family: 微软雅黑;
+    cursor: move;
+}
+.xwf_win_tdTitleFlash {
+    color: Yellow;
+    font-size: 11pt;
+    font-family: 微软雅黑;
+    font-weight: bold;
+    text-align: center;
+}
+.xwf_win_tdClose {
+    width: 30px;
+    color: White;
+    font-size: 16pt;
+    text-align: center;
+}
+.xwf_win_tdClose:hover {
+    background-color: #D44027;
+    cursor: pointer;
+}
+
+/* -- 窗口区 -- */
+.xwf_win_ifrWin, .xwf_win_ifrWinMax {
+    border: 0px;
+    padding: 5px;
+}
+.xwf_win_ifrWin {
+    background-color: #F9F9F9;
+}
+.xwf_win_ifrWinMax {
+    /* -- 无边框窗口(最大化时) -- */
+    background-color: White;
+}
+
+/* -- 模态层 -- */
+.xwf_win_divModal {
+    cursor: not-allowed;
+    position: absolute;
+    background-color: Black;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)"; /*IE8*/
+    filter: alpha(opacity=20); /*-- IE5、IE5.5、IE6、IE7 --*/
+    opacity: 0.2; /*-- Opera9.0+、Firefox1.5+、Safari、Chrome --*/
+}

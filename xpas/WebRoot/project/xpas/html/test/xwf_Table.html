@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html />
+<html>
+<head>
+    <title>Table控件测试页面</title>
+    <link href="../../../../res/control/table/style2/xwf.table.css" rel="stylesheet" />
+    <link href="../../../../res/control/scrollbar/style2/xwf.scrollbar.css" rel="stylesheet" />
+    <link href="../../../../res/css/style2/xwf.common.css" rel="stylesheet" />
+    <link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script> 
+    <script src="../../../../res/jscript/xwf.datatable.js"></script>
+
+    <script src="../../../../res/control/table/xwf.table.js"></script>
+    <script src="../../../../res/control/table/xwf.tableview.js"></script>
+    <script src="../../../../res/control/scrollbar/xwf.scrollbar.js"></script>
+  
+    <style type="text/css">
+        body {
+            width: 825px;
+            height: 500px;
+        }
+
+        #divGrid {
+            width: 800px;
+            height: 400px;
+            --border: solid 1px blue;
+            --background-color: white;
+        }
+    </style>
+    
+</head>
+<body>
+    <div id="divButton" class="divButtons">
+        <input type="button" id="btnInitTable" onclick="btnInitTable_click();" value="初始化表格" />
+        <input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+    </div>
+    <div class="PanelA" style="background-color:white;">
+        <div id="divGrid"></div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript"> 
+    var viewKey = "test_table";
+    var divGrid = gId("divGrid");
+    var table = null;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        btnInitTable_click();
+    }
+
+    function btnClose_click() {
+        win.close();
+    }
+</script>
+
+<!-- 初始化表格 -->
+<script type="text/javascript">
+    function btnInitTable_click() {
+        var option = 1;
+        var viewForm = "";
+
+        viewKey = "test_table_" + option;
+        if (option == 1) {
+            viewForm = "project/xpas/html/frame/subsystem.html";
+        }
+        else {
+            viewForm = "project/xpas/html/db_design/field.html";
+        }
+
+        var prop = {
+            divContainer: divGrid,
+            viewKey: viewKey,
+            viewFilter: "1 = 1", 
+            viewForm: viewForm
+        };
+        table = new window.xwf_tableview(prop);
+
+        // table.setViewFilter("in_id = " + inId);
+    }
+</script>

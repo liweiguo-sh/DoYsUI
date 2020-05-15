@@ -1,0 +1,577 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="../../../../../res_plugin/zui-1.8.1-dist/css/zui.min.css" rel="stylesheet" />
+    <link href="../../../../../res_plugin/zui-1.8.1-dist/lib/dashboard/zui.dashboard.min.css" rel="stylesheet" />
+    <link href="css/background.css" rel="stylesheet" />
+
+    <script src="../../../../../res_plugin/jquery/jquery-3.1.1.min.js"></script>
+    <script src="../../../../../res_plugin/zui-1.8.1-dist/js/zui.min.js"></script>
+    <script src="../../../../../res_plugin/zui-1.8.1-dist/lib/dashboard/zui.dashboard.min.js"></script>
+    <script src="../../../../../res_plugin/zui-1.8.1-dist/lib/chart/zui.chart.min.js"></script>
+
+    <script src="js/xwf.js"></script>
+    <!-- gId 方法与引入的第三方js库有冲突 -->
+    <!--<script src="../../../../../res/jscript/xwf.ajax.js"></script>-->
+    <script src="../../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../../res/jscript/xwf.const.js"></script>
+    <script src="../../../../../res/jscript/xwf.datatable.js"></script>
+    <script src="js/background.js"></script>
+
+    <style type="text/css">
+        body {
+            margin: 0px;
+            overflow: hidden;
+            background-color: #999;
+        }
+        
+        .divTitle {
+            display: none;
+            color: Yellow;
+            font-family: 微软雅黑;
+            text-align: right;
+            padding-top: 30px;
+            padding-right: 38%;
+        }
+    </style>
+</head>
+
+<body scroll="no" onload="formLoad();" class="bg-body">
+    <div class="divTitle">Medical Supply Chain Management</div>
+    <div id="dashboard" class="dashboard dashboard-graggable h-100">
+        <section class="row panel-container h-100 m-0">
+            <div class="col-md-8 col-lg-8 h-100 p-0 p-rt-10">
+                <div class="row h-50 m-0 p-bm-10">
+                    <div class="col-md-12 col-lg-12 h-100 p-0">
+                        <div class="panel h-100 m-0" data-id="1">
+                            <div class="panel-heading p-0">
+                                <ul class="tab-box m-0 p-0">
+                                    <li class="tab-item active">公告</li>
+                                </ul>
+                                <div class="panel-actions">
+                                    <button type="button" class="btn refresh-panel" data-toggle="tooltip" title="">
+                                        <i class="icon-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="panel-body p-0">
+                                <div class="panel-first body-backlog active">
+                                    <article class="article">
+                                        <!-- 文章头部 -->
+                                        <!--  <header>
+                                            <h3>关于代销模式的转变</h3>
+                                            文章属性列表
+                                        </header>
+                                        文章正文部分
+                                        <section class="content" style="    text-indent: 2em;    text-indent: 2em; padding: 9px 0px;">
+                                            我院spd项目，于9月1日，正式上线运行，所有原购销类耗材，变为代销，各供应商今后不再货票同行，结算方式为月底按实际消耗量开具发票，每月核对月消耗量及中心库房库存。
+                                        </section>
+                                        <section class="content" style="    text-indent: 2em;    text-indent: 2em; padding: 9px 0px;">
+                                        </section>
+                                        文章底部
+                                        <footer>
+                                            <ul class="pager pager-justify">
+                                                <li class="pull-right"></li>
+                                            </ul>
+                                        </footer> -->
+                                        <!-- 文章头部 -->
+                                        <header>
+                                            <h3>告各供应商 </h3>
+                                            <!-- 文章属性列表 -->
+                                        </header>
+                                        <!-- 文章正文部分 -->
+                                        <section class="content" style="    text-indent: 2em;    text-indent: 2em; padding: 9px 0px;">
+                                            悉知：“最近有部分供应商一次送货打印携带多份送货单来我院验货入库，其结果就是大大的降低了入库的效率，对于供应商和我院来说都是不便利的”。因此烦请各位供应商在打印送货单的时候秉持着一个订单号只创建一个送货单的原则创建。如果还有不清楚同一发货单耗材如何多批次发货的话，请联系SPD:邹贝18506377708。
+                                        </section>
+                                        <section class="content" style="    text-indent: 2em;    text-indent: 2em; padding: 9px 0px;">
+                                        </section>
+                                        <!-- 文章底部 -->
+                                        <footer>
+                                            <ul class="pager pager-justify">
+                                                <li class="pull-right"></li>
+                                            </ul>
+                                        </footer>
+
+                                    </article>
+                                </div>
+                                <div class="panel-first body-notice">暂无公共消息</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row h-50 m-0">
+                    <div class="col-md-12 col-lg-12 h-100 p-0">
+                        <div class="panel h-100 m-0" data-id="2">
+                            <div class="panel-heading p-0">
+                                <span class="title">工作流程</span>
+                                <div class="panel-actions">
+                                    <button type="button" class="btn refresh-panel refresh-progress" data-toggle="tooltip" title="">
+                                        <i class="icon-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="panel-body p-0">
+                                <div class="row m-0 p-0">
+                                    <div class="col-md-12 col-lg-12 p-0">
+                                        <div class="panel m-0 flow need-confirm">
+                                            <div class="panel-heading p-0 panel-warning">
+                                                <i class="icon icon-pushpin"></i>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="flow-label">待确认订单</div>
+                                                <div class="flow-content"><span class="value">0</span>个订单</div>
+                                            </div>
+                                            <span class="badge value">0</span>
+                                            <i class="icon icon-double-angle-right"></i>
+                                        </div>
+                                        <div class="panel m-0 flow need-distribution">
+                                            <div class="panel-heading p-0 panel-primary">
+                                                <i class="icon icon-shopping-cart"></i>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="flow-label">待送货订单</div>
+                                                <div class="flow-content"><span class="value">0</span>个订单</div>
+                                            </div>
+                                            <span class="badge value">0</span>
+                                            <i class="icon icon-double-angle-right"></i>
+                                        </div>
+                                        <div class="panel m-0 flow need-in-stock">
+                                            <div class="panel-heading p-0 panel-primary">
+                                                <i class="icon icon-inbox"></i>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="flow-label">待入库订单</div>
+                                                <div class="flow-content"><span class="value">0</span>个订单</div>
+                                            </div>
+                                            <span class="badge value">0</span>
+                                            <!-- <i class="icon icon-double-angle-right"></i> -->
+                                        </div>
+                                        <div class="panel m-0 flow finished-in-stock">
+                                            <div class="panel-heading p-0 panel-success">
+                                                <i class="icon icon-check"></i>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="flow-label">已入库订单</div>
+                                                <div class="flow-content"><span>18</span>个订单</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-4 h-100 p-0">
+                <div class="row h-60 m-0 p-bm-10">
+                    <div class="col-md-12 col-lg-12 h-100 p-0">
+                        <div class="panel h-100 m-0" data-id="2">
+                            <div class="panel-heading p-0">
+                                <span class="title">工作统计</span><span class="title-small">最近30天数据统计</span>
+                            </div>
+                            <div class="panel-body p-0">
+                                <div class="chart-tips">
+                                    <div class="tip-item"><span class="need-confirm-bar"></span>待确认订单</div>
+                                    <div class="tip-item"><span class="need-distribution-bar"></span>待送货订单</div>
+                                    <div class="tip-item"><span class="need-stock-bar"></span>待入库订单</div>
+                                </div>
+                                <canvas id="myChart" class="myChart h-60"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row h-40 m-0">
+                    <div class="col-md-12 col-lg-12 h-100 p-0">
+                        <div class="panel h-100 m-0" data-id="2">
+                            <div class="panel-heading p-0">
+                                <span class="title">信息显示</span>
+                            </div>
+                            <div class="panel-body p-0">
+                                <div class="cert">
+                                    <div class="cert-item">
+                                        <label class="m-0">即将过期的证件：</label>
+                                        <div class="progress-box">
+                                            <div class="progress m-0">
+                                                <div class="progress-bar" role="proressbar" aria-valuenow="13" aria-valuemin="0" aria-valuemax="100" style="width: 13%;">
+                                                    <span class="sr-only"></span>
+                                                </div>
+                                            </div>
+                                            <span class="progress-value">13</span>
+                                        </div>
+                                    </div>
+                                    <div class="cert-item">
+                                        <label class="m-0">已过期的证件：</label>
+                                        <div class="progress-box">
+                                            <div class="progress m-0">
+                                                <div class="progress-bar" role="proressbar" aria-valuenow="9" aria-valuemin="0" aria-valuemax="100" style="width: 9%;">
+                                                    <span class="sr-only"></span>
+                                                </div>
+                                            </div>
+                                            <span class="progress-value">9</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="customer">
+                                    <span class="customer-label"><i class="icon icon-group"></i>客户数量</span>
+                                    <span class="customer-value">3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="service-box">
+        <div class="service-nav">
+            <i class="icon icon-wechat"></i>
+        </div>
+        <div class="service-main">
+            <img src="images/forten_wechat.jpg" alt="..." title="" />
+        </div>
+    </div>
+</body>
+
+</html>
+
+<!-- FormLoad -->
+<script src="js/background.js"></script>
+<script type="text/javascript">
+    var topWin = top.topWin;
+    var bg = {};
+    bg.init = function() {
+        // 代办事项和公共消息 Tab
+        $('.tab-item').on('click', function() {
+            var index = $(this).index();
+            $(this)
+                .addClass('active')
+                .siblings('li').removeClass('active')
+                .parent().parent().siblings().find('.panel-first').eq(index).addClass('active')
+                .siblings('div').removeClass('active');
+        });
+
+        bg.queryNewNotify();
+        bg.queryDistMatr();
+        bg.queryInStock();
+
+        // 工作统计
+        var data = {
+            labels: bg.xAsixData,
+            datasets: [{
+                label: '订单',
+                color: '#F9664C',
+                data: bg.yNeedConfirmData
+            }, {
+                label: '送货',
+                color: '#3288ED',
+                data: bg.yNeedDistributionData
+            }, {
+                label: '入库',
+                color: '#44DCC2',
+                data: bg.yNeedInStock
+            }]
+        };
+        var options = {
+            showScale: true,
+            datasetFill: false,
+            responsive: true,
+            bezierCurve: false,
+            scaleShowVerticalLines: false
+        };
+        bg.myLineChart = $('#myChart').lineChart(data, options);
+
+        // 工作流程数据刷新
+        $('.refresh-progress').on('click', function() {
+            bg.queryNewNotify();
+            bg.queryDistMatr();
+            bg.queryInStock();
+            // 更新图表数据
+            bg.myLineChart.datasets[0].data = bg.yNeedConfirmData;
+            bg.myLineChart.datasets[1].data = bg.yNeedDistributionData;
+            bg.myLineChart.datasets[2].data = bg.yNeedInStock;
+            bg.myLineChart.update();
+        })
+
+        // 待确认订单按钮
+        $('.need-confirm').on('click', function() {
+            try {
+                topWin.openMenu({
+                    menuKey: "PG3003001"
+                });
+            } catch (e) {
+                new $.zui.Messager('打开待确认订单失败！', {
+                    type: 'warning'
+                }).show();
+                return false;
+            }
+        });
+
+        // 待送货订单按钮
+        $('.need-distribution').on('click', function() {
+            try {
+                topWin.openMenu({
+                    menuKey: "PG3003001"
+                });
+            } catch (e) {
+                new $.zui.Messager('打开待送货订单失败！', {
+                    type: 'warning'
+                }).show();
+                return false;
+            }
+        });
+
+        // 待入库订单按钮
+        $('.need-in-stock').on('click', function() {
+            try {
+                topWin.openMenu({
+                    menuKey: "PG3003001"
+                });
+            } catch (e) {
+                new $.zui.Messager('打开待入库订单失败！', {
+                    type: 'warning'
+                }).show();
+                return false;
+            }
+        });
+    }
+
+    // 待确认订单总数查询
+    bg.queryNewNotify = function() {
+        if (g.a.send("processType=g_mscm.background.background&actionType=queryNewNotify", {}, true)) {
+            if (g.a.OK) {
+                var rows = g.a.cReturn.result.rows;
+                var dataObj = {};
+                if (rows.length > 0 && rows[0] != "") {
+                    var array = bg.formatObjectData(rows);
+                    dataObj = bg.getChartData(array);
+                    bg.xAsixData = dataObj.dateArray;
+                    bg.yNeedConfirmData = dataObj.qtyArray;
+                    $('.need-confirm .value').text(dataObj.total);
+                } else {
+                    bg.xAsixData = [];
+                    new $.zui.Messager('待确认订单暂无数据', {
+                        type: 'warning'
+                    }).show();
+                    return false;
+                }
+            } else {
+                new $.zui.Messager('请求失败', {
+                    type: 'danger'
+                }).show();
+                return false;
+            }
+        }
+    }
+
+    // 待送货订单总数查询
+    bg.queryDistMatr = function() {
+        if (g.a.send("processType=g_mscm.background.background&actionType=queryDistMatr", {}, true)) {
+            if (g.a.OK) {
+                var rows = g.a.cReturn.result.rows;
+                if (rows.length > 0 && rows[0] != "") {
+                    var array = bg.formatObjectData(rows);
+                    var dataObj = bg.getChartData(array);
+                    bg.xAsixData = dataObj.dateArray;
+                    bg.yNeedDistributionData = dataObj.qtyArray;
+                    $('.need-distribution .value').text(dataObj.total);
+                } else {
+                    new $.zui.Messager('待送货订单暂无数据', {
+                        type: 'warning'
+                    }).show();
+                    return false;
+                }
+            } else {
+                new $.zui.Messager('请求失败', {
+                    type: 'danger'
+                }).show();
+                return false;
+            }
+        }
+    }
+
+    // 待入库订单总数查询
+    bg.queryInStock = function() {
+        if (g.a.send("processType=g_mscm.background.background&actionType=queryInStock", {}, true)) {
+            if (g.a.OK) {
+                var rows = g.a.cReturn.result.rows;
+                if (rows.length > 0 && rows[0] != "") {
+                    var array = bg.formatObjectData(rows);
+                    var dataObj = bg.getChartData(array);
+                    bg.xAsixData = dataObj.dateArray;
+                    bg.yNeedInStock = dataObj.qtyArray;
+                    $('.need-in-stock .value').text(dataObj.total);
+                } else {
+                    new $.zui.Messager('待入库订单暂无数据', {
+                        type: 'warning'
+                    }).show();
+                    return false;
+                }
+            } else {
+                new $.zui.Messager('请求失败', {
+                    type: 'danger'
+                }).show();
+                return false;
+            }
+        }
+    }
+
+    // 获取最近30天的图表数据
+    bg.getChartData = function(array) {
+        var total = 0;
+        var newArray = []; // 最近 30 天中有订单的数据
+        var newArrayAll = []; // 最近 30 天的全部数据（有数据以及数据为 0 的）
+        var dateArray = []; // 最近 30 天的日期数据（x 轴数据）
+        var qtyArray = []; // 最近 30 天的 y 轴数据
+        var nowDate = getDay(0);
+        var endDate = getDay(-14);
+        for (var i = 0, len = array.length; i < len; i++) {
+            total += array[i].num;
+            if (array[i].date >= endDate && array[i].date <= nowDate) {
+                newArray.push(array[i]);
+            }
+        }
+        for (var i = 0; i > -15; i--) {
+            var date = getDay(i);
+            dateArray.push(date);
+            if (hasValue(newArray, date) == -1) {
+                newArrayAll.push({
+                    date: date,
+                    num: 0
+                })
+            } else {
+                var index = hasValue(newArray, date);
+                newArrayAll.push({
+                    date: date,
+                    num: newArray[index].num
+                });
+            }
+        }
+        newArrayAll = bubbleSort2(newArrayAll);
+        dateArray = bubbleSort(dateArray);
+
+        for (var i = 0; i < newArrayAll.length; i++) {
+            qtyArray.push(newArrayAll[i].num);
+        }
+        return {
+            data: newArrayAll,
+            dateArray: dateArray,
+            qtyArray: qtyArray,
+            total: total
+        };
+    }
+
+    bg.formatObjectData = function(arr) {
+        var array = [],
+            len = arr.length;
+        for (var i = 0; i < len; i++) {
+            var obj = {};
+            Object.keys(arr[i]).forEach(function(key) {
+                if (isNaN(key) && key !== '$') {
+                    obj[key] = arr[i][key].value;
+                }
+            });
+            array.push(obj);
+        }
+        return array;
+    }
+
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        var tdLogo = top.window.document.getElementById("tdTopLeft");
+        var tdProjectName = top.window.document.getElementById("tdProjectName");
+        // ------------------------------------------------
+        topWin.cMenu.addEventListener("beforeClick", onMenuClick);
+
+        tdLogo.style.background = "url('project/g_mshare/html/login/guoyao/images/top_left.png') no-repeat center left";
+        tdLogo.style.width = "200px";
+        if (tdProjectName) {
+            tdProjectName.innerHTML = "Forten供应商平台";
+        }
+
+        // ------------------------------------------------
+        topWin.companyIdMi = 0;
+        topWin.companyNameMi = "请选择院方";
+
+        if (topWin.isCommerce == 1) {
+            topWin.cStatusBar.addBar({
+                type: "text",
+                key: "company",
+                width: 120
+            });
+
+            if (topWin.dtbMyCompanyMi.rowCount == 1) {
+                topWin.companyIdMi = topWin.dtbMyCompanyMi.rows[0]["company_id"].value;
+                topWin.companyNameMi = topWin.dtbMyCompanyMi.rows[0]["company_name"].value;
+            } else if (topWin.dtbMyCompanyMi.rowCount == 0) {
+                // topWin.companyNameMi = "请先供方资格申请操作";
+                selectCompanyMi();
+            } else {
+                selectCompanyMi();
+            }
+
+            setCompanyMi();
+        }
+        bg.init();
+    }
+
+    function onMenuClick(menu) {
+        var menuKey = menu.menuKey;
+        var menuText = menu.text;
+
+        if (menuKey.equals("X91001003001")) {
+            alert("background.html页面代码：\n监听到菜单 " + menuKey + "(" + menuText + ") 点击事件");
+            return false;
+        } else {
+            return true;
+        }
+    }
+</script>
+
+<!-- 供应商选择院方 -->
+<script type="text/javascript">
+    function selectCompanyMi() {
+        var prop = {
+            title: "请选择院方机构...",
+            width: 420,
+            height: 0.6,
+            modal: true
+        };
+        var para = {
+            viewKey: "my_company_afterLogin",
+            viewFilter: "company_id_me = " + topWin.companyId,
+            viewMode: "singleSelect",
+            selectCallback: onCompanySelected
+        };
+        topWin.openSelectView(prop, para);
+    }
+
+    function onCompanySelected(dataRow) {
+        topWin.companyIdMi = dataRow["company_id"].value;
+        topWin.companyNameMi = dataRow["company_name"].value;
+
+        setCompanyMi();
+        return true;
+    }
+
+    function setCompanyMi() {
+        if (topWin.companyIdMi > 0) {
+            if (g.a.send("processType=g_mscm.background.background&actionType=setCompanyMi", {
+                    companyIdMi: topWin.companyIdMi,
+                    companyNameMi: topWin.companyNameMi
+                }, true)) {
+                if (g.a.OK) {
+                    // -- --
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        topWin.cStatusBar.setValue("company", "<a href='#' onclick='top.location.reload();'>" + topWin.companyNameMi + "</a>");
+    }
+</script>

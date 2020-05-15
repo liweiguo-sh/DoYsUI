@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="json2.js"></script>
+</head>
+<body>
+</body>
+</html>
+
+<script type="text/javascript"> 
+    try {
+        var jsonObject = { key1: 1, key2: "B", key2: new Date() };
+        var jsonString = JSON.stringify(jsonObject);
+
+        alert(jsonString);
+    }
+    catch (e) {
+        alert(e.toString());
+    }
+</script>

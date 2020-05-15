@@ -1,0 +1,1406 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>供应商耗材入库</title>
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+    <script src="../../../../res/jscript/xwf.datatable.js"></script>
+
+    <script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+    <script src="../../js/select_storage.js"></script>
+    <script src="../../js/matr_barcode_parse.js"></script>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/lib/jquery/jquery.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/web_print.js"></script>
+
+    <style type="text/css">
+        #txtScan {
+            font-size: 1em;
+            font-family: Arial;
+            height: 26px;
+            line-height: 24px;
+            border: 2px solid #19A2D5;
+        }
+        
+        .PanelA {
+            width: 1180px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .import-alert {
+            font-weight: bolder;
+        }
+        
+        .tbForm .color-red {
+            color: red;
+        }
+        
+        .tbForm .f-bold {
+            font-weight: bold;
+        }
+        
+        #divGridDtl input {
+            border: 0px;
+        }
+        
+        .cellPointerBlue {
+            color: Blue;
+        }
+    </style>
+    <!-- 操作区 -->
+    <style type="text/css">
+        .tbRfSn {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        
+        .tbRfSn td {
+            padding: 0px;
+            overflow: hidden;
+            font-family: 微软雅黑;
+        }
+        
+        .tbRfSn input[type=checkbox] {
+            margin-right: 2px;
+        }
+        
+        .tbRfSn input[type=text] {
+            width: 20px;
+            height: 18px;
+            line-height: 18px;
+            margin-left: 5px;
+            margin-right: 5px;
+            text-align: center;
+            border: solid 1px lightGray;
+        }
+        
+        .tbRfSn input[type=text]:hover {
+            border: solid 1px #519BE1;
+        }
+        
+        .tbRfSn label {
+            -ms-user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="PanelA" style="width:1200px;background-color:white;border:0px;padding:0px;">
+        <div id="divDC"></div>
+    </div>
+    <div class="PanelA">
+        <form id="frm" action="" target="h_spd.wi.VIEW_wi">
+            <table id="tbForm" class="tbForm" style="width: 100%">
+                <tr id="trH">
+                    <th style="width: 10%;"></th>
+                    <th style="width: 15%;"></th>
+                    <th style="width: 10%;"></th>
+                    <th style="width: 15%;"></th>
+                    <th style="width: 10%;"></th>
+                    <th style="width: 15%;"></th>
+                    <th style="width: 10%;"></th>
+                    <th style="width: 15%;"></th>
+                </tr>
+                <tr>
+                    <td>入库单号</td>
+                    <td><input type="text" id="_cWi_key" disabled="disabled" /></td>
+                    <td>入库日期</td>
+                    <td><input type="text" id="_cWi_date" class="Wdate" onclick="WdatePicker()" /></td>
+                    <td>送货人</td>
+                    <td class="combo"><input type="text" id="_cWi_sender" disabled="disabled" />
+                        <div id="btnSelectAgent" class="fa fa-search" onclick="btnSelectAgent_click();"></div>
+                    </td>
+                    <td>收货人</td>
+                    <td><input type="text" id="_cWi_receiver" /></td>
+                </tr>
+                <tr>
+                    <td>库存地</td>
+                    <td class="combo"><input type="text" id="_gStorage_fullname" disabled="disabled" />
+                        <div id="btnChooseStorage" class="fa fa-search" onclick="btnChooseStorage_click();"></div>
+                    </td>
+                    <td>入库类型</td>
+                    <td><input type="text" id="_cWi_type" disabled="disabled" /></td>
+                    <td>订单</td>
+                    <td><input type="text" id="_gPo_key" disabled="disabled" /></td>
+                    <!--
+                        <td><input type="text" id="_gPo_key" disabled="disabled" /></td>
+                        <td class="combo"><input type="text" id="_gPo_key" disabled="disabled" /><div id="btnChoosePo" class="fa fa-search" onclick="btnChoosePo_click();"></div></td>
+                    -->
+                    <td class="f-bold">总金额</td>
+                    <td><input type="text" id="_cAmount" disabled="disabled" /></td>
+                </tr>
+                <tr>
+                    <td>供应商</td>
+                    <td colspan="3"><input type="text" id="_cSP_ID" controltype="dropdown" fieldvalue="sp_id" fieldtext="sp_name" fieldsvisible="sp_name" fieldssearch="sp_name_py,sp_name" /></td>
+                    <td id="tdInvoiceTitle">发票号码</td>
+                    <td id="tdInvoiceContent" colspan="3"><input type="text" id="_cInvoice_code" /></td>
+                </tr>
+                <tr>
+                    <td>备注</td>
+                    <td colspan="3"><input type="text" id="_cWi_remark" /></td>
+                    <td></td>
+                    <td><input type="checkbox" id="_cIs_consignment" /><label for="_cIs_consignment">寄售代销</label></td>
+                    <td></td>
+                    <td><input type="checkbox" id="_cIs_omoc" /><label for="_cIs_omoc">一物一码</label></td>
+                </tr>
+            </table>
+            <input type="hidden" id="_cWI_ID" />
+            <input type="hidden" id="_cSTORAGE_ID" />
+            <input type="hidden" id="_cPO_ID" />
+            <input type="hidden" id="_cAstatus" />
+            <input type="hidden" id="_cRef_type" />
+            <input type="hidden" id="_cRef_key" />
+            <input type="hidden" id="_gauditor_name" />
+        </form>
+    </div>
+    <div id="inputArea" class="PanelA" style="margin-top: 5px;">
+        <table id="tbDtl" class="tbForm" style="width: 100%;">
+            <tr class="trH">
+                <th style="width: 10%"></th>
+                <th style="width: 15%"></th>
+                <th style="width: 10%"></th>
+                <th style="width: 15%"></th>
+                <th style="width: 10%"></th>
+                <th style="width: 15%"></th>
+                <th style="width: 10%"></th>
+                <th style="width: 15%"></th>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <input type="text" id="txtScan" placeholder="在此设置光标，开始扫描GTIN/到货通知单" style="ime-mode:disabled;" />
+                </td>
+                <td>行发票号</td>
+                <td><input type="text" id="_fInvoice_code" /></td>
+                <td>摘要</td>
+                <td><input type="text" id="_fRemark" /></td>
+            </tr>
+            <tr>
+                <td>品名</td>
+                <td colspan="3" class="combo">
+                    <input type="text" id="_fMaterial_name" disabled="disabled" />
+                    <div id="btnSelectMatr" class="fa fa-search" onclick="btnSelectMatr_click();"></div>
+                </td>
+                <td>规格型号</td>
+                <td colspan="3"><input type="text" id="_fMaterial_spec" disabled="disabled" /></td>
+            </tr>
+            <tr>
+                <td class="import-alert">
+                    <div>批次号<label class="color-red"> *</label></div>
+                </td>
+                <td><input type="text" id="_fLot" /></td>
+                <td class="import-alert">
+                    <div>生产日期<label class="color-red"> *</label></div>
+                </td>
+                <td><input type="text" id="_fMfg_date" class="Wdate" onclick="WdatePicker()" /></td>
+                <td class="import-alert">
+                    <div>效期<label class="color-red"> *</label></div>
+                </td>
+                <td><input type="text" id="_fExp_date" class="Wdate" onclick="WdatePicker()" /></td>
+                <td class="f-bold">金额</td>
+                <td><input type="text" id="_fAmount" disabled="disabled" /></td>
+            </tr>
+            <tr>
+                <td class="import-alert">
+                    <div>包装数量<label class="color-red"> *</label></div>
+                </td>
+                <td><input type="text" id="_fPackage_qty" onchange="calAmount();" /></td>
+                <td>包装单位</td>
+                <td><input type="text" id="_fPackage_unit" /></td>
+                <td>数量</td>
+                <td><input type="text" id="_fQty" disabled="disabled" /></td>
+                <td>单位</td>
+                <td><input type="text" id="_fMaterial_unit" disabled="disabled" /></td>
+            </tr>
+            <tr>
+                <td>RFID</td>
+                <td><input type="text" id="_fRfid" /></td>
+                <td>原厂码</td>
+                <td><input type="text" id="_fOriginal_barcode" /></td>
+                <td></td>
+                <td class="pageButtons"><input type="button" id="btnAddOrUpdate" value="添加/更新明细" onclick="btnAddOrUpdate_click();" /></td>
+                <td>打印</td>
+                <td>
+                    <div>
+                        <table class="tbRfSn">
+                            <tr>
+                                <td style="text-align:left;display:none;"><input type="checkbox" id="chkPrintRfid" /><label for="chkPrintRfid">RFID</label></td>
+                                <td style="text-align:right;"><input type="checkbox" id="chkPrintSn" /><label for="chkPrintSn">打印SN</label></td>
+                                <td style="text-align:right;padding-right:15px;"><input type="text" id="_fSn_count" style="" />份</td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+        <input type="hidden" id="_fWI_DTL_ID" value="0" />
+        <input type="hidden" id="_fMATERIAL_ID" value="0" />
+        <input type="hidden" id="_fPrice" value="0" />
+        <input type="hidden" id="_fReg_no" value="0" />
+    </div>
+    <div class="PanelA" style="margin-top: 5px;">
+        <div id="divGridDtl" style="height: 250px; cursor: pointer;"></div>
+    </div>
+</body>
+
+</html>
+
+<!-- formLoad -->
+<script>
+    //打印标志
+    var _printWi = "printWi",
+        _printWiSum = "printWiSum";
+    var wiType = urlPara["wiType"];
+    var qrAsnMode = urlPara["qrAsnMode"] ? true : false;
+
+    var txtScan = gId("txtScan");
+    var gridDtl = null;
+    // ----------------------------------------------------
+    function formLoad() {
+        cssFormat(gId("tbForm"));
+        cssFormat(gId("tbDtl"));
+
+        vf.addExtraButton({
+            key: _printWi,
+            text: "打印入库单"
+        });
+        if (WebPrint.checkPrintset(_printWiSum)) { //
+            vf.addExtraButton({
+                key: _printWiSum,
+                text: "打印入库单（汇总）"
+            });
+        }
+        vf.addExtraButton({
+            key: "transferDist",
+            text: "转配送单"
+        });
+
+        g.x.bindEnterEvent(txtScan, function() {
+            onTxtScanEnter();
+        });
+
+        formResize();
+        if (qrAsnMode) {
+            txtScan.placeholder = "在此设置光标，扫描到货通知单单二维码...";
+        }
+    }
+
+    function formResize() {
+        var gridHeight = win.p.height - gId("divGridDtl").offsetTop - 20;
+        if (gridHeight < 250) {
+            gridHeight = 250;
+        }
+        gId("divGridDtl").style.height = gridHeight + "px";
+    }
+</script>
+
+<!-- vf.events -->
+<script>
+    vf.beforeAddnew = function() {
+        if (!topWin.stationStorageId) {
+            showErr("请先设置工位。");
+            return false;
+        }
+        return true;
+    }
+    vf.afterAddnew = function() {
+        gId("_cAstatus").value = "0";
+        gId("_cWi_type").value = wiType;
+        gId("_cPO_ID").value = "0";
+        gId("_cSTORAGE_ID").value = topWin.stationStorageId;
+        gId("_gStorage_fullname").value = topWin.stationStorageName;
+        gId("_cWi_date").value = (new Date()).toString();
+        gId("_cWi_receiver").value = topWin.userName;
+        gId("_cAmount").value = "0";
+
+        txtScan.focus();
+        // -- txtScan.value = "AN191100228";
+    }
+
+    vf.afterMove = function() {
+        showGridDtl();
+        clearEditForm();
+
+        if (vf.buttons["transferDist"]) {
+            if (gId("_cAstatus").value.toInt() == -1) {
+                vf.buttons["transferDist"].style.display = "";
+            } else {
+                vf.buttons["transferDist"].style.display = "none";
+            }
+        }
+    }
+
+    vf.beforeClick = function(para) {
+        var buttonKey = para.buttonKey;
+        if (buttonKey.equals(_printWi)) {
+            printWi();
+        } else if (buttonKey.equals(_printWiSum)) {
+            var param = {};
+            param.data = gridDtl.dtbViewData.rows;
+            param.printsettype = _printWiSum;
+            WebPrint.goPrintFormModelBySet(param);
+        } else if (buttonKey.equals("transferDist")) {
+            wiToDist(frm._cWI_ID.value.toInt());
+        } else {}
+        return false;
+    }
+
+    vf.beforeFlowClick = function(prop) {
+        var fbKey = prop.fbKey;
+        if (fbKey.equals("approve")) {
+
+        } else if (prop.fbKey.equals("commit")) {
+
+        }
+        return true;
+    }
+    vf.afterFlowClick = function(prop) {
+        var fbKey = prop.fbKey;
+        var drFlowButton = prop.drFlowButton;
+        var astatusTo = drFlowButton["fb_status_value"].value;
+        var wiAutoToDist = topWin["WI_AUTO_TO_DIST"];
+        var storageIdReq = vf.drViewOne["storage_id_req"].value.toInt();
+        // ------------------------------------------------
+        if (wiAutoToDist && astatusTo == -1 && gridDtl.dtbViewData.rowCount > 0) {
+            if (storageIdReq && storageIdReq != topWin.stationStorageId) {
+                if (confirm("当前入库单的需求来源不是当前库存地，是否将当前入库商品立即配送？")) {
+                    wiToDist(frm._cWI_ID.value.toInt());
+                }
+            }
+        }
+    }
+</script>
+<!-- gridview -->
+<script>
+    function showGridDtl() {
+        var wiId = frm._cWI_ID.value.toInt();
+        var astatus = frm._cAstatus.value.toInt();
+        var viewFilter = "wi_id = " + wiId;
+
+        if (gridDtl == null) {
+            var prop = {
+                divContainer: gId("divGridDtl"),
+                viewKey: "wi_common_dtl",
+                viewFilter: viewFilter,
+                showDeleteColumn: (astatus == 0 || astatus == 2),
+                cellBlur: onCellBlur,
+                cellClick: onCellClick,
+                rowClick: onRowClick,
+                rowFill: onRowFill,
+                viewForm: "project/h_spd/html/wi/wi_dtl.html",
+                allowConfig: false,
+                afterDelete: function() {
+                    vf.refreshRecord();
+                },
+                bottomDisplay: ""
+            };
+            gridDtl = new window.xwf_gridview(prop);
+        } else {
+            gridDtl.setViewFilter(viewFilter);
+        }
+    }
+
+    function onRowFill(para) {
+        var dataRow = para.drRow;
+        var jsonReturn = {
+            command: {
+                print_sn: {}
+            }
+        };
+
+        if (dataRow["material_id"].value == 0) {
+            jsonReturn.command.print_sn.text = "-";
+        }
+        // dataRow["invoice_code"].className = "cellPointerBlue";
+        return jsonReturn;
+    }
+
+    function onRowClick(para) {
+        var dataRow = para.drRow;
+
+        if (dataRow) {
+            if (dataRow["wi_dtl_id"].value != gId("_fWI_DTL_ID").value.toInt()) {
+                clearEditForm();
+                setNewMatr(dataRow);
+            }
+        } else {
+            clearEditForm();
+        }
+        return true;
+    }
+
+    function onCellBlur(para) {
+        var dataRow = para.drRow;
+        var wiDtlId = dataRow["wi_dtl_id"].value;
+        var fieldName = para.fieldName;
+        var newValue = para.newValue;
+
+        if (para.newValue == para.oldValue) {
+            return true;
+        }
+
+        var para = {
+            wiDtlId: wiDtlId,
+            fieldName: fieldName,
+            fieldValue: newValue
+        };
+
+        if (g.a.send("processType=h_spd.wi.WiCommon&actionType=updateDtlByEdit", para, true)) {
+            if (g.a.OK) {
+                if (fieldName.equals("material_official_code")) {
+                    gId("_fReg_no").value = newValue;
+                }
+
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function onCellClick(para) {
+        var dataRow = para.drRow;
+        var colName = para.fieldName;
+
+        var invoiceCode = "";
+        var drDtl = null;
+        // ------------------------------------------------
+        if (colName.equals("invoice_code")) {
+            invoiceCode = dataRow["invoice_code"].value;
+            if (!invoiceCode.equals("")) {
+                var amount = 0;
+                for (var i = 0; i < gridDtl.dtbViewData.rowCount; i++) {
+                    drDtl = gridDtl.dtbViewData.rows[i];
+                    if (drDtl["invoice_code"].value.equals(invoiceCode)) {
+                        amount += drDtl["price_sp"].value * drDtl["qty"].value;
+                    }
+                }
+                showMsg("发票金额：" + amount.toFixed(2));
+            }
+        } else {}
+    }
+
+    function viewExtraButtonClick(para) {
+        var btnKey = para.btnKey;
+        var viewKey = para.viewKey;
+        var dataRow = para.drViewData;
+        var wiDtlId = dataRow["wi_dtl_id"].value;
+
+        var copies = 0;
+        // ------------------------------------------------
+        if (viewKey.equals("wi_common_dtl")) {
+            if (btnKey.equals("print_sn")) {
+                copies = gId("_fSn_count").value.toInt();
+                if (gId("chkPrintSn").checked && copies) {
+                    printSn(wiDtlId, 0, copies);
+                }
+                if (gId("chkPrintRfid").checked) {
+                    printRfid(wiDtlId, 0);
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+
+<!-- 扫码操作 -->
+<script>
+    function onTxtScanEnter() {
+        var astatus = frm._cAstatus.value.toInt();
+        var codeType = "",
+            gtin = "";
+        var code = txtScan.value.trim();
+        // ------------------------------------------------
+        if (astatus != 0 && astatus != 2) return;
+        if (code.equals("")) return;
+
+        try {
+            if (qrAsnMode) {
+                // -- 扫二维码入库模式 --
+                onScanQR_ASN(code);
+            } else {
+                codeType = mbp.getBarcodeType(code);
+                // ----------------------------------------
+                if (codeType.equals("ASN")) {
+                    onScanAsn(code);
+                } else if (codeType.equals("GTIN")) {
+                    gtin = mbp.getGtin(code);
+                    onScanGtin(gtin);
+                } else if (codeType.equals("LOT")) {
+                    gId("_fLot").value = mbp.getLot(code);
+                } else if (codeType.equals("MFG_DATE")) {
+                    gId("_fMfg_date").value = mbp.getMfgDate(code);
+                } else if (codeType.equals("EXP_DATE")) {
+                    gId("_fExp_date").value = mbp.getExpDate(code);
+                } else if (codeType.equals("RFID")) {
+                    gId("_fRfid").value = mbp.getRfid(code);
+                } else if (codeType.equals("ignore")) {
+                    // -- do nothing --
+                } else {
+                    // -- debug("未处理的条码类型：" + codeType, true);
+                }
+            }
+        } catch (e) {
+            showWarn(e.toString());
+            txtScan.select();
+            txtScan.focus();
+        }
+
+        // --------------------------------------------
+        txtScan.value = "";
+        txtScan.focus();
+    }
+
+    function onScanAsn(asnKey) {
+        var wiId = frm._cWI_ID.value.toInt();
+        var storageId = frm._cSTORAGE_ID.value.toInt();
+        var para = {
+            asnKey: asnKey,
+            storageId: storageId
+        };
+        // ------------------------------------------------
+        if (wiId == 0) {
+            frm._cSP_ID.setValue(frm._cSP_ID.instance.dtbSource.rows[0]["sp_id"].value);
+            if (!vf.save()) {
+                return;
+            }
+            wiId = frm._cWI_ID.value.toInt();
+        }
+        para["wiId"] = wiId;
+
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.wi.WiCommon&actionType=pullAsnByAsnKey", para, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                vf.refreshRecord();
+                gridDtl.refresh();
+
+                clearEditForm();
+                return true;
+            } else {
+                txtScan.select();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function onScanGtin(gtin) {
+        var viewFilter = "";
+        var spId = frm._cSP_ID.underValue.toInt();
+        var para = {
+            gtin: gtin
+        };
+        // ------------------------------------------------
+        if (spId > 0) {
+            para["spId"] = spId;
+        }
+        if (g.a.send("processType=h_spd.wi.WiCommon&actionType=getMatrByGtin", para, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbMatr = cReturn.dtbMatr;
+
+                if (dtbMatr.rowCount == 0) {
+                    showWarn("没有符合条件的数据，请检查。\nGTIN = " + gtin);
+                    txtScan.select();
+                    txtScan.focus();
+                } else if (dtbMatr.rowCount > 1) {
+                    if (gridDtl.dtbViewData.rowCount > 0) {
+                        viewFilter = "sp_id = " + spId + " AND material_gtin = '" + gtin + "'";
+                        showMatrSelect(viewFilter);
+                    } else {
+                        viewFilter = "material_gtin = '" + gtin + "'";
+                        if (spId > 0) viewFilter += " AND sp_id = " + spId;
+                        showMatrSelect(viewFilter, "onceFilter");
+                    }
+                } else {
+                    setNewMatr(dtbMatr.rows[0]);
+                }
+            } else {
+                txtScan.select();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+<!-- area 1 操作区 -->
+<script>
+    function btnChooseStorage_click() {
+        jsoStorage.selectStorage({}, {
+            selectPhysicalStorage: true,
+            callback: onSelectStorage
+        });
+    }
+
+    function onSelectStorage(para) {
+        // ----------------------------------------------------
+        var storageId = para.node.drRow["storage_id"].value;
+        var storageFullName = para.node.drRow["storage_fullname"].value;
+
+        gId("_gStorage_fullname").value = storageFullName;
+        gId("_cSTORAGE_ID").value = storageId;
+        //如果是末级节点锁定明细库存地选择，否则设置库存地的根节点为本选中节点
+        //gId("_fStorage_fullname").value = storageFullName;
+        //gId("_fStorage_id").value = storageId;
+        return true;
+    }
+
+    function btnSelectAgent_click() {
+        var spId = gId("_cSP_ID").underValue.toInt();
+        if (spId <= 0) {
+            showErr("请先选择供应商！");
+            return;
+        }
+
+        var prop = {
+            title: "请选择供方人员...",
+            width: 480,
+            height: 300,
+            modal: true,
+            parent: win
+        };
+        var para = {
+            viewKey: "g_select_sa",
+            viewFilter: "sp_id = " + spId,
+            selectCallback: onSelectAgent
+        };
+        topWin.openSelectView(prop, para);
+    }
+
+    function onSelectAgent(dr) {
+        gId("_cWi_sender").value = dr["sa_name"].value;
+        setLocalItem("sa_default_" + gId("_cSP_ID").underValue, dr["sa_name"].value);
+        return true;
+    }
+
+    function btnChoosePo_click() {
+        if (gId("_cSP_ID").underValue.toInt() < 1) {
+            showErr("请先选择供应商！");
+            return;
+        }
+        if (!vf.save()) {
+            return;
+        }
+        var spId = gId("_cSP_ID").underValue;
+        var prop = {
+            title: "请选择采购订单...",
+            width: 0.6,
+            height: 0.8,
+            parent: win
+        };
+        var para = {
+            viewKey: "g_select_po",
+            viewFilter: "sp_id=" + gId("_cSP_ID").underValue,
+            selectCallback: onSelectPo
+        };
+        topWin.openSelectView(prop, para);
+    }
+
+    function onSelectPo(dataRow) {
+        var poId = dataRow["po_id"].value;
+        var wiId = frm._cWI_ID.value.toInt();
+        var storageId = frm._cSTORAGE_ID.value.toInt();
+        var para = {
+            poId: poId,
+            storageId: storageId
+        };
+        // ------------------------------------------------
+        if (wiId == 0) {
+            frm._cSP_ID.setValue(frm._cSP_ID.instance.dtbSource.rows[0]["sp_id"].value);
+            if (!vf.save()) {
+                return;
+            }
+            wiId = frm._cWI_ID.value.toInt();
+        }
+        para["wiId"] = wiId;
+
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.wi.WiCommon&actionType=pullPoByPoId", para, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                vf.refreshRecord();
+                gridDtl.refresh();
+
+                clearEditForm();
+                return true;
+            } else {
+                txtScan.select();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+<!-- area 2 操作区 -->
+<script>
+    function clearEditForm() {
+        txtScan.value = "";
+        gId("_fWI_DTL_ID").value = "0";
+
+        gId("_fMATERIAL_ID").value = "0";
+        gId("_fMaterial_name").value = "";
+        gId("_fMaterial_spec").value = "";
+
+        gId("_fLot").value = "";
+        gId("_fMfg_date").value = "";
+        gId("_fExp_date").value = "";
+        gId("_fPrice").value = "";
+        gId("_fAmount").value = "";
+
+        gId("_fPackage_qty").value = "";
+        gId("_fPackage_unit").value = "";
+        gId("_fQty").value = "";
+        gId("_fMaterial_unit").value = "";
+
+        gId("_fSn_count").value = "";
+        gId("_fOriginal_barcode").value = "";
+        gId("_fRfid").value = "";
+        gId("_fInvoice_code").value = "";
+        gId("_fRemark").value = "";
+
+        // ------------------------------------------------
+        gId("btnChooseStorage").style.display = "none";
+        //gId("btnChoosePo").style.display = "none";
+        gId("btnSelectMatr").style.display = "none";
+        gId("btnSelectAgent").style.display = "none";
+
+        frm._cSP_ID.setEnabled(false);
+        frm._cIs_omoc.disabled = true;
+        frm._cIs_consignment.disabled = true;
+
+        var asnMode = frm._cRef_type.value.equals("ASN");
+        var astatus = frm._cAstatus.value.toInt();
+        if (astatus == 0 || astatus == 2) {
+            gId("btnSelectMatr").style.display = "";
+            gId("btnSelectAgent").style.display = "";
+
+            if ((gridDtl == null || gridDtl.dtbViewData.rowCount == 0) && !asnMode) {
+                gId("btnChooseStorage").style.display = "";
+                //gId("btnChoosePo").style.display = "";
+
+                frm._cSP_ID.setEnabled(true);
+                frm._cIs_omoc.disabled = false;
+                frm._cIs_consignment.disabled = false;
+            }
+        }
+
+        gId("btnAddOrUpdate").style.display = "none";
+    }
+
+    function calAmount() {
+        if (gId("_fMATERIAL_ID").value.toInt() == 0) return;
+
+        var qtyPackage = 0;
+        if (frm._cIs_omoc.checked) {
+            qtyPackage = gId("_fPackage_qty").value.toInt();
+        } else {
+            qtyPackage = gId("_fPackage_qty").value.toNumber();
+
+        }
+        gId("_fPackage_qty").value = qtyPackage;
+
+        if (qtyPackage > 0) {
+            gId("_fQty").value = gId("_fPackage_unit").instance.dataRow["rate"].value * parseFloat(gId("_fPackage_qty").value);
+        }
+        gId("_fAmount").value = parseFloat(gId("_fQty").value) * parseFloat(gId("_fPrice").value);
+    }
+
+    function btnSelectMatr_click() {
+        var spId = frm._cSP_ID.underValue.toInt();
+        var strScan = txtScan.value.trim();
+        var viewFilter = "";
+
+        // ------------------------------------------------
+        viewFilter = "is_consignment = " + (frm._cIs_consignment.checked ? 1 : 0);
+        viewFilter += " AND is_omoc = " + (frm._cIs_omoc.checked ? 1 : 0);
+        if (spId > 0) viewFilter += " AND sp_id = " + spId;
+        if (strScan) {
+            viewFilter += " AND (material_name LIKE '%" + strScan + "%' OR material_name_py LIKE '%" + strScan + "%' OR material_spec LIKE '%" + strScan + "%')";
+        }
+        // ------------------------------------------------
+        showMatrSelect(viewFilter);
+    }
+
+    function initDropdown_packageUnit(drMatr, txt, value, onRowClick) {
+        var pkgUnitX = "";
+        var pkgQtyX = 0;
+        var materialUnit = drMatr["material_unit"].value;
+
+        var dtbSource = new window.xwf_datatable();
+        dtbSource.addColumn({
+            name: "package",
+            dataType: "varchar",
+            columnType: "string"
+        });
+        dtbSource.addColumn({
+            name: "unit",
+            dataType: "varchar",
+            columnType: "string"
+        });
+        dtbSource.addColumn({
+            name: "rate",
+            dataType: "int",
+            columnType: "number"
+        });
+
+        for (var i = 3; i > 0; i--) {
+            pkgUnitX = drMatr["material_package" + i + "_unit"].value;
+            pkgQtyX = drMatr["material_package" + i + "_qty"].value;
+            if (!pkgUnitX.equals("") && pkgQtyX > 0) {
+                dtbSource.addRow();
+                dtbSource.rows[dtbSource.rowCount - 1]["package"].value = pkgUnitX + "（" + pkgQtyX + " " + materialUnit + "）";
+                dtbSource.rows[dtbSource.rowCount - 1]["unit"].value = pkgUnitX;
+                dtbSource.rows[dtbSource.rowCount - 1]["rate"].value = pkgQtyX;
+            }
+        }
+        dtbSource.addRow();
+        dtbSource.rows[dtbSource.rowCount - 1]["package"].value = materialUnit;
+        dtbSource.rows[dtbSource.rowCount - 1]["unit"].value = materialUnit;
+        dtbSource.rows[dtbSource.rowCount - 1]["rate"].value = 1;
+
+        var jsonProp = {
+            txtHost: txt,
+            dtbSource: dtbSource,
+            visibleSN: false,
+            fieldValue: "unit",
+            fieldText: "package",
+            fieldsVisible: "package",
+            pageMaxRows: 5,
+            rowClick: function(para) {
+                var dataRow = para.dataRow;
+                return onRowClick(dataRow);
+            }
+        };
+        gId("_fPackage_unit").dropdown = new window.xwf_dropdown(jsonProp);
+        gId("_fPackage_unit").setValue(dtbSource.rows[0]["unit"].value);
+
+        txt.setValue(dtbSource.rows[0]["unit"].value);
+    }
+
+    function onRowClick_packageUnit(dataRow) {
+        calAmount();
+        return true;
+    }
+
+    function checkBeforeAddOrUpdate() {
+        if (gId("_fMATERIAL_ID").value.toInt() == 0) {
+            clearEditForm();
+            return false;
+        }
+
+        if (gId("_fLot").value.equals("")) {
+            showWarn("请输入批次。");
+            gId("_fLot").focus();
+            return false;
+        }
+        if (gId("_fMfg_date").value.equals("")) {
+            showWarn("请输入生产日期。");
+            gId("_fMfg_date").focus();
+            return false;
+        } else {
+            if (gId("_fMfg_date").value > (new Date()).toString()) {
+                showWarn("生产日期必须早于当前日期，请检查。");
+                gId("_fMfg_date").focus();
+                return false;
+            }
+        }
+        if (gId("_fExp_date").value.equals("")) {
+            showWarn("请输入效期。");
+            gId("_fExp_date").focus();
+            return false;
+        } else {
+            if (gId("_fExp_date").value <= (new Date()).toString()) {
+                showWarn("效期已过期，不允许入库。");
+                gId("_fExp_date").focus();
+                return false;
+            }
+        }
+
+        if (gId("_fPackage_qty").value.toNumber() <= 0) {
+            showWarn("请输入数量。");
+            gId("_fPackage_qty").value = "";
+            gId("_fPackage_qty").focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    function btnAddOrUpdate_click() {
+        var wiId = frm._cWI_ID.value.toInt();
+        var wiDtlId = gId("_fWI_DTL_ID").value.toInt();
+        var storageId = frm._cSTORAGE_ID.value.toInt();
+        var materialId = gId("_fMATERIAL_ID").value.toInt();
+        var copies = 0,
+            qtyNew = gId("_fQty").value.toNumber();
+        var isOmoc = frm._cIs_omoc.checked;
+        // ------------------------------------------------
+        if (!checkBeforeAddOrUpdate()) return false;
+
+        // ------------------------------------------------
+        if (gId("_fQty").value.toInt() > 1 && !gId("_fOriginal_barcode").value.equals("")) {
+            showWarn("入库数量大于1，此时不能维护原厂码，请检查。");
+            gId("_fOriginal_barcode").select();
+            gId("_fOriginal_barcode").focus();
+            return false;
+        }
+        if (gId("_fQty").value.toInt() > 1 && !gId("_fRfid").value.equals("")) {
+            showWarn("入库数量大于1，此时不能维护RFID，请检查。");
+            gId("_fRfid").select();
+            gId("_fRfid").focus();
+            return false;
+        }
+        if (wiDtlId > 0 && isOmoc) {
+            var dataRow = gridDtl.dtbViewData.rows[gridDtl.recordRow];
+            var qtyGrid = dataRow["qty"].value;
+
+            if (qtyNew < qtyGrid) {
+                showWarn("数量小于已生成条码数量，请到条码中删除具体明细记录。");
+                gId("_fQty").select();
+                gId("_fQty").focus();
+                return false;
+            }
+        }
+        // ------------------------------------------------
+        var para = {
+            wiDtlId: wiDtlId,
+            storageId: storageId,
+            materialId: materialId,
+            lot: gId("_fLot").value,
+            manufactureDate: gId("_fMfg_date").value,
+            expiredDate: gId("_fExp_date").value,
+            packageQty: gId("_fPackage_qty").value,
+            packageUnit: gId("_fPackage_unit").underValue,
+            qty: gId("_fQty").value,
+            materialUnit: gId("_fMaterial_unit").value,
+            snCount: gId("_fSn_count").value.toInt(),
+            regNo: gId("_fReg_no").value,
+            originalBarcode: gId("_fOriginal_barcode").value,
+            rfid: gId("_fRfid").value,
+            invoiceCode: gId("_fInvoice_code").value,
+            remark: gId("_fRemark").value,
+            printSn: (gId("chkPrintSn").checked ? 1 : 0)
+        }
+
+        if (wiId == 0 || vf.checkNeedSave()) {
+            if (!vf.save()) {
+                return false;
+            }
+            wiId = frm._cWI_ID.value.toInt();
+        }
+        para["wiId"] = wiId;
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.wi.WiCommon&actionType=addOrUpdateWiDtl", para, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var wiDtlId = cReturn.wiDtlId;
+
+                vf.refreshRecord();
+                gridDtl.refresh();
+
+                // -- 打印标签 --
+                copies = gId("_fSn_count").value.toInt();
+                if (gId("chkPrintSn").checked && copies) {
+                    printSn(wiDtlId, 0, copies);
+                }
+                if (gId("chkPrintRfid").checked) {
+                    printRfid(wiDtlId, 0);
+                }
+
+                clearEditForm();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function setAddOrUpdateStatus(status) {
+        var astatus = frm._cAstatus.value.toInt();
+
+        if (astatus == 0 || astatus == 2) {
+            if (status.equals("update")) {
+                gId("btnAddOrUpdate").value = "更新明细行";
+            } else {
+                gId("btnAddOrUpdate").value = "添加到明细";
+            }
+            gId("btnAddOrUpdate").style.display = "";
+        } else {
+            gId("btnAddOrUpdate").style.display = "none";
+        }
+    }
+</script>
+<!-- 物料选择 -->
+<script>
+    var winMatr = null;
+
+    function showMatrSelect(filter, filterType) {
+        var viewFilter = "",
+            onceFilter = "";
+
+        if (filterType && filterType.equals("onceFilter")) {
+            onceFilter = filter;
+        } else {
+            viewFilter = filter;
+        }
+        // ------------------------------------------------
+        if (winMatr != null) {
+            if (gridDtl.dtbViewData.rowCount <= 1) {
+                winMatr.close({
+                    callerIsSystem: true
+                });
+                winMatr = null;
+            }
+        }
+
+        if (winMatr == null) {
+            var prop = {
+                title: "请选择入库商品...",
+                width: 1100,
+                height: 0.8,
+                parent: win,
+                closeMode: "hide"
+            };
+            var para = {
+                viewKey: "matr_for_wi",
+                viewFilter: viewFilter,
+                onceFilter: onceFilter,
+                viewMode: "singleSelect",
+                selectCallback: onMatrSelect
+            };
+            winMatr = topWin.openSelectView(prop, para);
+        } else {
+            winMatr.show();
+        }
+    }
+
+    function onMatrSelect(dataRow) {
+        var spId = dataRow["sp_id"].value;
+        var isOmoc = (dataRow["is_omoc"].value == 1);
+        var isConsignment = (dataRow["is_consignment"].value == 1);
+        // ------------------------------------------------
+        if (gridDtl.dtbViewData.rowCount == 0) {
+            frm._cSP_ID.setValue(spId);
+            frm._cIs_omoc.checked = isOmoc;
+            frm._cIs_consignment.checked = isConsignment;
+            if (!vf.save()) {
+                return false;
+            }
+        } else {
+            if (spId != frm._cSP_ID.underValue.toInt()) {
+                showWarn("您选择的耗材不属于当前供应商, 请检查.");
+                return false;
+            }
+            if (isOmoc != (frm._cIs_omoc.checked ? 1 : 0)) {
+                showWarn("您选择的耗材与入库明细中已存在的耗材（一物一码）属性不一致, 请检查.");
+                return false;
+            }
+            if (isConsignment != (frm._cIs_consignment.checked ? 1 : 0)) {
+                showWarn("您选择的耗材与入库明细中已存在的耗材（寄售）属性不一致, 请检查.");
+                return false;
+            }
+        }
+        // ------------------------------------------------
+        clearEditForm();
+        setNewMatr(dataRow);
+
+        if (gId("_fLot").value.equals("")) {
+            gId("_fLot").focus();
+        } else {
+            txtScan.focus();
+        }
+
+        return true;
+    }
+
+    function setNewMatr(dataRow) {
+        var wiDtlId = 0;
+
+        if (dataRow["wi_dtl_id"]) {
+            wiDtlId = dataRow["wi_dtl_id"].value;
+        }
+        // ------------------------------------------------
+        initDropdown_packageUnit(dataRow, gId("_fPackage_unit"), "", onRowClick_packageUnit);
+
+        if (wiDtlId > 0) {
+            gId("_fWI_DTL_ID").value = wiDtlId;
+
+            gId("_fLot").value = dataRow["lot"].value;
+            gId("_fMfg_date").value = dataRow["manufacture_date"].value.substring(0, 10);
+            gId("_fExp_date").value = dataRow["expired_date"].value.substring(0, 10);
+
+            //gId("_fPackage_qty").value = dataRow["package_qty"].value;
+            //gId("_fPackage_unit").setValue(dataRow["package_unit"].value);
+            gId("_fQty").value = dataRow["qty"].value;
+            gId("_fOriginal_barcode").value = dataRow["original_barcode"].value;
+            gId("_fRfid").value = dataRow["rfid"].value;
+            gId("_fInvoice_code").value = dataRow["invoice_code"].value;
+            gId("_fRemark").value = dataRow["remark"].value;
+
+            gId("_fReg_no").value = dataRow["material_official_code"].value;
+        } else {
+            if (gridDtl.dtbViewData.rowCount == 0) {
+                frm._cSP_ID.setValue(dataRow["sp_id"].value);
+                frm._cIs_omoc.checked = (dataRow["is_omoc"].value == 1);
+                frm._cIs_consignment.checked = (dataRow["is_consignment"].value == 1);
+            }
+            gId("_fPackage_qty").value = "1";
+
+            gId("_fReg_no").value = dataRow["register_official_no"].value;
+        }
+
+        gId("_fMATERIAL_ID").value = dataRow["material_id"].value;
+        gId("_fMaterial_name").value = dataRow["material_name"].value;
+        gId("_fMaterial_spec").value = dataRow["material_spec"].value;
+        gId("_fMaterial_unit").value = dataRow["material_unit"].value;
+        gId("_fPrice").value = dataRow["price_sp"].value;
+        gId("_fAmount").title = "单品单价：" + dataRow["price_sp"].value;
+
+        gId("_fSn_count").value = dataRow["sn_count"].value;
+
+        calAmount();
+        setAddOrUpdateStatus("update");
+    }
+</script>
+
+<!-- 二维码入库模式-->
+<script>
+    function onScanQR_ASN(barcode) {
+        if (vf.status.equals("addnew")) {
+            if (g.a.send("processType=h_spd.wi.WiCommon&actionType=parseAsnQR", {
+                    barcode: barcode
+                }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+                    var dtbPo = cReturn.dtbPo;
+                    var asnKey = cReturn.asnKey;
+
+                    frm._cRef_type.value = "ASN";
+                    frm._cRef_key.value = asnKey;
+                    frm._cSP_ID.setValue(dtbPo.rows[0]["sp_id"].value);
+                    frm._cPO_ID.value = dtbPo.rows[0]["po_id"].value;
+                    frm._cIs_omoc.checked = (dtbPo.rows[0]["po_is_omoc"].value == 1);
+                    frm._cIs_consignment.checked = (dtbPo.rows[0]["po_type"].value.equals("C"));
+                    frm._cWi_remark.value = "根据扫描送货通知单 (" + asnKey + ") 二维码自动创建";
+                    vf.save();
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            var wiId = frm._cWI_ID.value.toInt();
+            var storageId = frm._cSTORAGE_ID.value.toInt();
+            if (g.a.send("processType=h_spd.wi.WiCommon&actionType=parseAsnQR", {
+                    wiId: wiId,
+                    storageId: storageId,
+                    barcode: barcode
+                }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+
+                    vf.refreshRecord();
+                    gridDtl.refresh();
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+</script>
+<!-- 入库转配送 -->
+<script type="text/javascript">
+    function wiToDist(wiId) {
+        var distType = "",
+            flowKey = "";
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.stock.Common&actionType=wiToDist", {
+                wiId: wiId
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var distId = cReturn.distId;
+                var distType = cReturn.distType;
+                var flowKey = cReturn.flowKey;
+                var prop = {
+                    url: g.appPath + "project/h_spd/html/op/thd_dist.html",
+                    windowState: "maximized",
+                    noTitle: true,
+                    text: "科室配送",
+                    title: "根据入库单自动生成，建议立即处理。关闭后可以在配送业务中找到当前单据",
+                    modal: true
+                };
+                var para = {
+                    viewKey: "thd_dist",
+                    primaryKey: "dist_id," + distId,
+                    distType: distType,
+                    flowKey: flowKey,
+                    allowModify: true,
+                    allowDelete: true
+                };
+                topWin.openWindow(prop, para);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>
+
+<!-- print -->
+<script>
+    function printSn(wiDtlId, wiDtlBcId, copies) {
+        if (g.a.send("processType=h_spd.wi.WiCommon&actionType=geBarcodeForPrint", {
+                wiDtlId: wiDtlId,
+                wiDtlBcId: wiDtlBcId
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbBc = cReturn.dtbBc;
+                var param = {
+                    snFieldName: "sn"
+                };
+                param.list = [{
+                    text: "耗材编号",
+                    name: "material_code",
+                    lableCol: 3,
+                    valueCol: 9
+                }, {
+                    text: "品名",
+                    name: "material_name",
+                    lableCol: 3,
+                    valueCol: 9
+                }, {
+                    text: "品规",
+                    name: "material_spec",
+                    lableCol: 3,
+                    valueCol: 9
+                }, {
+                    text: "批次",
+                    name: "lot",
+                    lableCol: 3,
+                    valueCol: 9
+                }, {
+                    text: "生产日期",
+                    name: "manufacture_date",
+                    lableCol: 3,
+                    valueCol: 3,
+                    isYMD: true
+                }, {
+                    text: "效期",
+                    name: "expired_date",
+                    lableCol: 3,
+                    valueCol: 3,
+                    isYMD: true
+                }, {
+                    text: "厂商",
+                    name: "manufacturer_name",
+                    lableCol: 3,
+                    valueCol: 9
+                }];
+
+                WebPrint.goPrintBarCodeModel(dtbBc.rows, param);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function printRfid(wiDtlId, wiDtlBcId) {
+        alert("RFID 打印，wiDtlId = " + wiDtlId + ", wiDtlBcId = " + wiDtlBcId);
+    }
+
+    function printWi() {
+        var param = {};
+        if (WebPrint.checkPrintset(_printWi)) {
+            param.data = gridDtl.dtbViewData.rows;
+            param.printsettype = _printWi;
+            WebPrint.goPrintFormModelBySet(param);
+            return;
+        }
+
+        param = {
+            title: gId("_gStorage_fullname").value + "采购入库单",
+            colNumThs: 3, //-- 表头每行多少列，默认为4 --
+            colNumTfooters: 3, //-- 表尾每行多少列，默认为4 --
+            pageRowNum: 7, //-- 每页数量 --
+            form: {
+                ths: [{
+                    text: "供应商",
+                    value: gId("_cSP_ID").value
+                }, {
+                    text: "入库日期",
+                    value: gId("_cWi_date").value
+                }, {
+                    text: "入库单号",
+                    value: gId("_cWi_key").value
+                }, {
+                    text: "合计金额",
+                    value: gId("_cAmount").value
+                }],
+                tfooters: [{
+                    text: "制单人",
+                    value: frm._cWi_receiver.value
+                }, {
+                    text: "经办人",
+                    value: ""
+                }]
+            },
+            grid: {
+                ths: ["序号", "材料编码", "材料名称", "规格型号", "单位", "数量", "单价", "金额"],
+                thwidths: ["40px", "90px", "auto", "200px", "40px", "40px", "40px", "80px"],
+                data: (function() {
+                    var arr = [],
+                        row, sp_amount = 0,
+                        sell_amount = 0;
+                    if (gridDtl && gridDtl.dtbViewData.rowCount > 0) {
+                        var totalprice = 0,
+                            totalPriceSell = 0,
+                            rowData;
+                        for (var i in gridDtl.dtbViewData.rows) {
+                            row = gridDtl.dtbViewData.rows[i];
+                            sp_amount = row["qty"].value * row["price_sp"].value;
+                            rowData = [];
+                            rowData[0] = (parseInt(i) + 1);
+                            rowData[1] = row["material_code"].value;
+                            rowData[2] = row["material_name"].value;
+                            rowData[3] = row["material_spec"].value;
+                            rowData[4] = row["package_unit"].value;
+                            rowData[5] = row["qty"].value;
+                            rowData[6] = row["price_sp"].value;
+                            rowData[7] = sp_amount;
+                            arr.push(rowData);
+                        }
+                    }
+                    return arr;
+                })()
+            }
+        };
+        WebPrint.goPrintFormModel(param);
+    }
+</script>

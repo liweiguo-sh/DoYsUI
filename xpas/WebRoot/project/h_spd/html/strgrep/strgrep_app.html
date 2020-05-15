@@ -1,0 +1,638 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>样例界面</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+	<script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+
+    <script src="../../../../res_plugin/zui-1.8.1-dist/js/zui.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/js/zuiExt.js" type="text/javascript"></script>
+    <link href="../../../../res_plugin/zui-1.8.1-dist/css/zui.css" rel="stylesheet" type="text/css"/>
+
+</head>
+<body>
+    <select onclick="checkConfirm()" style="border: 1px solid black; height: 40px; width: 70%; margin-bottom: 20px;margin-top: 20px;" onchange="showValue()" id="search">
+        <option value="A">所有需求地</option>
+    </select>
+    <div id="list">
+    </div>
+    <div style="z-index: 9999; position: fixed !important; right: 10%; bottom: 15%;">
+        <span style="font-size: 18px; color: red" id="success"></span>
+    </div>
+    <div style="z-index: 9999; position: fixed !important; right: 5%; bottom: 5%;">
+        <button id="confirm_btn" onclick="createPicking()" style="width: 100px; height: 60px; background-color: green">确认拣货完成</button>
+    </div>
+    <div class="modal fade" id="myModal">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close btn btn-primary" data-dismiss="modal">X</button>
+            <h4 class="modal-title">响应库位</h4>
+          </div>
+          <div class="modal-body">
+              <table id="modal-body" style="width: 100%; text-align: center;">
+              </table>
+          </div>
+        </div>
+      </div>
+        <div class="modal-footer" style="z-index: 9999; position: fixed !important; right: 10%; bottom: 15%;">
+              <button id="modal-close" type="button" class="btn btn-primary" onclick="showModal()">保存并关闭</button>
+          </div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var dataList;
+
+    function formLoad() {
+        var stId = topWin.stationStorageId;
+        initList();
+        initSearch();
+    }
+
+    // 页面搜索加载
+    var searchList = new Array(20);
+
+    function initSearch() {
+        for (var i = 0; i < dataList.rows.length; i++) {
+            var val = dataList.rows[i]['storage_id'].value;
+            if (searchFilter(val, searchList)) continue;
+            searchList.push(val);
+            $('#search').append(
+                '<option value="' + val + '"><span style="height: 30px">' + dataList.rows[i]['storage_fullname'].value + '</span></option>'
+            );
+        }
+    }
+
+    // 页面搜索过滤
+    function searchFilter(val, list) {
+        for (var i = 0; i < list.length; i++) {
+            if (searchList[i] === val) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function checkConfirm() {
+        var find = $("#list").find('.list_item div input');
+        for (var i = 0; i < find.length; i++) {
+            var isFalse = true;
+            var _input = $(find[i]);
+            if (_input.attr("id")) {
+                continue;
+            }
+
+            var poolId = $(find[i]).parent().parent().attr("id").split("-")[0];
+            if (_input && listForm.length <= 0) {
+                showWarn("有未确认保存的条目，请先确认再操作！");
+                break;
+            }
+
+            var temp = '';
+            for (var j = 0; j < listForm.length; j++) {
+                if (listForm[j]['tarep_pool_id'] === Number(poolId)) {
+                    temp = listForm[j]['tarep_pool_id'];
+                }
+            }
+            isFalse = temp !== '';
+
+            if (!isFalse) {
+                showWarn("有未确认保存的条目，请先确认再操作！");
+                break;
+            }
+        }
+    }
+
+    // 筛选
+    function showValue() {
+        var storageId = $('#search').val();
+        $("#list").html('');
+        // 加载列表
+        for (var i = 0; i < dataList.rows.length; i++) {
+            if (Number(storageId) === dataList.rows[i]['storage_id'].value || storageId === 'A') {
+                createRow(dataList.rows[i], i);
+                if (dataList.rows[i]['stock']) {
+                    var qtyCount = 0;
+                    var items = dataList.rows[i]['stock'].split('|');
+                    var tarep_pool_id = dataList.rows[i]['tarep_pool_id'].value;
+
+                    for (var j = 0; j < items.length; j++) {
+                        var item = items[j].split(':');
+                        var tempId = tarep_pool_id + '-' + item[0];
+
+                        var html = '<div id="' + tempId + '" class="list_item_body">' +
+                            '<div class="list_item_left">库位: </div>' +
+                            '<div class="list_item_right">' + item[2] + '</div>' +
+                            '<div class="list_item_left">数量:</div>' +
+                            '<div class="list_item_right"><input storage_fullname = "' + item[2] + '" stock_id = ' + item[0] + ' value="' + item[1] + '" disabled></div>' +
+                            '</div>';
+                        $('#item_id' + tarep_pool_id).append(html);
+                        qtyCount = qtyCount + Number(item[1]);
+
+                    }
+                }
+                if (dataList.rows[i]["qty_pick"]) {
+                    $("#" + tarep_pool_id).val(dataList.rows[i]["qty_pick"]);
+                    var btn = $('#' + dataList.rows[i]['tarep_pool_id'].value + '-' + i);
+                    btn.html("已确认");
+                    btn.attr('disabled', true);
+                }
+            }
+        }
+    }
+
+    // 初始化列表
+    function initList(stId) {
+        if (g.a.send("processType=h_spd.strgrep.PickingController&actionType=findList", true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                if (cReturn.list) {
+                    dataList = cReturn.list;
+                    if (dataList.rows[0] === '') {
+                        $("#list").append("当前库存地还有没有耗材需求!");
+                        return false;
+                    }
+                    // 加载列表
+                    for (var i = 0; i < dataList.rows.length; i++) {
+                        createRow(dataList.rows[i], i)
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    var tempStockList;
+
+    function resetForm(id, val) {
+        id = Number(id);
+        var stock = '';
+        var stockLocal = '';
+        var _input_list = $("#item_id" + id).find('.list_item_right input');
+        for (var i = 0; i < _input_list.length; i++) {
+            var stock_id = $(_input_list[i]).attr('stock_id');
+            if (stock_id) {
+                var value = $(_input_list[i]).val();
+                var storage_fullname = $(_input_list[i]).attr('storage_fullname');
+                stock = stock + stock_id + ":" + value;
+                stockLocal = stockLocal + stock_id + ":" + value + ":" + storage_fullname;
+                if (i !== _input_list.length - 1) {
+                    stock = stock + "|";
+                    stockLocal = stockLocal + "|";
+                }
+            }
+        }
+
+        for (var i = 0; i < dataList.rows.length; i++) {
+            if (dataList.rows[i]['tarep_pool_id'].value === id) {
+                dataList.rows[i]['stock'] = stockLocal;
+                dataList.rows[i]['qty_pick'] = val;
+            }
+        }
+
+        for (var i = 0; i < listForm.length; i++) {
+            if (listForm[i]['tarep_pool_id'] === id) {
+                listForm[i]['stock'] = stock;
+                listForm[i]['qty_pick'] = val;
+            }
+        }
+        console.log(listForm)
+    }
+
+    // 监听对话框的关闭事件
+    var saveBtn = false;
+
+    function showModal() {
+
+        if (saveBtn) return;
+        gId("confirm_btn").style.display = "none";
+
+        var qtyCount = 0;
+
+        for (var i = 0; i < tempStockList.rows.length; i++) {
+            // 获取input值
+            var $inputStorage = $("#" + tempStockList.rows[i]['stock_id'].value + '-' + i);
+            var stock_id = $inputStorage.attr("stock_id");
+
+            var tempId = selectedPoolId + '-' + stock_id;
+            var qty = $inputStorage.val();
+            var _input = $("#" + tempId);
+
+            if (!reg.test(qty)) {
+                showErr("只能输入数字!");
+                return;
+            }
+
+            if (qty === '' || Number(qty) === 0) {
+                _input.remove();
+                continue;
+            }
+
+            var addItem = $("#item_id" + selectedPoolId);
+            var list = addItem.find('.list_item_body');
+            var flag = false;
+            for (var j = 5; j < list.length; j++) {
+                var id = $(list[j]).attr('id');
+                if (id === tempId) {
+                    _input.find('input').val(qty);
+                    flag = true;
+                }
+            }
+
+            if (!flag) {
+                var storage_fullname = $inputStorage.attr("storage_fullname");
+                var item = '<div id="' + tempId + '" class="list_item_body">' +
+                    '<div class="list_item_left">库位: </div>' +
+                    '<div class="list_item_right">' + storage_fullname + '</div>' +
+                    '<div class="list_item_left">数量:</div>' +
+                    '<div class="list_item_right"><input storage_fullname = "' + storage_fullname + '" stock_id = ' + stock_id + ' value="' + qty + '" disabled></div>' +
+                    '</div>';
+                addItem.append(item);
+            }
+        }
+
+        var _input_list = $("#item_id" + selectedPoolId).find('.list_item_right input');
+        for (var i = 0; i < _input_list.length; i++) {
+            var stock_id = $(_input_list[i]).attr('stock_id');
+            if (stock_id) {
+                qtyCount = qtyCount + Number($(_input_list[i]).val());
+            }
+        }
+
+        if (flag) {
+            resetForm(selectedPoolId, qtyCount);
+        }
+
+        console.log(listForm);
+
+        $("#" + selectedPoolId).val(qtyCount);
+        var $modal = $('#modal-body');
+        $modal.html('');
+        $('#myModal').modal('hide');
+    }
+
+    $('#myModal').on('hide.zui.modal', function () {
+        gId("confirm_btn").style.display = "inline";
+    });
+
+    // 监听对话框的显示事件
+    $('#myModal').on('shown.zui.modal', function () {
+        gId("confirm_btn").style.display = "none";
+        var $modal = $('#modal-body');
+        if (tempStockList.rows[0] === '') {
+            $modal.append("当前物料在仓库中没有库位信息!");
+            return;
+        }
+        $modal.html('<tr>' +
+            '<td>序号</td>' +
+            '<td>库存地</td>' +
+            '<td>批次</td>' +
+            '<td>有效期</td>' +
+            '<td>灭菌日期</td>' +
+            '<td>灭菌有效期</td>' +
+            '<td>库存量</td>' +
+            '<td>数量</td>' +
+            '</tr>');
+        for (var i = 0; i < tempStockList.rows.length; i++) {
+            var value = tempStockList.rows[i]['stock_id'].value;
+            var id = value + '-' + i;
+            var storage_fullname = tempStockList.rows[i]['storage_fullname'].value;
+            var qty = tempStockList.rows[i]['qty'].value;
+            var tempQty = 0;
+
+            var _input_list = $("#item_id" + selectedPoolId).find('.list_item_right input');
+            for (var j = 1; j < _input_list.length; j++) {
+                var stock_id = $(_input_list[j]).attr('stock_id');
+                if (stock_id && value === Number(stock_id)) {
+                    tempQty = Number($(_input_list[j]).val());
+                }
+            }
+
+            var body =
+                '<tr>' +
+                '<td>' + value + '</td>' +
+                '<td>' + storage_fullname + '</td>' +
+                '<td>' + tempStockList.rows[i]['lot'].value + '</td>' +
+                '<td>' + tempStockList.rows[i]['expired_date'].value.split(" ")[0] + '</td>' +
+                '<td>' + tempStockList.rows[i]['disinfection_date'].value.split(" ")[0] + '</td>' +
+                '<td>' + tempStockList.rows[i]['disinfection_expired_date'].value.split(" ")[0] + '</td>' +
+                '<td>' + qty + '</td>' +
+                '<td><input style="border: 1px solid black" onchange="pickCheck(' + value + ',' + i + ',' + qty + ')" id="' + id + '" stock_id="' + value + '" storage_fullname = "' + storage_fullname + '" value="' + tempQty + '"/></td>' +
+                '</tr>';
+
+            $modal.append(body);
+        }
+    });
+
+
+    function pickCheck(id, index, qty) {
+        var btn = $("#" + id + '-' + index);
+        var val = btn.val();
+        if (val > qty) {
+            btn.attr("style", "border: 1px solid red");
+            showErr("当前库位库存数量不足!");
+            saveBtn = true;
+            $("#modal-close").attr("disabled", true);
+        } else {
+            saveBtn = false;
+            btn.attr("style", "border: 1px solid black");
+            $("#modal-close").attr("disabled", false);
+        }
+    }
+
+
+    var selectedPoolId;
+
+    function getStockList(id, poolId) {
+        selectedPoolId = poolId;
+        if (g.a.send(
+            "processType=h_spd.strgrep.PickingController&actionType=getStockByMaterialId",
+            {matr_id: Number(id)},
+            true
+        )) {
+            if (g.a.OK) {
+                tempStockList = g.a.cReturn.list;
+            }
+        }
+    }
+
+    // 创建需求item
+    function createRow(row, index) {
+        var req_level = row['req_level'].value === 0 ? '常规' : '<span style="color: red">紧急</span>';
+        var id = row['tarep_pool_id'].value;
+        var btnId = id + '-' + index;
+        var btnStock = row['matr_id'].value + '-' + index;
+
+        var item =
+            '<div class="list_content_item">' +
+                '<div id="item_id' + id + '" class="list_item">' +
+                    '<div class="list_item_body">' +
+                        '<div class="list_item_left">' + '品名:' + '</div>' +
+                        '<div class="list_item_right">' + row['matr_name'].value + '</div>' +
+                        '<div class="list_item_left">' + '需求时间:' + '</div>' +
+                        '<div class="list_item_right">' + row['time_req'].value + '</div>' +
+                    '</div>' +
+                    '<div class="list_item_body">' +
+                        '<div class="list_item_left" style="flex: 2">' + '需求地:' + '</div>' +
+                        '<div class="list_item_right" style="flex: 8">' + row['storage_fullname'].value + '</div>' +
+                    '</div>' +
+                    '<div class="list_item_body">' +
+                        '<div class="list_item_left">' + '需求级别:' + '</div>' +
+                        '<div class="list_item_right">' + req_level + '</div>' +
+                        '<div class="list_item_left">' + '需求数量:' + '</div>' +
+                        '<div class="list_item_right">' + row['qty_req'].value + '</div>' +
+                    '</div>' +
+                    '<div class="list_item_body">' +
+                        '<div class="list_item_left">' + '单位规格:' + '</div>' +
+                        '<div class="list_item_right">' + row['matr_spec'].value + '</div>' +
+                        '<div class="list_item_left">' + '送达时间:' + '</div>' +
+                        '<div class="list_item_right">' + row['time_sla'].value + '</div>' +
+                    '</div>' +
+                    '<div class="list_item_body">' +
+                        '<div class="list_item_left">' + '实拣数量:' + '</div>' +
+                        '<div class="list_item_right"><input disabled value="0" onchange="updateItemQty(' + id + ')" id="' + id + '"></div>' +
+                        '<div class="list_item_left"></div>' +
+                        '<div class="list_item_right"></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="list_item_btn">' +
+                    '<button id="' + btnStock + '" data-toggle="modal" data-target="#myModal" onclick="getStockList(' + row['matr_id'].value + ',' + id + ')">选择库位</button>' +
+                '</div>' +
+                '<div class="list_item_btn">' +
+                    '<button id="' + btnId + '" onclick="return pickingConfirm(' + id + ',' + index + ')">确认保存</button>' +
+                '</div>' +
+            '</div>';
+        $("#list").append(item);
+    }
+
+    var listForm = [];
+
+    function updateItemQty(id) {
+        for (var i = 0; i < listForm.length; i++) {
+            if (listForm[i]['tarep_pool_id'] === id) {
+                var val = $('#' + id).val();
+                if (val === '') {
+                    listForm[i]['qty_pick'] = row['qty_req'].value;
+                } else {
+                    listForm[i]['qty_pick'] = val;
+                }
+                break;
+            }
+        }
+    }
+
+    var reg = /^[0-9]*$/;
+
+    function pickingConfirm(id, index) {
+        // 校验输入
+        var val = $('#' + id).val();
+        var btn = $('#' + id + '-' + index);
+        var _input_list = $("#item_id" + id).find('.list_item_right input');
+        if (_input_list.length <= 1) {
+            showErr("请选择库位并输入拣货数量!");
+            return;
+        }
+
+        if (val === '') {
+            showErr("请输入实际拣货的数量!!!");
+            return;
+        }
+
+        if (!reg.test(val)) {
+            showErr("只能输入数字!!!");
+            return;
+        }
+
+        // 提示框
+        if (!showConfirm('请确认输入的数量是否正确') === true) {
+            return;
+        } else {
+            btn.html("已确认");
+            btn.attr('disabled', true);
+        }
+
+        // 请求参数组装
+        var confirm = {};
+        // 根据index获取当前确认需求
+        var row = dataList.rows[index];
+        confirm["storage_id_res"] = row['storage_id_res'].value;
+        confirm["tarep_pool_id"] = row['tarep_pool_id'].value;
+        confirm["source_type"] = row['source_type'].value;
+        confirm["storage_id"] = row['storage_id'].value;
+        confirm["storage_fullname"] = row['storage_fullname'].value;
+        confirm["matr_id"] = row['matr_id'].value;
+        confirm["matr_name"] = row['matr_name'].value;
+        confirm["matr_spec"] = row['matr_spec'].value;
+        confirm["qty_req"] = row['qty_req'].value;
+        confirm["time_req"] = row['time_req'].value;
+        confirm["req_level"] = row['req_level'].value;
+        confirm["qty_transit"] = row['qty_transit'].value;
+        confirm["qty_res"] = row['qty_res'].value;
+        confirm["status"] = row['status'].value;
+        confirm["time_sla"] = row['time_sla'].value;
+        confirm["time_res"] = row['time_res'].value;
+        confirm["picker"] = row['picker'].value;
+        confirm["qty_stock"] = row['qty_stock'].value;
+        confirm["stock"] = row['qty_stock'].value;
+        confirm["qty_pick"] = val;
+
+        var stock = '';
+        var stockLocal = '';
+        for (var i = 0; i < _input_list.length; i++) {
+            var stock_id = $(_input_list[i]).attr('stock_id');
+            if (stock_id) {
+                var value = $(_input_list[i]).val();
+                var storage_fullname = $(_input_list[i]).attr('storage_fullname');
+                stock = stock + stock_id + ":" + value;
+                stockLocal = stockLocal + stock_id + ":" + value + ":" + storage_fullname;
+                if (i !== _input_list.length - 1) {
+                    stock = stock + "|";
+                    stockLocal = stockLocal + "|";
+                }
+            }
+        }
+
+        confirm["stock"] = stock;
+        for (var i = 0; i < dataList.rows.length; i++) {
+            if (dataList.rows[i]['tarep_pool_id'].value === row['tarep_pool_id'].value) {
+                dataList.rows[i]['stock'] = stockLocal;
+                dataList.rows[i]['qty_pick'] = val;
+            }
+        }
+        // console.log(confirm);
+        listForm.push(confirm)
+    }
+
+    function createPicking() {
+        var stationStorageId = topWin.stationStorageId;
+        if (stationStorageId === undefined) {
+            showErr("请前往首页配置工位");
+            return
+        }
+        if (dataList.rows === undefined || dataList.rows.length <= 0) {
+            showErr("当前没有拣货需求!");
+            return;
+        }
+
+        if (listForm.length <= 0) {
+            showErr("请先确认已拣货的条目!");
+            return;
+        }
+        if (showConfirm('请确认拣货完成！')) {
+            if (g.a.send(
+                "processType=h_spd.strgrep.PickingController&actionType=createPicking",
+                {data: JSON.stringify(listForm), currentStorageId: stationStorageId},
+                true
+            )) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+                    $("#success").append("拣货单生成成功, 拣货单号: " + cReturn.pick_key + "请根据拣货单号前往PC打印拣货单后刷新该页面再继续拣货操作")
+                    var $confirmBtn = $("#confirm_btn");
+                    $confirmBtn.attr('disabled', true);
+                    $confirmBtn.html("已生成拣货单");
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+</script>
+<style>
+	body {
+        width: 100%;
+        height: auto;
+        display: flex;
+        margin: 0;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #list {
+        width: 92%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .list_content_item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        height: auto;
+        margin-top: 10px;
+        background-color: beige;
+
+    }
+
+    .list_item_btn {
+        flex: 2;
+        background-color: beige;
+        height: auto;
+        width: 100%;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+    }
+
+    .list_item_btn button {
+        height: 30%;
+        width: 50%;
+        background-color: green;
+    }
+
+    .list_item {
+        width: 100%;
+        height: auto;
+        font-size: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: left;
+        flex: 8;
+    }
+
+    .list_item_body {
+        height: 45px;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .list_item_left {
+        flex: 2;
+        margin-left: 10px;
+        display: flex;
+        align-items: center;
+        font-size: 25px
+    }
+
+    .list_item_right {
+        flex: 3;
+        height: auto;
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+    }
+
+    .list_item_right input {
+        width: 70%;
+    }
+
+    .list_item_body button {
+        width: 120px;
+        height: 25px;
+        background-color: azure;
+
+    }
+</style>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>库存效期列表窗口</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript_mobile/xmf.wx_css.js"></script>
+    <link rel="stylesheet" href="../../css/common.css">
+    <script src="../../js/g_mscm_wechat.js"></script>
+    <style>
+        #tab {
+            box-shadow: 0px 1px 4px 0px #e6e6e6;
+        }
+        .filter-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 70px;
+            height: 52px;
+            line-height: 52px;
+            font-size: 18px;
+            color: #5eadd4;
+            text-align: center;
+        }
+        .container {
+            top: 52px;
+            height: calc(100% - 72px);
+        }
+        .list {
+            position: relative;
+            border-bottom: solid 1px #e8e8e8;
+            margin: 0 10px 0 15px;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+        .list:last-child {
+            border-bottom: solid 0 #e8e8e8;
+        }
+        .list-title,
+        .list-sub {
+            display: flex;
+            justify-content: space-between;
+        }
+        .list-title {
+            font-size: 18px;
+            color: #0a0a0a;
+        }
+        .list-title .title-key {
+            min-width: 68px;
+        }
+        .list-sub {
+            font-size: 16px;
+            color: #b9bdc0;
+            padding-top: 4px;
+            box-sizing: border-box;
+        }
+        .sub-key {
+            width: 145px;
+            min-width: 145px;
+        }
+        #filter {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+        }
+        #filter .shadow-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            opacity: .5;
+        }
+        #filter .filter-container {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            width: 100%;
+            height: auto;
+            background: #f8f8f8;
+        }
+        .filter-content {
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .content-title {
+            color: #545454;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .content-main::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+        .option-item {
+            float: left;
+            width: 92px;
+            height: 32px;
+            line-height: 32px;
+            background: #fff;
+            border: solid 1px #dedede;
+            border-radius: 4px;
+            color: #696d6e;
+            font-size: 14px;
+            margin: 0 15px 10px 0;
+            text-align: center;
+        }
+        .option-item.active {
+            border: solid 1px #00a3ac;
+            color: #00a3ac;
+        }
+        .matr-input {
+            width: 320px;
+            height: 30px;
+            text-indent: 10px;
+            border: solid 1px #00a3ac;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .filter-footer {
+            width: 100%;
+            height: auto;
+            background: #f3f3f3;
+            padding: 14px 0;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-around;
+        }
+        .reset,
+        .submit {
+            width: 120px;
+            height: 38px;
+            line-height: 38px;
+            border-radius: 4px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .reset {
+            border: solid 1px #dedede;
+            background: #fff;
+            color: #696d6e;
+        }
+        .submit {
+            background: #00a3ac;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <nav id="tab">
+        <span class="back" onclick="win.close();"></span>
+        <div class="tab-title">库存效期列表</div>
+        <span class="filter-btn">筛选</span>
+    </nav>
+    <div id="filter">
+        <div class="shadow-bg"></div>
+        <div class="filter-container">
+            <div class="filter-content">
+                <div class="content-item">
+                    <div class="content-title">效期</div>
+                    <div class="content-main">
+                        <div class="option-item date-item active">全部</div>
+                        <div class="option-item date-item">近三个月</div>
+                        <div class="option-item date-item">近一个月</div>
+                        <div class="option-item date-item">近一周</div>
+                        <div class="option-item date-item">今天</div>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-footer">
+                <div class="reset">重置</div>
+                <div class="submit">确定</div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div class="container" id="container"></div>
+    </div>
+    <div id="empty-data">
+        <div class="empty-assist"></div>
+        <div class="empty-content">暂无数据</div>
+    </div>
+    <div class="toast toast-loading">
+        <div class="spinner">
+            <div class="spinner-container container1">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container2">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container3">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+        </div>
+        <div class="toast-content">加载中...</div>
+    </div>
+    <div class="toast toast-error">
+        <div class="icon-error"></div>
+        <div class="toast-content">请求失败</div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var stockRep = {};
+    stockRep.init = function () {
+        var startDate = new Date().toString("yyyy/MM/dd");
+        var endDate = "2100/01/01";
+        var obj = {
+            startDate: startDate,
+            endDate: endDate
+        };
+        stockRep.getStockExp(obj);
+    }
+
+    // 获取库存数据
+    stockRep.getStockExp = function (obj) {
+        // 加载中...
+        $('.toast-loading').show();
+        if (g.a.send("processType=g_mscm.weixin.BillSp&actionType=getStockExp", obj, true)) {
+            if (g.a.OK) {
+                var stExp = g.a.cReturn.stExp;
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                if (stExp.rowCount) {
+                    $('#empty-data').hide().siblings('#main').find('.container').html('').show();
+                    var nowDate = new Date().getTime();
+                    var array = getArray(stExp);
+                    var listDom = "";
+                    var conDom = document.getElementById('container');
+                    conDom.innerHTML = "";
+                    for(var j in array) {
+                        var expDate = array[j]["exp_date"].replaceAll(/\//g, '.');
+                        var days = Math.ceil((new Date(array[j]["exp_date"]).getTime() - nowDate) / (1000 * 3600 * 24));
+                        listDom += '<div class="list">'
+                                        +'<div class="list-title">'
+                                            +'<div class="title-key">品名</div>'
+                                            +'<div class="title-name">'+ array[j]["matr_name"] +'</div>'
+                                        +'</div>'
+                                        +'<div class="list-sub">'
+                                            +'<div class="sub-key">品规</div>'
+                                            +'<div class="sub-value">'+ array[j]["matr_spec"] +'</div>'
+                                        +'</div>'
+                                        +'<div class="list-sub">'
+                                            +'<div class="sub-key">效期：'+ expDate +'</div>'
+                                            +'<div class="sub-value">'+ days +'天</div>'
+                                        +'</div>'
+                                    +'</div>';
+                    }
+                    conDom.innerHTML = listDom;
+                } else {
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }
+            } else {
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                $('.toast-error').show();
+                // 请求失败
+                setTimeout(function () {
+                    $('.toast-error').hide();
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }, 2000);
+                return false;
+            }
+        }
+    }
+
+    // 触发筛选事件
+    $('.filter-btn').on('click', function() {
+        $('#filter').slideToggle();
+        // $('.date-item').eq(0).addClass('active').siblings().removeClass('active');
+    });
+
+    // 点击半透明背景，关闭筛选功能
+    $('.shadow-bg').on('click', function() {
+        $('#filter').slideToggle();
+    });
+
+    // 触发重置事件
+    $('.reset').on('click', function() {
+        var startDate = new Date().toString('yyyy/MM/dd');
+        var endDate = "2100/01/01";
+        var obj = {
+            startDate: startDate,
+            endDate: endDate
+        };
+        stockRep.getStockExp(obj);
+        $('#filter').slideToggle();
+        $('.date-item').eq(0).addClass('active').siblings().removeClass('active');
+    });
+
+    // 触发确定事件
+    $('.submit').on('click', function() {
+        var dateValue = $('.date-item.active').text();
+        var startDate = new Date().toString('yyyy/MM/dd');
+        var endDate = "";
+        switch(dateValue) {
+            case '全部': {
+                endDate = "2100/01/01";
+                break;
+            }
+            case '近三个月': {
+                endDate = getDay(90).replaceAll('-', '/');
+                break;
+            }
+            case '近一个月': {
+                endDate = getDay(30).replaceAll('-', '/');
+                break;
+            }
+            case '近一周': {
+                endDate = getDay(7).replaceAll('-', '/');
+                break;
+            }
+            case '今天': {
+                endDate = new Date().toString('yyyy/MM/dd');
+                break;
+            }
+            default: {
+                endDate = "2100/01/01";
+                break;
+            }
+        };
+        var obj = {
+            startDate: startDate,
+            endDate: endDate
+        };
+        stockRep.getStockExp(obj);
+        $('#filter').slideToggle();
+    });
+
+    // 日期选择事件
+    $('.date-item').on('click', function() {
+        $(this).addClass('active').siblings().removeClass('active');
+    });
+
+    stockRep.init();
+
+</script>

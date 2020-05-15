@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>未结算记账单列表窗口</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript_mobile/xmf.wx_css.js"></script>
+    <link rel="stylesheet" href="../../css/common.css">
+    <script src="../../js/g_mscm_wechat.js"></script>
+    <style>
+        .tab-items {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            z-index: 4;
+            width: 100%;
+            height: 52px;
+            display: flex;
+            background: #fff;
+        }
+        .tab-items .tab-item {
+            flex: 1;
+            line-height: 52px;
+            text-align: center;
+            font-size: 18px;
+            color: #646464;
+        }
+        .tab-item span {
+            display: inline-block;
+            height: inherit;
+        }
+        .tab-item.active {
+            color: #0db3ed;
+        }
+        .tab-item.active span {
+            box-shadow: 0px -2px 0px 0px #0db3ed inset;
+        }
+        .container {
+            top: 104px;
+            height: calc(100% - 124px);
+        }
+        .list {
+            position: relative;
+            display: flex;
+            border-bottom: solid 1px #e8e8e8;
+            padding: 10px 15px 10px 0;
+            box-sizing: border-box;
+            margin: 0 10px 0 15px;
+            background: #fff;
+        }
+        .list:last-child {
+            border-bottom: solid 0 #e8e8e8;
+        }
+        .list::after {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            content: "";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: url("../../images/weixin/next.png") no-repeat;
+            background-size: cover;
+            transform: translateY(-8px);
+        }
+        .list .list-lt {
+            width: 42px;
+            font-size: 16px;
+            color: #000;
+        }
+        .list .list-rt {
+            width: calc(100% - 42px);
+        }
+        .list .list-rt,
+        .item-key {
+            padding-left: 8px;
+        }
+        .item-value {
+            padding-right: 8px;
+        }
+        .list-item {
+            display: flex;
+            color: #a4a4a4;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .list-item:last-child {
+            margin: 0;
+        }
+        .item-key {
+            width: 50px;
+            min-width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <nav id="tab">
+        <span class="back" onclick="win.close();"></span>
+        <div class="tab-title">未结算记帐单列表</div>
+    </nav>
+    <ul class="tab-items">
+        <li class="tab-item active"><span>当天</span></li>
+        <li class="tab-item"><span>当周</span></li>
+        <li class="tab-item"><span>全部</span></li>
+    </ul>
+    <div class="filter" id="filter">
+        <div class="filter-item"></div>
+        <div class="filter-item"></div>
+        <div class="filter-item"><span class="filter-name">近三个月</span><span class="more"></span></div>
+    </div>
+    <div id="main">
+        <div class="container" id="container"></div>
+    </div>
+    <div id="empty-data">
+        <div class="empty-assist"></div>
+        <div class="empty-content">暂无数据</div>
+    </div>
+    <!-- 加载中 -->
+    <div class="toast toast-loading">
+        <div class="spinner">
+            <div class="spinner-container container1">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container2">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container3">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+        </div>
+        <div class="toast-content">加载中...</div>
+    </div>
+    <div class="toast toast-error">
+        <div class="icon-error"></div>
+        <div class="toast-content">请求失败</div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var bill = {};
+    bill.init = function () {
+        var startDate = new Date().toString('yyyy/MM/dd');
+        var endDate = new Date().toString('yyyy/MM/dd');
+        var dateObj = {
+            startDate: startDate,
+            endDate: endDate
+        };
+        bill.getBillSp(dateObj);
+    }
+
+    // tab click
+    var $itemDom = $('.tab-item');
+    $itemDom.on('click', function() {
+        var index = $(this).index();
+        var startDate = "";
+        var endDate = new Date().toString('yyyy/MM/dd');
+        var dateObj = {};
+        $(this).addClass('active').siblings('li').removeClass('active');
+        if(index == 0) {
+            startDate = new Date().toString('yyyy/MM/dd');
+            dateObj = {
+                startDate: startDate,
+                endDate: endDate
+            };
+            bill.getBillSp(dateObj);
+        } else if(index == 1) {
+            startDate = getDay(-7).replaceAll('-', '/');
+            dateObj = {
+                startDate: startDate,
+                endDate: endDate
+            };
+            bill.getBillSp(dateObj);
+        } else if(index == 2) {
+            startDate = "1900/01/01";
+            dateObj = {
+                startDate: startDate,
+                endDate: endDate
+            };
+            bill.getBillSp(dateObj);
+        }
+    });
+
+    // 获取记帐单数据
+    bill.getBillSp = function (dateObj) {
+        $('.toast-loading').show();
+        if(g.a.send("processType=g_mscm.weixin.BillSp&actionType=getBillSp", dateObj, true)) {
+            if(g.a.OK) {
+                var billSp = g.a.cReturn.billSp;
+                // loading 加载
+                $('.toast-loading').hide();
+                if(billSp.rowCount) {
+                    $('#empty-data').hide().siblings('#main').find('.container').html('').show();
+                    var array = getArray(billSp);
+                    var listDom = "";
+                    var conDom = document.getElementById('container');
+                    for(var j in array) {
+                        listDom += '<div class="list">'
+                                        +'<div class="list-lt">'
+                                            +'<span class="date">'+ array[j]["bill_sp_date"].replaceAll('/', '.').substring(5, 10) +'</span>'
+                                        +'</div>'
+                                        +'<div class="list-rt">'
+                                            +'<div class="list-item">'
+                                                +'<div class="item-key">单号</div>'
+                                                +'<div class="item-value">'+ array[j]["bill_sp_key"] +'</div>'
+                                            +'</div>'
+                                            +'<div class="list-item">'
+                                                +'<div class="item-key">金额</div>'
+                                                +'<div class="item-value">'+ array[j]["bill_sp_amount"] +'元</div>'
+                                            +'</div>'
+                                            +'<div class="list-item">'
+                                                +'<div class="item-key">摘要</div>'
+                                                +'<div class="item-value">'+ array[j]["bill_sp_summary"] +'</div>'
+                                            +'</div>'
+                                        +'</div>'
+                                    +'</div>';
+                    }
+                    conDom.innerHTML = listDom;
+                    $('.list').on('click', function() {
+                        var index = $(this).index();
+                        var prop = {
+                            url: "bill/bill.html"
+                        };
+                        var para = array[index]['bill_sp_id'];
+                        topWin.openFullWindow(prop, para);
+                    });
+                } else {
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('');
+                }
+            } else {
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                $('.toast-error').show();
+                // 请求失败
+                setTimeout(function () {
+                    $('.toast-error').hide();
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }, 2000);
+                return false;
+            }
+        }
+    }
+
+    bill.init();
+</script>

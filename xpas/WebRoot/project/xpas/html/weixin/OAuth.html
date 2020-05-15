@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>回调网页参数(xPas样例)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+</head>
+<body onload="formLoad();">	
+	<div id="divMsg"></div>
+</body>
+</html>
+
+<script type="text/javascript">
+	var divMsg = gId("divMsg");
+
+	function formLoad() {
+		urlPara = getUrlPara();
+		urlPara = g.x.extendJSON({ para789: "789_789" }, urlPara);
+
+		var arrPara = new Array();
+		for (var key in urlPara) {
+			arrPara.push(key + "=" + urlPara[key]);
+		}
+		divMsg.innerHTML = "回调网页参数(xPas样例)：<hr>" + arrPara.join("<br />");
+	}
+</script>

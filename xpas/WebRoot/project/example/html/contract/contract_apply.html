@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>合同登记</title>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script> 
+		
+	<script src="../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+    <div class="PanelA">
+	    <form id="frm" action="" target="example.contract.VIEW_contract"> 
+		    <table id="tbForm" class="tbForm" style="width:760px;">
+			    <tr class="trH">
+				    <th style="width:15%;"></th>
+				    <th style="width:35%;"></th>
+				    <th style="width:15%;"></th>
+				    <th style="width:35%;"></th>
+			    </tr>
+			    <tr>				
+				    <td>合同编号</td>
+				    <td><input type="text" id="_cContract_no" disabled="disabled" style="color:blue" /></td>
+				    <td>签订日期</td>
+				    <td><input type="text" id="_cContract_date" class="Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" /></td>
+			    </tr>
+			    <tr>
+				    <td>项目名称</td>
+				    <td colspan="3"><input type="text" id="_cContract_name" /></td>
+			    </tr>
+				<tr>
+				    <td>合同甲方</td>
+				    <td colspan="3"><input type="text" id="_cContract_company" /></td>
+			    </tr>
+				<tr>				
+				    <td>登记人</td>
+				    <td><input type="text" id="_cCreator_name" disabled="disabled" /></td>
+				    <td>商务经理</td>
+				    <td><input type="text" id="_cSalesman" /></td>
+			    </tr>
+			    <tr>
+				    <td>备注</td>
+				    <td colspan="5"><textarea id="_cContract_remark" rows="8" cols="0"></textarea></td>
+			    </tr>
+				<tr>				
+				    <td>制单</td>
+				    <td><input type="text" id="_xCreate" disabled="disabled" /></td>
+				    <td>修改</td>
+				    <td><input type="text" id="_xModify" disabled="disabled" /></td>
+			    </tr>
+		    </table>
+		    <input id="_cCONTRACT_ID" type="hidden" />
+			<input id="_cContract_type" type="hidden" />
+	    </form>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+	var contractType = urlPara["contract_type"];
+    // ------------------------------------------------------------------------
+	function formLoad() {
+        vf.css(gId("tbForm"));
+    }
+</script>
+
+<!-- vf.events -->
+<script>
+    vf.afterAddnew = function () {
+		frm._cContract_date.value = (new Date).toString();
+		frm._cCreator_name.value = topWin.userName;
+		frm._cSalesman.value = topWin.userName;
+		frm._cContract_type.value = contractType;
+	}
+
+	vf.afterMove = function () {
+        frm._xCreate.value = "";
+		frm._xModify.value = "";
+
+		if (vf.status.equals("view")) {
+            frm._xCreate.value = vf.dtbBase.rows[0]["cdate"].value.substring(0, 16) + "  " + vf.dtbBase.rows[0]["creator"].value;
+            frm._xModify.value = vf.dtbBase.rows[0]["mdate"].value.substring(0, 16) + "  " + vf.dtbBase.rows[0]["modifier"].value;
+		}
+	}
+</script>

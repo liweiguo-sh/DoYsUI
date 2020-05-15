@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>商品价格变更单</title>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script> 
+		
+	<script src="../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+	<script src="../../../../res_plugin/zui-1.8.1-dist/lib/jquery/jquery.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+	
+	
+	<style type="text/css">
+		body {
+			overflow: hidden;
+		}
+		.PanelA{
+			width:1280px;
+			margin-left:auto;
+			margin-right:auto;
+		}
+	</style>
+</head>
+<body>
+	<div id="divDC" style="width:1300px" class="ScreenCenter"></div>
+	    <form id="frm" action="" target="h_spd.purchase.View_matrPriceChangeApply"> 
+	        <div class="PanelA">
+		    <table id="tbForm" class="tbForm" style="width:100%">
+			    <tr class="trH">
+				    <th style="width:15%;"></th>
+				    <th style="width:30%;"></th>
+				    <th style="width:15%;"></th>
+				    <th style="width:30%;"></th>
+			    </tr>			    
+			    <tr>
+					<td>创建人</td>
+				    <td><input type="text" id="_cCreator" disabled="disabled" /></td>
+					<td>创建时间</td>
+				    <td><input type="text" id="_cCdate" disabled="disabled" /></td>
+			    </tr>
+			    <tr>
+				    <td>备注</td>
+				    <td colspan="3"><textarea id="_cRemark" rows="3" cols="0"></textarea></td>
+			    </tr>
+		    </table>
+		    </div>		
+		    <input id="_cChange_apply_id" type="hidden" />
+		    <input id="_cAstatus" type="hidden" />	    
+	    </form>
+	<div class ="PanelA ScreenCenter" style="margin-top:5px;" >
+    <div id="divGridDtl" style="height:250px;"></div>
+    </div>  
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+	var winMatr = null;
+	var gwWoDtl = null;
+	var astatusNav = 0;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        vf.css(gId("tbForm"));
+        nodeNav = win.parentWindow.gridView.tree.selectedNode;
+        astatusNav = (nodeNav.level > 1 ? nodeNav.value : 0);
+        var restHeight = win.p.height - gId("divGridDtl").offsetTop -20;
+		if(restHeight<250){
+			restHeight = 250;
+		}
+		gId("divGridDtl").style.height = restHeight + "px";
+    }
+</script>
+
+<!-- vf.events -->
+<script>
+    vf.afterAddnew = function () {
+        frm._cCdate.value = (new Date).toString();
+        frm._cCreator.value = topWin.userName;
+        frm._cAstatus.value = 0;
+        
+    }
+
+	vf.afterMove = function () { 
+		showGridDtl();
+    }	
+    vf.beforeSave = function () {
+        return true;
+    }
+</script>
+
+<!-- -->
+<script>
+       function showGridDtl() {
+           var gridViewFilter = "change_apply_id=" + frm._cChange_apply_id.value.toInt();
+           if (gwWoDtl == null) {
+               var prop = {
+           		   toolbarVisible: true,
+                   divContainer: gId("divGridDtl"),
+                   viewKey: "matr_price_change_apply_dtl",
+                   viewFilter: gridViewFilter,
+                   viewForm: "",
+                   allowConfig: false,
+                   jsonToolbar: { height: "M", onclick: onToolbarClick },
+                   cellBlur: cellBlur,
+                   bottomDisplay: ""
+               };
+               gwWoDtl = new window.xwf_gridview(prop);
+               if (astatusNav == 0 ) {
+              		 gwWoDtl.toolbar.addBar({ type: "button", key: "addMatr", text: "<i class='fa fa-plus'></i>选择耗材", align: "left", style: "Grid", icon: null });
+           		}
+           }
+           else {
+               gwWoDtl.setViewFilter(gridViewFilter);
+           }
+       }
+       
+       function onToolbarClick(para) {
+        if (para.key.equals("addMatr")) {
+        	if (vf.status.equals("addnew")) {
+                if (!vf.save()) {
+                    return false;
+                }
+            }
+            var prop = {
+                title: "请选择耗材...",
+                width: 1000,
+                height: 0.8,
+                parent: win
+            };
+            var para = {
+                viewKey: "select_bill_dtl_matr",
+                viewMode: "multiSelect",
+                selectCallback: callbackAddMatr
+            };
+            topWin.openSelectView(prop, para);
+        }
+        else {
+            showErr("unknown button " + para.key);
+        }
+    }
+    
+        function callbackAddMatr(para) {
+        	var arrDataRow = null;   
+        	var apply_id = frm._cChange_apply_id.value.toInt();   
+       		var arrMartName = new Array();
+       		var arrMartSpec = new Array();
+       		arrDataRow = para;
+            for (var i = 0; i < arrDataRow.length; i++) {
+                arrMartName.push(arrDataRow[i]["material_name"].value);
+                arrMartSpec.push(arrDataRow[i]["material_spec"].value);
+            }
+        	var materialNames = "";
+        	var materialSpecs = "";
+        // ------------------------------------------------
+        materialNames = arrMartName.join(",");
+        materialSpecs = arrMartSpec.join(",");
+        if (g.a.send("processType=h_spd.purchase.View_matrPriceChangeApply&actionType=addMatr", { viewKey:"matr_price_change_apply",apply_id:apply_id,materialNames: materialNames,materialSpecs: materialSpecs }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                gwWoDtl.refresh();
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    
+    function cellBlur(para) {
+        var dataRow = para.drRow;
+
+        var dtlId = dataRow["change_dtl_id"].value.toInt();
+        var newValue = para.newValue;
+
+        if (newValue <= 0) {
+            showErr("请输入正确的数字。");
+        }      
+        if (g.a.send("processType=h_spd.purchase.View_matrPriceChangeApply&actionType=updateMatrPrice", { viewKey:"matr_price_change_apply",dtlId:dtlId, Price: newValue }, true)) {
+            if (g.a.OK) {
+                vf.refreshRecord();
+                return true;
+            }
+            else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+</script>

@@ -1,0 +1,26 @@
+﻿/* -- tbLayout -- */
+.xwf_statusbar_tbLayout {
+    table-layout: fixed;
+    border-collapse: collapse;
+    background-color: #e8e9eb;
+    border: solid 0px red;     
+}
+
+.xwf_statusbar_tdFirst, .xwf_statusbar_tdBar {
+    overflow: hidden;
+    border-collapse: collapse;
+    vertical-align: middle; 
+    font-family: 微软雅黑; 
+    cursor: default;
+}
+.xwf_statusbar_tdFirst {
+    font-size: 10pt;
+    padding-left: 5px;    
+}
+.xwf_statusbar_tdBar {
+    font-size: 8pt;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;    
+    border-left: solid 1px lightGray;
+}

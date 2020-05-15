@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/excel.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.css.js?v=20190813" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/_view.debug.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/web_print.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" href="../../../../res_plugin/zui-1.8.1-dist/css/zui.min.css" />
+    <link rel="stylesheet" href="../../../../res_plugin/zui-1.8.1-dist/lib/chosen/chosen.min.css" />
+   <script src="../../../../res_plugin/zui-1.8.1-dist/js/zui.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/lib/chosen/chosen.min.js"></script>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/js/zuiExt.js" type="text/javascript"></script>
+</head>
+
+<body scroll="no">
+    <div id="divGrid"></div>
+</body>
+</html>
+<script type="text/javascript">
+	var gridDtl,asnId=0;
+    //窗口加载后调用
+    function formLoad() {
+		asnId=win.para.asnId;
+		if(asnId <=0) {
+			zuiExt.msg({ msg:"操作失败，缺少参数【asnId】" , type: "danger" });
+			return;
+		}
+        //明细网格高度
+        var restHeight = win.p.height - gId("divGrid").offsetTop - 20;
+        if (restHeight < 250) {
+            restHeight = 250;
+        }
+        gId("divGrid").style.height = restHeight + "px";
+        showGridDtl();
+    }
+    
+    function onToolbarClick(para) {
+        if (para.key.equals("close")) {
+            if (win.para.closeMode && win.para.closeMode.equals("hide")) {
+                win.hide();
+            } else {
+                win.close();
+            }
+        }else if (para.key.equals("refresh")) {
+            gridDtl.refresh();
+            zuiExt.msg({ msg: "刷新成功", type: "success" });
+        }else if (para.key.equals("print")) {
+        	 if (g.a.send("processType=g_mscm.asn.VIEW_asn&actionType=createBarcode", { viewKey: 'asn_from_rep_notify', asnId: asnId }, true)) {
+	            if (g.a.OK) {
+	                var cReturn = g.a.cReturn;
+	                var dtbLabel = cReturn.dtbLabel;
+	                var vf=win.parentWindow.vf.getFormValues();
+	                vf.printType="asn_matr";
+	                WebPrint.goPrintBarCode(vf, dtbLabel.rows,{});
+	            }else{
+	            }
+	        }
+        }
+    }
+    
+    
+     //网格明细
+    function showGridDtl () {
+        var gridViewFilter = "asn_id="+asnId;
+        if (gridDtl == null) {
+        	  var jsonToolbar = {
+	            height: "M",
+	            onclick: onToolbarClick
+	        };
+            var prop = {
+                divContainer: gId("divGrid"),
+                toolbarVisible: true,
+            	jsonToolbar: jsonToolbar,
+                viewKey: "query_original_barcode",
+                viewFilter: gridViewFilter,
+                allowConfig: true,
+                cellChange: function(para){
+		        	var dataRow = para.dataRow;
+		            var recordRow = para.recordRow;
+		            var fieldName = para.fieldName;
+		            var fieldValue = para.newValue;
+		            var oldValue = para.oldValue;
+		            var asn_bc_id = dataRow["asn_bc_id"].value;
+		            var isOk=false;
+		            // ------------------------------------------------
+		            if (g.a.send("processType=g_mscm.asn.VIEW_asnDtl&actionType=updateAsnBCDtlValue", { viewKey: "asn_dtl", asnBCId: asn_bc_id, fieldName: fieldName, fieldValue: fieldValue}, false)) {
+		                
+	                    var cReturn = g.a.cReturn;
+		                if (g.a.OK) {
+		                    zuiExt.msg({ msg: "数据保存成功", type: "success" });
+		                    isOk=true;
+		                }
+		                else {
+		                    zuiExt.msg({ msg:cReturn.ErrMessage , type: "danger" });
+		                }
+		            }
+		            else {
+		                zuiExt.msg({ msg: cReturn.ErrMessage?cReturn.ErrMessage:"操作失败" , type: "danger" });
+		            }
+		            
+		            if(!isOk){
+		            	gridDtl.setValue(recordRow,fieldName, oldValue);
+		            }
+		            return isOk;
+		        }
+            };
+            gridDtl = new window.xwf_gridview(prop);
+	         gridDtl.toolbar.addBar({
+	            type: "button",
+	            key: "refresh",
+	            text: "<i class='fa fa-refresh'></i>  刷新",
+	            align: "left",
+	            style: "Grid",
+	            icon: null,
+	            width:  "70"
+	        });
+            gridDtl.toolbar.addBar({
+                type: "button",
+                key: "print",
+                text: "打印标签",
+                align: "left",
+                style: "Grid",
+                icon: null,
+                width:  "70"
+            });
+	        
+             gridDtl.toolbar.addBar({
+	            type: "button",
+	            key: "close",
+	            text: "<i class='fa fa-close'></i>  关闭",
+	            align: "left",
+	            style: "Grid",
+	            icon: null,
+	            width: "70"
+	        });
+        }
+        else {
+            gridDtl.setViewFilter(gridViewFilter);
+        }
+    }
+</script>
+ 

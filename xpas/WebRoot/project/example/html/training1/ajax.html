@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>ajax测试</title>
+	<link href="../../../../res/css/style1/xwf.datatable.css" rel="stylesheet" type="text/css" />
+
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divButton" class="divButtons">
+		<input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+		<input type="button" id="btnRequestA1" onclick="btnRequestA1_click();" value="计算(标准格式 )" />
+        <input type="button" id="btnRequestA2" onclick="btnRequestA2_click();" value="计算(JSON格式)" />
+		<input type="button" id="btnGetDataTable" onclick="btnGetDataTable_click();" value="取记录集" />
+		<input type="button" id="btnGetSN" onclick="btnGetSN_click();" value="取流水号" />
+	</div>
+	<table>
+		<tr>
+			<th>数字1</th>
+			<th>运算符</th>
+			<th>数字2</th>
+			<th>等于</th>
+			<th>结果</th>
+		</tr>
+		<tr>
+			<td><input type="text" id="txt1" value="2" /></td>			
+			<td><input type="text" id="txtSymbol" value="+" style="font-weight:bold;text-align:center;" /></td>
+			<td><input type="text" id="txt2" value="3" /></td>
+			<td style="text-align:center;font-weight:bold;">=</td>
+			<td><input type="text" id="txtResult" value="" disabled="disabled" style="color:Red;" /></td>
+		</tr>
+	</table>
+	<div id="divResult" style="width:300px;height:200px;"></div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var urlPara = getUrlPara();
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		
+	}
+	function btnClose_click() {
+		win.close();
+	}
+
+	function btnRequestA1_click() {
+		var n1 = window.document.getElementById("txt1").value;
+		var n2 = window.document.getElementById("txt2").value;
+		var symbol = gId("txtSymbol").value;
+
+        if (g.a.send("processType=example.training1.Common&actionType=requestA", { num1: n1, num2: n2, symbol: symbol }, true)) {
+            var cReturn = g.a.cReturn;
+        	if (g.a.OK) {				
+				gId("txtResult").value = cReturn.result;
+			}
+            else {
+                gId("divResult").innerHTML = cReturn.ErrMessage;
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+    }
+    function btnRequestA2_click() {
+        var n1 = window.document.getElementById("txt1").value.toInt();
+        var n2 = window.document.getElementById("txt2").value.toInt();
+        var symbol = gId("txtSymbol").value;
+
+        if (g.a.sendJson("processType=example.training1.Common&actionType=requestA", { num1: n1, num2: n2, symbol: symbol }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                gId("txtResult").value = cReturn.result;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+	function btnGetDataTable_click() {
+        if (g.a.sendJson("processType=example.training1.Common&actionType=getDataTable", {}, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				var dtbResult = cReturn.dtbResult;
+				gId("divResult").innerHTML = dtbResult.toHtmlTable();
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+
+    function btnGetSN_click() {
+		if (g.a.send("processType=example.training1.Common&actionType=getSN", {}, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				gId("txtResult").value = cReturn.result;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}	
+</script>

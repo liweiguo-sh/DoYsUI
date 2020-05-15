@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>入库单明细条码维护</title>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script> 
+		
+	<script src="../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+	<style type="text/css">
+        #txtScan {
+            font-size: 1em;
+            font-family: Arial;
+            height: 26px;
+            line-height: 24px;
+            border: 2px solid #19A2D5;
+        }
+	    #divGrid {			
+			width: 100%;
+			height: 390px;
+		}
+		#divGrid input {
+            border: 0px;
+        }
+	</style>
+</head>
+<body>
+	<div id="divDC"></div>
+	<div class="PanelA" style="width:960px;">
+		<form id="frm" action="" target="h_spd.wi.VIEW_wiDtl"> 
+			<table id="tbForm" class="tbForm" style="width:100%;">
+				<tr class="trH">
+					<th style="width: 12%;"></th>
+					<th style="width: 30%;"></th>
+					<th style="width: 11%;"></th>
+					<th style="width: 22%;"></th>
+					<th style="width: 11%;"></th>
+					<th style="width: 14%;"></th>
+				</tr>
+				<tr>				
+					<td>品名</td>
+					<td><input type="text" id="_cMaterial_name" disabled="disabled" /></td>
+					<td>批号</td>
+					<td><input type="text" id="_cLot" disabled="disabled" /></td>
+                    <td>效期</td>
+					<td><input type="text" id="_cExpired_date" disabled="disabled" /></td>
+				</tr>
+				<tr>				
+					<td>品规</td>
+					<td><input type="text" id="_cMaterial_spec" disabled="disabled" /></td>
+                    <td>厂商</td>
+					<td><input type="text" id="_gManufacturer_name" disabled="disabled" /></td>
+                    <td>生产日期</td>
+					<td><input type="text" id="_cManufacture_date" disabled="disabled" /></td>
+				</tr>
+                <tr>
+                    <td></td>
+                    <td><input type="text" id="txtScan" placeholder="RFID扫码框" /></td>
+                </tr>
+			</table>		
+			<input id="_cWI_DTL_ID" type="hidden" />
+            <input id="_cWI_ID" type="hidden" />
+            <input id="_cSn_count" type="hidden" />
+		</form> 
+		<div id="divGrid"></div> 
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var allowModify = false;
+    var astatusParent = 0;
+
+    var winParent = null, frmParent = null;
+    var gridview = null;
+
+    var txtScan = gId("txtScan");
+    var divGrid = gId("divGrid");
+	// ------------------------------------------------------------------------
+    function formLoad() {
+        win.addEventListener("beforeClose", beforeClose);
+        winParent = win.parentWindow;
+        frmParent = winParent.frm;
+        astatusParent = frmParent._cAstatus.value.toInt();
+        allowModify = (astatusParent == 0 || astatusParent == 2);
+
+        vf.css(gId("tbForm"));
+        vf.addExtraButton({ key: "printSn", text: "打印SN" });
+        // vf.addExtraButton({ key: "printRfid", text: "打印RFID" });
+
+        if (allowModify) {
+            g.x.bindEnterEvent(txtScan, function () {
+                onTxtScanEnter();
+            });
+            txtScan.focus();
+        }
+        else {
+            txtScan.style.display = "none";
+        }
+    }
+
+    function beforeClose() {
+        winParent.vf.refreshRecord();
+        winParent.clearEditForm();
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.afterMove = function () {
+        vf.setBarVisible("delete", allowModify);
+
+        showGridDtl();
+    }
+
+    vf.beforeClick = function (para) {
+        var btnkey = para.buttonKey;
+        var wiDtlId = frm._cWI_DTL_ID.value.toInt();
+        var copies = frm._cSn_count.value.toInt();
+        // ------------------------------------------------
+        if (btnkey.equals("printSn")) {
+            winParent.printSn(wiDtlId, 0, copies);
+        }
+        else if (btnkey.equals("printRfid")) {
+            winParent.printRfid(wiDtlId, 0);
+        }
+        else {
+            showWarn(btnKey);
+        }
+        return false;
+    }
+</script>
+<!-- gridview -->
+<script type="text/javascript">
+    function showGridDtl() {
+        var wiDtlId = frm._cWI_DTL_ID.value.toInt();
+        if (gridview == null) {
+            var prop = {
+                divContainer: divGrid,
+                viewKey: "wi_dtl_bc",
+                viewFilter: "wi_dtl_id = " + wiDtlId,
+                cellBlur: onCellBlur,
+                afterDelete: onDelete,
+                allowDelete: allowModify
+            };
+            gridview = new window.xwf_gridview(prop);
+        }
+        else {
+            gridview.setViewFilter("wi_dtl_id = " + wiDtlId);
+        }
+    }
+
+    function onCellBlur(para) {
+        var dataRow = para.drRow;
+        var wiDtlBcId = dataRow["wi_dtl_bc_id"].value;
+        var fieldName = para.fieldName;
+        var newValue = para.newValue;
+
+		// ------------------------------------------------
+        if (para.newValue == para.oldValue) {
+            return true;
+        }
+
+        var para = {
+            wiDtlBcId: wiDtlBcId,
+            fieldName: fieldName,
+            fieldValue: newValue
+        };
+        if (g.a.send("processType=h_spd.wi.WiCommon&actionType=updateDtlBcByEdit", para, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    function onDelete(para) {
+        vf.refreshRecord();
+        vf.gridView.update(vf.drViewOne);
+    }
+
+    function viewExtraButtonClick(para) {
+        var btnKey = para.btnKey;
+        var viewKey = para.viewKey;
+        var dataRow = para.drViewData;
+        var wiDtlId = dataRow["wi_dtl_id"].value;
+        var wiDtlBcId = dataRow["wi_dtl_bc_id"].value;
+
+        var copies = frm._cSn_count.value.toInt();
+        // ------------------------------------------------
+        if (viewKey.equals("wi_dtl_bc")) {
+            if (btnKey.equals("print_sn")) {
+                winParent.printSn(wiDtlId, wiDtlBcId, copies);
+            }
+            else if (btnKey.equals("print_rfid")) {
+                winParent.printRfid(wiDtlId, wiDtlBcId);
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+
+<!-- rfid扫码-->
+<script>
+    function onTxtScanEnter() {
+        var wiDtlId = frm._cWI_DTL_ID.value.toInt();
+        var rfid = txtScan.value.trim();
+        // ------------------------------------------------
+        if (rfid.equals("")) return;
+        if (rfid.length < 11) {
+            //showWarn("RFID格式不正确, 请检查.");
+            //txtScan.select();
+            //txtScan.focus();
+            //return;
+        }
+
+        if (g.a.send("processType=h_spd.wi.WiDtlCommon&actionType=bindRfid", { wiDtlId: wiDtlId, rfid: rfid }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var wiDtlBcId = cReturn.wiDtlBcId;
+
+                for (var i = 0; i < gridview.dtbViewData.rowCount; i++) {
+                    if (gridview.dtbViewData.rows[i]["wi_dtl_bc_id"].value == wiDtlBcId) {
+                        gridview.setValue(i, "rfid", rfid);
+                        gridview.selectRow(i);
+                        break;
+                    }
+                }
+
+                txtScan.value = "";
+                txtScan.focus();
+                win.flashTitle("RFID (" + rfid + ") 绑定成功.");
+                return true;
+            }
+            else {
+                txtScan.select();
+                txtScan.focus();
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

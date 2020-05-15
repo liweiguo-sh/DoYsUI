@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>添加资质</title>
+    <link href="../../../../res_plugin/bootstrap3.7/bootstrap/css/bootstrap.min.css"
+        rel="stylesheet" type="text/css" />
+    <link href="../../../../res_plugin/bootstrap3.7/bootstrap-table/css/bootstrap-table.css"
+        rel="stylesheet" type="text/css" />
+    <script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/bootstrap-table/js/bootstrap-table.js"
+        type="text/javascript"></script>
+    <!--系统框架引用 -->
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    <script src="../../../../res/control/window/xwf.window.js" type="text/javascript"></script>
+    <script src="../../../../res/control/upload/xwf.upload.js" type="text/javascript"></script>
+    <script src="../../js/rstodata.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <style type="text/css">
+        body
+        {
+            background-color: lightGray;
+        }
+        .self-panel-main
+        {
+            border: 1px solid lightGray;
+            width: 80%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: White;
+            box-shadow: 3px 3px 3px #7F8C8D;
+            padding: 80px;
+        }
+        h5
+        {
+            color: #7F8C8D;
+        }
+        th
+        {
+            background-color: #7F8C8D;
+            color: White;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .step-title
+        {
+            color: #7F8C8D;
+        }
+    </style>
+</head>
+<body>
+    <div class="container self-panel-main" style="">
+        <form class="bs-example bs-example-form" role="form">
+        <h5>
+            名称：</h5>
+        <h3 id="name" style="padding-left: 30px; color: #7F8C8D">
+            P17000800255</h3>
+        <br />
+        <br />
+        <h4 class="step-title">
+            添加资质</h4>
+        <br />
+          <!--
+        <div id="toolbarProduct">
+            <button class="btn btn-info" id="btnAddProduct" data-toggle="modal" data-target="#selectProduct">
+                选择资质类别</button>
+        </div>-->
+        <table id="tbProductList" data-toggle="table" data-height="300" data-toolbar="#toolbarProduct"
+            data-sort-name="no" data-pagination="false" data-search="false" data-page-size="100">
+            <thead>
+                <tr>
+                    <th data-field="state" data-checkbox="true">
+                        选择
+                    </th>
+                    <th data-field="no">
+                        序
+                    </th>
+                    <!--<th data-field="operate">
+                        操作
+                    </th>-->
+                    <th data-field="cert_category_name" data-sortable="true">
+                        资质名称
+                    </th>
+                    <th data-field="ext_limit">
+                        类型限制
+                    </th>
+                    <th data-field="file_max_count">
+                        上传数量限制
+                    </th>
+                    <th data-field="file_max_size">
+                        上传大小限制/KB
+                    </th>
+                </tr>
+            </thead>
+        </table>
+        </form>
+        <div style="width: 100%; text-align: center; margin-top: 30px">
+         
+            <button type="button" class="btn btn-success" id="btnSubmit" onclick="btnSend_click();" style="width:150px;">确认</button>
+            <button type="button" class="btn btn-warning" id="btnClose" onclick="win.close();" style="width:150px;">关闭</button>
+        </div>
+    </div>
+    <!--产品选择框 -->
+    <div class="modal fade" id="selectProduct" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 80%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        ×</button>
+                    <h3 class="modal-title">
+                        请选择资质</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" id="toolbarSelectProduct" style="width: 40%">
+                        <input class="form-control" type="text" id="txtProductCon" placeholder="输入检索条件" />
+                        <button class="input-group-addon" id="btnProductSearch" onclick="btnProductSearch_click();">
+                            <i class="fa fa-search"></i>检索</button>
+                    </div>
+                    <table id="tbProductSelect" data-toggle="table" data-height="400" data-toolbar="#toolbarSelectProduct"
+                        data-sort-name="product_name" data-pagination="true" data-search="false" data-page-size="100">
+                        <thead>
+                            <tr>
+                                <th data-field="state" data-checkbox="true">
+                                    选择
+                                </th>
+                                <th data-field="no">
+                                    序
+                                </th>
+                                <th data-field="cert_category_name" data-sortable="true">
+                                    资质名称
+                                </th>
+                                <th data-field="ext_limit">
+                                    类型限制
+                                </th>
+                                <th data-field="file_max_count">
+                                    上传数量限制
+                                </th>
+                                <th data-field="file_max_size">
+                                    上传大小限制
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="choiceproduct()">
+                        确定选择</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    var company = null, company_cert = null;
+    var matr = null; var matrcert = null;
+    var name = "";
+    var matrs = "";
+    var matrsdata = "";
+    var matrCerts = "";
+    var matrCertsdata = "";
+    var matrCertsdata1 = "";
+    var matr_id="";
+    var cert_category_ids="";
+    var company_id_from;
+    var is_js;
+    var type;
+   $(function () {
+     matr_id = win.para.primaryKey.split(",")[1];
+     name = win.para.name.split(",")[1];
+     type = win.para.type;
+     is_js=win.para.is_js;
+     $("#name").html(name);
+         win.addEventListener("afterClose",
+			function () {
+				if (win.para.callback) {
+					win.para.callback();
+				}
+			}
+		);
+       // $('#selectProduct').on('show.bs.modal', function () {
+        if(type==1){
+            showproduct();
+            }else{
+            showCompany();
+            }
+      //  })
+    });
+
+ 
+
+    function choiceproduct() {
+      var  rows = $.map($('#tbProductSelect').bootstrapTable('getSelections'), function (row) {
+            return row
+        });
+        rows = rows.concat($('#tbProductList').bootstrapTable('getData'));
+        rows = refreshnomatr(rows);
+        $('#selectProduct').modal('hide');
+        $('#tbProductList').bootstrapTable('load', rows);
+        cert_category_ids = getcatelogidsbyrows(rows);
+    }
+   
+ 
+    function delmatr(ind) {
+        var rows = $('#tbProductList').bootstrapTable('getData');
+        rows.splice(ind, 1);
+        cert_category_ids = getcatelogidsbyrows(rows);
+        $('#tbProductList').bootstrapTable('load', rows);
+    }
+   
+    function fillmatr(rs) {
+        for (var i = 0; i < rs.rowCount; i++) {
+            if (rs.rows[i]['operate'].value.equals("-1")) {
+                rs.rows[i]['operate'].value = " &nbsp;&nbsp;<i class='fa fa-flag' style='color:#2980B9;cursor:pointer' ><span onclick='edit(" + rs.rows[i]['my_cert_id'].value + ")'>维护</span></i>";
+            } else {
+
+                rs.rows[i]['operate'].value = "<i class='fa fa-close'  style='color:#E74C3C;cursor:pointer' ><span   onclick='delmatr(" + i + ")'>删除</span></i> ";
+            }
+        }
+        var rows = todatatable(rs);
+        return rows;
+    }
+
+    function showproduct() {
+    if(is_js=="true"){
+    company_id_from=win.para.company_id_from.split(",")[1]
+    }
+        if (g.a.send("processType=g_mshare.base.certMaterial&actionType=getCert_category", {
+            "viewKey": "receive", "matr_id": matr_id, "company_id_from":company_id_from,"is_js":is_js,"cert_category_ids": cert_category_ids
+        }, true)) {
+            if (g.a.OK) {
+                var rs = g.a.cReturn.rs;
+                var rows = fillmatr(rs);
+                $('#tbProductList').bootstrapTable('load', rows);
+            }
+            else {
+                return false;
+            }
+        }
+    }
+    function showCompany() {
+        if (g.a.send("processType=g_mshare.base.certCompany&actionType=getCert_category", {
+            "viewKey": "receive",  "company_id_from": matr_id,"is_js":is_js,"cert_category_ids": cert_category_ids
+        }, true)) {
+            if (g.a.OK) {
+                var rs = g.a.cReturn.rs;
+                var rows = fillmatr(rs);
+                $('#tbProductList').bootstrapTable('load', rows);
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    function btnSend_click() {
+        var rows = $.map($('#tbProductList').bootstrapTable('getSelections'), function (row) {
+            return row
+        });
+        cert_category_ids = getcatelogidsbyrows(rows);
+
+        if ("".equals(cert_category_ids) || cert_category_ids == null) {
+            alert("请选择资质");
+            return false;
+        }
+        if (type != 1) {
+            company_id_from = matr_id;
+            matr_id = 0
+
+        } else {
+            if (is_js.equals("false"))
+                company_id_from = topWin.officeId;
+        }
+        if (g.a.send("processType=g_mshare.base.certMaterial&actionType=material_cert_add", { matr_id: matr_id, cert_category_ids: cert_category_ids, company_id_from: company_id_from, type: "1", viewkey: "PUSH" }, true)) {
+            if (g.a.OK) {
+                win.close();
+            }
+        } 
+    }
+</script>

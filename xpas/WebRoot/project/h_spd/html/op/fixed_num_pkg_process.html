@@ -1,0 +1,687 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+
+    <script src="../../../../res/control/tree/xwf.tree.js"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+    <script src="../../../../res/jscript/web_print.js"></script>
+    <script src="../../js/barcode_parse.js"></script>
+    <script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+
+    <!-- 区域1 -->
+    <style type="text/css">
+        .tb1 {
+            width: 100%;
+            margin: 0px 0px 10px 0px;
+        }
+        
+        .tb1 td {
+            overflow: hidden;
+            border: solid 0px red;
+        }
+        
+        #txtGtin {
+            font-size: 11pt;
+            height: 30px;
+            line-height: 30px;
+            width: 300px;
+            border: solid 2px gray;
+            padding: 0px 8px 0px 8px;
+        }
+        
+        .divPkgSummary {
+            padding-left: 10px;
+            color: blue;
+            font-size: 12pt;
+            height: 30px;
+            line-height: 30px;
+            overflow: auto;
+            vertical-align: middle;
+        }
+    </style>
+    <!-- 区域2 -->
+    <style type="text/css">
+        .tb2 {
+            width: 100%;
+            margin: 15px 0px 10px 0px;
+        }
+        
+        .tb2 td {
+            overflow: hidden;
+            border: solid 0px red;
+        }
+        
+        #txtScan {
+            color: red;
+            font-size: 11pt;
+            height: 30px;
+            line-height: 30px;
+            width: 300px;
+            border: solid 2px #3280FA;
+            padding: 0px 8px 0px 8px;
+        }
+        
+        #txtNum {
+            color: green;
+            font-size: 11pt;
+            height: 30px;
+            line-height: 30px;
+            width: 150px;
+            border: solid 2px #3280FA;
+            padding: 0px 8px 0px 8px;
+        }
+        
+        .btnOperate {
+            cursor: pointer;
+            font-size: 12pt;
+            border: 0px;
+            height: 36px;
+            width: 110px;
+            color: white;
+            background-color: #3280FA;
+            border-radius: 4px;
+        }
+        
+        .btnOperate:hover {
+            color: yellow;
+        }
+        
+        #divIndicator {
+            font-size: 24px;
+        }
+        
+        .process-success {
+            color: DarkGreen;
+        }
+        
+        .processing {
+            color: Blue;
+        }
+    </style>
+</head>
+<body>
+    <div class="PanelA">
+        <table id="tbPack" class="tb1">
+            <tr>
+                <td><input type="checkbox" id="scanMode" /><label for="scanMode">定数包条码设置模式</label></td>
+                <td><input type="checkbox" id="briefPackage" /><label for="briefPackage">一键加工定数包</label></td>
+            </tr>
+            <tr>
+                <td style="width:330px;"><input type="text" id="txtGtin" placeholder="请扫描定数包代码..." onkeydown="enterPress(event)" autocomplete="off" /></td>
+                <td>
+                    <div id="divPkgSummary" class="divPkgSummary"></div>
+                </td>
+            </tr>
+        </table>
+        <div id="divGrid1"></div>
+        <table id="tbButtons" class="tb2">
+            <tr id="trRFID">
+                <td style="width:330px;"><input type="text" id="txtScan" placeholder="请扫描RFID..." title="请扫描RFID..." autocomplete="off" /></td>
+                <td>
+                    <div id="divIndicator"></div>
+                </td>
+                <td style="text-align:right;width:50px;"><input type="button" id="btnPrintSN" class="btnOperate" onclick="btnPrintSN_click();" value="打&nbsp;&nbsp;印" /></td>
+                <td style="text-align:right;width:50px;"><input type="button" id="btnClose" class="btnOperate" onclick="btnClose_click();" value="关&nbsp;&nbsp;闭" /></td>
+            </tr>
+            <tr id="trSN">
+                <td style="width:150px;"><input type="text" id="txtNum" placeholder="请输入加工数量..." title="请输入加工数量..." autocomplete="off" /></td>
+                <td style="text-align:right;width:50px;"><input type="button" id="btnProcess" class="btnOperate" onclick="btnProcess_click();" value="加&nbsp;&nbsp;工" /></td>
+                <td></td>
+                <td style="text-align:right;width:50px;"><input type="button" id="btnPrint" class="btnOperate" onclick="btnPrint_click();" value="打&nbsp;&nbsp;印" /></td>
+                <td style="text-align:right;width:50px;"><input type="button" id="btnClose2" class="btnOperate" onclick="btnClose_click();" value="关&nbsp;&nbsp;闭" /></td>
+            </tr>
+        </table>
+        <div id="divGrid2"></div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var packTempletId = 0, materialIdPack = 0;
+    var packProcessId = 0, wiId = 0;
+    var materialId = 0, materialQty = 0;
+
+    var menuKey = "", processMode = urlPara["processMode"];
+    var materialNamePack = "";
+
+    var txtGtin = gId("txtGtin");
+    var txtScan = gId("txtScan");
+    var spanPkgSummary = gId("spanPkgSummary");
+    var divGrid1 = gId("divGrid1");
+    var divGrid2 = gId("divGrid2");
+
+    var btnPrint = gId("btnPrint");
+    var btnPrint = gId("btnPrintSN");
+    var gridview1 = null, gridview2 = null;
+
+    var processedCount = 0;
+    var demandCount = 0;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        if (!topWin.stationStorageId) {
+            showErr("请先设置工位！");
+            win.close();
+            return;
+        }
+        packTempletId = win.para["packTempletId"];
+        menuKey = win.para["menuKey"];
+
+        if (!processMode) {
+            if (menuKey.equals("PG1012003006")) {
+                processMode = "SN";
+            }
+            else {
+                processMode = "RFID";
+            }
+        }
+        if (processMode.equals("SN")) {
+            gId("trRFID").style.display = "none";
+            gId("trSN").style.display = "";
+            btnPrint.tagPrint = "";
+            txtNum.focus();
+        }
+        else {
+            gId("trRFID").style.display = "";
+            gId("trSN").style.display = "none";
+            g.x.bindEnterEvent(txtScan, onTxtScanEnter);
+            btnPrintSN.tagPrint = "";
+            txtScan.focus();
+            $("#btnPrintSN").show();
+        }
+
+        formResize();
+
+        initData();
+    }
+
+    function formResize() {
+        var width = 1100;
+        var height = win.p.maxHeight;
+
+        divGrid1.style.width = width + "px";
+        divGrid2.style.width = width + "px";
+
+        divGrid1.style.height = 220 + "px";
+        divGrid2.style.height = (height - divGrid2.offsetTop - 80) + "px";
+    }
+</script>
+<!-- init -->
+<script type="text/javascript">
+    function initData() {
+        if (g.a.send("processType=h_spd.op.FixedNumPkgProcess&actionType=getInitData", {
+                packTempletId: packTempletId,
+                storageId: topWin.stationStorageId
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbPackTemplet = cReturn.dtbPackTemplet;
+                var dtbPackTempletDtl = cReturn.dtbPackTempletDtl;
+                var dtbProcessStatics = cReturn.dtbProcessStatics;
+
+                if (dtbPackTempletDtl.rowCount == 0) {
+                    showErr("没有为当前定数包定义明细，请检查。");
+                    return;
+                }
+                packTempletName = dtbPackTemplet.rows[0]["pack_templet_name"].value;
+                materialIdPack = dtbPackTemplet.rows[0]["material_id"].value;
+
+                materialId = dtbPackTempletDtl.rows[0]["material_id"].value;
+                materialQty = dtbPackTempletDtl.rows[0]["material_qty"].value;
+                var name = dtbPackTempletDtl.rows[0]["material_name"].value;
+                var spec = dtbPackTempletDtl.rows[0]["material_spec"].value;
+                var unit = dtbPackTempletDtl.rows[0]["material_unit"].value;
+                var nbsp = "<span style='padding-left:30px;'>&nbsp;</span>";
+
+                divPkgSummary.innerHTML = "<font color='red'>" + materialQty + unit + "</font>" + nbsp + name + nbsp + spec;
+                divPkgSummary.title = materialId;
+
+                if (dtbProcessStatics.rowCount > 0) {
+                    demandCount = dtbProcessStatics.rows[0]["qty_process"].value;
+                }
+                processedCount = 0;
+                divIndicator.innerHTML = '<span class="processing">' + '0 / ' + demandCount + '</span>';
+
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // ------------------------------------------------
+        packProcessId = 0;
+        wiId = 0;
+        btnPrint.tagPrint = "";
+
+        initGridview1();
+        initGridview2();
+    }
+</script>
+
+<!-- gridview -->
+<script type="text/javascript">
+    function initGridview1() {
+        var prop = {
+            divContainer: divGrid1,
+            viewKey: "stock_for_pkg_process",
+            viewFilter: "material_id = " + materialId
+        };
+        gridview1 = new window.xwf_gridview(prop);
+
+        if (gridview1.dtbViewData.rowCount == 0) {
+            showErr("没有为当前定数包加工可用的库存，请检查。");
+        } else {
+            gridview1.selectRow(0);
+            txtScan.focus();
+        }
+    }
+
+    function initGridview2() {
+        var prop = {
+            divContainer: divGrid2,
+            viewKey: "pack_process_dtl",
+            viewFilter: "1 = 0"
+        };
+        gridview2 = new window.xwf_gridview(prop);
+    }
+</script>
+<!-- buttons -->
+<script type="text/javascript">
+    function btnClose_click() {
+        if (win.para.callback) {
+            win.para.callback();
+        }
+        win.close();
+    }
+
+    function btnPrint_click() {
+        var param = {
+            snFieldName: "sn"
+        };
+
+        param.list = [{
+            text: "品名",
+            name: "material_name",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "品规",
+            name: "material_spec",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "厂商",
+            name: "manufacturer_name",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "批次",
+            name: "lot",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "效期",
+            name: "exp",
+            lableCol: 3,
+            valueCol: 9,
+            isYMD: true
+        }, {
+            text: "包内数量",
+            name: "material_qty",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "加工时间",
+            name: "cdate",
+            lableCol: 3,
+            valueCol: 9
+        }];
+        WebPrint.goPrintBarCodeModel(gridview2.dtbViewData.rows, param);
+
+        btnPrint.tagPrint = "";
+        btnPrintSN.tagPrint = "";
+    }
+
+    function btnPrintSN_click() {
+        var param = {
+            snFieldName: "rfid"
+        };
+
+        param.list = [{
+            text: "品名",
+            name: "material_name",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "品规",
+            name: "material_spec",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "厂商",
+            name: "manufacturer_name",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "批次",
+            name: "lot",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "效期",
+            name: "exp",
+            lableCol: 3,
+            valueCol: 9,
+            isYMD: true
+        }, {
+            text: "包内数量",
+            name: "material_qty",
+            lableCol: 3,
+            valueCol: 9
+        }, {
+            text: "加工时间",
+            name: "cdate",
+            lableCol: 3,
+            valueCol: 9
+        }];
+
+        WebPrint.goPrintBarCodeModelByRFID(gridview2.dtbViewData.rows, param);
+
+        btnPrint.tagPrint = "";
+        btnPrintSN.tagPrint = "";
+    }
+</script>
+
+<!-- rfid scan -->
+<script type="text/javascript">
+    function enterCallback(targetObj) {
+        resetScanResult();
+        barcodeParseInput(targetObj.value);
+        if (barcodeResult["gtin"].length < 1) {
+            targetObj.value = "";
+            return;
+        }
+        gtin = barcodeResult["gtin"];
+        if (gtin.length == 0) return;
+        // ------------------------------------------------
+        if (!btnPrint.tagPrint.equals("")) {
+            showWarn("您加工的定数包尚未打印定数包标签，请打印。");
+            return false;
+        }
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.op.FixedNumPkgProcess&actionType=getPackTempletByGtin", {
+                gtin: gtin,
+                packTempletId: packTempletId,
+                scanMode: gId("scanMode").checked
+            }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var packTempletIdNew = cReturn["packTempletId"];
+                targetObj.value = "";
+                if (gId("scanMode").checked) {
+                    alert("设置成功！");
+                    win.close();
+                    return;
+                }
+                if (packTempletId == packTempletIdNew) {
+                    showWarn("您扫描的定数包代码和当前正在加工的定数包代码相同，请检查。");
+                    txtGtin.select();
+                    txtGtin.focus();
+                    return;
+                }
+                packTempletId = packTempletIdNew;
+
+                initData();
+            } else {
+                txtGtin.select();
+                txtGtin.focus();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function onTxtScanEnter() {
+        var recordRow = 0,
+            stockId = 0,
+            qtyStock = 0;
+        var rfid = txtScan.value.trim();
+
+        // ------------------------------------------------
+        if (gId('briefPackage').checked) {
+            var rfidTemp = rfid;
+            var processedCount2 = processedCount;
+            for (var i = 0; i < demandCount - processedCount2; i++) {
+                rfid = sumBigNumber(rfidTemp, i);
+
+                for (var j = 0; j < gridview1.dtbViewData.rowCount;) {
+                    if (recordRow < 0) {
+                        showWarn("请先选择要加工的库存记录。");
+                        return;
+                    } else {
+                        qtyStock = gridview1.dtbViewData.rows[j]["qty"].value;
+                        if (qtyStock < materialQty) {
+                            j++;
+                            if (j == gridview1.dtbViewData.rowCount) {
+                                showWarn("当前选中库存记录数量不足，请检查。");
+                                return;
+                            }
+                        }
+                    }
+                    stockId = gridview1.dtbViewData.rows[j]["stock_id"].value;
+                    break;
+                }
+
+
+                if (g.a.send("processType=h_spd.op.FixedNumPkgProcess&actionType=bindRfid", {
+                        packProcessId: packProcessId,
+                        wiId: wiId,
+                        packTempletId: packTempletId,
+                        materialIdPack: materialIdPack,
+                        packTempletName: packTempletName,
+                        stockId: stockId,
+                        materialId: materialId,
+                        materialQty: materialQty,
+                        rfid: rfid,
+                        processMode: processMode
+                    }, true)) {
+                    if (g.a.OK) {
+                        var cReturn = g.a.cReturn;
+
+                        win.flashTitle("定数包加工成功，RFID = " + rfid);
+                        txtScan.value = "";
+                        txtScan.focus();
+
+                        if (packProcessId == 0) {
+                            packProcessId = cReturn.packProcessId;
+                            wiId = cReturn.wiId;
+
+                            gridview2.setViewFilter("pack_process_id = " + packProcessId);
+                        } else {
+                            gridview2.refresh();
+                        }
+
+                        gridview1.refresh();
+                        // gridview1.setValue(recordRow, "qty", qtyStock - materialQty);
+                        processedCount++;
+                        if (processedCount == demandCount) {
+                            divIndicator.innerHTML = '<span class="process-success">' + processedCount + ' / ' + demandCount + '</span>';
+                            txtGtin.focus();
+                        } else {
+                            divIndicator.innerHTML = '<span class="processing">' + processedCount + ' / ' + demandCount + '</span>';
+                        }
+
+                    } else {
+                        txtScan.select();
+                        txtScan.focus();
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            recordRow = gridview1.recordRow;
+            if (recordRow < 0) {
+                showWarn("请先选择要加工的库存记录。");
+                return;
+            } else {
+                qtyStock = gridview1.dtbViewData.rows[recordRow]["qty"].value;
+                if (qtyStock < materialQty) {
+                    showWarn("当前选中库存记录数量不足，请检查。");
+                    return;
+                }
+            }
+            stockId = gridview1.dtbViewData.rows[recordRow]["stock_id"].value;
+
+            if (g.a.send("processType=h_spd.op.FixedNumPkgProcess&actionType=bindRfid", {
+                    packProcessId: packProcessId,
+                    wiId: wiId,
+                    packTempletId: packTempletId,
+                    materialIdPack: materialIdPack,
+                    packTempletName: packTempletName,
+                    stockId: stockId,
+                    materialId: materialId,
+                    materialQty: materialQty,
+                    rfid: rfid,
+                    processMode: processMode
+                }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+
+                    win.flashTitle("定数包加工成功，RFID = " + rfid);
+                    txtScan.value = "";
+                    txtScan.focus();
+
+                    if (packProcessId == 0) {
+                        packProcessId = cReturn.packProcessId;
+                        wiId = cReturn.wiId;
+
+                        gridview2.setViewFilter("pack_process_id = " + packProcessId);
+                    } else {
+                        gridview2.refresh();
+                    }
+
+                    gridview1.setValue(recordRow, "qty", qtyStock - materialQty);
+                    processedCount++;
+                    if (processedCount == demandCount) {
+                        divIndicator.innerHTML = '<span class="process-success">' + processedCount + ' / ' + demandCount + '</span>';
+                    } else {
+                        divIndicator.innerHTML = '<span class="processing">' + processedCount + ' / ' + demandCount + '</span>';
+                    }
+
+                } else {
+                    txtScan.select();
+                    txtScan.focus();
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    function sumBigNumber(a, b) {
+        var res = '',
+            temp = 0;
+        a = a.split('');
+        b = '0' + b;
+        b = b.split('');
+        while (a.length || b.length || temp) {
+            temp += ~~a.pop() + ~~b.pop();
+            res = (temp % 10) + res;
+            temp = temp > 9;
+        }
+        return res;
+        // return res.replace(/^0+/, '');
+    }
+</script>
+<!-- process -->
+<script type="text/javascript">
+    function btnProcess_click() {
+        var recordRow = 0,
+            stockId = 0,
+            qtyStock = 0;
+        var num = txtNum.value.toInt();
+        // ------------------------------------------------
+        if (!btnPrint.tagPrint.equals("")) {
+            showWarn("您加工的定数包尚未打印定数包标签，请打印。");
+            return false;
+        }
+
+        if (gridview2.dtbViewData.rowCount > 0) {
+            if (!showConfirm("您确定要继续加工新的定数包吗？\n\n请检查已加工的定数包标签是否已全部打印？")) {
+                return false;
+            }
+            packProcessId = 0;
+            wiId = 0;
+        }
+        gridview2.refresh();
+        btnPrint.tagPrint = "";
+        // ------------------------------------------------
+        if (num <= 0) {
+            showWarn("请输入要加工的包数量。");
+            txtNum.select();
+            txtNum.focus();
+            return false;
+        }
+        recordRow = gridview1.recordRow;
+        if (recordRow < 0) {
+            showWarn("请先选择要加工的库存记录。");
+            return;
+        } else {
+            qtyStock = gridview1.dtbViewData.rows[recordRow]["qty"].value;
+            if (qtyStock < materialQty * num) {
+                showWarn("当前选中库存记录数量不足，请检查。");
+                return;
+            }
+        }
+        stockId = gridview1.dtbViewData.rows[recordRow]["stock_id"].value;
+
+        // ------------------------------------------------
+        var numSuccess = 0;
+        for (var i = 0; i < num; i++) {
+            if (g.a.send("processType=h_spd.op.FixedNumPkgProcess&actionType=bindRFID", {
+                    packProcessId: packProcessId,
+                    wiId: wiId,
+                    packTempletId: packTempletId,
+                    materialIdPack: materialIdPack,
+                    packTempletName: packTempletName,
+                    stockId: stockId,
+                    materialId: materialId,
+                    materialQty: materialQty,
+                    processMode: processMode
+                }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+
+                    numSuccess++;
+                    btnPrint.tagPrint = "needPrint";
+                    if (packProcessId == 0) {
+                        packProcessId = cReturn.packProcessId;
+                        wiId = cReturn.wiId;
+                    }
+                } else {
+                    txtNum.select();
+                    txtNum.focus();
+                }
+            }
+        }
+
+        // ------------------------------------------------
+        gridview1.setValue(recordRow, "qty", qtyStock - materialQty * numSuccess);
+        gridview2.setViewFilter("pack_process_id = " + packProcessId);
+        win.flashTitle("定数包加工成功，共 " + num + " 个包");
+        txtNum.value = "";
+        txtNum.focus();
+    }
+</script>

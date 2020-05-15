@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>流程操作定义</title>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js"></script>
+		
+	<script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target="">
+		<table id="tbForm" class="tbForm" style="width:855px;">
+			<tr class="trH">
+				<th style="width:125px;"></th>
+				<th style="width:300px;"></th>
+				<th style="width:125px;"></th>
+				<th style="width:300px;"></th>
+			</tr>
+			<tr>
+				<td>操作标识</td>
+				<td><input id="_cFB_KEY" type="text" value="" /></td>
+				<td>序号</td>
+				<td><input id="_cFb_order" type="text" value="" /></td>
+			</tr>
+			<tr>
+				<td>操作名称</td>
+				<td><input id="_cFb_name" type="text" value="" /></td>
+				<td>提示</td>
+				<td><input id="_cFb_tip" type="text" value="" /></td>
+			</tr>			
+            <tr>
+				<td>权限用户组</td>
+                <td class="combo">
+                    <textarea id="_gGroup_keys" rows="5" cols="0" disabled="disabled"></textarea>
+                    <div class="fa fa-search" onclick="selectGroup();"></div>
+                </td>
+                <td>权限用户</td>
+                <td class="combo">
+                    <textarea id="_gUser_keys" rows="5" cols="0" disabled="disabled"></textarea>
+                    <div class="fa fa-search" onclick="selectUser();"></div>
+                </td>
+			</tr>	
+			<tr>
+				<td>条件SQL</td>
+				<td colspan="3"><input id="_cFb_sql_condition" type="text" value="" title="样例1：astatus = 0  样例2：astatus IN (0,1,2) 样例3：astatus = -1 AND status_receive = 0 特别说明：IN 后面一定要有空格" /></td>
+			</tr>
+			<tr>
+				<td>状态字段</td>
+				<td><input id="_cFb_field_status" type="text" value="" /></td>
+				<td>状态值</td>
+				<td><input id="_cFb_status_value" type="text" value="" /></td>
+			</tr>
+			<tr>
+				<td>审核人字段</td>
+				<td><input id="_cFb_field_auditor" type="text" value="" /></td>
+				<td>审核日期字段</td>
+				<td><input id="_cFb_field_adate" type="text" value="" /></td>
+			</tr>
+			<tr>
+				<td>批注字段</td>
+				<td><input id="_cFb_field_note" type="text" value="" /></td>
+				<td>是否移除</td>
+				<td><input id="_cFb_remove_option" type="checkbox" /></td>
+			</tr>
+			<tr>
+				<td>停用</td>
+				<td><input id="_cFb_inactive" type="checkbox" /><label for="_cFb_inactive">暂停使用</label></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+		<input type="hidden" id="_cFLOW_KEY" value="" />
+	</form>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var frmParent = null;
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		frmParent = win.parentWindow.frm;
+		vf.css(gId("tbForm"));
+	}
+</script>
+<!-- vf.events -->
+<script type="text/javascript">
+	vf.beforeSave = function () {
+		// -- xTFS：判断是否已签出 ------------------------
+		if (g.a.send("processType=com.xtfs.XtfsCore&actionType=getMDataStatus", { mdataType: "flow", mdataKey: frm._cFLOW_KEY.value }, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				if (!cReturn.newMData && !cReturn.myCheckout) {
+					showWarn("主数据尚未签出，同步xTFS时修改会丢失，请谨慎操作。");
+				}
+			}
+		}
+		// ------------------------------------------------
+        if (frm._cFb_sql_condition.value.toUpperCase().indexOf(" IN(")) {
+            showMsg("注意：关键字 IN 后面要加空格。");
+        }
+		return true;
+	}
+
+    vf.afterAddnew = function () {
+        frm._cFLOW_KEY.value = frmParent._cFLOW_KEY.value;
+        if (!vf.copyAdd) {
+            frm._cFb_remove_option.checked = true;
+        }
+    }
+</script>
+
+<!-- acl -->
+<script type="text/javascript">
+    function selectGroup() {
+        var jsonProp = {
+            title: "请选择用户组...",
+            parent: win,
+            modal: true,
+            url: g.appPath + "project/xpas/html/flow/group_select.html"
+        }
+        var jsonPara = {
+            groupKeys: frm._gGroup_keys.value,
+            callback: onGroupSelect
+        };
+
+        topWin.openWindow(jsonProp, jsonPara);
+    }
+    function onGroupSelect(para) {
+        var flowKey = frm._cFLOW_KEY.value;
+        var fbKey = frm._cFB_KEY.value;
+        var groupKeys = para.groupKeys;
+
+        // ------------------------------------------------
+        if (g.a.send("processType=com.system.flow.FlowAcl&actionType=setFlowButtonGroup", { flowKey: flowKey, fbKey: fbKey, groupKeys: groupKeys }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                frm._gGroup_keys.value = groupKeys;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function selectUser() {
+        var jsonProp = {
+            title: "请选择用户组...",
+            parent: win,
+            modal: true,
+            url: g.appPath + "project/xpas/html/flow/user_select.html"
+        }
+        var jsonPara = {
+            userKeys: frm._gUser_keys.value,
+            callback: onUserSelect
+        };
+
+        topWin.openWindow(jsonProp, jsonPara);
+    }
+    function onUserSelect(para) {
+        var flowKey = frm._cFLOW_KEY.value;
+        var fbKey = frm._cFB_KEY.value;
+        var userKeys = para.userKeys;
+
+        // ------------------------------------------------
+        if (g.a.send("processType=com.system.flow.FlowAcl&actionType=setFlowButtonUser", { flowKey: flowKey, fbKey: fbKey, userKeys: userKeys }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                frm._gUser_keys.value = userKeys;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

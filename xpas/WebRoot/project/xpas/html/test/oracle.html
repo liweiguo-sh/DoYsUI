@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>空白窗口</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+        #divMessage {
+            width: 350px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+	<div id="divButton" class="divButtons">
+		<input type="button" id="btnConnect" onclick="btnConnect_click();" value="连接到ORACLE数据库" />
+		<input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+	</div>
+	<div class="PanelA">
+		<div id="divMessage"></div>
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript"> 
+    var divMessage = gId("divMessage");
+	// ------------------------------------------------------------------------
+    function formLoad() { 
+
+	}
+
+	function btnClose_click() {
+		win.close();
+	}
+</script>
+
+<!-- test -->
+<script type="text/javascript">
+    function btnConnect_click() {
+        if (g.a.send("processType=com.sample.Oracle&actionType=oraConnect", {}, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var sysdate = cReturn.sysdate;
+
+                divMessage.innerHTML = "ORACLE数据库连接测试成功。<br />" + sysdate;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

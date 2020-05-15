@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>样例界面</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+    <h1>SPD耗材登记示例页面</h1>
+	<div id="divButton" class="divButtons">
+        条码：<input type="text" id="txtSN" placeholder="测试样例：SN中包含字母A，即可登记使用成功" style="width:300px;height:32px;"  />
+        <br /><br />
+		<input type="button" id="btnTest" onclick="btnTest_click();" value="耗材登记" />
+	</div>
+    <br />
+	<div id="divResult" class="PanelA">		
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	// ------------------------------------------------------------------------
+	function formLoad() {
+	}
+
+    function btnTest_click() {
+        var divResult = gId("divResult");
+        var para = {
+            //userKeyMD5: "91f8e2d1a877cd9b83d595f8a8eb1d55",
+            //passwordMD5: "8e64da784be6b008c823dee0af7b6972",
+            //station: "工位一"
+        };
+
+        para.userKeyMD5 = urlPara["userKeyMD5"];
+        para.passwordMD5 = urlPara["passwordMD5"];
+        para.sn = gId("txtSN").value;
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.example.ForCSharpInvoke&actionType=matrUseBySN", para, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var result = cReturn.result;
+
+                divResult.innerHTML = result;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

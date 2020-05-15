@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>耗材一般信息维护</title>
+	<script src="../../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../../res/jscript/xwf.const.js"></script> 
+		
+	<script src="../../../../../res/control/uvform/xwf.uvform.js"></script>
+
+	<script src="../../../../../res/jscript/xwf.css.js"></script>
+
+    <script src="../../../js/matr_barcode_parse.js"></script>
+
+	<style type="text/css">
+	    body {
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<div id="divDC"></div>
+    <div class="PanelA">
+	    <form id="frm" action="" target="h_spd.base_data.matr.VIEW_matrModify"> 
+		    <table id="tbForm" class="tbForm" style="width:960px;">
+			    <tr class="trH">
+				    <th style="width:12%;"></th>
+				    <th style="width:20%;"></th>
+				    <th style="width:12%;"></th>
+				    <th style="width:20%;"></th>
+					<th style="width:12%;"></th>
+				    <th style="width:24%;"></th>
+			    </tr>
+			    <tr>				
+				    <td>品名</td>
+				    <td colspan="3"><input type="text" id="_cMaterial_name" disabled="disabled" /></td>
+				    <td>GTIN</td>
+					<td><input type="text" id="_cMaterial_gtin" /></td>
+			    </tr>
+				<tr>
+                    <td>品规</td>
+				    <td colspan="3"><input type="text" id="_cMaterial_spec" disabled="disabled" /></td>
+					<td>单位</td>
+                    <td><input id="_cMaterial_unit" type="text" controlType="dropdown" fieldValue="package_unit" fieldText="package_unit" visibleSearch="true" pageMaxRows="6" /></td>							
+			    </tr>
+				<tr>
+					<td>生产厂商</td>
+                    <td colspan="3"><input id="_cManufacturer_id" type="text" controlType="dropdown" fieldValue="manufacturer_id" fieldText="manufacturer_name" fieldsSearch="manufacturer_name" pageMaxRows="5" /></td>										
+					<td>注册证号</td>
+                    <td><input type="text" id="_cRegister_official_no" /></td>					
+				</tr>
+				<tr>
+                    <td>中标号</td>
+				    <td><input type="text" id="_cMaterial_bid_no" /></td>	
+					<td>设备科状态</td>
+                    <td><input type="checkbox" id="_cMaterial_inactive" /><label for="_cMaterial_inactive">已禁用(不同步)</label></td>
+					<td>注册证效期</td>
+                    <td><input type="text" id="_cRegister_offical_expired_date" class="Wdate" onclick="WdatePicker()" /></td>
+				</tr>
+			    <tr>
+				    <td>备注</td>
+				    <td colspan="5"><textarea id="_cMaterial_remark" rows="5" cols="0"></textarea></td>
+			    </tr>
+		    </table>		
+		    <input id="_cMATERIAL_ID" type="hidden" />
+	    </form>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+    var txtGtin = gId("_cMaterial_gtin");
+	// ------------------------------------------------------------------------
+	function formLoad() {
+        vf.addExtraButton({ key: "updateHistoryData", text: "更新业务数据(含历史数据)" , title: "更新所有关联业务数据，包括历史业务数据"});
+		vf.css(gId("tbForm"));
+
+        g.x.bindEnterEvent(txtGtin, onGtinEnter);
+    }
+</script>
+
+<!-- vf.events -->
+<script>
+    vf.beforeSave = function () {
+		return true;
+	}
+
+	vf.afterMove = function () {
+		txtGtin.tag = "";
+	}
+
+	vf.beforeClick = function (prop) {
+		var btnKey = prop.buttonKey;
+		var materialId = frm._cMATERIAL_ID.value.toInt();
+
+		if (vf.checkNeedSave()) {
+			if (!vf.save()) {
+				return false;
+			}
+		}
+
+		if (btnKey.equals("updateHistoryData")) {
+			if (g.a.send("processType=h_spd.base_data.matr.VIEW_matrModify&actionType=updateHistoryData", { viewKey: "matr_modify", materialId: materialId }, true)) {
+				if (g.a.OK) {
+					showMsg("当前操作成功。");
+				}
+				else {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+
+		}
+		return false;
+	}
+</script>
+
+<!-- GTIN -->
+<script>
+	function onGtinEnter() {
+		var gtin = "", codeType = "";
+		var code = txtGtin.value.trim();
+
+		// ------------------------------------------------
+		try {
+			if (code.equals("")) return;
+
+			codeType = mbp.getBarcodeType(code);
+			if (codeType.equals("GTIN")) {
+				gtin = mbp.getGtin(code);
+
+				txtGtin.tag = gtin;
+				txtGtin.value = gtin;
+			}
+		}
+		catch (e) {
+			win.flashTitle(e.toString());
+		}
+
+		if (txtGtin.tag) {
+            txtGtin.value = txtGtin.tag;
+		}
+
+		setTimeout(function () { txtGtin.select(); }, 100);
+	}
+</script>

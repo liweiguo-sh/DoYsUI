@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>微信安全支付</title>
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<style type="text/css">
+		body {
+			background-color: #F7F7F7;
+			-webkit-appearance: none;
+		}
+		.tbLayout {
+			width: 100%;
+			table-layout: fixed;
+			border-collapse: collapse;
+			background-color: White;
+		}
+		.tbLayout td {
+			padding: 5px;
+			font-size: 14pt;
+			overflow: hidden;
+			border: dotted 0px Green;
+			line-height: 30px;
+		}		
+		
+		#divPaymentNo {
+			font-weight: bold;
+		}		
+
+		#spanPrice {
+			color: Red;
+			font-weight: bold;
+		}
+
+		#divWeixin {
+			color: White;
+			font-size: 16pt;
+			line-height: 40px;
+			text-align: center;			
+			margin: 10px 0px 10px 0px;
+			background-color: #68AD05;
+			border-radius: 4px;
+		}
+		#divMessage {
+			margin: 10px;
+		}
+	</style>
+</head>
+<body onload="formLoad();">
+	<table class="tbLayout">
+		<tr>
+			<th style="width:38%;"></th>
+			<th></th>
+		</tr>
+		<tr>
+			<td >支付单号：</td>
+			<td><div id="divPaymentNo"></div></td>
+		</tr>
+		<tr>
+			<td>支付金额：</td>
+			<td><span id="spanPrice"></span></td>
+		</tr>
+		<tr>
+			<td>支付项目：</td>
+			<td><span id="spanStage"></span></td>
+		</tr>
+	</table>	
+	<div id="divWeixin" onclick="weixinPay();" style="display:none;">点击支付</div>
+	<div id="divMessage"></div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var urlPara = getUrlPara();
+
+	var divMessage = gId("divMessage");
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		var paymentNo = "<span style='color:Blue;'>" + urlPara.poKey.substring(0, 2) + "</span> "
+					  + "<span style='color:Black;'>" + urlPara.poKey.substring(2, 5) + "</span> "
+					  + "<span style='color:Black;'>" + urlPara.poKey.substring(5, 8) + "</span> "
+					  + "<span style='color:Green;'>" + urlPara.poKey.substring(9) + "</span>";
+
+		gId("divPaymentNo").innerHTML = paymentNo;
+		gId("spanPrice").innerHTML = urlPara.poPaymentPrice + "元";
+		gId("spanStage").innerHTML = urlPara.poPaymentStage;
+
+		writeLog("支付请求中, 请稍等...");
+		setTimeout("weixinPay()", 100);
+	}
+
+	function writeLog(strLog, blClear) {
+		if (blClear) {
+			divMessage.innerHTML = "";
+		}
+		divMessage.innerHTML += "<br /><br />" + strLog;
+	}
+</script>
+
+<!-- weixinPay -->
+<script type="text/javascript">
+	function weixinPay() {
+		if (typeof WeixinJSBridge == "undefined") {
+			try {
+				if (document.addEventListener) {
+					document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
+				}
+				else if (document.attachEvent) {
+					document.attachEvent('WeixinJSBridgeReady', jsApiCall);
+					document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
+				}
+			}
+			catch (e) {
+				writeLog(e.toString());
+			}
+			gId("divWeixin").style.display = "";
+		}
+		else {
+			if (g.a.send("processType=dmp.payment.WxPay&actionType=createUnifiedOrder", { poPaymentNo: urlPara.poPaymentNo, poPaymentPrice: 100*urlPara.poPaymentPrice, poPaymentDesc: urlPara.poPaymentDesc }, true)) {
+				if (g.a.OK) {
+					var cReturn = g.a.cReturn;
+					var json = {
+						appId: cReturn.appId,
+						package: cReturn.package,
+						nonceStr: cReturn.nonceStr,
+						timeStamp: cReturn.timeStamp,
+						signType: "MD5",
+						paySign: cReturn.paySign
+					};
+					WeixinJSBridge.invoke('getBrandWCPayRequest', json, callbackPay);
+				}
+				else {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+	}
+
+	function callbackPay(res) {
+		WeixinJSBridge.log(res.err_msg);
+		if (res.err_msg.equals("get_brand_wcpay_request:ok")) {
+			divMessage.innerHTML = "";
+			if (urlPara.successUrl) {
+				window.location = urlPara.successUrl;
+			}
+			else {
+				writeLog("支付成功。", true);
+			}
+			return;
+		}
+		else if (res.err_msg.equals("get_brand_wcpay_request:cancel")) {
+			writeLog("用户取消支付.", true);
+			gId("divWeixin").style.display = "";
+		}
+		else {
+			writeLog(res.err_code + "<br />" + res.err_desc + "<br />" + res.err_msg);
+			gId("divWeixin").style.display = "";
+		}
+	}
+</script>

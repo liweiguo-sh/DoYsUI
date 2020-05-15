@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>我的产品信息</title>
+    <link href="../../../../res_plugin/bootstrap3.7/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../../../../res_plugin/bootstrap3.7/bootstrap-table/css/bootstrap-table.css" rel="stylesheet" type="text/css" />
+
+    <script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/bootstrap-table/js/bootstrap-table.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/bootstrap-table/js/bootstrap-table-local-zh-CN.js" type="text/javascript"></script>
+    <script src="../../js/rstodata.js" type="text/javascript"></script>
+
+    <!-- 日期选择 -->
+    <link href="../../../../res_plugin/bootstrap3.7/dtpicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+    <script src="../../../../res_plugin/bootstrap3.7/dtpicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/bootstrap3.7/dtpicker/js/locales/bootstrap-datetimepicker.zh-CN.js" type="text/javascript"></script>
+
+
+    <!--系统框架引用 -->
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    <script src="../../../../res/control/window/xwf.window.js" type="text/javascript"></script>
+    <script src="../../../../res/control/upload/xwf.upload.js" type="text/javascript"></script>
+    <script src="../../js/rstodata.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        body {
+            background-color: lightGray;
+        }
+
+        .self-panel-main {
+            border: 1px solid lightGray;
+            width: 80%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: White;
+            box-shadow: 3px 3px 3px #7F8C8D;
+            padding: 80px;
+        }
+
+        h5 {
+            color: #7F8C8D;
+        }
+
+        th {
+            background-color: #3498DB;
+            color: White;
+            font-size: 0.9em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container self-panel-main" id="div1" style="">
+
+
+        <div class="row">
+            <!--第3行-->
+            <div id="toolbar">
+                
+               
+                <table>
+                    <tr>
+                        <td>创建日期从</td>
+                        <td><input class="form-control" size="16" type="text" id="startDate" onclick="WdatePicker()" /></td>
+                        <td>
+                            至
+                        </td>
+                        <td><input class="form-control" size="16" type="text" id="endDate" onclick="WdatePicker()" /></td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;<button id="btnLoad" class="btn btn-success" onclick="synchronizeOutline();">导出耗材数据</button></td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="" id="filearea" style="display:none">右击保存文件</a></td>
+                    </tr>
+                </table>
+            </div>
+            <table id="tbMatrCertDocs" data-toggle="table" data-toolbar="#toolbar" data-height="600"
+                   data-sort-name="cert_name"
+                   data-sort-order="desc"
+                   data-pagination="true"
+                   data-search="true"
+                   data-page-size="10"
+                   data-page-list="[10,20,30]"
+                   kk_data-url="../json/data1.json">
+                <thead>
+                    <tr>
+                        <th style="width:10%" data-field="no">序</th>
+                        <th style="width:20%" data-field="matr_name" data-sortable="true">产品名称</th>
+                        <th style="width:20%" data-field="matr_spec">规格</th>
+                        <th style="width:10%" data-field="matr_dosage">剂型</th>
+                        <th style="width:5%" data-field="matr_unit">单位</th>
+                        <th style="width:10%" data-field="creator">创建者</th>
+                        <th style="width:15%" data-field="cdate" data-sortable="true">创建时间</th>
+                        <th style="width:10%" data-field="operate">操作</th>
+                    </tr>
+                </thead>
+            </table>
+        </div><!--第3行.结束-->
+
+        <h5 class="step-title">
+            * 注：SPD系统无法连接外网情况下，通过首营平台把耗材、供应商信息导出，在SPD系统进行导入，实现数据同步。
+        </h5>
+        <br />
+    </div>
+
+</body>
+
+</html>
+<script type="text/javascript">
+    var $table = $('#tbMatrCertDocs'),
+        $button = $('#btnLoad');
+    var companys = "";
+    var coms;
+    var comrs = "";
+    var matcertrs = "";
+
+    $(function () {
+        editdata();
+    });
+
+
+
+    //导出耗材数据
+    function synchronizeOutline() {
+        if (matcertrs.rowCount == 0) {
+            alert("暂无同步数据！");
+            return;
+        }
+        var startDate = $("#startDate").val();
+        var endDate = $("#endDate").val();
+        if (startDate == null || "".equals(startDate)) {
+            alert("请选择开始时间！");
+            return;
+        }
+
+        if (g.a.send("processType=g_mshare.base.certMaterial&actionType=exportSynchronizedProduct", { "viewKey": "v_material",startDate: startDate,endDate: endDate }, true)) {
+            var c = g.a.cReturn;
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var urlFile = c.urlFile;
+                //showMsg("导出功能，右击按钮保存！");
+                var filepath = "../../../../res_run/xpas/" + urlFile;
+                $('#filearea').attr('href', filepath);
+                $("#filearea").show();
+                funDownload(filepath);
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    function funDownload(url) {
+        var a = window.open(url, "_blank", "width=0, height=0,status=0");
+        a.document.execCommand("SaveAs");
+        a.close();
+    };
+
+    function editdata() {
+        if (g.a.send("processType=g_mshare.base.certMaterial&actionType=getSynchronizedProduct", { "viewKey": "receive" }, true)) {
+            if (g.a.OK) {
+                comrs = g.a.cReturn.comrs
+                matcertrs = g.a.cReturn.matrrs
+                fillcom(comrs);
+                fillmatr(matcertrs);
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    function fillcom(rs) {
+
+    }
+
+    function fillmatr(rs) {
+
+        for (var i = 0; i < rs.rowCount; i++) {
+            companys += rs.rows[i]['company_id_from'].value + ",";
+            rs.rows[i]['operate'].value = " <i class='fa fa-wrench' style='color:#2980B9;cursor:pointer' ><span onclick='edit(" + rs.rows[i]['matr_id'].value + "," + rs.rows[i]['my_matr_id'].value + "," + i + ")'>查看</span></i>";
+            if (rs.rows[i]['martfrom'].value.equals("自有")) {
+                rs.rows[i]['matr_name'].value = "<span class='badge badge-success' style='background-color:green'>自有</span>&nbsp;&nbsp;" + rs.rows[i]['matr_name'].value;
+            } else {
+                rs.rows[i]['matr_name'].value = "<span class='badge badge-success' style='background-color:red'>外来</span>&nbsp;&nbsp;" + rs.rows[i]['matr_name'].value;
+            }
+
+        }
+        coms = companys.split(",");
+        var rows = todatatable(rs);
+        $table.bootstrapTable('load', rows);
+    }
+
+
+
+    function del(index) {
+        if (confirm("确认删除吗？") == true) {
+            if (g.a.send("processType=g_mshare.base.certMaterial&actionType=deleMatr", { my_matr_id: index, "viewKey": "receive" }, true)) {
+                if (g.a.OK) {
+                    var cReturn = g.a.cReturn;
+                    editdata();
+                }
+                else {
+                    return false;
+                }
+            }
+        } else {
+        }
+    }
+    function edit(index, index1, i) {
+        var para = {
+            flowKey: "",
+            viewKey: "v_material",
+            isAddnew: false,
+            primaryKey: "matr_id," + index,
+            my_matr_id: "mmi," + index1,
+            company_id_from: coms[i],
+            callback: callback
+
+        };
+        var prop = {
+            text: "同步的产品",
+            url: g.appPath + "project/g_mshare/html/base/product_js.html"
+        };
+
+        top.topWin.openFullWindow(prop, para);
+
+    }
+
+    function callback() {
+        editdata();
+    }
+</script>

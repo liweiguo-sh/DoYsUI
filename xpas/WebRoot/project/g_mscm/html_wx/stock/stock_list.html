@@ -1,0 +1,330 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>库存列表窗口</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript_mobile/xmf.wx_css.js"></script>
+    <link rel="stylesheet" href="../../css/common.css">
+    <script src="../../js/g_mscm_wechat.js"></script>
+    <style>
+        #tab {
+            box-shadow: 0px 1px 4px 0px #e6e6e6;
+        }
+        .filter-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 70px;
+            height: 52px;
+            line-height: 52px;
+            font-size: 18px;
+            color: #5eadd4;
+            text-align: center;
+        }
+        .container {
+            top: 52px;
+            height: calc(100% - 72px);
+        }
+        .list {
+            position: relative;
+            border-bottom: solid 1px #e8e8e8;
+            margin: 0 10px 0 15px;
+            padding: 10px 20px 10px 0;
+            box-sizing: border-box;
+        }
+        .list:last-child {
+            border-bottom: solid 0 #e8e8e8;
+        }
+        .list::after {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            content: "";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: url("../../images/weixin/next.png") no-repeat;
+            background-size: cover;
+            transform: translateY(-8px);
+        }
+        .list-title,
+        .list-sub {
+            display: flex;
+            justify-content: space-between;
+        }
+        .list-title {
+            font-size: 18px;
+            color: #0a0a0a;
+        }
+        .list-title .title-key {
+            min-width: 68px;
+        }
+        .list-sub {
+            font-size: 16px;
+            color: #b9bdc0;
+            padding-top: 4px;
+            box-sizing: border-box;
+        }
+        #filter {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+        }
+        #filter .shadow-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            opacity: .5;
+        }
+        #filter .filter-container {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            width: 100%;
+            height: auto;
+            background: #f8f8f8;
+        }
+        .filter-content {
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .content-title {
+            color: #545454;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .content-main::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+        .option-item {
+            float: left;
+            width: 92px;
+            height: 32px;
+            line-height: 32px;
+            background: #fff;
+            border: solid 1px #dedede;
+            border-radius: 4px;
+            color: #696d6e;
+            font-size: 14px;
+            margin: 0 15px 10px 0;
+            text-align: center;
+        }
+        .option-item.active {
+            border: solid 1px #00a3ac;
+            color: #00a3ac;
+        }
+        .matr-input {
+            width: 320px;
+            height: 30px;
+            text-indent: 10px;
+            border: solid 1px #00a3ac;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .filter-footer {
+            width: 100%;
+            height: auto;
+            background: #f3f3f3;
+            padding: 14px 0;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-around;
+        }
+        .reset,
+        .submit {
+            width: 120px;
+            height: 38px;
+            line-height: 38px;
+            border-radius: 4px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .reset {
+            border: solid 1px #dedede;
+            background: #fff;
+            color: #696d6e;
+        }
+        .submit {
+            background: #00a3ac;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <nav id="tab">
+        <span class="back" onclick="win.close();"></span>
+        <div class="tab-title">库存列表</div>
+        <span class="filter-btn">筛选</span>
+    </nav>
+    <div id="filter">
+        <div class="shadow-bg"></div>
+        <div class="filter-container">
+            <div class="filter-content">
+                <div class="content-item">
+                    <div class="content-title">品名</div>
+                    <div class="content-main matr-main">
+                        <input type="text" class="matr-input" placeholder="请输入所要查询的品名" />
+                    </div>
+                </div>
+            </div>
+            <div class="filter-footer">
+                <div class="reset">重置</div>
+                <div class="submit">确定</div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div class="container" id="container"></div>
+    </div>
+    <div id="empty-data">
+        <div class="empty-assist"></div>
+        <div class="empty-content">暂无数据</div>
+    </div>
+    <div class="toast toast-loading">
+        <div class="spinner">
+            <div class="spinner-container container1">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container2">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container3">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+        </div>
+        <div class="toast-content">加载中...</div>
+    </div>
+    <div class="toast toast-error">
+        <div class="icon-error"></div>
+        <div class="toast-content">请求失败</div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var stockList = {};
+    stockList.init = function () {
+        var matrValue = "";
+        var obj = {
+            matrValue: matrValue
+        };
+        stockList.getStock(obj);
+    }
+
+    // 获取库存数据
+    stockList.getStock = function (obj) {
+        // 加载中...
+        $('.toast-loading').show();
+        if (g.a.send("processType=g_mscm.weixin.BillSp&actionType=getStock", obj, true)) {
+            if (g.a.OK) {
+                var stock = g.a.cReturn.stock;
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                if (stock.rowCount) {
+                    $('#empty-data').hide().siblings('#main').find('.container').html('').show();
+                    var array = getArray(stock);
+                    var listDom = "";
+                    var conDom = document.getElementById('container');
+                    conDom.innerHTML = "";
+                    for(var j in array) {
+                        listDom += '<div class="list">'
+                                        +'<div class="list-title">'
+                                            +'<div class="title-key">品名</div>'
+                                            +'<div class="title-name">'+ array[j]["matr_name"] +'</div>'
+                                        +'</div>'
+                                        +'<div class="list-sub">'
+                                            +'<div class="sub-key">数量</div>'
+                                            +'<div class="sub-value">'+ array[j]["matr_name_qty"] +'</div>'
+                                        +'</div>'
+                                    +'</div>';
+                    }
+                    conDom.innerHTML = listDom;
+                    // 库存列表点击事件
+                    $('.list').on('click', function() {
+                        var index = $(this).index();
+                        var prop = {
+                            url: "stock/stock.html"
+                        };
+                        var para = array[index]['matr_name'];
+                        topWin.openFullWindow(prop, para);
+                    });
+                } else {
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }
+            } else {
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                $('.toast-error').show();
+                // 请求失败
+                setTimeout(function () {
+                    $('.toast-error').hide();
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }, 2000);
+                return false;
+            }
+        }
+    }
+
+    // 点击筛选按钮
+    $('.filter-btn').on('click', function() {
+        $('#filter').slideToggle();
+        $('.matr-input').val('');
+    });
+
+    // 点击半透明背景，关闭筛选功能
+    $('.shadow-bg').on('click', function() {
+        $('#filter').slideToggle();
+        $('.matr-input').val('');
+    });
+
+    // 点击重置按钮
+    $('.reset').on('click', function() {
+        var matrValue = "";
+        var obj = {
+            matrValue: matrValue
+        };
+        stockList.getStock(obj);
+        $('#filter').slideToggle();
+        $('.matr-input').val('');
+    });
+
+    // 点击确定按钮
+    $('.submit').on('click', function() {
+        var matrValue = $('.matr-input').val();
+        matrValue = trim(matrValue).split(' ');
+        var obj = {
+            matrValue: matrValue
+        };
+        stockList.getStock(obj);
+        $('#filter').slideToggle();
+        $('.matr-input').val('');
+    });
+
+    stockList.init();
+</script>

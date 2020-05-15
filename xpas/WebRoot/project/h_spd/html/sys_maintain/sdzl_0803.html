@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>山东肿瘤_首月数据_对账维护</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script> 		
+
+    <style type="text/css">
+        .tbMain {
+            margin: 16px;
+            border-bottom: dotted 1px blue;
+        }
+            .tbMain td {
+                padding: 5px;
+            }
+        #txtWiKey {
+            height: 24px;
+            line-height: 24px;
+            width: 200px;
+            padding-left: 5px;
+        }
+        #txtApplyDistKey {
+            height: 24px;
+            line-height: 24px;
+            width: 200px;
+            padding-left: 5px;
+        }
+        #divButtons {
+            margin: 24px;
+            border: dotted 1px blue;
+        }
+        #divButtons input[type=button] {
+            margin: 16px;
+            height: 36px;
+            min-width: 120px;            
+        }
+        #divButtons input[type=button]:hover {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+	<div id="divButtons">
+        <table class="tbMain">
+            <tr>
+                <td>入库单号&nbsp</td>
+                <td><input type="text" id="txtWiKey" value2="---RA1907-00058"   disabled="disabled"/> </td>
+            </tr>
+        </table>
+        <input type="button" id="audit_WI" onclick="audit_WI_click('wi');" value="1、入库单过账"  disabled="disabled" />
+
+        <table class="tbMain">
+            <tr>
+                <td>配送单号&nbsp</td>
+                <td><input type="text" id="txtApplyDistKey" value="---TAPD1907-00024" /> </td>
+            </tr>
+        </table>
+        <input type="button" id="relockStockFor_TAPPLY_DIST" onclick="relockStockFor_TAPPLY_DIST_click();" value="2、为配送单重新锁定库存"  disabled="disabled" />
+        <input type="button" id="audit_TAPPLY_DIST" onclick="audit_TAPPLY_DIST_click();" value="3、配送单单过账"   disabled="disabled"/>
+        
+        <input type="button" id="audit_WI" onclick="audit_WI_click('dept');" value="999、科室过账" />
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    // ------------------------------------------------------------------------
+    function formLoad() {
+    	
+    }    
+</script>
+
+<!-- buttons event -->
+<script type="text/javascript">
+    function audit_WI_click(type) {
+    	if (!confirm("是否执行该操作？")) return false;
+        var wiKey = gId("txtWiKey").value.trim();
+        if (g.a.send("processType=h_spd.sys_maintain.sdzl_0803.WebApi&actionType=audit_WI", { wiKey: wiKey,type: type}, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                showMsg("过账入库单操作执行完成，请到数据库中检查数据结果是否正确。");
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function relockStockFor_TAPPLY_DIST_click() {
+    	if (!confirm("是否执行该操作？")) return false;
+        var applyDistKey = gId("txtApplyDistKey").value.trim();
+        if (g.a.send("processType=h_spd.sys_maintain.sdzl_0803.WebApi&actionType=relockStockFor_TAPPLY_DIST", { applyDistKey: applyDistKey }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                showMsg("为配送单重新锁库操作执行完成，请到数据库中检查数据结果是否正确。");
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function audit_TAPPLY_DIST_click() {
+    	if (!confirm("是否执行该操作？")) return false;
+        var applyDistKey = gId("txtApplyDistKey").value.trim();
+        if (g.a.send("processType=h_spd.sys_maintain.sdzl_0803.WebApi&actionType=audit_TAPPLY_DIST", { applyDistKey: applyDistKey }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+
+                showMsg("配送单过账操作执行完成，请到数据库中检查数据结果是否正确。");
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script> 

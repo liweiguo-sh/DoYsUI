@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>空白窗口</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    <script src="../../../../res/control/folding/xwf.folding.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <link href="../../../../res/control/folding/style2/xwf.folding.css" rel="stylesheet"  type="text/css" />
+	<style type="text/css">
+		.divLayout {
+			margin: 30px;
+			border: solid 1px lightGray;
+			height: 300px;
+		}
+	</style>
+</head>
+<body>
+	<div id="divButton" class="divButtons ScreenCenter" style="width:1000px">
+		<input type="button" id="btnSave" onclick="btnSave_click();" value="保存" />
+		<input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
+	</div>
+    <div id="divFolding" style="width:800px" class="ScreenCenter">
+	    <div id="page1" class="divLayout">A</div>
+	    <div id="page2" class="divLayout">
+            <input type="text" id="d2" colcount="3" valuefield="" textfield="" searchfield=""/>
+        </div>
+	    <div id="page3" class="divLayout">
+            <input type="text" id="d1" colcount="3" valuefield="" textfield="" searchfield=""/>
+        </div>
+        <div id="page4" class="divLayout">C</div>
+        <div id="page5" class="divLayout">C</div>
+        <div id="page6" class="divLayout">C</div>
+        <div id="page7" class="divLayout">C</div>
+        <div id="page8" class="divLayout">C</div>
+        <div id="page9" class="divLayout">C</div>
+        <div id="page10" class="divLayout">C</div>
+        
+    </div>
+    <div id="divNaviTree">
+        
+        
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var parentWin = null;
+    var foldingCtl = null;
+	var urlPara = getUrlPara();
+	// ------------------------------------------------------------------------
+	function formLoad() {
+
+	    
+	    if (g.a.send("processType=f_ztsrm.sp.SpJoinOtherAjax&actionType=getSpSource", {}, true)) {
+            if (g.a.OK) {
+        	    var dtbSp = g.a.cReturn.dtbSp;
+
+                var jsonProp = {
+                    dtb: dtbSp,
+                    colCount: 3,
+                    textField: "sp_name",
+                    valueField: "office_id",
+                    searchField: "sp_key,sp_name,office_shortname,office_id"
+                }
+                topWin.dropgrid.bindTextbox(gId("d1"), jsonProp);
+                topWin.dropgrid.bindTextbox(gId("d2"), jsonProp);
+            }
+        }
+        createFolding();
+        
+	}
+	function createFolding() {
+	    foldingCtl = new window.xwf_folding({ 
+            divContainer: gId("divFolding"), 
+            beforeExpand: beforeExpand,
+            foldingClick: foldingClick,
+            showNavigate: true,
+            navContainer: gId("divNaviTree"),
+            navClick: onNavClick,
+            navShowNumber:false,
+            navAlign: "right",
+            navPos:{top:100},
+            imgPath:"../../../../res/control/folding/style2/"
+        });
+	    foldingCtl.addPage({
+	        key: "page1",                          
+	        text: "页面1",
+	        title: "页面1-title",
+	        containerCtl: gId("page1"),          
+	        canExpand: true,                    
+	        expand: true
+	    });
+	    foldingCtl.addPage({
+	        key: "page2",
+	        text: "页面2",
+	        title: "页面2-title",
+	        containerCtl: gId("page2"),
+	        canExpand: false,
+	        expand: true
+	    });
+	    foldingCtl.addPage({
+	        key: "page3",
+	        text: "页面3",
+	        title: "页面3-title",
+	        containerCtl: gId("page3"),
+	        canExpand: true,
+	        expand: false
+	    });
+	    for (var i = 4; i <= 10; i++) {
+	        foldingCtl.addPage({
+	            key: "page"+i,
+	            text: "页面"+i,
+	            title: "页面"+i+"-title",
+	            containerCtl: gId("page"+i),
+	            canExpand: true,
+	            expand: true
+	        });
+	    }
+	    foldingCtl.refreshNavigateTree();
+	}
+	window.onscroll = function () {
+	    var currentScroll = document.documentElement.scrollTop || document.body.scrollTop;
+	    foldingCtl.navigateScroll(currentScroll);
+	};
+	function onNavClick(pageKey) {
+	    showMsg("导航到" + pageKey);
+	}
+	function beforeExpand(page, status) {
+	    return true;
+        if (showConfirm(page.key + "试图" + (status ? "展开" : "收起") + ",是否同意？")) {
+	        return true;
+	    } else {
+	        return false;
+	    }
+	}
+	function foldingClick(page) {
+	    return true;
+        if (page.isFirst) {
+	        showMsg("第一次展开或收起!");
+	    }else if (page.isFirstExpand) {
+	        showMsg("第一次展开!");
+	    }
+	    showMsg(page.key + "已经" + (page.expand ? "展开" : "收起") + "!");
+	}
+	
+
+	function btnClose_click() {
+		win.close();
+	}
+</script>

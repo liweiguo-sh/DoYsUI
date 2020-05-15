@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>资质选择...</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/tree/xwf.tree.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #tbLayout {
+            border-collapse: collapse;
+        }
+
+        .tdLayout {
+            padding: 0px;
+            overflow: hidden;
+            vertical-align: top;
+        }
+
+        #tdLayoutLeft {
+            border-top: solid 1px #c0c0c0;
+            border-left: solid 1px #c0c0c0;
+            border-right: solid 1px #c0c0c0;
+            border-bottom: solid 1px #c0c0c0;
+        }
+
+        #tdLayoutRight {
+            border-top: solid 1px #c0c0c0;
+            border-left: solid 1px #c0c0c0;
+            border-right: solid 1px #c0c0c0;
+            border-bottom: solid 1px #c0c0c0;
+        }
+
+        #divTree {
+            overflow: auto;
+        }
+    </style>
+</head>
+<body scroll="no">
+    <table id="tbLayout">
+        <tr>
+            <td id="tdLayoutLeft" class="tdLayout">
+                <div id="divTree"></div>
+            </td>
+            <td id="tdLayoutRight" class="tdLayout">
+                <div id="divGrid"></div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var tbLayout = gId("tbLayout");
+    var divTree = gId("divTree");
+    var divGrid = gId("divGrid");
+
+    var tree = null;
+    var gridView = null;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        win.addEventListener("beforeClose", beforeClose);
+
+        divTree.style.width = (win.p.width * 0.25) + "px";
+        divTree.style.height = (win.p.height - 2 * tbLayout.offsetTop - divTree.offsetTop) + "px";
+        divGrid.style.width = (win.p.width - 2 * tbLayout.offsetLeft - divTree.offsetWidth) + "px";
+        divGrid.style.height = (win.p.height - 2 * tbLayout.offsetTop - divGrid.offsetTop) + "px";
+
+        initTree();
+    }
+
+    function beforeClose() {
+        // debug("close...");
+    }
+</script>
+
+<!-- 加载分类 -->
+<script type="text/javascript">
+    function initTree() {
+        var rootNodeKey = "";
+        var jsonPara = {
+            divContainer: gId("divTree"),
+            imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+            title: "资质导航",
+            beforeExpand: beforeNodeExpand,
+            nodeClick: onNodeClick
+        };
+        tree = new window.xwf_tree(jsonPara);
+
+        rootNodeKey = "0" + tree.sd + "Q";
+        tree.addNode({ key: rootNodeKey, text: "全部资质", nodeType: "QUICK", typeValue: "ALL" });
+        tree.addNode({ key: rootNodeKey + tree.sd + "COMPANY", text: "企业资质", nodeType: "QUICK", typeValue: "COMPANY" });
+        tree.addNode({ key: rootNodeKey + tree.sd + "CATEGORY", text: "品类资质", nodeType: "QUICK", typeValue: "CATEGORY" });
+        tree.addNode({ key: rootNodeKey + tree.sd + "MATR", text: "耗材资质", nodeType: "QUICK", typeValue: "MATR" });
+        tree.addNode({ key: rootNodeKey + tree.sd + "NONE", text: "无用途资质", nodeType: "QUICK", typeValue: "NONE" });
+        // tree.expand(rootNodeKey);
+
+        rootNodeKey = "0" + tree.sd + "C";
+        tree.addNode({ key: rootNodeKey, text: "品类总节点 (企业资质)", categoryId: 1, nodeType: "CATEGORY" });
+        tree.addNode({ key: rootNodeKey + tree.sd + "loading", text: "loading..." });
+
+        tree.expand("0" + tree.sd + "Q");
+        tree.expand(rootNodeKey);
+        tree.textClick(rootNodeKey);
+    }
+    function beforeNodeExpand(node, firstExpand) {
+        if (!firstExpand) return;
+        tree.removeNode(node.key + tree.sd + "loading");
+
+        if (node.nodeType.equals("QUICK")) {
+
+        }
+        else if (node.nodeType.equals("CATEGORY")) {
+            if (node.lastCategory) {
+                loadMatrNode(node.key, node.categoryId);
+            }
+            else {
+                loadCategoryNode(node.key, node.categoryId);
+            }
+        }
+    }
+
+    function loadCategoryNode(pNodeKey, categoryId) {
+        if (g.a.send("processType=g_mshare.company_data.CertDefine&actionType=getCategoryNodeData", { categoryId: categoryId }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtb = c.dtb;
+                for (var i = 0; i < dtb.rowCount; i++) {
+                    var categoryId = dtb.rows[i]["category_id"].value;
+                    var nodeText = dtb.rows[i]["category_name"].value;
+                    var lastCategory = (dtb.rows[i]["category_is_last_node"].value == 1 ? true : false);
+                    var title = "";
+
+                    if (g.debug) {
+                        title = categoryId + " - " + nodeText;
+                    }
+
+                    tree.addNode({ key: pNodeKey + tree.sd + categoryId, text: nodeText, categoryId: categoryId, title: title, lastCategory: lastCategory, nodeType: "CATEGORY" });
+                    // -- 加载虚拟子节点 ------------------
+                    //if (dtb.rows[i]["category_is_last_node"].value == 0) {
+                    tree.addNode({ key: pNodeKey + tree.sd + categoryId + tree.sd + "loading", text: "loading..." });
+                    //}
+                }
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+    function loadMatrNode(pNodeKey, categoryId) {
+        if (g.a.send("processType=g_mshare.company_data.CertDefine&actionType=getMatrNodeData", { categoryId: categoryId }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtb = c.dtb;
+                for (var i = 0; i < dtb.rowCount; i++) {
+                    var matrId = dtb.rows[i]["matr_id"].value;
+                    var matrName = dtb.rows[i]["matr_name"].value;
+                    var matrSpec = dtb.rows[i]["matr_spec"].value;
+                    var matrText = matrName + " (" + matrSpec + ")";
+                    var title = matrSpec;
+
+                    if (g.debug) {
+                        title = matrId + " - " + matrText;
+                    }
+
+                    tree.addNode({ key: pNodeKey + tree.sd + matrId, text: matrText, matrId: matrId, title: title, nodeType: "MATR" });
+                }
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+
+    function onNodeClick(node) {
+        if (node.nodeType.equals("QUICK")) {
+            if (node.typeValue.equals("ALL")) {
+                gridView.setViewFilter("");
+            }
+            else if (node.typeValue.equals("COMPANY")) {
+                gridView.setViewFilter("cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id = 1)");
+            }
+            else if (node.typeValue.equals("CATEGORY")) {
+                gridView.setViewFilter("cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id <> 1)");
+            }
+            else if (node.typeValue.equals("MATR")) {
+                gridView.setViewFilter("cert_id IN (SELECT cert_id FROM T_CERT_MATR)");
+            }
+            else if (node.typeValue.equals("NONE")) {
+                gridView.setViewFilter("cert_id NOT IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY) AND cert_id NOT IN (SELECT cert_id FROM T_CERT_MATR)");
+            }
+            else {
+                showErr(node.typeValue);
+            }
+        }
+        else if (node.nodeType.equals("CATEGORY")) {
+            if (gridView == null) {
+                var prop = {
+                    divContainer: divGrid,
+                    toolbarVisible: true,
+                    viewKey: "push_cert_select",
+                    viewForm: "project/g_mshare/html/company_data/cert.html",
+                    viewFilter: "cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id = " + node.categoryId + ")",
+                    jsonToolbar: { height: "M", onclick: onToolbarClick }
+                };
+                gridView = new window.xwf_gridview(prop);
+                gridView.beforeAddnew = function () {
+                    if (!tree.selectedNode || tree.selectedNode.quickType) {
+                        showErr("请先选择资质适用的 品类节点 或 耗材节点。");
+                        return false;
+                    }
+                    return true;
+                }
+
+                gridView.toolbar.addBar({ type: "button", key: "select", text: "<i class='fa fa-check'></i>  选择" });
+                gridView.toolbar.addBar({ type: "button", key: "close", text: "<i class='fa fa-close'></i>  关闭", align: "right", style: "Grid", icon: null });
+                // gridView.toolbar.addBar({ type: "button", key: "filter", text: "<i class='fa fa-filter'></i>", align: "right", style: "Grid", icon: null, width: 35 });
+                // gridView.toolbar.addBar({ type: "button", key: "export", text: "<i class='fa fa-share'></i>", align: "right", style: "Grid", icon: null, width: 35 });
+            }
+            else {
+                gridView.setViewFilter("cert_id IN (SELECT cert_id FROM T_CERT_MATR_CATEGORY WHERE matr_category_id = " + node.categoryId + ")");
+            }
+        }
+        else if (node.nodeType.equals("MATR")) {
+            gridView.setViewFilter("cert_id IN (SELECT cert_id FROM T_CERT_MATR WHERE matr_id = " + node.matrId + ")");
+        }
+        else {
+            showErr(node.nodeType);
+        }
+    }    
+</script>
+<!-- 加载分类 -->
+<script type="text/javascript">
+    function onToolbarClick(para) {
+        if (para.key.equals("select")) {
+            var arrIds = new Array();
+            for (var i = 0; i < gridView.dtbViewData.rowCount; i++) {
+                if (gridView.dtbViewData.rows[i].checked) {
+                    arrIds.push(gridView.dtbViewData.rows[i]["cert_id"].value);
+                }
+            }
+            if (arrIds.length == 0) {
+                showErr("请勾选要添加的资质。");
+                return;
+            }
+            
+            gridView.selectAll(false);
+            win.hide();
+            win.para.callback({ certIds: arrIds.join(",") });
+        }
+        else if (para.key.equals("close")) {            
+            gridView.selectAll(false);
+            win.hide();
+        }
+        else {
+            showErr("unknown button " + para.key);
+        }
+    }
+</script>

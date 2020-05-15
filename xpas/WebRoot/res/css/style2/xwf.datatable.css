@@ -1,0 +1,25 @@
+﻿.xwf_dtb_table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    border: solid 2px Gray;
+}
+
+.xwf_dtb_table th, td {
+    border: solid 1px Gray;
+}
+.xwf_dtb_table th {
+    padding: 8px 8px 8px 8px;
+    color: White;
+    background-color: #1E5F55;
+}
+.xwf_dtb_table td {
+    padding: 5px 8px 5px 8px;
+}
+
+/* 行交替色 */
+.xwf_dtb_table_trBgColorA {
+    background-color: White;
+}
+.xwf_dtb_table_trBgColorB {
+    background-color: #EBEBEB;
+}

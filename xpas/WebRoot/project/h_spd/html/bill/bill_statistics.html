@@ -1,0 +1,431 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>科室对账综合查询</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    
+	<script src="../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <script src="./bill_statistics.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/web_print.js"></script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        .tbLayout {
+            border-collapse: collapse;
+        }
+        .tdLayout {
+            vertical-align: top;
+        }
+
+        .tbF {
+            width: 305px;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        .tbF td {
+             padding: 0px;
+             border: solid 0px red;
+             overflow: hidden;
+        }
+        .tdLabel {
+            width: 70px;
+            text-align: right;            
+        }
+        .tbF td input[type=text]{
+             margin: 5px 0px 5px 20px;
+             width: 200px;
+             border: solid 1px ;
+             height: 24px;
+             line-height: 24px;
+        }
+        .tbF td input[type=checkbox] {
+             margin-left: 20px; 
+        }  
+        .tbF td input[type=radio] {
+             margin-left: 20px; 
+        } 
+        .tbF td input[type=button] {
+            font-size: 12pt;
+            border: 0px;
+            width: 200px;
+            height: 36px;
+            background-color: #3280FA;
+            color: white;
+            border-radius: 4px;
+            margin: 5px 0px 5px 20px;
+        }
+        .tbF td input[type=button]:hover {
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div id="divPanelA" class="PanelA">	
+    <table class="tbLayout">
+        <tr>
+            <td id="tdLayoutL" class="tdLayout">                
+                <table id="tbF" class="tbF">
+                    <tr>
+                        <td class="tdLabel">科室</td>
+                        <td><input type="text" id="txtDept" /></td>
+                    </tr>
+                    <tr id="trStorage">
+                        <td class="tdLabel">库存地</td>
+                        <td><input type="text" id="txtStorage" /></td>
+                    </tr>
+                    <tr>
+                        <td class="tdLabel">起始日期</td>
+                        <td><input type="text" id="txtDateFrom" class="Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" /></td>                           
+                    </tr>
+                    <tr>
+                        <td class="tdLabel">截止日期</td>
+                        <td><input type="text" id="txtDateTo" class="Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" /></td>                           
+                    </tr>
+                    <tr>
+                        <td colspan="2">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="tdLabel">来源</td>
+                        <td>
+                            <input type="checkbox" id="chkDist" /><label for="chkDist">科室配送</label><br />
+                            <input type="checkbox" id="chkUse"  /><label for="chkUse" >科室消耗</label><br />
+                            <input type="checkbox" id="chkHis"  /><label for="chkHis" >HIS消耗</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="tdLabel">统计类型</td>
+                        <td>
+                            <input type="radio" name="statisticsMode" id="radioSum" value="sum" checked="" /><label for="radioSum">汇总</label>
+                            <input type="radio" name="statisticsMode" id="radioDtl" value="dtl" checked="checked" /><label for="radioDtl">明细</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">&nbsp;</td>
+                    </tr>
+                    <tr>                             
+                        <td></td>
+                        <td><input type="button" id="btnQuery" class="btn" value="查&nbsp;&nbsp;&nbsp;&nbsp;询" onclick="btnQuery_click();" /></td>
+                    </tr>
+                    <tr>                             
+                        <td></td>
+                        <td><input type="button" id="btnPrint" class="btn" value="打&nbsp;&nbsp;&nbsp;&nbsp;印" onclick="btnPrint_click();" /></td>
+                    </tr>
+                    <tr>                             
+                        <td></td>
+                        <td><input type="button" id="btnClose" class="btn" value="关&nbsp;&nbsp;&nbsp;&nbsp;闭" onclick="btnClose_click();" /></td>
+                    </tr>
+                </table>              
+            </td>
+            <td id="tdLayoutR" class="tdLayout"> 
+                <div id="divGrid"></div>
+            </td>
+        </tr>
+    </table>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript"> 
+    var userType = urlPara["userType"] || "";   // -- op：运营用户；dept：科室用户 --
+
+    var deptIds = "";
+    var storageId = 0;
+    var dateFrom = "", dateTo = "";
+    var sourceDist = 0, sourceUse = 0, sourceHis = 0;
+    var statisticsMode = 0;                     // -- 0：明细查询；1：汇总查询 --
+
+    var txtDept = gId("txtDept");
+    var txtStorage = gId("txtStorage");
+    var divGrid = gId("divGrid");
+
+    var gridview = null;
+	// ------------------------------------------------------------------------
+    function formLoad() { 
+        formResize();
+
+        gId("txtDateFrom").value = (new Date()).toString();
+        gId("txtDateTo").value = (new Date()).toString();
+
+        gId("trStorage").style.display = "none";
+
+        initData();
+        btnQuery_click();
+    }
+
+    function formResize() {
+        divGrid.style.width = (gId("divPanelA").clientWidth - gId("tdLayoutL").clientWidth - 25) + "px";
+        divGrid.style.height = (win.p.maxHeight -15) + "px";
+    }
+	function btnClose_click() {
+		win.close();
+	}
+</script>
+
+<!-- initData -->
+<script type="text/javascript">
+    function initData() {
+        if (g.a.send("processType=h_spd.bill.BillStatistics&actionType=getInitData", { userType: userType}, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbDept = cReturn.dtbDept;
+                var dtbStorage = cReturn.dtbStorage;
+
+                var jsonProp = {
+                    txtHost: txtDept,
+                    dtbSource: dtbDept,
+                    visibleSN: false,
+                    fieldValue: "dept_id",
+                    fieldText: "dept_name",
+                    fieldsVisible: "dept_name",
+                    fieldsSearch: "dept_name",
+                    pageMaxRows: 12,
+                    rowClick: onRowClick_Dept
+                };
+                txtDept.dropdown = new window.xwf_dropdown(jsonProp);
+                txtDept.setValue(topWin.officeId);
+
+                var jsonProp = {
+                    txtHost: txtStorage,
+                    dtbSource: dtbStorage,
+                    visibleSN: false,
+                    fieldValue: "storage_id",
+                    fieldText: "storage_name",
+                    fieldsVisible: "storage_name",
+                    fieldsSearch: "storage_name",
+                    pageMaxRows: 12,
+                    rowClick: null
+                };
+                txtStorage.dropdown = new window.xwf_dropdown(jsonProp);
+                if (topWin.stationStorageId) {
+                    txtStorage.setValue(topWin.stationStorageId);
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function onRowClick_Dept(para) {
+        var dataRow = para.dataRow;
+        return true;
+    }
+</script>
+<!-- gridview -->
+<script type="text/javascript">
+    function showGridSum(viewFilter) {
+        var prop = {
+            divContainer: divGrid,
+            viewKey: "bill_statistics_sum_for_dept",
+            viewFilter: viewFilter
+        };
+        gridview = new window.xwf_gridview(prop);
+    }
+    function showGridDtl(viewFilter) { 
+        var prop = {
+            divContainer: divGrid,
+            viewKey: "bill_statistics_dtl_for_dept",
+            viewFilter: viewFilter
+        };
+        gridview = new window.xwf_gridview(prop);
+    }
+
+    function viewExtraButtonClick(para) {
+        var viewKey = para.viewKey;
+        var btnKey = para.btnKey;
+        var dataRow = para.drViewData;
+
+        var billSpId = dataRow["bill_sp_id"].value;
+        var sourceType = dataRow["source_type"].value;
+        // ------------------------------------------------
+        if (viewKey.equals("bill_statistics_dtl_for_dept")) {
+            if (btnKey.equals("bill_info")) {
+                if (sourceType.equals("HIS")) {
+                    showWarn("来源为HIS，请根据单据备注到HIS中查看详情。");
+                    return;
+                }
+                if (g.a.send("processType=h_spd.bill.BillStatistics&actionType=getBusFormByBillSp", { billSpId: billSpId}, true)) {
+                    if (g.a.OK) {
+                        var cReturn = g.a.cReturn;
+                        var formKey = cReturn.formKey;
+
+                        if (formKey.equals("THD_DIST")) {
+                            showDist(cReturn.distId, cReturn.distType);
+                        }
+                        else if (formKey.equals("THD_USE")) {
+                            showUse(cReturn.useId);
+                        }
+                        else if (formKey.equals("TDEPT_BILL")) {
+                            // -- 旧程序（病人消耗记帐）产生的数据 --
+                            showTDeptBill(cReturn.tdeptBillId);
+                        }
+                        else {
+                            showWarn("暂未实现的业务单据类型 (formKey = " + formKey + "), 有待进一步完善.");
+                        }
+                    }
+                }
+            }
+            else {
+                showMsg("debug here")
+            }
+        }
+        else {
+            showMsg("debug here");
+            return false;
+        }
+    }
+
+    function showDist(distId, distType) {
+        var prop = {
+            url: g.appPath + "project/h_spd/html/op/thd_dist.html",
+            windowState: "maximized",
+            noTitle: true,
+            text: "科室配送",
+            title: ""
+        };
+        var para = {
+            viewKey: "thd_dist",
+            primaryKey: "dist_id," + distId,
+            distType: distType,
+            flowKey: "",
+            allowAddnew: false,
+            allowModify: false,
+            allowDelete: false,
+            allowMove: false
+        };
+        topWin.openWindow(prop, para);
+    }
+    function showUse(useId) {
+        var prop = {
+            url: g.appPath + "project/h_spd/html/dept/thd_use.html",
+            text: "科室消耗" 
+        };
+        var para = {
+            viewKey: "thd_use",
+            primaryKey: "use_id," + useId,
+            allowAddnew: false,
+            allowModify: false,
+            allowDelete: false,
+            allowMove: false
+        };
+        topWin.openWindow(prop, para);
+    }
+    function showTDeptBill(tdeptBillId) {
+        showWarn("当前单据的数是旧功能（病人消耗记帐）产生的单据，\n请使用新程序（科室N\\消耗业务\\科室消耗单）。");
+
+        var prop = {
+            url: g.appPath + "project/g_spd/html/dept/tdept_bill_sp.html",
+            text: "病人消耗记帐"
+        };
+        var para = {
+            viewKey: "tdept_bill",
+            primaryKey: "tdept_bill_id," + tdeptBillId,
+            allowAddnew: false,
+            allowModify: false,
+            allowDelete: false,
+            allowMove: false
+        };
+        topWin.openWindow(prop, para);
+    }
+</script>
+
+<!-- query -->
+<script type="text/javascript">
+    function getFormPara() {
+        var arrDeptId = new Array();
+        var deptId = txtDept.underValue.toInt();
+
+        if (deptId <= 0 && userType.equals("dept")) {            
+            var dtb = txtDept.instance.dtbSource;
+            for (var i = 0; i < dtb.rowCount; i++) {
+                deptId = dtb.rows[i]["dept_id"].value;
+                if (deptId > 0) {
+                    arrDeptId.push(dtb.rows[i]["dept_id"].value);
+                }
+            }
+        }
+        else {
+            if (deptId > 0) {
+                arrDeptId.push(deptId);
+            }
+        }
+        deptIds = arrDeptId.join(",");
+
+        storageId = txtStorage.underValue;
+        dateFrom = txtDateFrom.value;
+        dateTo = txtDateTo.value;
+
+        sourceDist = gId("chkDist").checked ? 1 : 0;
+        sourceUse = gId("chkUse").checked ? 1 : 0;
+        sourceHis = gId("chkHis").checked ? 1 : 0;
+
+        statisticsMode = gId("radioSum").checked ? 1 : 0;
+    }
+
+    function btnQuery_click() {
+        getFormPara();
+
+        var viewFilter = "";        
+        var arrSource = new Array();
+        // ------------------------------------------------
+        if (deptIds.equals("")) {
+            if (userType.equals("op")) {
+                viewFilter = "bill_date >= '" + dateFrom + "' AND bill_date <= '" + dateTo + "'";
+            }
+            else {
+                showWarn("请选择科室。");
+                return;
+            }
+        }
+        else {            
+            viewFilter = "dept_id IN (" + deptIds + ") AND bill_date >= '" + dateFrom + "' AND bill_date <= '" + dateTo + "'";
+        }
+        if (sourceDist) {
+            arrSource.push("DEPT_DIST");
+            arrSource.push("WO");
+        }
+        if (sourceUse) {
+            arrSource.push("DEPT_USE");
+        }
+        if (sourceHis) {
+            arrSource.push("his");
+            arrSource.push("manual");
+        }
+        if (arrSource.length > 0) {
+            viewFilter += " AND (source_type = '" + arrSource[0] + "'";
+            for (var i = 1; i < arrSource.length; i++) {
+                viewFilter += " OR source_type = '" + arrSource[i] + "'";
+            }
+            viewFilter += ")";
+        }
+
+        // ------------------------------------------------
+        if (statisticsMode == 0) {            
+            showGridDtl(viewFilter);
+        }
+        else {
+            showGridSum(viewFilter);
+        }
+    }
+</script>
+<!-- print -->
+<script type="text/javascript">
+    function btnPrint_click() {
+        printReport();
+    }
+</script>

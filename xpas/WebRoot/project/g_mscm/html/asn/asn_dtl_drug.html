@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>发货单明细</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+    <div id="divDC"></div>
+    <div class="PanelA">
+        <form id="frm" action="" target="g_mscm.asn.VIEW_asnDtl">
+            <table id="tbForm" class="tbForm" style="width:695px;">
+                <tr class="trH">
+                    <th style="width:120px;"></th>
+                    <th style="width:250px;"></th>
+                    <th style="width:120px;"></th>
+                    <th style="width:200px;"></th>
+                </tr>
+                <tr>
+                    <td>品名</td>
+                    <td><input type="text" id="_cMatr_name" disabled="disabled" /></td>
+                    <td>品规</td>
+                    <td><input type="text" id="_cMatr_spec" disabled="disabled" /></td>
+                </tr>
+                <tr>
+                    <td>单价</td>
+                    <td><input type="text" id="_cPrice" disabled="disabled" /></td>
+                    <td>金额</td>
+                    <td><input type="text" id="_cAmount" disabled="disabled" /></td>
+                </tr>
+                <tr>
+                    <td>应送数量</td>
+                    <td><input type="text" id="_cQty_0" disabled="disabled" /></td>
+                    <td>实送数量</td>
+                    <td><input type="text" id="_cQty" /></td>
+                </tr>
+                <tr>
+                    <td>生产批次</td>
+                    <td><input type="text" id="_cLot" /></td>
+                    <td>生产日期</td>
+                    <td><input type="text" id="_cMfg_date" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+                </tr>
+                <tr>
+                    <td>注册证号</td>
+                    <td><input type="text" id="_cRegister_no" /></td>
+                    <td>有效日期</td>
+                    <td><input type="text" id="_cExp_date" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+                </tr>
+                <tr>
+                    <td>灭菌批次</td>
+                    <td><input type="text" id="_cDisinfection_lot" /></td>
+                    <td>灭菌日期</td>
+                    <td><input type="text" id="_cDisinfection_date" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+                </tr>
+                <tr>
+                    <td>生产厂家</td>
+                    <td colspan="3"><input type="text" id="_cManufacturer"></td>
+                </tr>
+            </table>
+            <input type="hidden" id="_cASN_ID" />
+            <input type="hidden" id="_cASN_DTL_ID" />
+            <input type="hidden" id="_cMatr_id" />
+            <input type="hidden" id="_cMatr_code" />
+            <input type="hidden" id="_cMatr_unit" />
+            <input type="hidden" id="_cPackage_unit" />
+            <input type="hidden" id="_cPackage_qty" />
+            <input type="hidden" id="_cRep_notify_dtl_id" />
+            <input type="hidden" id="_cPo_dtl_id" />
+        </form>
+    </div>
+</body>
+</html>
+<!-- formLoad -->
+<script type="text/javascript">
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        frmParent = win.parentWindow.frm;
+        vf.css(gId("tbForm"));
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    var qtyCopy = 0;
+    vf.beforeCopy = function () {
+        var matrCode = frm._cMatr_code.value;
+        qtyCopy = (frm._cQty_0.value.toInt() - frm._cQty.value.toInt()) || 1;
+
+        return true;
+    }
+    vf.afterCopy = function () {
+        frm._cQty.value = qtyCopy; 
+        if (!g.debug) {
+            frm._cLot.value = "";
+            frm._cMfg_date.value = "";
+            frm._cExp_date.value = "";
+            frm._cDisinfection_lot.value = "";
+            frm._cDisinfection_date.value = "";
+        }
+        frm._cLot.focus();
+    }  
+
+    vf.afterSetStatus = function () {
+        vf.buttons["addnew"].style.display = "none";
+        if (vf.status.equals("view")) {
+            vf.buttons["copy"].style.display = "";
+        }
+    }
+</script>

@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Forten首营平台</title>
+    <link rel="icon" href="images/logo_hr.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="images/logo_hr.ico" type="image/x-icon" />
+
+    <link href="css/login_v2.css" rel="stylesheet" />
+    <link href="../../../../../res_plugin/zui-1.8.1-dist/css/zui.css" rel="stylesheet" />
+    <link href="../../../../../res_plugin/zui-1.8.1-dist/css/zuiExt.css" rel="stylesheet" />
+    <link href="../../../../../res_plugin/icheck/skins/square/blue.css" rel="stylesheet" />
+
+    <script src="../../../../../res_plugin/jquery/jquery-1.11.3.min.js"></script>
+    <script src="../../../../../res_plugin/jquery/jquery_md5.js"></script>
+    <script src="../../../../../res_plugin/zui-1.8.1-dist/js/jquery.particleground.min.js"></script>
+    <script src="../../../../../res_plugin/zui-1.8.1-dist/js/zui.js"></script>
+    <script src="../../../../../res_plugin/icheck/js/icheck.min.js"></script>
+
+    <script src="../../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../../res/jscript/xwf.const.js"></script>
+    <script src="../../../../../res/jscript/xwf.login.js"></script>
+    <script src="../../../../../res/control/window/xwf.window.js"></script>
+    <style type="text/css">
+        html,
+        body {
+            overflow: hidden;
+            background: url('../../../../g_mshare/images/login/bg_particle.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+        
+        .form-group.form-operation {
+            padding-top: 15px;
+        }
+        
+        .form-group.form-operation::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+        
+        .register-link {
+            float: left;
+            margin-top: 3px;
+        }
+        
+        .login-info-item {
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body onload="formLoad();">
+    <div class="login-main zoom">
+        <div class="login-left animated fadeInLeft">
+            <div class="login-info">
+                <img id="system-logo" src="" style="width: 80%;" />
+                <div style="position: absolute; bottom: 1px;text-align: center; width: 55%;padding: 0px 10px;">
+                    <ul id="system-notes" class="list-group" style="margin-left:9px;margin-right: 9px;text-align:left;padding-left: 87px;">
+                        <li><a onclick="javascript:;" href="../../../../../res/res_file/谷歌浏览器-便捷版.zip" style="color:Blue;">下载谷歌浏览器</a>（限xp以上系统使用）</li>
+                    </ul>
+                    <hr>
+                    <h5 id="system-text" style="font-size: 11px;"></h5>
+                </div>
+            </div>
+        </div>
+        <div class="login-right animated fadeInRight">
+            <div class="login-form">
+                <div class="bg-red" style="padding: 5px; margin: 0px; position: absolute; width: 272px; top: 5px;display: none;">
+                    <i class="icon-frown pull-left" style="font-size: 22px;"></i>
+                    <div class="content" id="msg" style="font-size: 15px;">
+                        系统提示
+                    </div>
+                </div>
+                <h2>首营平台登录</h2>
+                <form id="login-form" class="form-box" autocomplete="off">
+                    <div class="form-group">
+                        <div class="input-control has-icon-left">
+                            <input id="txtUserkey" type="text" autocomplete="off" class="form-control" data-tip-class="tooltip-success" data-toggle="tooltip" title="请输入用户名" placeholder="用户名">
+                            <label for="txtUserkey" class="input-control-icon-left"><i class="icon icon-user"></i></label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-control has-icon-left">
+                            <input id="txtPassword" type="password" autocomplete="off" class="form-control" data-tip-class="tooltip-success" data-toggle="tooltip" title="请输入密码" placeholder="密码">
+                            <label for="txtPassword" class="input-control-icon-left"><i class="icon icon-lock"></i></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-checkcode">
+                        <div class="input-control has-icon-left">
+                            <img id="imgCheckCode" class="img-rounded pull-left" src="" alt="" data-toggle="tooltip" data-tip-class="tooltip-success" title="看不清楚，点击更换" onclick="getCheckCode();" />
+                            <input type="text" class="form-control pull-right" data-toggle="tooltip" data-tip-class="tooltip-success" title="请输入验证码" style="width:130px;" id="txtCheckCode" class="form-control" placeholder="请输入验证码" />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="form-group form-operation">
+                        <a href="../../account/register.html" class="register-link">注册账号</a>
+                        <label class="checkbox-inline pull-right">
+       						<input type="checkbox" id="chkRemember" class="icheck">
+       						<span class="check-text">记住密码</span>
+       					</label>
+                    </div>
+                </form>
+                <div class="form-group login-btn">
+                    <button class="btn btn-block btn-primary" type="button" onclick="btnLogin_click();">登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad & login -->
+<script type="text/javascript">
+    var txtUserkey = gId("txtUserkey");
+    var txtPassword = gId("txtPassword");
+    //系统信息
+    var systemInfo = {
+        logo: "images/logo_hr_tm.png",
+        text: "©2019 华润山东医药提供技术支持"
+    };
+    //技术支持，即相关下载
+    var downLoadList = [{
+        "text": "系统安装包 ",
+        "tip": "系统安装包 ",
+        "href": "../res/spd2_setup.msi"
+    }, {
+        "text": ".net Framework 2.0 ",
+        "tip": "windows xp sp2 以下低版本操作系统，安装“系统安装包”之前可能需要先安装 .net Framwork 2.0 ",
+        "href": "/run_data/res/dotnetfx.zip"
+    }, {
+        "text": "系统初始化 ",
+        "tip": "初始化系统 ",
+        "href": "../res/init.zip"
+    }, {
+        "text": "清除IE缓存工具 ",
+        "tip": "解压后放到桌面，遇到更新后新功能未生效的情况，鼠标双击运行即可 ",
+        "href": "../../xpas/res/clear_ie_cache.zip"
+    }, {
+        "text": "打印模板 ",
+        "tip": "下载后解压文件到 C:\spd2 目录下 ",
+        "href": "./client_download/print-templet.zip"
+    }];
+
+    //覆盖window alert
+    window.msgTimeOutId = -1;
+    window.alert = function(msg) {
+        if (!$("#msg").parent().is(":hidden")) $("#msg").parent().hide();
+        $("#msg").html(msg).parent().slideDown();
+
+        if (window.msgTimeOutId >= 0) clearTimeout(window.msgTimeOutId);
+        window.msgTimeOutId = setTimeout(function() {
+            $("#msg").html("").parent().slideUp();
+            window.msgTimeOutId = -1;
+        }, 3000);
+    }
+
+    function formLoad() {
+        initLogin({
+            urlMainDefault: g.appPath + "main3.html",
+            loginPath: "sdzl"
+        });
+        init();
+    }
+    //-------------------------------------------------------------------------
+    function btnLogin_click() {
+        loginSystem();
+    }
+
+    function changePassword() {
+        var cWin = new window.xwf_window({});
+        var winChangePW = cWin.openWindow({
+            noTitle: true,
+            windowState: 'maximized',
+            url: "../../../../xpas/html/organization/changePassword_new.html"
+        }, {
+            invoker: "login",
+            userKey: txtUserkey.value,
+            txtPW: txtPassword.value
+        });
+    }
+
+    // ------------------------------------------------------------------------
+    function init() {
+        for (var k in systemInfo) {
+            var inp = $("#system-" + k);
+            if (inp.is("img")) {
+                inp.attr("src", systemInfo[k]);
+            } else {
+                inp.html(systemInfo[k]);
+            }
+        }
+
+        var ob;
+        for (var index in downLoadList) {
+            ob = downLoadList[index];
+            $("#footer-support").append(' <li ><a href="' + ob.href + '" data-tip-class="tooltip-success" data-toggle="tooltip" title="' + ob.tip + '" >' + ob.text + '</a></li>');
+        }
+
+        //系统公告
+        var notes = [];
+        for (var index in notes) {
+            ob = notes[index];
+            $("#system-notes").append('<li class="login-info-item"  title="' + ob.text + '">' + ob.text + '</li>');
+        }
+
+        //复选框
+        $("#chkRemember").iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%'
+        });
+
+        //任何位置回车提交表单
+        $(document).keydown(function (e) {
+            var target = $(e.target);
+            if (e.keyCode == 13) {
+                btnLogin_click();
+            }
+        });
+
+        var marqueeScroll = function (id1, id2, id3, timer) {
+            var $parent = $("#" + id1);
+            var $goal = $("#" + id2);
+            var $closegoal = $("#" + id3);
+            $closegoal.html($goal.html());
+
+            function Marquee() {
+                if (parseInt($parent.scrollLeft()) - $closegoal.width() >= 0) {
+                    $parent.scrollLeft(parseInt($parent.scrollLeft()) - $goal.width());
+                } else {
+                    $parent.scrollLeft($parent.scrollLeft() + 1);
+                }
+            }
+            setInterval(Marquee, timer);
+        }
+
+        var marqueeScroll1 = new marqueeScroll("marquee-box", "wave-list-box1", "wave-list-box2", 20);
+        var marqueeScroll2 = new marqueeScroll("marquee-box3", "wave-list-box4", "wave-list-box5", 40);
+
+        var toggle = $('#ss_toggle');
+        var menu = $('#ss_menu');
+        var rot;
+        $('#ss_toggle').on('click', function (ev) {
+            rot = parseInt($(this).data('rot')) - 180;
+            //menu.css('transform', 'rotate(' + rot + 'deg)');
+            //menu.css('webkitTransform', 'rotate(' + rot + 'deg)');
+            if (rot / 180 % 2 == 0) {
+                toggle.parent().addClass('ss_active');
+                toggle.addClass('close');
+                $("#footer").slideDown();
+            } else {
+                toggle.parent().removeClass('ss_active');
+                toggle.removeClass('close');
+                $("#footer").slideUp();
+            }
+            $(this).data('rot', rot);
+        });
+    }
+</script>

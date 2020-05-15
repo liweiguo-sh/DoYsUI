@@ -1,0 +1,117 @@
+﻿body {
+    margin: 0px;
+    overflow: hidden;
+    background-color: #e8e9eb;
+}
+
+
+/* 布局表格 */
+
+#tbTop {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+#tbTop td {
+    padding: 0px;
+    overflow: hidden;
+    white-space: nowrap;
+    background-repeat: no-repeat;
+}
+
+#tdTopLeft {
+    width: 200px;
+    height: 80px;
+    background-position: left center;
+    background-size: contain !important;
+}
+
+#tdTopRight {
+    width: 180px;
+    text-align: center;
+    vertical-align: bottom;
+}
+
+
+/* 右侧图标区 */
+
+#tbImages {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+#tbImages td {
+    padding: 0px;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#tbImages img {
+    width: 32px;
+    width: 32px;
+    cursor: pointer;
+}
+
+#tdMessage {
+    width: 120px;
+    text-align: right;
+}
+
+#divMessage {
+    height: 48px;
+    margin-right: 2px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: right center;
+    color: Red;
+    font-size: 24pt;
+    font-family: 楷体;
+}
+
+#selSystem {
+    width: 110px;
+    margin-right: 5px;
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    font-family: 微软雅黑;
+    height: 28px;
+    font-size: 10pt;
+    border-top: solid 1px #e8e9eb;
+    border-left: solid 0px red;
+    border-right: solid 0px red;
+    border-bottom: solid 1px #e8e9eb;
+    width: 190px;
+}
+
+
+/* 容器、背景iFrame */
+
+#divContainer {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+
+/* -- divWait -- */
+
+.divWait {
+    z-index: 90000;
+    cursor: not-allowed;
+    position: absolute;
+    background-color: Black;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    /*IE8*/
+    filter: alpha(opacity=20);
+    /*-- IE5、IE5.5、IE6、IE7 --*/
+    opacity: 0.2;
+    /*-- Opera9.0+、Firefox1.5+、Safari、Chrome --*/
+    background-image: url('../../images/frame/waiting.gif');
+    background-position: center center;
+    background-repeat: no-repeat;
+}

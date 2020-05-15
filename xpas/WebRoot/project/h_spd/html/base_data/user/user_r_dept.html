@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>用户科室业务范围配置</title>
+	<script src="../../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../../res/jscript/xwf.const.js"></script>
+
+	<script src="../../../../../res/control/tree/xwf.tree.js"></script>
+	<script src="../../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../../res/control/grid/xwf.gridview.js"></script>
+
+	<script src="../../../../../res/jscript/xwf.css.js"></script>
+	<style type="text/css">
+		body {
+			overflow: hidden;
+		}
+		#tbLayout {
+			 border-collapse: collapse;
+		}
+		.tdLayout {
+			padding: 0px;
+			overflow: hidden;
+			vertical-align: top;			
+		}
+		#tdLayoutLeft {
+			border-top: solid 1px #c0c0c0;
+			border-left: solid 1px #c0c0c0;
+			border-bottom: solid 1px #c0c0c0;
+		}
+		#tdLayoutRight {
+			border-top: solid 1px #c0c0c0;
+			border-bottom: solid 1px #c0c0c0;
+		}
+
+        #divTree {
+			width: 320px;
+			overflow: auto;
+		}
+
+		#divButton {
+			padding: 10px 0px 10px 0px;
+		}
+
+	    .btnCommand {
+            border: 0px;
+            height: 36px;
+            width: 180px;
+            color: white;
+            background-color: #3280FA;            
+            border-radius: 4px;
+            margin-right: 20px;
+        }
+            .btnCommand:hover {
+                color: yellow;
+            }
+             .btnCommand:disabled {
+                color: gray;
+            }
+	</style>
+</head>
+<body>
+	<table id="tbLayout">
+		<tr>
+			<td id="tdLayoutLeft" class="tdLayout"><div id="divTree"></div></td>
+			<td id="tdLayoutRight" class="tdLayout">
+                <div id="divGrid1"></div>
+				<div id="divButton">
+					<input id="btnAdd" type="button" class="btnCommand" value="添加" onclick="return btnAdd_click()" />
+					<input id="btnRemove" type="button" class="btnCommand" value="移除" onclick="return btnRemove_click()" />
+				</div>
+				<div id="divGrid2"></div>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">    
+    var forType = urlPara["forType"];
+    var treeTitle = "";
+    var viewKey = "", fieldName = "";
+
+    var tbLayout = gId("tbLayout");
+    var divButton = gId("divButton");
+    var divTree = gId("divTree");
+    var divGrid1 = gId("divGrid1"), divGrid2 = gId("divGrid2");
+
+    var tree = null;
+    var gridView1 = null, gridView2 = null;
+    // ----------------------------------------------------
+    function formLoad() {
+        if (forType.equals("COMMON")) {
+            treeTitle = "用户科室_通用业务范围";
+            fieldName = "for_common"
+        }
+        else if (forType.equals("APPLY")) {
+            treeTitle = "用户科室_请领业务范围"; 
+            fieldName = "for_apply"
+        }
+        else if (forType.equals("DEMAND")) {
+            treeTitle = "用户科室_需求业务范围"; 
+            fieldName = "for_demand"
+        }
+        else {
+            showErr("错误的菜单入口，请检查。");
+        }
+
+        formResize();
+
+        initGridview();
+        initTree();        
+    }
+    function formResize() {
+        var height = win.p.height - 2 * tbLayout.offsetTop - divTree.offsetTop;
+        var width = (win.p.width - divTree.offsetWidth - 20);
+
+        divTree.style.height = height + "px";
+        divGrid1.style.height = (height - divButton.offsetHeight - 6) / 2 + "px";
+        divGrid2.style.height = divGrid1.offsetHeight + "px";
+
+        divGrid1.style.width = width + "px";
+        divGrid2.style.width = width + "px";
+        divButton.style.width = width + "px";
+    }
+</script>
+
+<!-- tree -->
+<script type="text/javascript">
+    function initTree() {
+        var rootKey = "0";
+        var jsonPara = {
+            divContainer: gId("divTree"),
+            imgPath: "../../../../../res/control/tree/" + top.cssStyle + "/",
+            title: treeTitle,
+            nodeClick: onNodeClick
+        };
+        tree = new window.xwf_tree(jsonPara);
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.base_data.user.User_Dept&actionType=getUserList", {}, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtb = c.dtbUser;
+                for (var i = 0; i < dtb.rowCount; i++) {
+                    var userKey = dtb.rows[i]["user_key"].value;
+                    var userName = dtb.rows[i]["user_name"].value;
+                    var key = rootKey + tree.sd + userKey;
+                    var text = userKey + " _ " + userName;
+
+                    tree.addNode({ key: key, text: text, userKey: userKey });
+                }
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+        // ------------------------------------------------
+        tree.expand(rootKey);
+    }
+
+    function onNodeClick(node) {
+        var userKey = node.userKey;
+        // ------------------------------------------------
+        if (userKey) {
+            gridview1.setViewFilter("dept_id NOT IN (SELECT dept_id FROM T_R_USER_DEPT WHERE user_key = '" + userKey + "' AND " + fieldName + " = 1)");
+            gridview2.setViewFilter("dept_id     IN (SELECT dept_id FROM T_R_USER_DEPT WHERE user_key = '" + userKey + "' AND " + fieldName + " = 1)");
+        }
+        else {
+            gridview1.setViewFilter("1 = 0");
+            gridview2.setViewFilter("1 = 0");
+        }
+    }
+</script>
+<!-- gridview -->
+<script type="text/javascript">
+    function initGridview() {
+        var prop = {
+            divContainer: divGrid1,
+            viewKey: "user_r_dept_for",
+            viewFilter: "1 = 0"
+        };
+        gridview1 = new window.xwf_gridview(prop);
+
+        var prop = {
+            divContainer: divGrid2,
+            viewKey: "user_r_dept_for",
+            viewFilter: "1 = 0"
+        };
+        gridview2 = new window.xwf_gridview(prop);
+    }
+</script>
+
+<!-- add、remove -->
+<script type="text/javascript">
+    function btnAdd_click() {
+        var userKey = 0;
+        var deptIds = "";
+        var arrDeptId = new Array();        
+        // ------------------------------------------------
+        for (var i = gridview1.dtbViewData.rowCount - 1; i >= 0; i--) {
+            if (gridview1.dtbViewData.rows[i].checked) {
+                arrDeptId.push(gridview1.dtbViewData.rows[i]["dept_id"].value);
+
+                gridview1.selectRow(i);
+                gridview1.remove();
+            }
+        }
+        deptIds = arrDeptId.join(",");
+        if (deptIds.equals("")) {
+            showWarn("请选择要加入的科室。");
+            return;
+        }
+        userKey = tree.selectedNode.userKey;
+
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.base_data.user.User_Dept&actionType=addTo", {forType: forType, userKey: userKey, deptIds:deptIds}, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+
+                // -- gridview1.refresh();
+                gridview2.refresh();
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+    function btnRemove_click() {
+        var userKey = 0;
+        var deptIds = "";
+        var arrDeptId = new Array();  
+        // ------------------------------------------------
+        for (var i = 0; i < gridview2.dtbViewData.rowCount; i++) {
+            if (gridview2.dtbViewData.rows[i].checked) {
+                arrDeptId.push(gridview2.dtbViewData.rows[i]["dept_id"].value);
+            }
+        }
+        deptIds = arrDeptId.join(",");
+        if (deptIds.equals("")) {
+            showWarn("请选择要移除的科室。");
+            return;
+        }
+        userKey = tree.selectedNode.userKey;
+
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.base_data.user.User_Dept&actionType=remove", { forType: forType, userKey: userKey, deptIds: deptIds }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+
+                // -- gridview1.refresh();
+                gridview2.refresh();
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+</script>

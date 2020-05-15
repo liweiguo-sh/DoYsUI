@@ -1,0 +1,99 @@
+﻿.xwf_upload_title {
+    color: #7F8C8D;
+    font-size: 1.2em;
+    font-family: 微软雅黑;
+    font-weight: bold;
+    margin: 0px 0 20px 0;
+}
+
+.xwf_upload_notes {
+    color: #7F8C8D;
+    font-size: 0.8em;
+    font-family: 华文中宋;
+    margin: 20px 0 20px 0;
+}
+
+.xwf_upload_expired {
+    color: #7F8C8D;
+    font-size: 0.8em;
+    font-family: 华文中宋;
+    margin-bottom: 20px;
+}
+
+.xwf_upload_div_image_frame {
+    text-align: center;
+    border: 1px dashed LightGray;
+    color: LightGray;
+    cursor: pointer;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+    padding: 2px;
+}
+
+.xwf_upload_div_image_frame.active {
+    border: 1px solid LightGray;
+}
+
+.xwf_upload_div_image {
+    background-size: 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+    color: #604C3F;
+    font-size: 1.2em;
+    font-family: Arial Black;
+    border: 0px solid blue;
+}
+
+.xwf_upload_preview_image {
+    text-align: center;
+    border: 1px dashed LightGray;
+    color: LightGray;
+    cursor: pointer;
+}
+
+.xwf_upload_preview_other_div {
+    text-align: center;
+    border: 1px dashed LightGray;
+    color: #604C3F;
+    font-size: 1.2em;
+    font-family: Arial Black;
+    cursor: pointer;
+    background-image: url(empty-file.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.xwf_upload_blank_image {
+    text-align: center;
+    border: 1px dashed LightGray;
+    color: LightGray;
+    cursor: pointer;
+}
+
+.xwf_upload_td_image {}
+
+.xwf_upload_td_ctl {
+    padding-top: 5px;
+}
+
+.xwf_upload_ctl_gap {
+    margin-left: 5px;
+}
+
+.xwf_upload_float_right {
+    float: right;
+}
+
+.xwf_upload_btn_link {
+    font-family: 微软雅黑;
+    font-size: 10pt;
+    color: royalblue;
+    background-color: transparent;
+    border: 0px;
+    cursor: pointer;
+}
+
+.xwf_upload_btn_link:hover {}

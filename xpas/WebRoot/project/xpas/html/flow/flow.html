@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>流程定义</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+		
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+	<script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+	
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+	<script src="../../js/xtfs.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target="com.xznext.flow.Flow">
+		<div id="divTab" class="xwf_tab_divContainer" style="width:755px;">
+			<table id="tbForm" class="tbForm" style="width:755px;">
+				<tr class="trH">
+					<th style="width:125px;"></th>
+					<th style="width:200px;"></th>
+					<th style="width:125px;"></th>
+					<th style="width:300px;"></th>
+				</tr>
+                <tr>
+                    <td>子系统</td>
+                    <td><input id="_cSystem_key" type="text" controlType="dropdown" fieldValue="system_key" fieldText="system_text" visibleSearch="false" /></td>
+                    <td>是否模板</td>
+                    <td><input id="_cFlow_is_templet" type="checkbox" /><label for="_cFlow_is_templet">是模板流程</label></td>
+                </tr>
+				<tr>
+					<td>流程标识：</td>
+					<td><input id="_cFLOW_KEY" type="text" value="" /></td>
+					<td>流程名称：</td>
+					<td><input id="_cFlow_Name" type="text" value="" /></td>
+				</tr>
+				<tr>
+					<td>允许批量操作：</td>
+					<td><input id="_cFlow_allow_batch" type="checkbox" /></td>
+					<td>后台视图类：</td>
+					<td><input id="_cFlow_form_target" type="text" value="" /></td>
+				</tr>
+				<tr>
+					<td>根节点条件：</td>
+					<td colspan="3"><textarea id="_cFlow_root_filter" rows="5" cols="0"></textarea></td>
+				</tr>
+				<tr>
+					<td>备注：</td>
+					<td colspan="3"><textarea id="_cFlow_Remark" rows="5" cols="0"></textarea></td>
+				</tr>
+				<tr>
+					<td>创建人：</td>
+					<td><span id="_cCreator"></span></td>
+					<td>修改人：</td>
+					<td><span id="_cModifier"></span></td>
+				</tr>	
+				<tr>
+					<td>创建时间：</td>
+					<td><span id="_cCDate"></span></td>
+					<td>修改时间：</td>
+					<td><span id="_cMDate"></span></td>
+				</tr>							
+			</table>
+			<div id="divGridNode" style="display:none"></div>
+			<div id="divGridLine" style="display:none"></div>
+		</div>
+		<input id="_xFlow_Key" type="hidden" value="" />
+	</form>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var tabs = null;
+	var gridviewN = null, gridviewL = null;
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		vf.addExtraButton({ key: "xTFS", text: "xTFS" });
+		vf.css(gId("tbForm"));
+
+		tabs = new window.xwf_tab({ divContainer: gId("divTab"), tabClick: tab_click });
+		tabs.addTab({ key: "tabB", text: "基本信息", control: gId("tbForm") });
+		tabs.addTab({ key: "tabGridNode", text: "流程节点", title: "", control: gId("divGridNode") });
+		tabs.addTab({ key: "tabGridLine", text: "流程操作", title: "", control: gId("divGridLine") });
+	}
+
+	function tab_click(tab) {
+		var flowKey = frm._cFLOW_KEY.value;
+		if (tab.key == "tabGridNode") {
+			if (gridviewN == null) {
+				var prop = {
+					divContainer: gId("divGridNode"),
+					viewKey: "fv_flow_node",
+					viewFilter: "flow_key = '" + flowKey + "'",
+					viewForm: "project/xpas/html/flow/flow_node.html"
+				};
+				gridviewN = new window.xwf_gridview(prop);
+				gridviewN.beforeAddnew = function () {
+					if (!vf.status.equals("view")) {
+						showWarn("当前状态不允许添加明细记录。");
+						return false;
+					}
+					return true;
+				}
+			}
+			else {
+				gridviewN.setViewFilter("flow_key = '" + flowKey + "'");
+			}
+		}
+		else if (tab.key == "tabGridLine") {
+			if (gridviewL == null) {
+				var prop = {
+					divContainer: gId("divGridLine"),
+					viewKey: "fv_flow_button",
+					viewFilter: "flow_key = '" + flowKey + "'",
+					viewForm: "project/xpas/html/flow/flow_button.html"
+				};
+				gridviewL = new window.xwf_gridview(prop);
+				gridviewL.beforeAddnew = function () {
+					if (!vf.status.equals("view")) {
+						showWarn("当前状态不允许添加明细记录。");
+						return false;
+					}
+					return true;
+				}
+			}
+			else {
+				gridviewL.setViewFilter("flow_key = '" + flowKey + "'");
+			}
+		}
+		return true;
+	}
+</script>
+<!-- vf.events -->
+<script type="text/javascript">
+	vf.beforeCopy = function () {
+		frm._xFlow_Key.value = frm._cFLOW_KEY.value;
+		return true;
+	}
+	vf.afterAddnew = function () {
+	}
+
+	vf.beforeSave = function () {
+		// -- xTFS：判断是否已签出 ------------------------
+		if (g.a.send("processType=com.xtfs.XtfsCore&actionType=getMDataStatus", { mdataType: "flow", mdataKey: frm._cFLOW_KEY.value }, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				if (!cReturn.newMData && !cReturn.myCheckout) {
+					showWarn("主数据尚未签出，同步xTFS时修改会丢失，请谨慎操作。");
+				}
+			}
+		}
+		// ------------------------------------------------
+		return true;
+	}
+	vf.afterSave = function () {
+		frm._xFlow_Key.value = "";		
+	}
+
+	vf.afterMove = function () {
+		tab_click(tabs.tabSelected);
+	}
+
+	vf.beforeClick = function (prop) {
+        if (prop.buttonKey.equals("xTFS")) {
+            var isTemplet = frm._cFlow_is_templet.checked;
+            if (!isTemplet) {
+                showWarn("非模板流程，仅在当前项目中使用，无需签入。");
+                return false;
+            }
+
+			var jsonPara = {
+				mdataType: "flow",
+				mdataKeys: "'" + frm._cFLOW_KEY.value + "'",
+				objDom: prop.button
+			}
+			xTFS.openMenu(jsonPara);
+		}
+		return false;
+	}
+</script>

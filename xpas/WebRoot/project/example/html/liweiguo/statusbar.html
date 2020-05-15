@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>状态栏控件测试</title>
+	<link href="../../../../res/control/statusbar/style2/xwf.statusbar.css" rel="stylesheet" type="text/css" />
+	<link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/control/statusbar/xwf.statusbar.js" type="text/javascript"></script>
+	<style type="text/css">
+		body {
+			margin: 15px;
+		}
+				
+		#div1 {
+			margin-top: 10px;
+			margin-left: 50px;
+			width: 800px;
+			border: solid 1px Olive;
+			overflow: hidden;
+			height: 200px;
+		}
+
+		#divStatus {
+			margin-top: 5px;
+			margin-left: 50px;
+			width: 800px;
+			border: solid 1px Olive;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body onload="formLoad();">	
+	<div style="margin:20px 0px 0px 20px;">
+		<input type="button" id="btnSetDisplayShow" onclick="setBarDisplayShow();" value="显示按钮二" />
+		<input type="button" id="btnSetDisplayHide" onclick="setBarDisplayHide();" value="隐藏按钮二" />
+		<input type="button" id="btnSetBarDisabled" onclick="setBarDisable();" value="禁用" />
+	</div>	
+	<div id="div1"></div>
+	<div id="divStatus"></div>
+</body>
+</html>
+
+<script type="text/javascript">
+	var divStatus = gId("divStatus");
+
+	var statusbar = new window.xwf_statusbar();
+	// ----------------------------------------------------
+	function formLoad() {
+		initStatusBar();
+	}
+</script>
+
+<!-- 测试样例 -->
+<script type="text/javascript">
+	function initStatusBar() {
+		var json = {
+			domContainer: divStatus,
+			height: "M",
+			onclick: barClick
+		};
+		statusbar = new window.xwf_statusbar(json);
+
+		statusbar.addBar({ type: "text", key: "station", width: 100 });
+		statusbar.addBar({ type: "text", key: "user", width: 80 });
+		statusbar.addBar({ type: "text", key: "date", width: 75, text: (new Date()).toString() });
+
+		statusbar.setValue("station", "骨科二级库");
+		statusbar.setValue("user", "王大宝");
+
+		statusbar.setMessage("欢迎使用 xpas xwf_statusbar 控件");
+	}
+	function barClick(para) {
+		debug(para.text + "【" + para.key + "】 click");
+	}
+</script>

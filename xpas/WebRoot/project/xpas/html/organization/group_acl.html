@@ -1,0 +1,296 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>用户组权限设定</title>	
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>
+	<script src="../../../../res/jscript/xwf.const.js"></script>
+	
+	<script src="../../../../res/control/tree/xwf.tree.js"></script>
+	<script src="../../../../res/control/tab/xwf.tab.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+
+	<style type="text/css">
+		.tdLayout {
+			padding: 0px;
+			vertical-align: top;
+		}
+		
+		#divTreeGroup {
+			width: 480px;
+			border: solid 1px olive;
+			overflow: auto;
+		}
+	</style>
+</head>
+<body>
+	<div class="divButtons">					
+		<input id="btnClose" type="button" value="关闭(C)" onclick="return btnClose_click();" />
+		<input id="btnSave" type="button" value="保存(S)" onclick="return btnSave_click()" />
+	</div>
+	<table>		
+		<tr>
+			<td id="tdLeft" class="tdLayout">
+				<div id="divTreeGroup" style="overflow:auto"></div>
+			</td>
+			<td class="tdLayout">
+				<div id="divTabs" class="xwf_tab_divContainer" style="width:420px;height:500px;overflow:auto;">
+					<div id="divTreeMenu"></div>
+					<div id="divTreeUser"></div>
+				</div>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var divTreeGroup = gId("divTreeGroup");
+	var divTreeMenu = gId("divTreeMenu");
+	var divTreeUser = gId("divTreeUser");
+
+	var tabs = null;
+	var treeGroup = null, treeMenu = null, treeUser = null;
+	// ----------------------------------------------------
+	function formLoad() {
+		tabs = new window.xwf_tab({ divContainer: gId("divTabs")});
+		tabs.addTab({ key: "tabMenu", text: "菜单访问权限", control: divTreeMenu });
+		tabs.addTab({ key: "tabUser", text: "用户组成员", control: divTreeUser });
+
+		divTreeGroup.style.height = (gId("tdLeft").clientHeight - 2) + "px";
+
+		initTree_Group();
+		initTree_Menu();
+		initTree_User();
+	}
+
+	function btnClose_click() {
+		win.close();
+	}
+</script>
+
+<!-- 加载树（用户组、菜单、用户）-->
+<script type="text/javascript">
+	function initTree_Group() {
+		var jsonPara = {
+			divContainer: gId("divTreeGroup"),
+			imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+			title: "系统用户组",
+			sd: "~",
+			nodeClick: nodeClick_group
+		};
+		treeGroup = new window.xwf_tree(jsonPara);
+
+		if (g.a.send("processType=com.xznext.xpas.GroupUserMenu&actionType=getGroup", {}, true)) {
+			if (g.a.OK) {
+				var c = g.a.cReturn;
+				var dtb = c.dtbGroup;
+				// ----------------------------------------
+				treeGroup.addNode({ key: "0" + treeGroup.sd + "0", text: "上级用户组", groupLevel:-1 });
+				treeGroup.addNode({ key: "0" + treeGroup.sd + "1", text: "本级用户组", groupLevel: -1 });
+				treeGroup.addNode({ key: "0" + treeGroup.sd + "2", text: "下级用户组", groupLevel: -1 });
+				// ----------------------------------------
+				for (var i = 0; i < dtb.rowCount; i++) {
+					var nodeKey = dtb.rows[i]["group_key"].value;
+					var nodeText = dtb.rows[i]["group_name"].value + " (" + nodeKey + ")";
+					var groupLevel = dtb.rows[i]["group_level"].value;
+
+					var key = "0" + treeGroup.sd + groupLevel + treeGroup.sd + nodeKey;
+					treeGroup.addNode({ key: key, text: nodeText, groupKey: nodeKey, groupLevel: groupLevel  });
+				}
+				treeGroup.expand("0" + treeGroup.sd + "0");
+				treeGroup.expand("0" + treeGroup.sd + "1");
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			return;
+		}
+	}
+	function nodeClick_group(node) {
+		if (node.level < 2) return;
+		if (g.a.send("processType=com.xznext.xpas.GroupUserMenu&actionType=getGroupAcl", { groupKey: treeGroup.selectedNode.groupKey }, true)) {			
+			if (g.a.OK) {
+				var c = g.a.cReturn;
+				var nFind = 0;
+				var arrFind = new Array();
+				var dtbAcl = c.dtbAcl;
+				var dtbUser = c.dtbUser;
+				var nodeKey = null;
+
+				dtbAcl.sort("menu_key");
+				for (var i = 0; i < treeMenu.nodeKeys.length; i++) {
+					nodeKey = treeMenu.nodeKeys[i];
+					arrFind[0] = treeMenu.nodes[nodeKey].menuKey;
+					nFind = dtbAcl.find(arrFind);
+					treeMenu.setNodeChecked(nodeKey, (nFind >= 0 ? dtbAcl.rows[nFind]["menu_acl_value"].value : 0), true);
+				}
+
+				dtbUser.sort("user_key");
+				for (var i = 0; i < treeUser.nodeKeys.length; i++) {
+					nodeKey = treeUser.nodeKeys[i];
+					if (treeUser.nodes[nodeKey].level == 2) {
+						arrFind[0] = treeUser.nodes[nodeKey].userKey;
+						nFind = dtbUser.find(arrFind);
+						treeUser.setNodeChecked(nodeKey, (nFind >= 0 ? 1 : 0));
+					}
+					else {	//-- 特殊处理 --
+						arrFind[0] = treeUser.nodes[nodeKey].userKey + ",2"
+						nFind = dtbUser.find(arrFind);
+						if (nFind >= 0) {
+							treeUser.setNodeChecked(nodeKey, 2);
+							continue;
+						}
+						arrFind[0] = treeUser.nodes[nodeKey].userKey + ",1"
+						nFind = dtbUser.find(arrFind);
+						if (nFind >= 0) {
+							treeUser.setNodeChecked(nodeKey, 1);
+							continue;
+						}
+						treeUser.setNodeChecked(nodeKey, 0);
+					}
+				}
+			}
+			else {
+			}
+		}
+	}
+
+	function initTree_Menu() {
+		var jsonPara = {
+			divContainer: gId("divTreeMenu"),
+			imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+			title: "系统菜单",
+			sd: "~",
+			showCheckBoxs: "all",
+			beforeCheck: menuNodeBeforeCheck
+		};
+		treeMenu = new window.xwf_tree(jsonPara);
+
+		if (g.a.send("processType=com.xznext.xpas.GroupUserMenu&actionType=getUserMenu", {  }, true)) {
+			if (g.a.OK) {
+				var c = g.a.cReturn;
+				var dtbMenu = c.dtbMenu;
+				for (var i = 0; i < dtbMenu.rowCount; i++) {
+					var nodeKey = "0";
+					var node_key = dtbMenu.rows[i]["node_key"].value;
+					var nodeText = dtbMenu.rows[i]["node_text"].value;
+					var menuKey = dtbMenu.rows[i]["menu_key"].value;
+
+					for (var j = 0; j < node_key.length / 3; j++) {
+						nodeKey += treeMenu.sd + node_key.substring(3 * j, 3 * j + 3);
+					}
+					treeMenu.addNode({ key: nodeKey, text: nodeText, menuKey: menuKey });
+				}
+				treeMenu.expand("0");
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			return;
+		}
+	}
+	function menuNodeBeforeCheck(node, isSystem) {
+		var nodeGroup = treeGroup.selectedNode;
+		if (nodeGroup == null || nodeGroup.groupLevel == -1) {
+			showMsg("请先选择用户组。");
+			return false;
+		}
+		if (nodeGroup.groupLevel < 1) {
+			if (isSystem) {
+
+			}
+			else {
+				showWarn("不能对上级用户组设置菜单访问权限。\n\n仅允许将用户加入上级用户组或移出上级用户组。");
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function initTree_User() {
+		var jsonPara = {
+			divContainer: gId("divTreeUser"),
+			imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+			title: "系统用户",
+			sd: "~",
+			showCheckBoxs: "all"
+		};
+		treeUser = new window.xwf_tree(jsonPara);
+
+		if (g.a.send("processType=com.xznext.xpas.GroupUserMenu&actionType=getUser", {}, true)) {
+			if (g.a.OK) {
+				var c = g.a.cReturn;
+				var dtb = c.dtbUser;
+				for (var i = 0; i < c.officeLevel; i++) {
+					var nodeText = (i == 0 ? "本级用户" : "下级 (" + i + "级) 机构用户");
+					treeUser.addNode({ key: "0" + treeUser.sd + i, text: nodeText, userKey: "_" + i });
+				}
+				for (var i = 0; i < dtb.rowCount; i++) {
+					var userKey = dtb.rows[i]["user_key"].value;
+					var nodeKey = "0" + treeUser.sd + dtb.rows[i]["office_level"].value + treeUser.sd + userKey;
+					var nodeText = dtb.rows[i]["user_name"].value + "（" + userKey + "）";
+					var nodeTitle = dtb.rows[i]["office_fullname"].value;
+
+					treeUser.addNode({ key: nodeKey, text: nodeText, userKey: userKey, title: nodeTitle });
+				}
+				treeUser.expand("0" + treeUser.sd + "0");
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			return;
+		}
+	}
+</script>
+
+<!-- save -->
+<script type="text/javascript">
+	function btnSave_click() {
+		var jsonPara = {};
+		var nodeGroup = treeGroup.selectedNode;
+		// ------------------------------------------------
+		if (nodeGroup == null || nodeGroup.groupLevel ==-1) {
+			showWarn("请先选择用户组。");
+			return;
+		}
+		jsonPara["groupKey"] = nodeGroup.groupKey;
+		jsonPara["groupLevel"] = nodeGroup.groupLevel;
+
+		var arr = treeMenu.getCheckedKeys();
+		for (var i = 0; i < arr.length; i++) {
+			var node = treeMenu.nodes[arr[i]];
+			arr[i] = node.level + "," + node.key + "," + node.menuKey + "," + node.checked;
+		}
+		jsonPara["menuKeys"] = arr.join(";");
+
+		arr = treeUser.getCheckedKeys(true);
+		for (var i = 0; i < arr.length; i++) {
+			var node = treeUser.nodes[arr[i]];
+			if (node.level == 2) {
+				arr[i] = node.userKey;
+			}
+		}
+		jsonPara["userKeys"] = arr.join(";");
+
+		if (g.a.send("processType=com.xznext.xpas.GroupUserMenu&actionType=saveGroupAcl", jsonPara, true)) {
+			if (g.a.OK) {
+				win.flashTitle("当前操作成功。");
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			return;
+		}
+	}
+</script>

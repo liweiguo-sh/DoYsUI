@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- 发货单 打印单据 -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+</head>
+<body id="body-uview">
+<div class="container-fluid container-fluid-main scrollbar-hover" id="container-uview-edit">
+	<div class="row">
+		<div class="col-xs-12">
+			<table   class2="table table-hover table-borderless table-condensed table-striped" style="width: 404px;">
+				<tbody>
+					<tr>
+						<td  style="width: 70px;">打印份数
+						</td>
+						<td><input type="number" id="num" value="1" title="打印份数" style="width: 70px;">
+						</td>
+						<td  style="text-align:right;">
+								  <!-- 	<button type="button" class="btn btn-primary" onclick="formTool_edit.op('buildLine');" title="生成条形码">生成条形码</button>
+								  	<button type="button" class="btn btn-primary" disabled="disabled" onclick="formTool_edit.op('build2code');" title="生成二维码">生成二维码</button> 
+								  	
+									<button type="button" class="btn btn-danger" name="btn-reset" onclick="formTool_edit.op('reset');" title="重置">重置</button> 
+									<button type="button" class="btn" name="btn-close" onclick="formTool_edit.op('close');" title="关闭当前页面"><i class="icon icon-times"></i>关闭</button> 
+								  	
+								  	-->
+								   
+								  	
+						  	<button type="button" class="xwf_toolbar_button xwf_toolbar_button" onclick="formTool_edit.op('print');" title="打印条形码或二维码及表单">打印</button>
+						  	<button onclick="win.close();" title="关闭当前窗口"> 关闭</button>
+						</td>
+					</tr>
+					<!-- <tr>
+						<td class="form-label" style="width: 100px;">
+							编码信息
+						</td>
+						<td>
+							<input type="text" class="form-control" id="codeInput" value="010101100535201812151005" placeholder="请输入编码信息" >
+						</td>
+					</tr> -->
+				</tbody>
+			</table>
+		</div>
+		<div  id="tableBox">
+			 <style type="text/css">
+			 	.noboder{
+			 		border:0px   !important;
+			 	}
+			 	.print-table-1{
+			 		margin-top:0px  !important;
+			 		padding-top:0px  !important;
+			 	}
+			 	.print-table{
+			 		border: 1px dotted;
+			 		width: 400px;
+			 		background-color: rgb(255, 255, 255);
+			 		padding-top:0px;
+			 		padding-left:40px;
+			 		    padding-right:40px;
+			 		box-sizing: border-box; 
+   					font-family:microsoft yahei;
+				    font-size: 11px;
+				    overflow: hidden;
+			 	}
+			 	.label,.text{
+			 		margin:0px;
+			 		padding:0px;
+			 		display: inline;
+			 		font-size: 11px;
+			 		line-height: 16px;
+			 	}
+			 	.label{
+			 		width:100px;
+			 		    font-weight: bold;
+			 		text-align: right; 
+			 	}
+			 	.label2{
+			 		padding-left: 20px;
+			 	}
+			 	.text{
+			 		text-align: left; 
+			 		    font-weight: 700;
+			 		padding-left: 10px;
+			 	}
+			 	.codeOutput{
+			 		       padding-top: 3px !important;
+   							 padding-left: 50px !important;
+   							 width:100%  !important;
+			 	}
+			 	 
+			 	
+			 	.codeOutput div{
+					height:65px !important;
+				}
+			 	
+				}
+			 	.codeOutput object{
+					height: 70px;
+				}
+			 	.codeOutput960 object{
+					height: auto !important;
+					    margin-left: 0px;
+				}
+			 	.codeOutput div:LAST-CHILD {
+					font-size: 12px !important;
+					height:auto !important;
+					    text-align: left  !important;
+				}
+				
+				.codeOutputinfo{
+				 padding-left: 50px;
+				text-align: left;
+    			letter-spacing: 0.5px;
+				}
+				.codeOutputinfo960{
+				 padding-left: 100px  !important;
+				font-size: 11px;
+				    margin-left: 16px;
+				}
+ 			</style>
+			<!-- <div   class="print-table print-table-1">
+				 <div>
+				 	<p class="label" >
+				 		材料编号
+				 	</p>
+				 	<p class="text">
+				 		010101100535
+				 	</p>
+				 </div>
+				 <div>
+				 	<p class="label">
+				 		材料名称
+				 	</p>
+				 	<p class="text">
+				 		双极射频消融电极针（三角锥型）
+				 	</p>
+				 </div>
+				 <div>
+				 	<p class="label">
+				 		规格型号
+				 	</p>
+				 	<p class="text">
+				 		WB990148
+				 	</p>
+				 </div>
+				 <div>
+				 	<p class="label">
+				 		生产批号
+				 	</p>
+				 	<p class="text">
+				 		123
+				 	</p>
+				 </div>
+				 <div>
+				 	<p class="label">
+				 		生产日期
+				 	</p>
+				 	<p class="text">
+				 		2018-11-30
+				 	</p>
+				 </div>
+				 <div>
+				 	<p class="label">
+				 		失效日期
+				 	</p>
+				 	<p class="text">
+				 		2018-12-30
+				 	</p>
+				 </div>
+				 <div class="codeOutput" >条形码显示区域</div>
+				 <div class="codeOutputinfo" >010101100535201812151005</div>
+			</div> -->
+						
+		</div>
+	</div>
+</div>
+</body>
+ <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+<script src="../../../../res_plugin/jquery/jquery-1.11.3.min.js"></script>
+<script src="../../../../res_plugin/jquery/jquery-migrate-1.2.1.js" title="jQuery migrate插件解决迁移兼容问题"></script>
+<script src="../../../../res_plugin/jquery/jquery-barcode.min.js" title="条形码"></script>
+<script src="../../../../res_plugin/jquery/jquery.jqprint-0.3.js" title="打印插件"></script>
+ <script src="../../../../res/jscript/web_print.js" type="text/javascript"></script>
+
+
+<script>
+$.fn.numeral=function(bl){//限制金额输入、兼容浏览器、屏蔽粘贴拖拽等
+      $(this).keypress(function(e){
+          var keyCode=e.keyCode?e.keyCode:e.which;
+        if(bl){//浮点数
+          if((this.value.length==0 || this.value.indexOf(".")!=-1) && keyCode==46) return false;
+          return keyCode>=48&&keyCode<=57||keyCode==46||keyCode==8;
+        }else{//整数
+          return  keyCode>=48&&keyCode<=57||keyCode==8;
+        }
+      });
+      $(this).bind("copy cut paste", function (e) { // 通过空格连续添加复制、剪切、粘贴事件
+          if (window.clipboardData)//clipboardData.setData('text', clipboardData.getData('text').replace(/\D/g, ''));
+              return !clipboardData.getData('text').match(/\D/);
+          else
+              event.preventDefault();
+       });
+      $(this).bind("dragenter",function(){return false;});
+      $(this).css("ime-mode","disabled");
+      $(this).bind("focus", function() {  
+        if (this.value.lastIndexOf(".") == (this.value.length - 1)) {  
+            this.value = this.value.substr(0, this.value.length - 1);
+        } else if (isNaN(this.value)) {  
+            this.value = "";  
+        }  
+    });  
+}
+var numInp=$("#num");
+$("#num").numeral(false);//限制只能输入整数 
+var formTool_edit={},codeOutputbox=$("#codeOutputbox"),codeInput=$("#codeInput"),tableBox=$("#tableBox");
+//条形码配置
+var barcodeSettings = {
+	 btype: "code128",      //ean8  ean13  std25  int25  code11  code39  code93  code128（一般商品扫描使用）  codabar  msi  datamatrix
+     output: 'bmp',       //渲染方式 css/bmp/svg/canvas
+     //bgColor: '#ff0000', //条码背景颜色
+     //color: '#00ff00',   //条码颜色
+     barWidth: 1,        //单条条码宽度
+     barHeight: 50,     //单体条码高度
+     //moduleSize: 10,   //条码大小
+     // posX: 10,        //条码坐标X
+     // posY: 5,         //条码坐标Y
+     showHRI: true,    //是否在条码下方显示内容
+     addQuietZone: false  //是否添加空白区（内边距）
+};
+window.init=function(vf,dtlGridRows,dtl2){
+	var formData=vf.drViewOne,printType=vf.printType;
+	if(printType && printType =="asn_matr"){//960耗材发货单
+		if(dtlGridRows && dtlGridRows.length>0){
+			var row,row2,amountCount=0,manufacturer="",_gStorage_fullname_req=vf._gstorage_fullname_req;
+			var now=new Date().toString("yyyy-MM-dd hh:mm:ss");
+			 barcodeSettings = {
+				 btype: "code128",      //ean8  ean13  std25  int25  code11  code39  code93  code128（一般商品扫描使用）  codabar  msi  datamatrix
+			     output: 'bmp',       //渲染方式 css/bmp/svg/canvas
+			     //bgColor: '#ff0000', //条码背景颜色
+			     //color: '#00ff00',   //条码颜色
+			     barWidth: 2,        //单条条码宽度
+			     barHeight: 50,     //单体条码高度
+			     //moduleSize: 10,   //条码大小
+			     // posX: 10,        //条码坐标X
+			     // posY: 5,         //条码坐标Y
+			     showHRI: true,    //是否在条码下方显示内容
+			     addQuietZone: false  //是否添加空白区（内边距）
+			};
+			for(var i=0;i<dtlGridRows.length;i++){
+				row=dtlGridRows[i];
+				
+				var rowsHtml=[]
+				if(i ==0){
+					rowsHtml.push('<div   class="print-table">');
+				}else{
+					rowsHtml.push('<div   class="print-table">');
+				}
+				manufacturer="";
+				rowsHtml.push('		<div> <p class="label"> 材料名称 </p> <p class="text">'+WebPrint.getObjStr(row.matr_name.value)+'</p> </div> ');
+				rowsHtml.push('		<div> <p class="label"> 规格型号 </p> <p class="text">'+WebPrint.getObjStr(row.matr_spec.value)+'</p> </div> ');
+				
+				rowsHtml.push('		<div> <p class="label"> 生产厂商 </p> <p class="text">'+WebPrint.getObjStr(row.manufacturer.value)+'</p>  ');
+				rowsHtml.push('		<p class="label label2">生产批号 </p> <p class="text">'+WebPrint.getObjStr(row.lot.value)+'</p> </div> ');
+				
+				
+				rowsHtml.push('		<div> <p class="label"> 需求仓库</p> <p class="text">'+_gStorage_fullname_req+'</p> </div> ');
+				rowsHtml.push('		<div> <p class="label"> 打印时间 </p> <p class="text">'+now+'</p> </div> ');
+				rowsHtml.push('		<div> <p class="label"> 原厂码 </p><p class="text" style="word-break: break-all;">'+WebPrint.getObjStr(row.original_barcode.value)+'</p> </div> ');
+				
+				
+				var barcode=WebPrint.getObjStr(row.barcode.value);
+				rowsHtml.push('		 <div class="codeOutput codeOutput960" ></div> ');
+				rowsHtml.push('		<div class="codeOutputinfo codeOutputinfo960" >'+barcode+'</div> ');
+					
+				
+				
+				
+				rowsHtml.push('</div>');
+				if(dtlGridRows.length >1 && (i+1)!= dtlGridRows.length)  rowsHtml.push('<div class="page" style="page-break-after: always;"></div>');
+				tableBox.append(rowsHtml.join(""));
+				var codeOutputLast=tableBox.find('.codeOutput:last');
+				codeOutputLast.html("").barcode(barcode, barcodeSettings.btype, barcodeSettings);
+			}
+		}
+	}else{
+		if(dtlGridRows && dtlGridRows.length>0){
+			var row,row2,amountCount=0,manufacturer="";
+			var now=new Date().toString("yyyy-MM-dd hh:mm:ss");
+			for(var i=0;i<dtlGridRows.length;i++){
+				row=dtlGridRows[i];
+				
+				var rowsHtml=[]
+				if(i ==0){
+					rowsHtml.push('<div   class="print-table">');
+				}else{
+					rowsHtml.push('<div   class="print-table">');
+				}
+				manufacturer="";
+				for(var j=0;j<dtl2.dtbViewData.rows.length;j++){
+					row2=dtl2.dtbViewData.rows[j];
+					if(row2.matr_code.value == row.matr_code.value){
+						manufacturer=row2.manufacturer?row2.manufacturer.value:"";
+						break;
+					}
+				}
+				rowsHtml.push('		<div> <p class="label"> 材料编号 </p> <p class="text">'+WebPrint.getObjStr(row.matr_code.value)+'</p> </div> ');
+				rowsHtml.push('		<div> <p class="label"> 材料名称 </p> <p class="text">'+WebPrint.getObjStr(row.matr_name.value)+'</p> </div> ');
+				rowsHtml.push('		<div> <p class="label"> 规格型号 </p> <p class="text">'+WebPrint.getObjStr(row.matr_spec.value)+'</p> </div> ');
+				rowsHtml.push('		<div> <p class="label"> 生产批号 </p> <p class="text">'+WebPrint.getObjStr(row.lot.value)+'</p> </div> ');
+				rowsHtml.push('		<div> <p class="label"> 生产日期 </p> <p class="text">'+WebPrint.dateFormat(row.mfg_date.value,"ymd")+'</p>  ');
+				rowsHtml.push('		<p class="label"> 失效日期 </p> <p class="text">'+WebPrint.dateFormat(row.exp_date.value,"ymd")+'</p> </div> ');
+				rowsHtml.push('		<div> <p class="label">  生产厂商 </p> <p class="text">'+manufacturer+'</p> </div> ');
+				var barcode=WebPrint.getObjStr(row.barcode.value);
+				rowsHtml.push('		 <div class="codeOutput" ></div> ');
+				rowsHtml.push('		<div class="codeOutputinfo" >'+barcode+'</div> ');
+				
+				rowsHtml.push('</div>');
+				if(dtlGridRows.length >1 && (i+1)!= dtlGridRows.length)  rowsHtml.push('<div class="page" style="page-break-after: always;"></div>');
+				tableBox.append(rowsHtml.join(""));
+				var codeOutputLast=tableBox.find('.codeOutput:last');
+				codeOutputLast.html("").barcode(barcode, barcodeSettings.btype, barcodeSettings);
+			}
+		}
+	}
+	
+	
+}
+			          
+
+formTool_edit.printTableId="print-table";
+function myBrowser() {
+	var userAgent = navigator.userAgent; // 取得浏览器的userAgent字符串
+	var isOpera = userAgent.indexOf("Opera") > -1;
+	if (isOpera) {
+		return "Opera"
+	}
+	; // 判断是否Opera浏览器
+	if (userAgent.indexOf("Firefox") > -1) {
+		return "FF";
+	} // 判断是否Firefox浏览器
+	if (userAgent.indexOf("Chrome") > -1) {
+		return "Chrome";
+	}
+	if (userAgent.indexOf("Safari") > -1) {
+		return "Safari";
+	} // 判断是否Safari浏览器
+	if (userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1
+			&& !isOpera) {
+		return "IE";
+	}
+	; // 判断是否IE浏览器
+	if (userAgent.indexOf(".NET") > -1) {
+		return "IE";
+	}
+};
+
+$(function(){
+	//初始化
+	formTool_edit.getPrintTableNew=function(){
+		var formInpArr=[];
+		formInpArr.push({id:"id1",text:"材料编号",placeholder:"请输入",value:"010101100535"});
+		formInpArr.push({id:"id2",text:"材料名称",placeholder:"请输入",value:"双极射频消融电极针（三角锥型）"});
+		formInpArr.push({id:"id3",text:"规格型号",placeholder:"请输入",value:"WB990148"});
+		formInpArr.push({id:"id4",text:"生产批号",placeholder:"请输入",value:"333"});
+		formInpArr.push({id:"id5",text:"生产日期",placeholder:"请输入",value:"2018-11-30"});
+		formInpArr.push({id:"id6",text:"失效日期",placeholder:"请输入",value:"2019-12-06"});
+		
+		var rowHtml=[],rowOb;
+		var tabelStyle='style="text-align: center; background-color: rgb(255, 255, 255); box-sizing: border-box; height: 211px; padding-top: 12px; position: relative; overflow: hidden;"';
+		var pstyle='style="margin:0;float:left;clear:both"';
+		var spanleftstyle='style="font-size: 14px; line-height: 16px;"';
+		var spanrightstyle='style="font-size: 14px; line-height: 16px;"';
+		var codestyle='style="text-align: center; padding: 0px; overflow: auto; width: 187px; margin: auto; display: inline-block; position: absolute; left: 30px; transform-origin: left bottom 0px; transform: scale(1.3); bottom: 12px;"';
+		
+		rowHtml.push('<div   class="print-table" '+tabelStyle+'>');
+		rowHtml.push('  <div');
+		for (var i = 0; i < formInpArr.length; i++) {
+			rowOb=formInpArr[i];
+			rowHtml.push('<p '+pstyle+'>');
+			rowHtml.push('	<span  '+spanleftstyle+'>'+rowOb.text+'</span>');
+			rowHtml.push('	<span  '+spanrightstyle+'>'+rowOb.value+'</span>');
+			rowHtml.push("</p>");
+		};
+		rowHtml.push('  </div');
+		
+		//图片区域
+		rowHtml.push('  <div name="codeOutput"  ></div>');
+		
+		rowHtml.push('</div>');
+		
+		console.log(rowHtml)
+		tableBox.append(rowHtml.join(" "));
+		
+		return tableBox.children(".print-table");
+	}
+	
+	
+	/**
+		相关操作
+		type 		 
+		btn			操作的按钮（jq对象）
+		rowIndex	删改所操作的行索引
+	*/
+	formTool_edit.op=function(type,btn,rowIndex){
+		if (type=="buildLine") { //生成条形码
+			formTool_edit.printType=1;
+			var table=tableBox.find('.print-table:last').clone();
+			table.attr("class","print-table");
+			
+			tableBox.append(table.prop("outerHTML"));
+	    }else if (type=="build2code") { //生成二维码
+			formTool_edit.printType=2;
+			codeOutput.html("").qrcode({
+				render: "canvas", //table方式
+				width: 700, //宽度
+				height:400, //高度
+				text: codeInput.val() //任意内容
+			});
+	    }else if (type=="print") { //打印
+	    	//去掉table border
+	    	
+	    	if(formTool_edit.printType == 2){//二维码打印
+	    		 //codeOutputImg[0].src = codeOutput.children("canvas")[0].toDataURL();      
+	    		 //codeOutput.hide();
+	    		 //codeOutputImg.show();
+	    	}
+	    	//numInp
+	    	
+	    	//打印份数
+	    	var num=parseInt(numInp.val());
+	    	if(num>1){
+	    		var printTableHtml=tableBox.prop("innerHTML");
+	    		while(num>1){
+		    		//tables.children(".print-table:eq(0)").removeClass("print-table-1");
+		    		tableBox.append(printTableHtml);
+	    			num--;
+	    		}
+	    	}
+	    	
+	    	//tableBox.children(".print-table").removeClass("print-table-1");
+	    	//tableBox.children(".print-table:eq(0)").addClass("print-table-1");
+	    	tableBox.children(".print-table").addClass("noboder");
+	    	tableBox.jqprint({
+	    		 debug:false, //如果是true则可以显示iframe查看效果
+	    	     //（iframe默认高和宽都很小，可以再源码中调大），默认是false
+	    	     importCSS: true, //true表示引进原来的页面的css，默认是true。
+	    	     //（如果是true，先会找$("link[media=print]")，若没有会去找$("link")中的css文件）
+	    	     printContainer: true, //表示如果原来选择的对象必须被纳入打印
+	    	     //（注意：设置为false可能会打破你的CSS规则）。
+	    	     operaSupport: true//表示如果插件也必须支持歌opera浏览器，在这种情况下，
+	    	     //它提供了建立一个临时的打印选项卡。默认是true
+	    	});
+	    	tableBox.children(".print-table").removeClass("noboder");
+	    	//添加table border
+	    }else if (type=="reset") { //重置
+	    	tableBox.children(".print-table").remove();
+	    }else if (type=="close") { //关闭设计弹窗
+	    	xpasModal.confirm.setOkFun(function(param){
+	    		formUtil_UV.winModalUviewEdit.close();
+			},{}).confirm("确认关闭该窗口么？");
+	    }
+	};
+
+
+	//var codeOutputLast=tableBox.find('.codeOutput:last');
+	//codeOutputLast.html("").barcode(codeInput.val(), barcodeSettings.btype, barcodeSettings);
+})
+
+</script>
+</html>

@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>产品定义窗口</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target="example.training1.Product">
+		<table id="tbForm" class="tbForm" style="width:705px;">
+			<tr class="trH">
+				<th style="width:150px;"></th>
+				<th style="width:200px;"></th>
+				<th style="width:150px;"></th>
+				<th style="width:200px;"></th>
+			</tr>
+            <tr>
+                <td>产品类别：</td>
+                <td colspan="3"><input id="_cCatalog_id" type="text" controlType="dropdown" fieldValue="catalog_id" fieldText="catalog_name" fieldsVisible="catalog_name, catalog_remark" /></td>
+            </tr>
+			<tr>
+				<td>产品名称：</td>
+				<td><input type="text" id="_cProduct_name" value="" keepblank="true" /></td>
+				<td>上架日期：</td>
+				<td><input type="text" id="_cLaunch_date" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+			</tr>
+            <tr>
+                <td>配送方式：</td>
+                <td><input id="_cDelivery_type" type="text" controlType="dropdown" fieldValue="b" fieldText="a" dataSource="[['a','b'],['',0],['平邮',1],['送货上门',2],['自提',3]]" visibleSearch="false" /></td>
+                <td>单位：</td>
+                <td><input type="text" id="_cProduct_unit" value="" /></td>
+            </tr>
+			<tr>								
+				<td>保质期：</td>
+				<td><input type="checkbox" id="_cHas_expire" /><label for="_cHas_expire">有保质期要求</label></td>
+				<td>建议售价：</td>
+				<td><input type="text" id="_cProduct_price" value="" /></td>
+			</tr>
+			<tr>				
+				<td>保质期天数：</td>
+				<td><input type="text" id="_cExpire_days" value="" /></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><img id="img1" alt="" src="" style="width:100px;height:100px;" /></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>备注：</td>
+				<td colspan="3"><textarea id="_cProduct_remark" rows="3" cols="0"></textarea></td>
+			</tr>
+		</table>
+		<input id="_cPRODUCT_ID" type="hidden" value="" />
+		<input id="_cProduct_img_url" type="hidden" value="" />
+	</form>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var frmParent = null;
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		frmParent = win.parentWindow.frm;
+		vf.addExtraButton({ key: "uploadImg", text: "上传图片" });
+		vf.css(gId("tbForm"));
+	}
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+	vf.afterAddnew = function () {
+		frm._cLaunch_date.value = (new Date).toString();
+		frm._cDelivery_type.value = "1";
+	}
+	vf.afterMove = function () {
+		if (frm._cProduct_img_url.value.equals("")) {
+			gId("img1").src = "";
+		}
+		else {
+			gId("img1").src = frm._cProduct_img_url.value + "?rnd=" + Math.random();
+		}
+	}
+
+	vf.beforeSave = function () {
+		if (frm._cHas_expire.checked) {
+			if (frm._cExpire_days.value.equals("")) {
+				showErr("当前产品设定为有保质期，请输入保质期天数。");
+				frm._cExpire_days.focus();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	vf.beforeClick = function (prop) {
+		var prop = {
+			parent: win
+		};
+		var para = {
+			target: "example.training1.UploadFile",
+			uploadType: "T_PRODUCT",
+			fileName: "T_PRODUCT_" + frm._cPRODUCT_ID.value,
+			callback: afterUploadImg
+		};
+		topWin.uploadFile(prop, para);
+		return false;
+	}
+	function afterUploadImg(para) {
+		frm._cProduct_img_url.value = para.fileUrl;
+		vf.save();
+	}
+</script>

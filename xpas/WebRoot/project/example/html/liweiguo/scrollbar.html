@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>滚动条控件测试</title>
+	<link href="../../../../res/control/scrollbar/style2/xwf.scrollbar.css" rel="stylesheet" type="text/css" />
+	<link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/control/scrollbar/xwf.scrollbar.js" type="text/javascript"></script>
+	<style type="text/css">
+		body {
+			margin: 15px;
+			overflow: hidden;
+		}
+
+		#div1 {
+			margin: 50px;
+			width: 600px;
+			height: 500px;
+			border: solid 1px Olive;
+			overflow: hidden;
+		}
+
+		#div2 {
+			width:  1400px;
+			border: dotted 1px red;
+		}
+	</style>
+</head>
+<body onload="formLoad();">
+	<div style="margin:10px 0px 0px 20px;">		
+		<input type="button" id="btnHide" onclick="btnHide_click();" value="隐藏" />
+		<input type="button" id="btnShow" onclick="btnShow_click();" value="显示" />
+		<input type="button" id="btnTest" onclick="btnTest_click();" value="测试" />
+	</div>
+	<div id="divTop" style="border:dotted 1px red;width:500px;height:100px;"></div>
+	<div id="div1">
+		<div id="div2">
+			div2-1<br />
+			div2-2<br />
+			div2-3
+		</div>		
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var divTop = gId("divTop");
+	var div1 = gId("div1");
+	var div2 = gId("div2");
+
+	var scrollbar = new window.xwf_scrollbar();
+	// ----------------------------------------------------
+	function formLoad() {
+		var arrHtml = new Array();
+		for (var i = 1; i <= 100; i++) {
+			arrHtml.push("<li>DIV - LINE " + i);
+		}
+		div2.innerHTML = arrHtml.join("");
+
+		var json = {
+			domContainer: div1,
+			multipleV: div2.offsetHeight / div1.clientHeight,
+			multipleH: div2.offsetWidth / div1.clientWidth,
+			onVScroll: onVScroll,
+			onHScroll: onHScroll
+		};
+		scrollbar = new window.xwf_scrollbar(json);
+	}
+
+	function btnShow_click() {
+		divTop.style.display = "";
+	}
+	function btnHide_click() {
+		divTop.style.display = "none";
+	}
+</script>
+
+<!-- 滚动事件 -->
+<script type="text/javascript">
+	var nCount = 0;
+	// -------------------------------------------------------
+	function onVScroll(percent) {
+		debug("onVScroll - " + nCount++ + ",   % = " + percent.toFixed(2));
+
+		div1.scrollTop = div1.scrollHeight * percent;
+	}
+	function onHScroll(percent) {
+		//debug("onHScroll - " + percent);
+
+		div1.scrollLeft = div1.scrollWidth * percent;
+	}
+</script>
+<!-- 测试 -->
+<script type="text/javascript">
+	function btnTest_click() {
+		div1.style.display = (div1.style.display.equals("") ? "none" : "");
+	}
+</script>

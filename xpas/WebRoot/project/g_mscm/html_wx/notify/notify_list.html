@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>补货通知列表窗口</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript_mobile/xmf.wx_css.js"></script>
+    <link rel="stylesheet" href="../../css/common.css">
+    <script src="../../js/g_mscm_wechat.js"></script>
+    <style>
+        .container {
+            top: 52px;
+            height: calc(100% - 72px);
+        }
+        .list {
+            display: flex;
+            border-bottom: solid 1px #e8e8e8;
+            padding: 10px 15px 10px 0;
+            margin: 0 0 0 10px;
+            position: relative;
+            background: #fff;
+        }
+        .list:last-child {
+            border-bottom: solid 0 #e8e8e8;
+        }
+        .list::after {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            content: "";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: url("../../images/weixin/next.png") no-repeat;
+            background-size: cover;
+            transform: translateY(-8px);
+        }
+        .list .list-lt {
+            position: relative;
+            width: 60px;
+            color: #000;
+        }
+        .list .list-lt .img {
+            width: 40px;
+            height: 40px;
+        }
+        .list .list-lt .date {
+            display: inline-block;
+            width: 100%;
+            font-size: 14px;
+            text-align: left;
+        }
+        .list .list-lt .badge {
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            background: red;
+            border-radius: 50%;
+            font-size: 12px;
+            color: #fff;
+            text-align: center;
+        }
+        .list.no-badge .list-lt .badge {
+            display: none;
+        }
+        .list .list-rt {
+            width: calc(100% - 60px);
+            padding-right: 8px;
+            box-sizing: border-box;
+        }
+        .list-item {
+            display: flex;
+            color: #a4a4a4;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .list-item:first-child .item-key {
+            width: 100%;
+            font-weight: 600;
+            color: #383838;
+        }
+        .list-item:last-child {
+            margin: 0;
+        }
+        .item-key {
+            width: 118px;
+            min-width: 118px;
+        }
+        .item-value {
+            font-size: 14px;
+            color: #383838;
+        }
+    </style>
+</head>
+<body>
+    <nav id="tab">
+        <span class="back" onclick="win.close();"></span>
+        <div class="tab-title">补货通知列表</div>
+    </nav>
+    <div class="filter" id="filter">
+        <div class="filter-item"></div>
+        <div class="filter-item"></div>
+        <div class="filter-item"><span class="filter-name">近三个月</span><span class="more"></span></div>
+    </div>
+    <div id="main">
+        <div class="container" id="container"></div>
+    </div>
+    <div id="empty-data">
+        <div class="empty-assist"></div>
+        <div class="empty-content">暂无数据</div>
+    </div>
+    <div class="toast toast-loading">
+        <div class="spinner">
+            <div class="spinner-container container1">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container2">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container3">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+        </div>
+        <div class="toast-content">加载中...</div>
+    </div>
+    <div class="toast toast-error">
+        <div class="icon-error"></div>
+        <div class="toast-content">请求失败</div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    // window.onload = function () {
+    //     notifyList.getNotify();
+    // }
+    var notifyList = {};
+    notifyList.init = function () {
+        notifyList.getNotify();
+    }
+
+    // 获取记帐单
+    notifyList.getNotify = function () {
+        // 加载中...
+        $('.toast-loading').show();
+        if(g.a.send("processType=g_mscm.weixin.BillSp&actionType=getNotify", {}, true)) {
+            if(g.a.OK) {
+                var notify = g.a.cReturn.notify;
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                if(notify.rowCount) {
+                    $('#empty-data').hide();
+                    var array = getArray(notify);
+                    var listDom = "";
+                    var conDom = document.getElementById('container');
+                    conDom.innerHTML = "";
+                    for(var j in array) {
+                        var rnDate = array[j]["rn_date"].replaceAll(/\//g, '.').substring(5, 10);
+                        var rnDeliveryDate = array[j]["rn_delivery_date"].replaceAll(/\//g, '.');
+                        listDom += '<div class="list">'
+                                        +'<div class="list-lt">'
+                                            +'<img src="../../images/weixin/forten_logo.png" class="img" alt="" />'
+                                            +'<span class="date">'+ rnDate +'</span>'
+                                            +'<span class="badge">'+ array[j]["status_num"] +'</span>'
+                                        +'</div>'
+                                    +'<div class="list-rt">'
+                                        +'<div class="list-item">'
+                                            +'<div class="item-key">'+ array[j]["company_name"] +'</div>'
+                                            +'<div class="item-value"></div>'
+                                        +'</div>'
+                                        +'<div class="list-item">'
+                                            +'<div class="item-key">通知单号</div>'
+                                            +'<div class="item-value">'+ array[j]["rn_key"] +'</div>'
+                                        +'</div>'
+                                        +'<div class="list-item">'
+                                            +'<div class="item-key">送达日期</div>'
+                                            +'<div class="item-value">'+ rnDeliveryDate +'</div>'
+                                        +'</div>'
+                                        +'<div class="list-item">'
+                                            +'<div class="item-key">备注</div>'
+                                            +'<div class="item-value">'+ array[j]["rn_remark"] +'</div>'
+                                        +'</div>'
+                                    +'</div>'
+                                +'</div>';
+                    }
+                    conDom.innerHTML = listDom;
+                    // 判断每一个 list 下 badge 得值，为 0 则不显示 badge
+                    for (let i = 0; i < $('.list').length; i++) {
+                        let badge = $('.list')[i].childNodes[0].childNodes[2].innerText;
+                        if (badge == 0) {
+                            $('.list')[i].classList.add('no-badge');
+                        }
+                    }
+                    // 列表点击事件
+                    $('.list').on('click', function() {
+                        // win.close();
+                        var tabIndex = $('.tab-item.active').index();
+                        var index = $(this).index();
+                        // var prop = {
+                        //     url: "notify/notify.html"
+                        // };
+                        // var para = array[index]['rep_notify_id'];
+                        // topWin.openFullWindow(prop, para);
+                        var tbName = 'T_REP_NOTIFY';
+                        var foreignKey = array[index]['rep_notify_id'];
+                        var url = '/xpas/project/g_mscm/html_wx/app/matrDetails.html?tbName='+tbName+'&foreignKey='+foreignKey;
+                        window.location.href = url;
+                    });
+                } else {
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('');
+                }
+            } else {
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                $('.toast-error').show();
+                // 请求失败
+                setTimeout(function () {
+                    $('.toast-error').hide();
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }, 2000);
+                return false;
+            }
+        }
+    }
+
+    notifyList.init();
+</script>

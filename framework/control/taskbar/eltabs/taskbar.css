@@ -1,0 +1,20 @@
+﻿/** yeah, #taskbar is a great innovation **/
+#taskbar .el-tabs__nav {
+    border: 0px !important;
+}
+
+#taskbar .el-tabs__item {
+    color: white !important;
+    border: 0px !important;
+}
+
+    #taskbar .el-tabs__item:hover {
+        color: yellow !important;
+    }
+
+#taskbar .is-active {
+    height: 39px !important;
+    line-height: 39px !important;
+    --color: yellow !important;
+    background-color: #409EFF !important;
+}

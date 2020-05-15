@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>表同步规则明细</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="divDC" style="width:800px" class="ScreenCenter"></div>
+    <div class="PanelA">
+        <form id="frm" action="" target="">
+            <table id="tbForm" class="tbForm" style="width:100%">
+                <tr id="trH">
+                    <th style="width: 15%;"></th>
+                    <th style="width: 35%;"></th>
+                    <th style="width: 20%;"></th>
+                    <th style="width: 30%;"></th>
+                </tr>
+                <tr>
+                    <td>sync_key</td>
+                    <td><input type="text" id="_cSYNC_KEY" controlType="dropdown" fieldValue='sync_key' fieldText="sync_name" fieldsVisible="sync_key,sync_name" widthPanel="350" widthFields="40,60" visibleSearch="false" /></td>
+                    <td>table_key</td>
+                    <td><input type="text" id="_cTABLE_KEY" controlType="dropdown" fieldValue='table_key' fieldText="table_key" visibleSN="true" fieldsVisible="table_key, table_name" widthPanel="500" widthFields="60,40" pageMaxRows="15" rowClick="onTableKey_RowClick()" /></td>
+                </tr>
+                <tr>
+                    <td>database_key</td>
+                    <td><input type="text" id="_cDatabase_key" disabled="disabled" /></td>
+                    <td>table_name</td>
+                    <td><input type="text" id="_cTable_name" disabled="disabled" /></td>
+                </tr>
+                <tr>
+                    <td>主键字段</td>
+                    <td><input type="text" id="_cPkey_fields" /></td>
+                    <td>保持自增量字段值</td>
+                    <td><input type="checkbox" id="_cKeep_identity" /><label for="_cKeep_identity">保持</label></td>
+                </tr>
+                <tr>
+                    <td>sync_type</td>
+                    <td><input type="text" id="_cSync_type" controlType="dropdown" fieldValue="sync_type" fieldText="sync_type_name" dataSource="[['sync_type','sync_type_name'],['CDATE_MDATE','CDATE_MDATE']]" visibleSearch="false" /></td>
+                    <td>序号</td>
+                    <td><input type="text" id="_cSync_order" /></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var frmParent = null;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        frmParent = win.parentWindow.frm;
+        vf.css(gId("tbForm"));
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    vf.afterLoad = function () {
+        frm._cTABLE_KEY.instance.rowClick = onTableKey_RowClick;
+    }
+
+    vf.beforeSave = function () {
+        return true;
+    }
+    vf.afterAddnew = function () {
+        frm._cSync_type.setValue("CDATE_MDATE");
+        frm._cPkey_fields.value = "";
+        frm._cSync_order.value = "999";
+        frm._cKeep_identity.checked = true;
+    }
+
+    function onTableKey_RowClick(para) {
+        var dataRow = para.dataRow;
+
+        frm._cDatabase_key.value = dataRow["database_key"].value;
+        frm._cTable_name.value = dataRow["table_name"].value;
+        return true;
+    }
+</script>

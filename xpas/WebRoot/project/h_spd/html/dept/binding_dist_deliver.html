@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>配送出库单</title>
+    <link rel="stylesheet" href="../../../../res_plugin/zui-1.8.1-dist/css/zui.min.css" />
+    <link rel="stylesheet" href="../../../../res_plugin/zui-1.8.1-dist/css/zuiExt.css" />
+    <script src="../../../../res_plugin/zui-1.8.1-dist/lib/jquery/jquery.js"></script>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/js/zui.min.js"></script>
+    <script src="../../../../res_plugin/zui-1.8.1-dist/js/zuiExt.js"></script>
+    <script src="../../../g_spd/js/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+    <script src="../../../../res/jscript/xwf.datatable.js"></script>
+    <!-- <script src="../../../../res/control/uvform/xwf.uvform.js"></script> -->
+    <script src="../../../../res/control/grid/xwf.grid.js"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js"></script>
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+    <script src="../../../g_spd/js/barcode_parse.js"></script>
+    <style>
+        html,
+        body,
+        .container-fluid {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .container-fluid {
+            overflow: hidden;
+        }
+        
+        .row {
+            margin-bottom: 10px;
+        }
+        
+        .form-horizontal input.form-control {
+            line-height: 32px;
+        }
+        
+        label {
+            margin-top: 6px;
+        }
+        
+        .row.row-distDtl {
+            display: flex;
+            justify-content: space-between;
+            justify-items: center;
+        }
+        
+        .row.row-distDtl .PanelA {
+            flex: 1;
+        }
+        
+        .PanelA.table-dtl {
+            margin: 0 10px;
+        }
+        
+        .tbForm.table {
+            margin: 0;
+        }
+        
+        .table-dtl,
+        .divGridDtl,
+        .divGridDtlPool {
+            height: calc(100% - 42px);
+        }
+        
+        .divGridDtl,
+        .divGridDtlPool {
+            width: 100%;
+        }
+        
+        .icon.icon-refresh {
+            margin-right: 5px;
+        }
+        
+        .btn-refresh {
+            visibility: hidden;
+        }
+        
+        .form-horizontal .required::after {
+            top: 0;
+            right: -10px;
+        }
+        
+        .divGridDtl input {
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row row-extraBtn">
+            <div class="col-md-12">
+                <button id="btn-confirm" class="btn btn-primary" type="button">确定</button>
+                <button id="btn-close" class="btn btn-default" type="button">关闭</button>
+            </div>
+        </div>
+        <div class="row row-distInfo">
+            <div class="col-md-12">
+                <!-- 请领配送出库单信息展示 -->
+                <div class="PanelA">
+                    <form class="form-horizontal" id="frm" action="" target="">
+                        <table class="tbForm table table-hover table-borderless table-condensed">
+                            <tr>
+                                <td class="col-md-1">配送单号：</td>
+                                <td class="col-md-3"><input class="form-control dist_key" id="dist_key" placeholder="扫描配送出库单" onkeydown="enterPress(event)" /></td>
+                                <td class="col-md-1">员工编号：</td>
+                                <td class="col-md-3"><input class="form-control staff_code" id="staff_code" placeholder="扫描配送人员编号，分配配送出库单" onkeydown="enterPress(event)" /></td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row row-distDtl">
+            <!-- 请领配送出库单明细展示 -->
+            <div class="PanelA table-dtl PanelA-divGridDtlPool">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="btn-all" class="btn btn-success btn-all" type="button"><i class="icon icon-refresh"></i>全部</button>
+                    </div>
+                </div>
+                <!-- 配送出库需求池明细信息展示 -->
+                <div class="divGridDtlPool" id="divGridDtlPool"></div>
+            </div>
+            <div class="PanelA table-dtl PanelA-divGridDtl">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="btn-refresh" class="btn btn-success btn-refresh" type="button">刷新</button>
+                    </div>
+                </div>
+                <!-- 配送出库实际明细信息展示 -->
+                <div class="divGridDtl" id="divGridDtl"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var gridDtlGridViewFilter = '';
+        var distAdd = {
+            rowExtraBtn: $(".row-extraBtn"),
+            rowDistInfo: $(".row-distInfo"),
+            rowDistDtl: $(".row-distDtl"),
+            divGridDtlPool: gId("divGridDtlPool"),
+            divGridDtl: gId("divGridDtl"),
+            gwWoDtlPool: null,
+            gwWoDtl: null
+        };
+
+        function formLoad() {
+            g.x.bindEnterEvent(gId('dist_key'), distKeyScanEnter);
+            g.x.bindEnterEvent(gId('staff_code'), onTxtScanEnter);
+        }
+
+        distAdd.init = function() {
+            var distDtlHeight = $('body').height() - $('.row-extraBtn').height() - $('.row-distInfo').height() - 30;
+            $('.row-distDtl').css({
+                height: distDtlHeight
+            });
+
+            $('.dist_key').focus();
+
+            distAdd.showGridDtlPool();
+            distAdd.showGridDtl();
+        };
+
+        // 关闭页面
+        $('#btn-close').on('click', function() {
+            win.close();
+        });
+
+        // 刷新页面
+        $('.btn-all').on('click', function() {
+            distIdsArr = [];
+            distIds = "";
+            distAdd.showGridDtlPool();
+            distAdd.gwWoDtlPool.refresh();
+            distAdd.showGridDtl();
+        });
+
+        // 显示未绑定配送人的出库单
+        distAdd.showGridDtlPool = function(distIds) {
+            var gridViewFilter = "";
+            if (distIds) {
+                gridViewFilter += " dist_id NOT IN (" + distIds + ")";
+            }
+            if (distAdd.gwWoDtlPool === null) {
+                var prop = {
+                    divContainer: distAdd.divGridDtlPool,
+                    viewKey: "dist_unbinding_deliver",
+                    viewFilter: gridViewFilter,
+                    viewForm: "",
+                    toolbarVisible: true,
+                    rowClick: distAdd.onRowSelectPool
+                };
+
+                distAdd.gwWoDtlPool = new window.xwf_gridview(prop);
+            } else {
+                distAdd.gwWoDtlPool.setViewFilter(gridViewFilter);
+            }
+        }
+
+        // 显示将要绑定配送人的配送单
+        distAdd.showGridDtl = function(distIds) {
+            var gridViewFilter = "1 = 0";
+            if (distIds) {
+                gridViewFilter = "dist_id IN (" + distIds + ")";
+            }
+            if (distAdd.gwWoDtl === null) {
+                var prop = {
+                    divContainer: distAdd.divGridDtl,
+                    viewKey: "dist_unbinding_deliver",
+                    viewFilter: gridViewFilter,
+                    viewForm: "",
+                    toolbarVisible: true,
+                    rowClick: distAdd.onRowSelect
+                };
+
+                distAdd.gwWoDtl = new window.xwf_gridview(prop);
+            } else {
+                distAdd.gwWoDtl.setViewFilter(gridViewFilter);
+            }
+        }
+
+        // 点击需求池中的明细行,选择对应的实际出库明细记录
+        var startTime = 0;
+        var endTime = 0;
+        var distIds = '',
+            distIdsArr = [];
+        distAdd.onRowSelectPool = function(para) {
+            startTime = endTime;
+            endTime = (new Date()).getTime();
+
+            if ((endTime - startTime) < 300) {
+                if (para.dataRow) {
+                    distIds = '';
+                    // 双击代码实现
+                    if (distIdsArr.length == 0) {
+                        distIdsArr.push(para.dataRow["dist_id"].value);
+                    } else if (distIdsArr.length) {
+                        var flag = false;
+                        for (var j = 0; j < distIdsArr.length; j++) {
+                            if (para.dataRow["dist_id"].value == distIdsArr[j]) {
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if (!flag) {
+                            distIdsArr.push(para.dataRow["dist_id"].value);
+                        }
+
+                    }
+
+                    distIds = distIdsArr.join(',');
+
+                    distAdd.showGridDtl(distIds);
+                    distAdd.showGridDtlPool(distIds);
+                    $('.staff_code').focus();
+                }
+            } else {
+                // 单击代码实现
+            }
+        }
+
+        distAdd.onRowSelect = function(para) {
+            startTime = endTime;
+            endTime = (new Date()).getTime();
+
+            if ((endTime - startTime) < 300) {
+                if (para.dataRow) {
+                    distIds = '';
+                    // 双击代码实现
+                    for (var i = 0; i < distIdsArr.length; i++) {
+                        if (para.dataRow["dist_id"].value == distIdsArr[i]) {
+                            var item = distIdsArr.splice(i, 1);
+                        }
+                    }
+
+                    distIds = distIdsArr.join(',');
+
+                    distAdd.showGridDtl(distIds);
+                    distAdd.showGridDtlPool(distIds);
+                    $('.staff_code').focus();
+                }
+            } else {
+                // 单击代码实现
+            }
+        }
+
+        $('#btn-confirm').on('click', function() {
+            onTxtScanEnter();
+        });
+
+        function distKeyScanEnter() {
+            distIds = "";
+            if ($('.dist_key').val().trim() == "") {
+                new $.zui.Messager('配送出库单不能为空！', {
+                    type: 'warning'
+                }).show();
+                return false;
+            };
+
+            if (distAdd.gwWoDtlPool.dtbViewData.rowCount = 0) {
+                new $.zui.Messager('暂无可操作的配送出库单！', {
+                    type: 'warning'
+                }).show();
+                return false;
+            }
+
+            var unfinished = distAdd.formatObjectData(distAdd.gwWoDtlPool.dtbViewData.rows);
+
+            for (var i = 0; i < unfinished.length; i++) {
+                if ($('.dist_key').val().trim() == unfinished[i]['dist_key']) {
+                    distIdsArr.push(unfinished[i]['dist_id']);
+                }
+            }
+            distIds = distIdsArr.join(',');
+
+            distAdd.showGridDtl(distIds);
+            distAdd.showGridDtlPool(distIds);
+
+            $('.dist_key').val('');
+            $('.dist_key').focus();
+        }
+
+        function onTxtScanEnter() {
+            if ($('.staff_code').val().trim() == "") {
+                new $.zui.Messager('配送人编码不能为空！', {
+                    type: 'warning'
+                }).show();
+                return false;
+            } else if (distIds == "") {
+                new $.zui.Messager('绑定配送单数量不能为空！', {
+                    type: 'warning'
+                }).show();
+                return false;
+            }
+
+
+            var params = {
+                staffCode: $('.staff_code').val().trim(),
+                distIds: distIds,
+                viewKey: "dist_unbinding_deliver"
+            };
+            if (g.a.send("processType=h_spd.op.VIEW_thdDist&actionType=updateDistDeliver", params, true)) {
+                if (g.a.OK) {
+                    var data = g.a.cReturn.data;
+
+                    if (data == 1) {
+                        new $.zui.Messager('已为配送人成功绑定配送单！', {
+                            type: 'success'
+                        }).show();
+                        distAdd.showGridDtlPool();
+                        distAdd.showGridDtl();
+                        distIds = "";
+                        distIdsArr = [];
+                        $('.staff_code').val('');
+                    } else {
+                        new $.zui.Messager('为配送人绑定配送单失败！', {
+                            type: 'warning'
+                        }).show();
+                        return false;
+                    }
+
+                } else {
+                    new $.zui.Messager('为配送人绑定配送单发生意外错误！', {
+                        type: 'danger'
+                    }).show();
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        // 后台返回数据格式化
+        distAdd.formatObjectData = function(arr) {
+            var array = [],
+                len = arr.length;
+            for (var i = 0; i < len; i++) {
+                var obj = {};
+                Object.keys(arr[i]).forEach(function(key) {
+                    if (isNaN(key) && key !== '$') {
+                        obj[key] = arr[i][key].value;
+                    }
+                });
+                array.push(obj);
+            }
+            return array;
+        }
+
+        distAdd.init();
+    </script>
+</body>
+
+</html>

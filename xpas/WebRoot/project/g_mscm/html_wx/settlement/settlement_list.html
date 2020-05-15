@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>结算单列表窗口</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript_mobile/xmf.wx_css.js"></script>
+    <link rel="stylesheet" href="../../css/common.css">
+    <script src="../../js/g_mscm_wechat.js"></script>
+    <style>
+        #tab {
+            box-shadow: 0px 1px 4px 0px #e6e6e6;
+        }
+        .container {
+            top: 52px;
+            height: calc(100% - 72px);
+        }
+        .list {
+            position: relative;
+            display: flex;
+            border-bottom: solid 1px #e8e8e8;
+            padding: 10px 15px 10px 0;
+            box-sizing: border-box;
+            margin: 0 10px 0 15px;
+            background: #fff;
+        }
+        .list:last-child {
+            border-bottom: solid 0 #e8e8e8;
+        }
+        .list::after {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            content: "";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: url("../../images/weixin/next.png") no-repeat;
+            background-size: cover;
+            transform: translateY(-8px);
+        }
+        .list .list-lt {
+            width: 42px;
+            font-size: 16px;
+            color: #000;
+        }
+        .list .list-rt {
+            width: calc(100% - 42px);
+        }
+        .list .list-rt,
+        .item-key {
+            padding-left: 8px;
+        }
+        .item-value {
+            padding-right: 8px;
+        }
+        .list-item {
+            display: flex;
+            color: #a4a4a4;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .list-item:last-child {
+            margin: 0;
+        }
+        .item-key {
+            width: 88px;
+            min-width: 88px;
+        }
+    </style>
+</head>
+<body>
+    <nav id="tab">
+        <span class="back" onclick="win.close();"></span>
+        <div class="tab-title">结算单列表</div>
+    </nav>
+    <div id="main">
+        <div class="container" id="container"></div>
+    </div>
+    <div id="empty-data">
+        <div class="empty-assist"></div>
+        <div class="empty-content">暂无数据</div>
+    </div>
+    <div class="toast toast-loading">
+        <div class="spinner">
+            <div class="spinner-container container1">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container2">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container3">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+        </div>
+        <div class="toast-content">加载中...</div>
+    </div>
+    <div class="toast toast-error">
+        <div class="icon-error"></div>
+        <div class="toast-content">请求失败</div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+    var settlementList = {};
+    settlementList.init = function () {
+        // 加载中...
+        $('.toast-loading').show();
+        if (g.a.send("processType=g_mscm.weixin.BillSp&actionType=getSettlement", {}, true)) {
+            if (g.a.OK) {
+                var settlement = g.a.cReturn.settlement;
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                if (settlement.rowCount) {
+                    $('#empty-data').hide().siblings('#main').find('.container').html('').show();
+                    var array = getArray(settlement);
+                    var listDom = "";
+                    var conDom = document.getElementById('container');
+                    conDom.innerHTML = "";
+                    for(var j in array) {
+                        var sDate = array[j]["settlement_date"].replaceAll(/\//g, '.').substring(5, 10);
+                        var sDate1 = array[j]["settlement_date1"].replaceAll(/\//g, '.');
+                        var sDate2 = array[j]["settlement_date1"].replaceAll(/\//g, '.');
+                        listDom += '<div class="list">'
+                                        +'<div class="list-lt">'
+                                            +'<span class="date">'+ sDate +'</span>'
+                                        +'</div>'
+                                        +'<div class="list-rt">'
+                                            +'<div class="list-item">'
+                                                +'<div class="item-key">结算单号</div>'
+                                                +'<div class="item-value">'+ array[j]["settlement_key"] +'</div>'
+                                            +'</div>'
+                                            +'<div class="list-item">'
+                                                +'<div class="item-key">结算金额</div>'
+                                                +'<div class="item-value">'+ array[j]["settlement_amount"] +'元</div>'
+                                            +'</div>'
+                                            +'<div class="list-item">'
+                                                +'<div class="item-key">起始-截至</div>'
+                                                +'<div class="item-value">'+ sDate1 +'-'+ sDate2 +'</div>'
+                                            +'</div>'
+                                            +'<div class="list-item">'
+                                                +'<div class="item-key">备注</div>'
+                                                +'<div class="item-value">'+ array[j]["settlement_remark"] +'</div>'
+                                            +'</div>'
+                                        +'</div>'
+                                    +'</div>';
+                    }
+                    conDom.innerHTML = listDom;
+                    $('.list').on('click', function() {
+                        var index = $(this).index();
+                        var prop = {
+                            url: "settlement/settlement.html"
+                        };
+                        var para = array[index]['settlement_key'];
+                        topWin.openFullWindow(prop, para);
+                    });
+                } else {
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('');
+                }
+            } else {
+                // loading 加载隐藏
+                $('.toast-loading').hide();
+                $('.toast-error').show();
+                // 请求失败
+                setTimeout(function () {
+                    $('.toast-error').hide();
+                    // 暂无数据
+                    $('#empty-data').show().siblings('#main').find('.container').html('').hide();
+                }, 2000);
+                return false;
+            }
+        }
+    }
+
+    settlementList.init();
+</script>

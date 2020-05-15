@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>DoYsUI index</title>
+    <style type="text/css">
+        li {
+            margin: 15px;
+            font-size: large;
+        }
+    </style>
+</head>
+<body onload="formLoad()">
+    <div id="divLink"></div>
+</body>
+</html>
+
+<script>
+    function formLoad() {
+        var rnd = Math.random();
+        var url = window.location.href;
+
+        if (url.indexOf("localhost") > 0) {
+            url = url.replace("localhost", "127.0.0.1");
+
+            window.location = url;
+            return;
+        }
+        var arrHtml = new Array();
+        var arrALink = new Array();
+
+        arrALink.push("test/chrome/debug.html");
+        arrALink.push("test/ajax.html");
+
+        arrALink.push("");
+        arrALink.push("project/aprint/html/login/login.html");
+        arrALink.push("project/aprint/html/login/login.html?userkey=developer&password=34821015&systemKey=001&autoLogin=true");
+        arrALink.push("project/aprint/html/login/login.html?userkey=user1");
+
+        arrHtml.push("<ul>");
+        for (var i = 0; i < arrALink.length; i++) {
+            arrHtml.push("\t<li><a href='" + arrALink[i] + (arrALink[i].indexOf("?") > 0 ? "&" : "?") + "rnd=" + rnd + "'>" + arrALink[i] + "</a></li>");
+        }
+        arrHtml.push("</ul>");
+
+        window.document.getElementById("divLink").innerHTML = arrHtml.join("\n");
+    }
+</script>

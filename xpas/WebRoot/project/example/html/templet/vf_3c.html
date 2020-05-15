@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>3列标准视图窗口模板</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+	<script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>	
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+	<style type="text/css">
+		body {
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<div id="divDC" style="width:1200px" class="ScreenCenter"></div>
+	<div class="PanelA">
+		<form id="frm" action="" target="project.module.class">
+			<table id="tbForm" class="tbForm" style="width:100%">
+				<tr id="trH">
+					<th style="width: 12%;"></th>
+					<th style="width: 17%;"></th>
+					<th style="width: 12%;"></th>
+					<th style="width: 30%;"></th>
+					<th style="width: 12%;"></th>
+					<th style="width: 17%;"></th>
+				</tr>
+				<tr>				
+					<td>单号</td>
+					<td><input type="text" id="_cSN" disabled="disabled" placeholder="由系统自动生成" /></td>
+					<td>标题</td>
+					<td><input type="text" id="_cTitle" /></td>
+					<td>日期</td>
+					<td><input type="text" id="_cDate" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+				</tr>
+				<tr>				
+					<td>名称</td>
+					<td colspan="6"><input type="text" id="_cName" /></td>
+				</tr>
+				<tr>				
+					<td>类别1</td>
+					<td><input type="text" id="_cCatalog_id"  controlType="dropdown" fieldValue="catalog_id" fieldText="catalog_name" dataSource="[['catalog_id','catalog_name'],['1','类别一'],['2','类别二'],['3','类别三']]" /></td>
+					<td>类别2</td>
+					<td><input type="text" id="_cCategory_id"  controlType="dropdown" fieldValue="category_id" fieldText="category_name" dataSource="[['category_id','category_name'],['A','类别A'],['B','类别B'],['C','类别C']]" /></td>
+					<td>选项</td>
+					<td><input type="checkbox" id="_cOption" /><label for="_cOption">选项说明</label></td>
+				</tr>
+				<tr>
+					<td>备注</td>
+					<td colspan="5"><textarea id="_cRemark" rows="5" cols="0"></textarea></td>
+				</tr>
+			</table>
+			<input type="hidden" id="_cID"/>
+		</form>
+	</div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var frmParent = null;
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		frmParent = win.parentWindow.frm;
+        vf.css(gId("tbForm"));
+        vf.addExtraButton({ key: "printWi", text: "打印入库单" });
+	}
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+	vf.afterAddnew = function () {
+		frm._cDate.value = (new Date).toString();
+	}
+</script>

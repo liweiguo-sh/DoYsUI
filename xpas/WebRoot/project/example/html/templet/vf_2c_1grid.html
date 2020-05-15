@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>2列 + 1子网格</title>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script> 
+		
+	<script src="../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target=""> 
+		<table id="tbForm" class="tbForm" style="width:705px;">
+			<tr class="trH">
+				<th style="width:150px;"></th>
+				<th style="width:200px;"></th>
+				<th style="width:150px;"></th>
+				<th style="width:200px;"></th>
+			</tr>
+			<tr>				
+				<td>单号</td>
+				<td><input type="text" id="_cSerialNO" value="" /></td>
+				<td>日期</td>
+				<td><input type="text" id="_cDate" class="Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+			</tr>
+			<tr>				
+				<td>名称</td>
+				<td colspan="3"><input type="text" id="_cName" value="" /></td>
+			</tr>
+			<tr>				
+				<td>类别1</td>
+				<td>
+					<select id="_cType1_Key">
+						<option value="P">采购</option>
+						<option value="S">销售</option>
+						<option value="O">其它</option>
+					</select>
+				</td>
+				<td>类别2</td>
+				<td><input type="text" id="_cType2_ID" value="" textField="field_text" valueField="field_value" colCount="2" searchField="field_text,field_value,field_remark" /></td>
+			</tr>
+			<tr>
+				<td>备注</td>
+				<td colspan="3"><textarea id="_cCallback_remark" rows="3" cols="0"></textarea></td>
+			</tr>
+		</table>		
+		<input id="_cID" type="hidden" value="" />
+	</form>
+    <div id="divGrid"></div> 
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var frmParent = null; 
+    var gridview = null;
+
+    var divGrid = gId("divGrid");
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		frmParent = win.parentWindow.frm;
+        vf.css(gId("tbForm"));
+        vf.addExtraButton({ key: "printWi", text: "打印入库单" });
+	}
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+	vf.afterAddnew = function () {
+		frm._cDate.value = (new Date).toString();
+	}
+
+    vf.afterMove = function () {
+        var foreignKeyId = frm._cID.value.toInt();
+        if (gridview == null) {
+            var prop = {
+                divContainer: divGrid,
+                viewKey: "viewKey",
+                viewFilter: "foreign_key_id = " + foreignKeyId,
+                viewForm: "project/project_name/html/module_name/edit_form.html"
+            };
+            gridview = new window.xwf_gridview(prop);
+        }
+        else {
+            gridview.setViewFilter("foreign_key_id = " + foreignKeyId);
+        }
+	}	
+</script>

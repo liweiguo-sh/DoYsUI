@@ -1,0 +1,62 @@
+﻿/* 下拉按钮 */
+.xwf_dropgrid_divDrop {
+    position: absolute;
+    cursor: pointer;
+    background-image: url('down.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-left: solid 1px lightGray;
+}
+.xwf_dropgrid_divDrop:hover {
+    background-size: 120%;
+}
+
+/* 下拉面板及滚动条 */
+.xwf_dropgrid_ifrBack {
+    position: absolute;
+    border: solid 0px red;
+    background-color: White;
+    padding: 0px;
+}
+
+.xwf_dropgrid_tbPanel {
+    position: absolute;
+    border-collapse: collapse;
+    border: solid 1px #519BE1;
+    --border-top: solid 1px lightGray;
+    background-color: White;
+    overflow: auto;
+}
+.xwf_dropgrid_tbPanel td {
+    padding: 0px;
+}
+
+.xwf_dropgrid_divVScroll {
+    overflow: scroll;
+    width: 18px;
+    border-top: solid 1px lightGray;
+    border-right: solid 1px lightGray;
+    border-bottom: solid 1px lightGray;
+}
+.xwf_dropgrid_divVScrollH {
+    position: relative;
+    left: -1px;
+    width: 1px;
+}
+/* 数据表格 */
+.xwf_dropgrid_tbData {
+    border-collapse: collapse;
+}
+.xwf_dropgrid_tbData tr:hover {
+    --color: blue;
+    background-color: #d0e6f5;
+}
+.xwf_dropgrid_tbData td {
+    height: 30px;
+    line-height: 30px;
+    padding: 0px 8px 0px 8px;
+    border-left: solid 0px lightGray;
+    white-space: nowrap;
+    cursor: default;
+    font-size: 9;
+}

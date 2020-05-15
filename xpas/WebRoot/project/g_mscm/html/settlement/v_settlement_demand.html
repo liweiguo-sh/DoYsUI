@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>结算单查询</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/excel.js" type="text/javascript"></script>
+    <script src="../../js/resource_print.js" type="text/javascript"></script>
+    <script src="../../js/select_stock.js" type="text/javascript"></script>
+    <script src="../../js/select_storage.js" type="text/javascript"></script>
+    <script src="../../js/barcode_parse.js" type="text/javascript"></script>
+    <link href="../../../../res_plugin/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+	    body {
+	        overflow: hidden;
+	    }
+	    #tbLayout {
+	        border-collapse: collapse;
+	    }
+	    #scanBox {
+	        font-size: 1em;
+	        font-family: Arial;
+	        height: 26px;
+	        line-height: 24px;
+	        border: 2px solid #19A2D5;
+	    }
+	    .fa-medkit {
+	        font-size: 1.5em;
+	        color: #19A2D5;
+	    }
+	    .import-alert {
+	        font-weight: bolder;
+	    }
+	    .a-small {
+	        font-size: 0.9em;
+	        color: Blue;
+	    }
+	    .a-small:hover {
+	        cursor: pointer;
+	        color: #19A2D5;
+	    }
+        #divDC {
+            width: 978px;
+            padding: 5px 0 5px 5px;
+            border: solid 1px lightgray;
+            border-radius: 3px;
+        }
+        .PanelA {
+            width: 963px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #tbForm {
+            width: 100%;
+        }
+        #tbForm thead {
+            display: none;
+        }
+        #tbForm tbody tr {
+            display: block;
+            font-size: 0;
+            margin-bottom: 10px;
+        }
+        #tbForm tbody tr:last-child {
+            margin: 0;
+        }
+        #tbForm tbody td {
+            display: inline-block;
+            padding: 0;
+            line-height: 30px;
+        }
+        #tbForm tbody td:nth-child(odd) {
+            width: 100px;
+        }
+        #tbForm tbody td:nth-child(even) {
+            width: 220px;
+        }
+        #tbForm tbody td input{
+            width: 208px;
+            text-indent: 10px;
+        }
+        #tbForm tbody tr:last-child td:nth-child(2) {
+            width: 860px;
+        }
+        #tbForm tbody tr:last-child td:nth-child(2) input {
+            width: 848px;
+        }
+        .bill-dtl {
+            margin-top: 10px;
+        }
+        #divGridDtl {
+            height: 250px;
+        }
+    </style>
+</head>
+<body>
+    <div id="divDC" class="ScreenCenter"></div>
+    <div class="PanelA">
+        <form id="frm" action="" target="g_mscm.advice.Shipments">
+            <table id="tbForm" class="tbForm">
+                <thead>
+                    <tr id="trH">
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>原结算单单号</td>
+                        <td>
+                            <input type="text" id="_csettlement_key" disabled="disabled" />
+                        </td>
+                        <td>结算总额</td>
+                        <td>
+                            <input type="text" id="_csettlement_amount" disabled="disabled" />
+                        </td>
+                        <td>日期</td>
+                        <td>
+                            <input type="text" id="_csettlement_date" disabled="disabled" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>起始日期</td>
+                        <td>
+                            <input type="text" id="_csettlement_date1" disabled="disabled" />
+                        </td>
+                        <td>截止日期</td>
+                        <td>
+                            <input type="text" id="_csettlement_date2" disabled="disabled" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>备注</td>
+                        <td>
+                            <input type="text" id="_csettlement_remark" disabled="disabled" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <input type="hidden" id="_castatus" value="0" />
+            <input type="hidden" id="_ccompany_id" value="0" />
+            <input type="hidden" id="_ccompany_id_mi" value="0" />
+        </form>
+    </div>
+    <div class="PanelA bill-dtl">
+        <div id="divGridDtl"></div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    // formLoad --------------------------------------------------------------
+    var frmParent = null;
+    var repNotifyId = 0;
+    var companyId = 0;
+    var userName = "";
+    var repreqDtl = null;
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        frmParent = win.parentWindow.frm;
+        companyId = topWin.companyId;
+        userName = topWin.userName
+        vf.css(gId("tbForm"));
+    }
+
+    // vf.events --------------------------------------------------------------
+    vf.afterAddnew = function() {
+
+    }
+    vf.afterMove = function() {
+        showGridDtl();
+    }
+    vf.beforeClick = function(jsonProp) {
+
+    }
+
+    function showGridDtl() {
+        repreqDtl = null;
+        var gridViewFilter = "1=0";
+        if (frm._csettlement_key.value != null) {
+            gridViewFilter = "settlement_key = '" + frm._csettlement_key.value + "'";
+        }
+        if (repreqDtl == null) {
+            var prop = {
+                divContainer: gId("divGridDtl"),
+                viewKey: "v_bill_detail",
+                viewFilter: gridViewFilter,
+                toolbarVisible: true,
+                viewForm: "",
+                //jsonToolbar: { height: "M", onclick: toolbarClick }
+            };
+            repreqDtl = new window.xwf_gridview(prop);
+            /*   添加明细   */
+            //repreqDtl.toolbar.addBar({ type: "button", key: "btnAddDetail", text: "<i class='fa fa-plus-square' aria-hidden='true'></i>  添加配送信息", align: "left", style: "Grid", icon: null });
+            //repreqDtl.toolbar.addBar({ type: "button", key: "btnSelectDetail", text: "<i class='fa fa-plus-square' aria-hidden='true'></i>  按需添加配送", align: "left", style: "Grid", icon: null });
+            //repreqDtl.toolbar.addBar({ type: "button", key: "btnDelete", text: "<i class='fa fa-minus-square' aria-hidden='true'></i>  删除配送信息", align: "left", style: "Grid", icon: null });
+        } else {
+            repreqDtl.setViewFilter("");
+        }
+        var dtb = repreqDtl.dtbViewData;
+        if (dtb.rowCount > 0) {
+            //clearEditForm();
+        }
+    }
+</script>

@@ -1,0 +1,79 @@
+﻿/* 顶级面板 */
+.xwf_dropdown_divPanel {
+    position: absolute;
+    background-color: #f0f0f0;
+    border: solid 1px #519BE1;
+}
+
+.xwf_dropdown_txtSearch {
+    height: 21px;
+    line-height: 21px;
+    color: Blue;
+    border: solid 1px #c0c0c0;
+    padding: 2px 0px 2px 3px;
+    background-color: White;
+}
+
+.xwf_dropdown_tbPanel {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.xwf_dropdown_tdPanel {
+    padding: 0px;
+    vertical-align: top;
+}
+
+.xwf_dropdown_divData {
+    background-color: White;
+}
+
+/* 滚动条 */
+.xwf_dropdown_divScrollA {
+    border-top: solid 1px #519BE1;
+    border-left: solid 0px;
+    border-right: solid 1px #519BE1;
+    border-bottom: solid 1px #519BE1;
+    background-color: #f0f0f0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.xwf_dropdown_divScrollB {
+    width: 2px;
+    background-color: Red;
+    margin-left: -5px;
+}
+
+/* -- 表头区 --*/
+.xwf_dropdown_th {
+    color: blue;
+    overflow: hidden;
+    padding: 3px 0px 3px 0px;
+    border: solid 1px #c0c0c0;
+}
+/* -- 数据区 --*/
+.xwf_dropdown_tbData {
+    cursor: pointer;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+    .xwf_dropdown_tbData td {
+        font-size: 10pt;
+        overflow: hidden;
+        padding: 3px 0px 3px 0px;
+        border: solid 1px #c0c0c0;
+    }
+
+    .xwf_dropdown_tbData span {
+        padding: 0px 3px 0px 5px;
+    }
+
+.xwf_dropdown_tdSN {
+    text-align: center;
+}
+
+.xwf_dropdown_tdActive {
+    background-color: #d0e6f5;
+}

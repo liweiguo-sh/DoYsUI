@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>参数类别表</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+	<form id="frm" action="" target="com.xznext.xpas.ParaManagement">
+		<table id="tbForm" class="tbForm" style="width:605px;">
+			<tr class="trH">
+				<th style="width:130px;"></th>
+				<th style="width:200px;"></th>
+				<th style="width:130px;"></th>
+				<th style="width:140px;"></th>
+			</tr>
+			<tr>				
+				<td>参数类别标识：</td>
+				<td><input type="text" id="_cCatalog_key" value="" /></td>
+				<td>序号：</td>
+				<td><input type="text" id="_cCatalog_order" value="" /></td>
+			</tr>
+			<tr>				
+				<td>参数类别名称：</td>
+				<td colspan="3"><input type="text" id="_cCatalog_name" value="" /></td>
+			</tr>
+			<tr>
+				<td>备注：</td>
+				<td colspan="3"><textarea id="_cCatalog_remark" rows="3" cols="0"></textarea></td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	// ----------------------------------------------------
+	function formLoad() {
+		vf.css(gId("tbForm"));
+	}
+</script>
+
+<!-- vf事件 -->
+<script type="text/javascript">
+	vf.afterAddnew = function () {
+		frm._cCatalog_order.value = "999";
+	}
+</script>

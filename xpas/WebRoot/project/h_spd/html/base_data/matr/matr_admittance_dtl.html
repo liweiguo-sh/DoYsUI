@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>申请耗材</title>
+	<script src="../../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../../res/jscript/xwf.const.js"></script> 
+    
+    <script src="../../../../../res/control/uvform/xwf.uvform.js"></script>
+
+	<script src="../../../../../res/jscript/xwf.css.js"></script>
+</head>
+<body>
+	<div id="divDC"></div>
+    <div class="PanelA">
+	    <form id="frm" action="" target=""> 
+		    <table id="tbForm" class="tbForm" style="width:500px;">
+			    <tr class="trH">
+				    <th style="width:30%;"></th>
+				    <th style="width:70%;"></th>
+			    </tr>
+			    <tr>				
+				    <td>品名</td>
+				    <td><input type="text" id="_cMatr_name" /></td>
+			    </tr>
+			    <tr>				    
+					<td>品规</td>
+				    <td><input type="text" id="_cMatr_spec" /></td>
+			    </tr>
+				<tr>				    
+					<td>厂商</td>
+				    <td><input type="text" id="_cMfg_name" /></td>
+			    </tr>
+				<tr>				    
+					<td>供应商</td>
+				    <td><input type="text" id="_cSp_name" disabled="disabled" /></td>
+			    </tr>				
+			    <tr>
+				    <td>备注</td>
+				    <td><textarea id="_cRemark" rows="3" cols="0"></textarea></td>
+			    </tr>
+		    </table>		
+		    <input id="_cMATR_ADMITTANCE_DTL_ID" type="hidden" />
+			<input id="_cMATR_ADMITTANCE_ID" type="hidden" />
+	    </form>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+	var matrAdmittanceId = 0;
+	var flowNodeKey = "";
+
+	var frmParent = null;
+    // ------------------------------------------------------------------------
+	function formLoad() {
+		frmParent = win.parentWindow.frm;
+		matrAdmittanceId = frmParent._cMATR_ADMITTANCE_ID.value.toInt();
+		flowNodeKey = win.parentWindow.flowNodeKey;
+		if (flowNodeKey.equals("13") || flowNodeKey.equals("16")) {
+			// -- 设备科节点 --
+			frm._cSp_name.disabled = false;
+		}
+
+		vf.css(gId("tbForm"));
+	}
+</script>
+
+<!-- vf.events -->
+<script>
+	vf.afterAddnew = function () {
+		frm._cMATR_ADMITTANCE_ID.value = matrAdmittanceId;
+	}
+</script>

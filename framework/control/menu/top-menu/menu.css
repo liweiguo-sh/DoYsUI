@@ -1,0 +1,32 @@
+﻿/** 参考：https://blog.csdn.net/FANKYIXUN/article/details/84099343 **/
+
+.el-menu {
+    border-bottom: solid 0px red !important;
+}
+
+.el-submenu__title, .el-menu-item {
+    background-color: white !important;
+}
+
+.el-submenu__title {
+    font-size: 12pt !important;
+}
+
+    .el-submenu__title:hover {
+        color: white !important;
+        background: #409EFF !important;
+    }
+
+.el-menu-item {
+    font-size: 12pt !important;
+}
+
+    .el-menu-item:hover {
+        outline: 0 !important;
+        color: white !important;
+        background: #409EFF !important;
+    }
+
+    .el-menu-item.is-active {
+        color: orange !important;
+    }

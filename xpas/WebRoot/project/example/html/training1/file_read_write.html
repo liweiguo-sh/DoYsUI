@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>文件读写测试</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/excel.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+	<!-- 样式表 -->
+	<style type="text/css">
+		.rangeTitle {
+			color: Olive;
+			font-weight: bold;
+			border: 1px dotted Gray;
+			padding: 3px 0px 3px 0px;
+		}
+	</style>
+</head>
+<body>
+	<div class="rangeTitle">前台Java Script读取文件</div>
+	<div id="divJsRead" class="divButtons">
+		<input type="button" id="btnReadDefault" onclick="btnReadTxt_click(-2);" value="txt/csv(默认格式gbk|gb2312)" />
+		<input type="button" id="btnReadUTF16" onclick="btnReadTxt_click(-1);" value="txt/csv(utf-16)" />
+		<input type="button" id="btnReadExcelAdo" onclick="btnReadExcelAdo_click();" value="xlsx(ado方式)" />
+		<input type="button" id="btnReadExcelCom" onclick="btnReadExcelCom_click();" value="xlsx(com方式)" />
+	</div>
+	<div class="rangeTitle">后台Java读取文件 ...</div>
+	<div id="divJavaRead" class="divButtons">
+		<input type="button" id="btnJavaReadTxt" onclick="javaReadWrite('txtRead');" value="读取文件(文本方式)" />		
+	</div>
+	<div class="rangeTitle">后台Java写入文件 ...</div>
+	<div id="divJavaWrite" class="divButtons">
+		<input type="button" id="btnJavaWriteGBK" onclick="javaReadWrite('txtWrite','gbk');" value="写入文件(gbk)" />
+		<input type="button" id="btnJavaWriteGB2312" onclick="javaReadWrite('txtWrite','gb2312');" value="写入文件(gb2312)" />
+		<input type="button" id="btnJavaWriteUTF8" onclick="javaReadWrite('txtWrite','utf-8');" value="写入文件(utf-8)" />
+		<input type="button" id="btnJavaWriteUnicode" onclick="javaReadWrite('txtWrite','utf-16');" value="写入文件(utf-16)" />			
+		<br />写入数量(KB)：<input type="text" id="txtNum" value="1" />
+	</div>
+	<div id="divResult" style="width:600px;height:300px;overflow:auto;margin-top:10px;font-family:Courier New;"></div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var divResult = gId("divResult");
+	// ------------------------------------------------------------------------
+	function formLoad() {
+	}
+	function btnClose_click() {
+		win.close();
+	}
+</script>
+
+<!-- 前台Java Script读取文件 -->
+<script type="text/javascript">
+	function btnReadTxt_click(charset) {
+		var strLine = "";
+		var arrText = new Array();
+		var fso = null, read = null;
+		// ------------------------------------------------
+		try {
+			fso = new ActiveXObject("Scripting.FileSystemObject");
+			read = fso.OpenTextFile("c:\\1.txt", 1, false, charset);
+			// -- 参数2：只读；参数3：创建文件；参数4[charset]：编码格式[0:ASCII, -1:Unicode, -2:默认格式, 不支持utf-8] --
+			
+			while (!read.AtEndOfLine) {
+				strText = read.ReadLine();
+				arrText.push(strText);
+			}
+			read.close();
+			fso = null;
+
+			divResult.innerHTML = arrText.join("<br />");
+		}
+		catch (e) {
+			alert(e.toString());
+		}
+		finally { 
+		}
+	}
+
+	function btnReadExcelAdo_click() {
+		openExcel("c:\\1.xlsx");
+		var arrData = workSheetToArray();
+		for (var i = 0; i < arrData.length; i++) {
+			arrData[i] = arrData[i].replaceAll(g.c.CHAR2, "&nbsp;&nbsp;&nbsp;&nbsp;");
+		}
+		divResult.innerHTML = arrData.join("<br />");
+	}
+	function btnReadExcelCom_click() {
+		var nRow = 1;
+		var cellText = "";
+		var arrData = new Array();
+		// ------------------------------------------------
+		openExcel("c:\\1.xlsx");
+		while (true) {
+			nRow++;
+			cellText = oWorkSheet.Cells(nRow, 1).Text;
+			if (cellText.equals("")) break;
+
+			for (var nCol = 1; nCol <= 3; nCol++) {
+				cellText = oWorkSheet.Cells(nRow, nCol);
+				arrData.push(cellText + "&nbsp;&nbsp;&nbsp;&nbsp;");
+			}
+			arrData.push("<br >");
+		}
+		divResult.innerHTML = arrData.join("");
+	}
+</script>
+<!-- 后台 JAVA 读写文件 -->
+<script type="text/javascript">
+	function javaReadWrite(actionType, charset) {
+		var rowCount = gId("txtNum").value.toInt();
+		if (g.a.send("processType=example.training1.FileReadWrite&actionType=" + actionType, { rowCount: rowCount, charset: charset }, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				divResult.innerHTML = (new Date()).toString("hh:mm:ss") + ", 操作成功。";
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+</script>

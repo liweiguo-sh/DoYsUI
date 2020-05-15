@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>耗材品类维护</title>
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+        
+    <script src="../../../../res/control/toolbar/xwf.toolbar.js"></script>
+    
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/excel.js"></script>
+
+    <style type="text/css">
+
+    </style>
+</head>
+<body>    
+	<div id="divToolbar"></div>	
+    <div id="divResult" style="width:90%;margin-top:15px;"></div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript"> 
+	// ------------------------------------------------------------------------
+	function formLoad() { 
+	    var json = {
+	        domContainer: gId("divToolbar"),
+	        height: "L",
+	        onclick: barClick 
+	    };
+	    toolbar = new window.xwf_toolbar(json);
+
+        toolbar.addBar({ type: "button", key: "close", text: "<i class='fa fa-close'></i>  关闭" });
+        toolbar.addBar({ type: "button", key: "addMatrNameToCategory", text: "<i class='fa fa-plus'></i> 追加品名到品类", title: "将品名追加到末级品类，并修改物料品类为新的末级品类" });
+        toolbar.addBar({ type: "button", key: "generateCategoryIdsAll", text: "<i class='fa fa-cubes'></i> 生成categoryIdsAll", title: "将上级品类合并到本级的categoryIdsAll字段" });
+	}
+</script>
+
+<!-- 工具栏 -->
+<script type="text/javascript">
+    function barClick(para) {
+        var btnKey = para.key;
+        if (btnKey.equals("close")) {
+            win.close();
+        }
+        else if (btnKey.equals("addMatrNameToCategory")) {
+            addMatrNameToCategory();
+        }
+        else {
+            showMsg("Unknown bar: " + btnkey + ", please check it.");
+        }
+    }
+</script>
+
+<!-- 追加品名到末级品类 -->
+<script type="text/javascript">
+    function addMatrNameToCategory() {
+        if (g.a.send("processType=g_mshare.maintain.Maintain&actionType=addMatrNameToCategory", {}, true)) {
+            var cReturn = g.a.cReturn;
+            if (g.a.OK) {
+                gId("divResult").innerHTML = "本次操作共处理 " + cReturn.processCount + " 条符合条件的记录。";
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>

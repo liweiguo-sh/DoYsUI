@@ -1,0 +1,653 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>CFCA Ultimate CryptoKit Demo</title>
+<!--<object id="CryptoAgent" codebase="CryptoKit.Ultimate.x86.cab" classid="clsid:4C588282-7792-4E16-93CB-9744402E4E98"></object>-->
+<script language="javascript" type="text/javascript">
+
+        var CryptoAgent = "";
+        // Create ActiveX object according to the platform
+          function OnLoad() {
+            try {
+                var eDiv = document.createElement("div");
+                if (navigator.appName.indexOf("Internet") >= 0 || navigator.appVersion.indexOf("Trident") >= 0) {
+                    if (window.navigator.cpuClass == "x86") {
+                        eDiv.innerHTML = "<object id=\"CryptoAgent\" codebase=\"CryptoKit.Ultimate.x86.cab\" classid=\"clsid:4C588282-7792-4E16-93CB-9744402E4E98\" ></object>";
+                    }
+                    else {
+                        eDiv.innerHTML = "<object id=\"CryptoAgent\" codebase=\"CryptoKit.Ultimate.x64.cab\" classid=\"clsid:B2F2D4D4-D808-43B3-B355-B671C0DE15D4\" ></object>";
+                    }
+                }
+                else {
+                    eDiv.innerHTML = "<embed id=\"CryptoAgent\" type=\"application/npCryptoKit.Ultimate.x86\" style=\"height: 0px; width: 0px\">";
+                }
+                document.body.appendChild(eDiv);
+            }
+            catch (e) {
+                alert(e);
+                return;
+            }
+            CryptoAgent = document.getElementById("CryptoAgent");
+        }
+
+        function SelectObjctById(id) {
+
+            var obj;
+            if (document.getElementById) {
+                obj = document.getElementById(id);
+                //alert("ID");
+            }
+            else if (document.all) {
+                obj = document.all(id);
+                //alert("ALL");
+            }
+            else {
+                alert("The Internet Browser does't support Document all or Document getElementById");
+            }
+            return obj;
+        }
+
+        function EncryptShow() {
+            // Select certificate
+            var eleCertificate = document.getElementsByName("EncryptCertificate");
+            var indexnumber = 0;
+            for (i = 0; i < eleCertificate.length; i++) {
+                if (eleCertificate[i].checked) {
+                    indexnumber = i;
+                    break;
+                }
+            }
+            if (0 == indexnumber) {
+                document.getElementById("encrypt_no1").style.display = "block";
+                document.getElementById("encrypt_no2").style.display = "none";
+            }
+            else {
+                document.getElementById("encrypt_no1").style.display = "none";
+                document.getElementById("encrypt_no2").style.display = "block";
+            }
+        }
+
+        function DecryptShow() {
+            // Select certificate
+            var eleCertificate = document.getElementsByName("DecryptCertificate");
+            var indexnumber = 0;
+            for (i = 0; i < eleCertificate.length; i++) {
+                if (eleCertificate[i].checked) {
+                    indexnumber = i;
+                    break;
+                }
+            }
+            if (0 == indexnumber) {
+                document.getElementById("decrypt_no2").style.display = "none";
+				
+            }
+            else {
+                document.getElementById("decrypt_no2").style.display = "block";
+				
+            }
+        }
+
+        function SetSM2CSPList() {
+            var cspList = document.getElementById("SM2CSPFilter").value;
+            var bResult = CryptoAgent.SetSM2CSPList(cspList);
+            alert("SetSM2CSPList: " + bResult);
+        }
+
+        // Select Encrypt certificate
+        function SelectCertificateOnClick() {
+            try {
+                var subjectDNFilter = "";
+                var issuerDNFilter = "";
+                var SubjectDN = "";
+                var SerialNum = "";
+
+                document.getElementById("SelectCertDN").value = "";
+
+                subjectDNFilter = document.getElementById("SubjectDNFilter").value;
+                issuerDNFilter = document.getElementById("IssuerDNFilter").value;
+                SerialNum = document.getElementById("SerialNumFilter").value;
+
+                SubjectDN = CryptoAgent.SelectEncryptCertificate(subjectDNFilter, issuerDNFilter, SerialNum);
+                if (!SubjectDN) {
+                    var errorDesc = CryptoAgent.GetLastErrorDesc();
+                    alert(errorDesc);
+                    return;
+                }
+                document.getElementById("SelectCertDN").value = SubjectDN;
+            }
+            catch (e) {
+                var errorDesc = CryptoAgent.GetLastErrorDesc();
+                alert(errorDesc);
+            }
+        }
+
+        // Encrypt message
+        function EncryptFile() {
+            try {
+                var selectedIndex = 0;
+                var selectedAlgIndex = 0;
+                var selectedSM2EncryptFormatIndex = 0;
+
+                var bResult = false;
+                selectedIndex = GetSelectedItemIndex("EncryptCertificate");
+				
+                if (selectedIndex == 0) {
+                    //select encrypt
+                    var sourcefilepath = "";
+                    var envelopefilepath = "";
+
+                    if (document.getElementById("Sourcefilepath").value.length > 0) {
+                        sourcefilepath = document.getElementById("Sourcefilepath").value;
+                    }
+                    if (document.getElementById("Envelopefilepath").value.length > 0) {
+                        envelopefilepath = document.getElementById("Envelopefilepath").value;
+                    }
+					selectedAlgIndex = GetSelectedItemIndex("RSAAlg");
+					if(selectedAlgIndex == 0)
+					{
+						bResult = CryptoAgent.EncryptFileCMSEnvelope(sourcefilepath, "RC4", envelopefilepath);
+					}else if(selectedAlgIndex ==1)
+					{
+						bResult = CryptoAgent.EncryptFileCMSEnvelope(sourcefilepath, "3DES", envelopefilepath);
+					}
+		            if (!bResult) {
+		                var errorDesc = CryptoAgent.GetLastErrorDesc();
+		                alert(errorDesc);
+		                bResult = false;
+                    }
+                    alert("加密结果：" + bResult);
+                }
+                else {//file encrypt
+                    //var filename = "";
+                    var certbase64 = "";
+                    var certtype = "";
+                    var sourcefilepath = "";
+                    var envelopefilepath = "";
+
+                    if (document.getElementById("CertificateBase64").value.length > 0) {
+						certbase64 = document.getElementById("CertificateBase64").value;
+		                }
+		            certtype = GetSelectedItemValue("EncryptCertType");
+                    if (document.getElementById("Sourcefilepath").value.length > 0) {
+                        sourcefilepath = document.getElementById("Sourcefilepath").value;
+                    }
+                    if (document.getElementById("Envelopefilepath").value.length > 0) {
+                        envelopefilepath = document.getElementById("Envelopefilepath").value;
+                    }
+					
+					selectedAlgIndex = GetSelectedItemIndex("RSAAlg");
+					if(selectedAlgIndex == 0)
+					{
+						bResult = CryptoAgent.EncryptFileCMSEnvelope_ByCert(certbase64, certtype, sourcefilepath,"RC4",envelopefilepath);
+					}else if(selectedAlgIndex ==1)
+					{
+						bResult = CryptoAgent.EncryptFileCMSEnvelope_ByCert(certbase64, certtype, sourcefilepath,"3DES",envelopefilepath);
+					}
+		            if (!bResult) {
+		                var errorDesc = CryptoAgent.GetLastErrorDesc();
+		                alert(errorDesc);
+		                bResult = false;
+		            }
+                    alert("加密结果：" + bResult);
+                }
+            } catch (e) {
+                var errorDesc = CryptoAgent.GetLastErrorDesc();
+                alert(errorDesc);
+            }
+        }
+
+        // Encrypt message
+        function EncryptFileEx() {
+            try {
+                var selectedIndex = 0;
+                var selectedAlgIndex = 0;
+
+                var bResult = false;
+                selectedIndex = GetSelectedItemIndex("EncryptCertificate");
+
+                if (selectedIndex == 0) {
+                    //select encrypt
+                    var sourcefilepath = "";
+                    var envelopefilepath = "";
+
+                    if (document.getElementById("Sourcefilepath").value.length > 0) {
+                        sourcefilepath = document.getElementById("Sourcefilepath").value;
+                    }
+                    if (document.getElementById("Envelopefilepath").value.length > 0) {
+                        envelopefilepath = document.getElementById("Envelopefilepath").value;
+                    }
+                    selectedAlgIndex = GetSelectedItemIndex("RSAAlg");
+                    if (selectedAlgIndex == 0) {
+                        bResult = CryptoAgent.EncryptFileCMSEnvelopeEx(sourcefilepath, "RC4", envelopefilepath);
+                    } else if (selectedAlgIndex == 1) {
+                        bResult = CryptoAgent.EncryptFileCMSEnvelopeEx(sourcefilepath, "3DES", envelopefilepath);
+                    }
+                    if (!bResult) {
+                        var errorDesc = CryptoAgent.GetLastErrorDesc();
+                        alert(errorDesc);
+                        bResult = false;
+                    }
+                    alert("加密结果：" + bResult);
+                }
+                else {//file encrypt
+                    //var filename = "";
+                    var certbase64 = "";
+                    var certtype = "";
+                    var sourcefilepath = "";
+                    var envelopefilepath = "";
+
+                    if (document.getElementById("CertificateBase64").value.length > 0) {
+                        certbase64 = document.getElementById("CertificateBase64").value;
+                    }
+                    certtype = GetSelectedItemValue("EncryptCertType");
+                    if (document.getElementById("Sourcefilepath").value.length > 0) {
+                        sourcefilepath = document.getElementById("Sourcefilepath").value;
+                    }
+                    if (document.getElementById("Envelopefilepath").value.length > 0) {
+                        envelopefilepath = document.getElementById("Envelopefilepath").value;
+                    }
+
+                    selectedAlgIndex = GetSelectedItemIndex("RSAAlg");
+                    if (selectedAlgIndex == 0) {
+                        bResult = CryptoAgent.EncryptFileCMSEnvelopeEx_ByCert(certbase64, certtype, sourcefilepath, "RC4", envelopefilepath);
+                    } else if (selectedAlgIndex == 1) {
+                        bResult = CryptoAgent.EncryptFileCMSEnvelopeEx_ByCert(certbase64, certtype, sourcefilepath, "3DES", envelopefilepath);
+                    }
+                    if (!bResult) {
+                        var errorDesc = CryptoAgent.GetLastErrorDesc();
+                        alert(errorDesc);
+                        bResult = false;
+                    }
+                    alert("加密结果：" + bResult);
+                }
+            } catch (e) {
+                var errorDesc = CryptoAgent.GetLastErrorDesc();
+                alert(errorDesc);
+            }
+        }
+
+        function EncryptOnClick() {
+            try {
+                var selectedIndex = 0;
+                selectedIndex = GetSelectedItemIndex("SM2EncryptFormat");
+
+                if (selectedIndex == 0) {
+                    EncryptFileEx();
+                }
+                else {
+                    EncryptFile();
+                }
+            } catch (e) {
+                var errorDesc = CryptoAgent.GetLastErrorDesc();
+                alert(errorDesc);
+            }
+        }
+
+        //Select Decrypt Certificates
+        function SelectDecryptCertificatesOnClick() {
+            try {
+                var certresult = "";
+
+                document.getElementById("Certresult").value = "";
+                certresult = CryptoAgent.SelectDecryptCertificates();
+                document.getElementById("Certresult").value = certresult;
+            }
+            catch (e) {
+                var errorDesc = CryptoAgent.GetLastErrorDesc();
+                alert(errorDesc);
+            }
+        }
+
+        // Decrypt message
+        function DecryptFile() {
+            try {
+                var selectedIndex = 0;
+                var bResult = false;
+                selectedIndex = GetSelectedItemIndex("DecryptCertificate");
+				selectedIndex1 = GetSelectedItemIndex("EnvelopeType");
+				
+                if (selectedIndex == 0) {
+                    //auto select certificate decrypt
+                    var envelopefilepath = "";
+                    var decryptfilepath = "";
+
+                    if (document.getElementById("Envelopefilepath").value.length > 0) {
+                        envelopefilepath = document.getElementById("Envelopefilepath").value;
+                    }
+                    if (document.getElementById("Decryptfilepath").value.length > 0) {
+                        decryptfilepath = document.getElementById("Decryptfilepath").value;
+                    }
+					if(selectedIndex1 == 0)						
+                    	bResult = CryptoAgent.DecryptFileCMSEnvelope(envelopefilepath, "SM2" ,decryptfilepath);
+					else
+					    bResult = CryptoAgent.DecryptFileCMSEnvelope(envelopefilepath, "RSA", decryptfilepath);
+					if (!bResult) {
+					    var errorDesc = CryptoAgent.GetLastErrorDesc();
+					    alert(errorDesc);
+					    bResult = false;
+					}
+                    alert("解密结果：" + bResult);
+                }else if(selectedIndex == 1) {//select file decrypt
+                    var filename = "";
+                    var decryptsm2filepassword = "";
+                    var envelopefilepath = "";
+                    var decryptfilepath = "";
+
+                    if (document.getElementById("Decryptsm2filepath").value.length > 0) {
+                        filename = document.getElementById("Decryptsm2filepath").value;
+                    }
+                    if (document.getElementById("Decryptsm2filepassword").value.length > 0) {
+                        decryptsm2filepassword = document.getElementById("Decryptsm2filepassword").value;
+                    }
+                    if (document.getElementById("Envelopefilepath").value.length > 0) {
+                        envelopefilepath = document.getElementById("Envelopefilepath").value;
+                    }
+                    if (document.getElementById("Decryptfilepath").value.length > 0) {
+                        decryptfilepath = document.getElementById("Decryptfilepath").value;
+                    }
+					if(selectedIndex1 == 0)	
+					{
+					    bResult = CryptoAgent.DecryptFileCMSEnvelope_BySoftCert(filename, decryptsm2filepassword, envelopefilepath, "SM2" ,decryptfilepath);	
+					}else
+					{
+						bResult = CryptoAgent.DecryptFileCMSEnvelope_BySoftCert(filename, decryptsm2filepassword, envelopefilepath, "RSA" ,decryptfilepath);
+					}
+		            if (!bResult) {
+		                var errorDesc = CryptoAgent.GetLastErrorDesc();
+		                alert(errorDesc);
+		                bResult = false;
+		            }
+                    alert("解密结果：" + bResult);
+                }
+            } catch (e) {
+                var errorDesc = CryptoAgent.GetLastErrorDesc();
+                alert(errorDesc);
+            }
+        }
+
+        // Decrypt message
+        function DecryptFileEx() {
+            try {
+                var selectedIndex = 0;
+                var bResult = false;
+                selectedIndex = GetSelectedItemIndex("DecryptCertificate");
+                selectedIndex1 = GetSelectedItemIndex("EnvelopeType");
+
+                if (selectedIndex == 0) {
+                    //auto select certificate decrypt
+                    var envelopefilepath = "";
+                    var decryptfilepath = "";
+
+                    if (document.getElementById("Envelopefilepath").value.length > 0) {
+                        envelopefilepath = document.getElementById("Envelopefilepath").value;
+                    }
+                    if (document.getElementById("Decryptfilepath").value.length > 0) {
+                        decryptfilepath = document.getElementById("Decryptfilepath").value;
+                    }
+                    if (selectedIndex1 == 0)
+                        bResult = CryptoAgent.DecryptFileCMSEnvelopeEx(envelopefilepath, "SM2", decryptfilepath);
+                    else
+                        bResult = CryptoAgent.DecryptFileCMSEnvelopeEx(envelopefilepath, "RSA", decryptfilepath);
+                    if (!bResult) {
+                        var errorDesc = CryptoAgent.GetLastErrorDesc();
+                        alert(errorDesc);
+                        bResult = false;
+                    }
+                    alert("解密结果：" + bResult);
+                } else if (selectedIndex == 1) {//select file decrypt
+                    var filename = "";
+                    var decryptsm2filepassword = "";
+                    var envelopefilepath = "";
+                    var decryptfilepath = "";
+
+                    if (document.getElementById("Decryptsm2filepath").value.length > 0) {
+                        filename = document.getElementById("Decryptsm2filepath").value;
+                    }
+                    if (document.getElementById("Decryptsm2filepassword").value.length > 0) {
+                        decryptsm2filepassword = document.getElementById("Decryptsm2filepassword").value;
+                    }
+                    if (document.getElementById("Envelopefilepath").value.length > 0) {
+                        envelopefilepath = document.getElementById("Envelopefilepath").value;
+                    }
+                    if (document.getElementById("Decryptfilepath").value.length > 0) {
+                        decryptfilepath = document.getElementById("Decryptfilepath").value;
+                    }
+                    if (selectedIndex1 == 0) {
+                        bResult = CryptoAgent.DecryptFileCMSEnvelopeEx_BySoftCert(filename, decryptsm2filepassword, envelopefilepath, "SM2", decryptfilepath);
+                    } else {
+                        bResult = CryptoAgent.DecryptFileCMSEnvelopeEx_BySoftCert(filename, decryptsm2filepassword, envelopefilepath, "RSA", decryptfilepath);
+                    }
+                    if (!bResult) {
+                        var errorDesc = CryptoAgent.GetLastErrorDesc();
+                        alert(errorDesc);
+                        bResult = false;
+                    }
+                    alert("解密结果：" + bResult);
+                }
+            } catch (e) {
+                var errorDesc = CryptoAgent.GetLastErrorDesc();
+                alert(errorDesc);
+            }
+        }
+
+        function DecryptOnClick() {
+            try {
+                var selectedIndex = 0;
+                selectedIndex = GetSelectedItemIndex("SM2EnvelopeType");
+
+                if (selectedIndex == 0) {
+                    DecryptFileEx();
+                }
+                else {
+                    DecryptFile();
+                }
+            } catch (e) {
+                var errorDesc = CryptoAgent.GetLastErrorDesc();
+                alert(errorDesc);
+            }
+        }
+
+        function GetSelectedItemValue(itemName) {
+            var ele = document.getElementsByName(itemName);
+            for (i = 0; i < ele.length; i++) {
+                if (ele[i].checked) {
+                    return ele[i].value;
+                }
+            }
+        }
+
+        function GetSelectedItemIndex(itemName) {
+
+            var ele = document.getElementsByName(itemName);
+            for (i = 0; i < ele.length; i++) {
+                if (ele[i].checked) {
+                    return i;
+                }
+            }
+        }
+
+</script>
+</head>
+<body onload="javascript:EncryptShow();javascript:DecryptShow();javascript:OnLoad();">
+<table border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td width="582"><h1>文件加密与解密(演示版本)</h1></td>
+  </tr>
+  <tr>
+    <td height="30">
+      <input type="radio" name="EncryptCertificate" checked="checked" onclick="javascript:EncryptShow();" />
+      从windows证书库中选择加密证书
+      <input type="radio" name="EncryptCertificate" onclick="javascript:EncryptShow();" />
+      使用指定的公钥证书加密 </td>
+  </tr>
+</table>
+<tr>  
+  <td colspan="2">
+  <table id="encrypt_no1" border="0" cellpadding="0" cellspacing="0" width="60%">
+    <tr>
+        <td height="30">
+        SM2 CSP列表：
+        </td>
+    </tr>
+    <tr>
+        <td>
+        <input type="text" id="SM2CSPFilter" value="CFCA CSP v3.0||CFCA Ulan CSP v4.0" style="width: 650px">
+        </td>
+    </tr>
+    <tr>
+        <td height="30">
+        <input type="button" name="SetSM2CSPListButton" value="Select certificate [设置SM2 CSP列表]"
+        onclick="SetSM2CSPList()">
+        </td> 
+    </tr>
+    <tr>
+      <td height="30"> 证书主题DN： </td>
+    </tr>
+    <tr>
+      <td><input type="text" id="SubjectDNFilter" style="width: 650px">
+        
+       </td>
+    </tr>
+    <tr>
+      <td height="30"> 颁发者主题DN： </td>
+    </tr>
+    <tr>
+      <td><input type="text" id="IssuerDNFilter" style="width: 650px">
+        
+        <!-- value="CFCA" --></td>
+    </tr>
+    <tr>
+      <td height="30"> 证书序列号： </td>
+    </tr>
+    <tr>
+      <td><input type="text" id="SerialNumFilter" style="width: 650px">
+        
+        <!-- value="CFCA" --></td>
+    </tr>
+    <tr>
+      <td height="30"><input type="button" name="SelectCertificateButton" value="Select certificate [选择证书]"
+                            onclick="SelectCertificateOnClick()"></td>
+    </tr>
+    <tr>
+      <td height="30"> 返回证书DN(返回值)： </td>
+    </tr>
+    <tr>
+      <td height="30"><input type="text" id="SelectCertDN" style="width: 650px"></td>
+    </tr>
+  </table>
+  </td>
+  <td colspan="2">
+  <table id="encrypt_no2" border="0" cellpadding="0" cellspacing="0" width="60%">
+      <tr>
+        <td height="30"> 用于加密的Base64编码公钥证书（不带头尾）：</td>
+      </tr>
+      <tr>
+        <td>
+          <textarea id="CertificateBase64" rows="8" style="width: 650px"></textarea>
+        </td>
+      </tr>
+       <tr>
+            <td>
+            证书类型：
+            <input type="radio" name="EncryptCertType" value="SM2" checked="checked" />SM2
+            <input type="radio" name="EncryptCertType" value="RSA" />RSA
+            </td>
+         </tr>
+    </table>
+    </td>
+  <hr />
+  <label>
+  <h3>文件加密 </h3>
+  </label>
+  <table border="0" cellpadding="0" cellspacing="0" width="60%">
+    <tr>
+      <td height="30"> 加密算法（仅供RSA证书选择，SM2证书默认使用SM4加密算法）：
+        <input type="radio" name="RSAAlg" checked="checked" onclick="" />
+        RC4
+        <input type="radio" name="RSAAlg" onclick="" />
+        3DES </td>
+    </tr>
+        <tr>
+      <td height="30"> SM2加密类型：
+        <input type="radio" name="SM2EncryptFormat" checked="checked" onclick="" />
+        现国密标准
+        <input type="radio" name="SM2EncryptFormat" onclick="" />
+        原国密标准(C1||C2||C3) </td>
+    </tr>
+    <tr>
+      <td height="30"> 用于加密的原文件路径: </td>
+    </tr>
+    <tr>
+      <td><input type="text" id="Sourcefilepath" style="width: 650px"></td>
+    </tr>
+    <tr>
+      <td height="30"> 加密后的文件路径: </td>
+    </tr>
+    <tr>
+      <td><input type="text" id="Envelopefilepath" style="width: 650px"></td>
+    </tr>
+  </table>
+  <br />
+  <label>
+    <td>
+    <input type="button" name="EncryptButton" value="Encrypt[加密]" onclick="EncryptOnClick()">
+  </label>
+  <br />
+  <br />
+  <hr />
+  <label>
+  <h3> 文件解密</h3>
+  </label>
+<tr>
+  <td height="30">
+    <input type="radio" name="DecryptCertificate" checked="checked" onclick="javascript:DecryptShow();" />
+    从windows证书库中自动获取解密证书 
+    <input type="radio" name="DecryptCertificate" onclick="javascript:DecryptShow();" />
+    使用指定的软证书解密
+    </td>
+</tr>
+<td colspan="2"><table id="decrypt_no2" border="0" cellpadding="0" cellspacing="0" width="60%">
+    <tr>
+      <td height="30"> 用于解密的SM2/PFX文件路径: </td>
+    </tr>
+    <tr>
+      <td><input type="text" id="Decryptsm2filepath" style="width: 650px"></td>
+    </tr>
+    <tr>
+      <td height="30"> 用于解密的SM2/PFX文件密码: </td>
+    </tr>
+    <tr>
+      <td><input type="password" id="Decryptsm2filepassword" style="width: 650px"></td>
+    </tr>
+  </table></td>
+<td colspan="2"><table border="0" cellpadding="0" cellspacing="0" width="60%">
+    <tr>
+      <td height="30"> 数字信封类型：
+        <input type="radio" name="EnvelopeType" checked="checked" onclick="javascript:DecryptShow();" />
+        SM2
+        <input type="radio" name="EnvelopeType" onclick="javascript:DecryptShow();" />
+        RSA </td>
+    </tr>
+        <tr>
+      <td height="30"> SM2加密类型：
+        <input type="radio" name="SM2EnvelopeType" checked="checked" onclick="" />
+        现国密标准
+        <input type="radio" name="SM2EnvelopeType" onclick="" />
+        原国密标准(C1||C2||C3) </td>
+    </tr>
+  </table>
+  </td>
+  <table border="0" cellpadding="0" cellspacing="0" width="60%">
+    <tr>
+      <td height="30"> 解密后的文件路径: </td>
+    </tr>
+    <tr>
+      <td><input type="text" id="Decryptfilepath" style="width: 650px"></td>
+    </tr>
+    <tr>
+      <td><input type="button" name="Decrypt" value="Decrypt[解密]" onclick="DecryptOnClick()"></td>
+    </tr>
+  </table>
+  <br />
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>收费项目与耗材对应关系</title>
+    <script src="../../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../../res/jscript/xwf.const.js"></script>
+
+    <script src="../../../../../res/control/folding/xwf.folding.js"></script>
+    <script src="../../../../../res/control/uvform/xwf.uvform.js"></script>
+    <script src="../../../../../res_plugin/util/chinese_py.js"></script>
+
+    <script src="../../../../../res/jscript/xwf.css.js"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        input {
+            text-indent: 3px;
+        }
+    </style>
+</head>
+<body>
+<div id="divDC"></div>
+<div class="PanelA">
+    <form id="frm" action="" target="h_spd.base_data.matr.VIEW_materialMap" style="height: 240px">
+        <table id="tbForm" class="tbForm" style="width:1000px;">
+            <tr class="trH">
+                <th style="width:10%;"></th>
+                <th style="width:40%;"></th>
+                <th style="width:10%;"></th>
+                <th style="width:40%;"></th>
+            </tr>
+            <tr>
+                <td>耗材编码</td>
+                <td><input type="text" id="_cMatr_code_hrp" controlType="dropdown" fieldValue="material_code"
+                           fieldText="material_code" fieldsVisible="material_name,material_code,material_spec,price_sp" thNames="耗材名称,耗材代码,品规,价格" thWidths="150px,250px,150px,90px"
+                           fieldsSearch="material_name,material_code,material_spec" pageMaxRows="6"/></td>
+                <td>HIS收费编码</td>
+                <td><input type="text" id="_cMatr_code_f" disabled="disabled" /></td>
+
+            </tr>
+            <tr>
+                <td>HIS计费项目</td>
+                <td><input type="text" id="_cMatr_name_f" disabled="disabled" /></td>
+                <td>成人价</td>
+                <td><input type="text" id="_cPrice_patient_adult" disabled="disabled"/></td>
+            </tr>
+            <tr>
+                <td>状态</td>
+                <td><input type="checkbox" id="_cMatr_inactive"/></td>
+            </tr>
+        </table>
+        <input type="hidden" id="_cId" value=""/>
+    </form>
+</div>
+</body>
+</html>
+<script>
+    function formLoad() {
+        // 禁用耗材绑定的收费编码，待开发
+        // vf.addExtraButton({ key: "disable_His_code", text: "禁用其他耗材绑定的收费编码" , title: "禁用其他耗材绑定的收费编码"});
+
+        vf.css(gId("tbForm"));
+
+    }
+
+/*    vf.beforeSave = function () {
+        return true;
+    }*/
+
+    // vf.beforeClick = function (prop) {
+    //     var btnKey = prop.buttonKey;
+    //     if (btnKey.equals("disable_His_code")) {
+    //         alert(87654)
+    //     }
+    // }
+</script>

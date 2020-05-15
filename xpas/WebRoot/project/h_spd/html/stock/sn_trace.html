@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>供应商耗材入库</title>
+    <script src="../../../../res/jscript/xwf.js"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js"></script>
+    <script src="../../../../res/jscript/xwf.const.js"></script>
+    <script src="../../../../res/jscript/xwf.datatable.js"></script>
+
+    <script src="../../../../res/control/grid/xwf.grid.js"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js"></script>
+
+    <style type="text/css">
+        #tbForm {
+            font-size: 10pt;
+        }
+        #tbForm input[type='text'] {
+            height: 20px;
+            line-height: 20px;
+        }
+        #txtScan {
+            color: red;
+            font-size: 1em;
+            font-family: Arial;
+            border: 2px solid #19A2D5;
+            ime-mode: disabled;
+        }
+        .PanelA {
+            width: 1180px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="PanelA">
+        <table id="tbForm" class="tbForm" style="width: 100%">
+            <tr id="trH">
+                <th style="width: 12%;"></th>
+                <th style="width: 28%;"></th>
+                <th style="width: 10%;"></th>
+                <th style="width: 25%;"></th>
+                <th style="width: 10%;"></th>
+                <th style="width: 15%;"></th>
+            </tr>
+            <tr>
+                <td>品名</td>
+                <td><input type="text" id="_material_name" /></td>
+                <td>品规</td>
+                <td><input type="text" id="_material_spec" /></td>
+                <td>批次</td>
+                <td><input type="text" id="_lot" /></td>
+            </tr>
+            <tr>
+                <td>供应商</td>
+                <td><input type="text" id="_sp_name" /></td>
+                <td>厂商</td>
+                <td><input type="text" id="_manufacturer_name" /></td>
+                <td>效期</td>
+                <td><input type="text" id="_expired_date" /></td>
+            </tr>
+            <tr>
+                <td>SN</td>
+                <td><input type="text" id="_sn_no" /></td>
+                <td>RFID</td>
+                <td><input type="text" id="_rfid" /></td>
+                <td>库存数量</td>
+                <td><input type="text" id="_qty" /></td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold">扫描 SN/RFID</td>
+                <td><input type="text" id="txtScan" placeholder="在此设置光标，扫描SN或RFID" style="height:26px;line-height:26px;font-size:12pt;"/></td>
+                <td>单价</td>
+                <td><input type="text" id="_price_sp" /></td>
+                <td>锁定数量</td>
+                <td><input type="text" id="_qty_lock" /></td>
+            </tr>
+        </table>
+    </div>
+    <div class="PanelA" style="margin-top: 5px;">
+        <div id="divGridWi" style="height: 180px;"></div>
+        <div id="divGridWs" style="height: 270px;"></div>
+        <div id="divGridWo" style="height: 180px;"></div>
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+    var wiDtlId = 0;
+
+    var txtScan = gId("txtScan");
+
+    var gvWi = null, gvWs = null, gvWo = null;
+    // ----------------------------------------------------
+    function formLoad() {
+        cssFormat(gId("tbForm"));
+
+        g.x.bindEnterEvent(txtScan, function () {
+            onTxtScanEnter();
+        });
+
+        viewWi();
+        viewWs();
+        viewWo();
+
+        txtScan.focus();
+    }   
+</script>
+
+<!-- 扫码操作 -->
+<script>
+    function onTxtScanEnter() {
+        var snRfid = txtScan.value.trim();
+        if (g.a.send("processType=h_spd.stock.SnRfidTrace&actionType=getMatrInfoBySnRfid", { snRfid: snRfid }, true)) {
+            if (g.a.OK) {
+                var cReturn = g.a.cReturn;
+                var dtbMatr = cReturn.dtbMatr;
+
+                fillForm(dtbMatr);
+                wiDtlId = dtbMatr.rows[0]["wi_dtl_id"].value;
+
+                viewWi();
+                viewWs();
+                viewWo();
+
+                txtScan.value = "";
+                txtScan.focus();
+                return true;
+            }
+            else {
+                viewWi();
+                viewWs();
+                viewWo();
+
+                fillForm(null);
+
+                txtScan.select();
+                txtScan.focus();
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    function fillForm(dtb) {
+        var txt = null;
+        var colName = "", colValue = "";
+        // ------------------------------------------------
+        if (dtb == null) {
+            var arrCtl = document.getElementsByTagName("*");
+            for (var i = 0; i < arrCtl.length; i++) {
+                txt = arrCtl[i];
+                if (txt.id && txt.id.indexOf("_") == 0) {
+                    txt.value = "";
+                }
+            }
+            txtScan.title = "";
+        }
+        else {
+            for (var j = 0; j < dtb.columnCount; j++) {
+                colName = dtb.columns[j].name;
+                colValue = dtb.rows[0][colName].value;
+                if (colName.equals("expired_date")) {
+                    colValue = colValue.substring(0, 10);
+                }
+
+                txt = gId("_" + colName);
+                if (txt) {
+                    txt.value = colValue;
+                }
+            }
+            txtScan.title = "wi_dtl_id = " + wiDtlId;
+        }
+    }
+</script>
+
+<!-- gridview -->
+<Script>
+    function viewWi() {
+        var viewFilter = "1 = 0";
+
+        if (wiDtlId > 0) {
+            viewFilter = "wi_dtl_id = " + wiDtlId;
+        }
+
+        if (gvWi == null) {
+            var prop = {
+                divContainer: gId("divGridWi"),
+                viewKey: "sn_trace_wi",
+                viewFilter: viewFilter
+            };
+            gvWi = new window.xwf_gridview(prop);
+        }
+        else {
+            gvWi.setViewFilter(viewFilter);
+        }
+    }
+    function viewWo(snRfid) {
+        var viewFilter = "1 = 0";
+
+        if (wiDtlId > 0) {
+            viewFilter = "wi_dtl_id = " + wiDtlId;
+        }
+
+        if (gvWo == null) {
+            var prop = {
+                divContainer: gId("divGridWo"),
+                viewKey: "sn_trace_wo",
+                viewFilter: viewFilter
+            };
+            gvWo = new window.xwf_gridview(prop);
+        }
+        else {
+            gvWo.setViewFilter(viewFilter);
+        }
+    }
+
+    function viewWs() {
+        var viewFilter = "1 = 0";
+        var sn = gId("_sn_no").value;
+        var rfid = gId("_rfid").value;
+
+        if (wiDtlId > 0) {
+            if (!sn.equals("")) {
+                viewFilter = "sn_no = '" + sn + "'";
+            }
+            else if (!rfid.equals("")) {
+                viewFilter = "rfid = '" + rfid + "'";
+            }
+        }
+
+        if (gvWs == null) {
+            var prop = {
+                divContainer: gId("divGridWs"),
+                viewKey: "sn_trace_ws",
+                viewFilter: viewFilter
+            };
+            gvWs = new window.xwf_gridview(prop);
+        }
+        else {
+            gvWs.setViewFilter(viewFilter);
+        }
+    }
+</Script>

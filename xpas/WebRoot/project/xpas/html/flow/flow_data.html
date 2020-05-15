@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>流程过程记录明细</title>
+	<link href="../../../../res/css/style1/xwf.datatable.css" rel="stylesheet" type="text/css" />
+
+	<script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>	
+	<script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+	<script src="../../../../res/jscript/xwf.datatable.js" type="text/javascript"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+	<style type="text/css">
+		#divData {
+			margin-top: 5px;
+			width: 680px;
+			height: 300px;
+			overflow: auto;
+		}		
+	</style>
+</head>
+<body>
+	<div id="divButtons" class="divButtons">
+		<input type="button" id="btnClose" value="关闭" onclick="btnClose_click();" />
+	</div>
+	<form id="frm" action="" target="">
+		<div id="divData"></div>	
+	</form>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">
+	var flowId = 0, flowDataGroupId = 0;
+	var divData = gId("divData");
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		flowId = win.para.flowId;
+		flowDataGroupId = win.para.flowDataGroupId;
+
+		if (flowDataGroupId == 0) {
+			divData.innerHTML = "<span class='noData'>单据尚未开始流转，当前无流程过程记录明细记录。</span>";
+		}
+		else {
+			getFlowData();
+		}
+	}
+
+	function btnClose_click() {
+		win.close();
+	}
+</script>
+
+<!-- 读取流程过程记录明细数据 -->
+<script type="text/javascript">
+	function getFlowData() {
+		if (g.a.send("processType=com.xznext.xpas.FlowAid&actionType=getFlowDataByGroupId", { flowId: flowId, flowDataGroupId: flowDataGroupId }, true)) {
+			if (g.a.OK) {
+				var cReturn = g.a.cReturn;
+				var dtbFlowData = cReturn.dtbFlowData;
+
+				divData.innerHTML = dtbFlowData.toHtmlTable({ tableId: "tbFlowData" });
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+</script>

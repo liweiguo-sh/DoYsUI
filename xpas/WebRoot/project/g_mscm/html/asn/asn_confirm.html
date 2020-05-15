@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <title>发货单</title>
+    <script src="../../../../res/jscript/xwf.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+
+    <script src="../../../../res/control/grid/xwf.grid.js" type="text/javascript"></script>
+    <script src="../../../../res/control/grid/xwf.gridview.js" type="text/javascript"></script>
+    <script src="../../../../res/control/uvform/xwf.uvform.js" type="text/javascript"></script>
+
+    <script src="../../../../res/jscript/xwf.css.js" type="text/javascript"></script>
+    <script src="../../../../res/control/upload/xwf.upload_core.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/excel.js" type="text/javascript"></script>
+    <script src="../../js/barcode_parse.js" type="text/javascript"></script>
+    <script src="../../js/resource_print.js" type="text/javascript"></script>
+    <script src="../../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/web_print.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #tbLayout {
+            border-collapse: collapse;
+        }
+
+        #scanBox {
+            font-size: 1em;
+            font-family: Arial;
+            height: 26px;
+            line-height: 24px;
+            border: 2px solid #19A2D5;
+        }
+
+        .fa-medkit {
+            font-size: 1.5em;
+            color: #19A2D5;
+        }
+
+        .import-alert {
+            font-weight: bolder;
+        }
+
+        .a-small {
+            font-size: 0.9em;
+            color: Blue;
+        }
+
+            .a-small:hover {
+                cursor: pointer;
+                color: #19A2D5;
+            }
+
+        #divDC {
+            width: 1300px;
+            background: transparent;
+        }
+
+        .PanelA {
+            width: 98%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #tbForm {
+            width: 100%;
+        }
+
+        .bill-dtl {
+            margin-top: 10px;
+        }
+
+        #divGridDtl {
+            height: 400px;
+        }
+
+            #divGridDtl input {
+                border: solid 0px;
+            }
+    </style>
+</head>
+<body>
+    <div id="divDC" style="padding-left:6px;"></div>
+    <div class="PanelA">
+        <form id="frm" action="" target="g_mscm.asn.VIEW_asn">
+            <table id="tbForm" class="tbForm">
+               <tr id="trH">
+                    <th style="width:10%"></th>
+                    <th style="width:15%"></th>
+                    <th style="width:10%"></th>
+                    <th style="width:15%"></th>
+                    <th style="width:10%"></th>
+                    <th style="width:15%"></th>
+                    <th style="width:10%"></th>
+                    <th style="width:15%"></th>
+                </tr>
+                <tr>
+                    <td>发货单号</td>
+                    <td><input type="text" id="_cAsn_key" disabled="disabled" />
+                    <td>订单类型</td>
+                    <td><input type="text" id="_gPo_type_name" disabled="disabled" />
+                    <td>制单日期</td>
+                    <td><input type="text" id="_cAsn_date" disabled="disabled"/>
+                     <td>要求到货日期</td>
+                    <td><input type="text" id="_cAsn_date_last" disabled="disabled"/>
+                </tr>
+                <tr>
+                    <td>订单号</td>
+                    <td class="combo">
+                        <input id="_gRn_key" type="text" readonly="readonly" />
+                        <div id="divSelectRepNotify" class="fa fa-search" onclick="selectRepNotify();" style="    top: 8px;right: 66px;"></div>
+                    </td>
+                    <td>订单日期</td>
+                    <td><input type="text" id="_gRn_date" disabled="disabled" />
+                    <td>采购仓库</td>
+                    <td colspan="1"><input type="text" id="_gStorage_fullname" disabled="disabled" />
+                    <td>需求仓库</td>
+                    <td colspan=""><input type="text" id="_gStorage_fullname_req" disabled="disabled" />
+                </tr>
+                <tr>
+                    <td>采购员</td>
+                    <td><input type="text" id="_gPo_buyer" disabled="disabled" />
+                    <td>采购订单金额</td>
+                    <td><input type="text" id="_gPo_amount" disabled="disabled" />
+                    <td>本次发货金额</td>
+                    <td><input type="text" id="_cAsn_Amount" readonly="readonly" />
+                </tr>
+                <tr>
+                    <td>制单</td>
+                    <td><input type="text" id="_cCreator" readonly="readonly" />
+                    <td>审核</td>
+                    <td><input type="text" id="_cAuditor" readonly="readonly" />
+                    <td>备注</td>
+                    <td colspan="3"><input type="text" id="_cAsn_remark" />
+                </tr>
+            </table>
+            <input type="hidden" id="_cASN_ID" />
+            <input type="hidden" id="_cREP_NOTIFY_ID" />
+            <input type="hidden" id="_cAStatus" />
+            <input type="hidden" id="_cStatus_receive" />
+        </form>
+    </div>
+    <div class="PanelA bill-dtl">
+        <table id="tbDtl" class="tbForm" style="width: 100%;">
+            <tr class="trH">
+                <th style="width: 12%"></th>
+                <th style="width: 12%"></th>
+                <th style="width: 10%"></th>
+                <th style="width: 12%"></th>
+                <th style="width: 10%"></th>
+                <th style="width: 17%"></th>
+                <th style="width: 10%"></th>
+                <th style="width: 17%"></th>
+            </tr>
+
+            <tr id="inputArea" style="display: none;">
+                <td > <input type="text" id="_fmatr_name" disabled="disabled" /></td>
+                   <td > <input type="text" id="_flot" disabled="disabled" /></td>
+                  <td > <input type="text" id="_fexp_date" disabled="disabled" /></td>
+                <td colspan="2"> <input type="text" id="_foriginal_barcode" disabled="disabled" /></td>
+                <td colspan="2">
+                    <input type="text" id="txtScan"  placeholder="扫描GTIN码和批次效期" style="ime-mode: disabled;" onkeydown="enterPress(event)" />
+
+                </td>
+                <td class="pageButtons" style="text-align:right;" ><input type="button" id="btnAdd" value="确定" onclick="scanclick();"  /></td>
+
+            </tr>
+        </table>
+        <input type="hidden" id="_fmatr_code" />
+        <input type="hidden" id="" />
+        <div id="divGridDtl"></div>
+    </div>
+</body>
+</html>
+<!-- formLoad -->
+<script type="text/javascript">
+    var gvDtl = null; var lot = ""; var expiredDate = "";var asnDtlId="0";var cflag ="";
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        vf.addExtraButton({ key: "asnConfirm", text: "确认收货" });
+        vf.css(gId("tbForm"));
+        vf.css(gId("tbDtl"));
+        var restHeight = win.p.height - gId("divGridDtl").offsetTop - 20;
+        if (restHeight < 250) {
+            restHeight = 250;
+        }
+        gId("divGridDtl").style.height = restHeight + "px";
+    }
+</script>
+
+<!-- vf.events -->
+<script type="text/javascript">
+    
+     vf.afterMove = function () {
+        showGridDtl();
+    } 
+     vf.afterSetStatus = function () { 
+    	if(gId("_cStatus_receive").value == "-1"){//不可以重复确认
+    		$(vf.buttons.asnConfirm).hide();
+    	}else{
+    		$(vf.buttons.asnConfirm).show();
+    	}
+    
+    };
+    
+     vf.beforeClick = function (btn) {
+        var asnId = frm._cASN_ID.value.toInt();
+        // ------------------------------------------------
+        if (btn.buttonKey.equals("asnConfirm")) {
+        	if(!showConfirm("确认收货吗？")) return false;
+        	if (g.a.send("processType=g_mscm.asn.VIEW_asn&actionType=asnConfirm", { viewKey: "asn_dtl", asnId: asnId}, true)) {
+        		console.log(g.a )
+	            if (g.a.OK) {
+	                var cReturn = g.a.cReturn;
+	                alert("收货成功")
+	               	vf.gridView.remove();
+	               	vf.move(0);
+	            }
+	            else {
+	               	vf.gridView.remove();
+	               	vf.move(0);
+	                return false;
+	            }
+	        }
+        }
+        return false;
+    }
+</script>
+<!-- gridview -->
+<script type="text/javascript">
+    function showGridDtl() {
+        var allowModify = frm._cAStatus.value.toInt() == 0;
+        var viewFilter = "asn_id = " + frm._cASN_ID.value.toInt();
+        // ------------------------------------------------
+        if (gvDtl == null) {
+            var prop = {
+                divContainer: gId("divGridDtl"),
+                viewKey: "asn_dtl",
+                viewFilter: viewFilter,
+                showEditColumn: allowModify,
+                showDeleteColumn: allowModify,
+                viewForm: "project/g_mscm/html/asn/asn_dtl.html",
+                toolbarVisible: allowModify,
+                cellFocus: function(para){ //单元格聚焦
+                	var fieldName=para.fieldName;
+                	var inpJq=$(para.control);
+                	if(fieldName == "mfg_date" || fieldName == "exp_date" || fieldName == "disinfection_date"){//展示日期控件
+                		inpJq.attr("onclick","WdatePicker()");
+                		inpJq.click();
+                	}
+                }
+            };
+            gvDtl = new window.xwf_gridview(prop);
+        }
+        else {
+            gvDtl.setViewFilter(viewFilter);
+        }
+    }
+
+    
+</script>
+
+
+  

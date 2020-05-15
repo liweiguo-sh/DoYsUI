@@ -1,0 +1,381 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>手术汇总打印（二级库备货用）</title>
+	<script src="../../../../res/jscript/xwf.js"></script>
+	<script src="../../../../res/jscript/xwf.ajax.js"></script>	
+	<script src="../../../../res/jscript/xwf.const.js"></script>
+
+	<script src="../../../../res/control/tree/xwf.tree.js"></script>
+	<script src="../../../../res/control/grid/xwf.grid.js"></script>
+	<script src="../../../../res/control/grid/xwf.gridview.js"></script>
+
+	<script src="../../../../res/jscript/xwf.css.js"></script>
+	<script src="../../../../res_plugin/zui-1.8.1-dist/lib/jquery/jquery.js" type="text/javascript"></script>
+    <script src="../../../../res/jscript/web_print.js"></script>
+	<style type="text/css">
+		body {
+			overflow: hidden;
+		}
+		#tbLayout {
+			 border-collapse: collapse;
+		}
+		.tdLayout {
+			padding: 0px;
+			overflow: hidden;
+			vertical-align: top;			
+		}
+		#tdLayoutLeft {
+			border-top: solid 1px #c0c0c0;
+			border-left: solid 1px #c0c0c0;
+			border-bottom: solid 1px #c0c0c0;
+		}
+		#tdLayoutRight {
+			border-top: solid 1px #c0c0c0;
+			border-bottom: solid 1px #c0c0c0;
+		}
+
+        #divTree {
+			width: 510px;
+			overflow: auto;
+		}
+
+	    #tbButtons {
+	        border-left: solid 1px #c0c0c0;
+        }
+	        #tbButtons td {
+                padding: 10px 20px 10px 5px;
+	        }
+
+	    .btnCommand {
+            border: 0px;
+            height: 36px;
+            width: 120px;
+            color: white;
+            background-color: #3280FA;            
+            border-radius: 4px;
+            margin-right: 20px;
+        }
+            .btnCommand:hover {
+                color: yellow;
+            }
+             .btnCommand:disabled {
+                color: gray;
+            }
+	</style>
+</head>
+<body>
+	<table id="tbLayout">
+		<tr>
+			<td id="tdLayoutLeft" class="tdLayout"><div id="divTree"></div></td>
+			<td id="tdLayoutRight" class="tdLayout">                
+                <table id="tbButtons">
+                    <tr>
+                        <td>查询时段</td>
+                        <td><input type="text" id="txtDate1" class="Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm' })" /></td>
+                        <td><input type="text" id="txtDate2" class="Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm' })" /></td>
+                        <td><input id="btnQuery" type="button" class="btnCommand" value="查询" onclick="return btnQuery_click()" /></td>
+                        <td><input id="btnPrint" type="button" class="btnCommand" value="打印汇总单" onclick="return btnPrint_click()" /></td>
+                        <td><input id="btnConfirm" type="button" class="btnCommand" value="标记为已备货" onclick="return btnConfirm_click()" /></td>
+                    </tr>
+                </table>
+                <div id="divGrid1"></div>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+
+<!-- formLoad -->
+<script type="text/javascript">    
+    var queryType = urlPara["queryType"];
+
+    var treeTitle = "";
+    var viewKey = "";
+    var eventSkip = false;
+
+    var tbLayout = gId("tbLayout");
+    var divTree = gId("divTree");
+    var divGrid1 = gId("divGrid1");
+
+    var tree = null;
+    var gridView1 = null, gridView2 = null;
+    // ----------------------------------------------------
+    function formLoad() {
+        if (queryType.equals("ByDept")) {
+            treeTitle = "手术科室 \\ 手术单";             
+        }
+        else if (queryType.equals("ByDeptRoom")) {
+            treeTitle = "手术间 \\ 手术单";  
+        }
+        else {
+            showErr("错误的菜单入口，请检查。");
+        }
+
+        formResize();
+
+        initGridview();    
+
+        txtDate1.value = (new Date()).toString("yyyy-MM-dd") + " 00:00";
+        txtDate2.value = (new Date()).toString("yyyy-MM-dd") + " 23:59";
+    }
+    function formResize() {
+        var height = win.p.height - 2 * tbLayout.offsetTop - divTree.offsetTop;
+        var width = (win.p.width - divTree.offsetWidth - 20);
+
+        divTree.style.height = height + "px";
+        divGrid1.style.height = (height - tbButtons.offsetHeight - 6) + "px";
+
+        divGrid1.style.width = width + "px";
+    }
+</script>
+
+<!-- tree -->
+<script type="text/javascript">
+    function initTree() {
+        var date1 = gId("txtDate1").value;
+        var date2 = gId("txtDate2").value;
+        // ------------------------------------------------
+        if (date1 < (new Date).toString()) {
+            txtDate1.value = (new Date()).toString("yyyy-MM-dd" + " 00:00");
+            date1 = gId("txtDate1").value;
+        }
+        if (date2 < date1) {
+            showErr("查询时段不正确，请检查。");
+            return false;
+        }
+
+        // ------------------------------------------------
+        var rootKey = "0", groupKey = "", nodeKey = "";
+        var jsonPara = {
+            divContainer: gId("divTree"),
+            imgPath: "../../../../res/control/tree/" + top.cssStyle + "/",
+            title: treeTitle,
+            showCheckBoxs: "all",
+            nodeCheck: onNodeCheck
+        };
+        tree = new window.xwf_tree(jsonPara);
+
+        groupKey = rootKey + tree.sd + "A";         // -- 待备货 --
+        tree.addNode({ key: groupKey, text: "待备货手术", groupKey: "global" });
+
+        if (g.a.send("processType=h_spd.oprt.OprtMatrSumQuery&actionType=getDeptList", { queryType: queryType, date1: date1, date2: date2 }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+                var dtbDept = c.dtbDept;
+                var dtbOprt = c.dtbOprt;
+
+                var deptId = 0, oprtId = 0, oprtCount = 0;
+                var oprtDate = "", oprtName = "", doctorName = "";
+                var key = "", text = "", title = "";
+
+                // ----------------------------------------
+                for (var i = 0; i < dtbDept.rowCount; i++) {
+                    deptId = dtbDept.rows[i]["dept_id"].value;
+                    oprtCount = dtbDept.rows[i]["oprt_count"].value;
+                    text = dtbDept.rows[i]["dept_name"].value + " (" + oprtCount + ")";
+                    title = deptId;
+
+                    key = groupKey + tree.sd + deptId;
+
+                    tree.addNode({ key: key, text: text, deptId: deptId, title: title });
+                }
+                // ----------------------------------------
+                for (var i = 0; i < dtbOprt.rowCount; i++) {
+                    deptId = dtbOprt.rows[i]["dept_id"].value;
+                    oprtId = dtbOprt.rows[i]["oprt_id"].value;
+                    oprtDate = dtbOprt.rows[i]["oprt_date"].value.substring(5, 16);
+                    doctorName = dtbOprt.rows[i]["doctor_name"].value;
+                    oprtName = dtbOprt.rows[i]["oprt_name"].value;
+
+                    text = oprtDate + "&nbsp;&nbsp;" + doctorName + "&nbsp;&nbsp;" + oprtName;
+                    title = oprtId + "  手术单号：" + dtbOprt.rows[i]["oprt_code"].value + "，病人姓名：" + dtbOprt.rows[i]["patient_name"].value + "，备注：" + dtbOprt.rows[i]["oprt_remark"].value;;
+                    key = groupKey + tree.sd + deptId + tree.sd + oprtId;
+
+                    tree.addNode({ key: key, text: text, oprtId: oprtId, title: title });
+                }
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+
+        tree.expand(groupKey);
+    }
+
+    function onNodeCheck(node) {
+        var oprtIds = getOprtIds();
+        gridview1.setViewFilter("m.oprt_id IN (" + oprtIds + ")");
+    }
+
+    function getOprtIds() { 
+        var oprtIds = "";
+        var arrOprtId = new Array();
+        var node = null;
+        // ------------------------------------------------
+        arrNodeKey = tree.getCheckedKeys();
+        for (var i = 0; i < arrNodeKey.length; i++) {
+            node = tree.nodes[arrNodeKey[i]];
+            if (node.checked && node.oprtId) {
+                arrOprtId.push(node.oprtId);
+            }
+        }
+        // ------------------------------------------------
+        if (arrOprtId.length > 0) {
+            oprtIds = arrOprtId.join(",");
+        }
+        else {
+            oprtIds = "-1";
+        }
+
+        debug("oprtIds = " + oprtIds);
+        return oprtIds;
+    }
+</script>
+<!-- gridview -->
+<script type="text/javascript">
+    function initGridview() {
+        var prop = {
+            divContainer: divGrid1,
+            viewKey: "oprt_sum_query",
+            viewFilter: "1 = 0"
+        };
+        gridview1 = new window.xwf_gridview(prop);
+    }
+</script>
+
+<!-- query、print、confirm -->
+<script type="text/javascript">
+    function reInit() {
+        initTree();
+        gridview1.setViewFilter("1 = 0");
+    }
+    function btnQuery_click() {
+        reInit();
+    }
+
+    function btnPrint_click() {
+        printSum();
+    }
+
+    function btnConfirm_click() {
+        var oprtIds = getOprtIds();
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.oprt.OprtMatrSumQuery&actionType=confirmSumPrinted", { oprtIds: oprtIds }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+
+                btnQuery_click();
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+    function btnRemove_click() {
+        var arrMatrId = new Array();
+        var matrIds = "", deptIds = getDeptIds();
+        // ------------------------------------------------
+        for (var i = 0; i < gridview2.dtbViewData.rowCount; i++) {
+            if (gridview2.dtbViewData.rows[i].checked) {
+                arrMatrId.push(gridview2.dtbViewData.rows[i]["material_id"].value);
+            }
+        }
+        matrIds = arrMatrId.join(",");
+        if (matrIds.equals("")) {
+            showWarn("请选择要移除的耗材。");
+            return;
+        }
+        // ------------------------------------------------
+        if (g.a.send("processType=h_spd.oprt.OprtMatrSumQuery&actionType=remove", { queryType: queryType, deptIds: deptIds, matrIds: matrIds }, true)) {
+            if (g.a.OK) {
+                var c = g.a.cReturn;
+
+                // -- gridview1.refresh();
+                gridview2.refresh();
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+</script>
+
+<!-- 打印汇总单 -->
+<script type="text/javascript">
+    function printSum() {
+   	  if (gridview1.dtbViewData.rowCount == 0){
+   	  	alert("没有可打印的明细数据")
+   	  	 return;
+   	  }
+   	  	var qtysum=0,title="手术间备货";
+   	  	
+   	  	if(urlPara.queryType && urlPara.queryType =="ByDept") title="手术科室备货";
+        var param = {
+            title:  title+"汇总单("+gId("txtDate1").value+"-"+gId("txtDate2").value+")",
+            colNumThs: 3, //表头每行多少列，默认为4
+            colNumTfooters: 3, //表尾每行多少列，默认为4
+            pageRowNum: 25, //每页数量
+            form: {
+                ths: [
+                    { text: "操作人", value: topWin.userName },
+                    { text: "操作时间", value: (new Date()).toString("yyyy-MM-dd HH:mm:ss") }
+                ],
+            },
+            sumTableFun:function(jqPageTable){//打印汇总函数，即每个分页最后一行汇总行的处理方法，可以不传，可以参考 balance_matr.html 用法
+		    	var trRet=["<tr>"];
+		    	
+		    	//合计标题列和空列
+		    	trRet.push("<td>合计</td>");
+		    	trRet.push("<td></td>");
+		    	trRet.push("<td></td>");
+		    	
+		    	//合计列
+		    	var sumqtyin=0;
+		    	jqPageTable.find(".datarow").each(function(){
+		    		var tr=$(this);
+		    		var thqtyin=parseFloat(tr.children("td:eq(3)").text());
+		    		if(!isNaN(thqtyin)) sumqtyin+=thqtyin;
+		    	});
+		    	trRet.push("<td>"+parseInt(sumqtyin)+"</td>");
+		    	
+		    	trRet.push("</tr>");
+		    	console.log(trRet)
+		    	return trRet.join("");
+		    },
+            grid: {
+                ths: ["序号", "品名", "品规", "数量"],
+                thwidths: ["40px", "auto",  "200px", "100px"],
+                data: (function () {
+                    var arr = [], row, sp_amount = 0, sell_amount = 0;
+                    if (gridview1 && gridview1.dtbViewData.rowCount > 0) {
+                        var totalprice = 0, totalPriceSell = 0, rowData;
+                        for (var i in gridview1.dtbViewData.rows) {
+                            row = gridview1.dtbViewData.rows[i];
+                            rowData = [];
+                            rowData[0] = (parseInt(i) + 1);
+                            rowData[1] = row["matr_name"].value;
+                            rowData[2] = row["matr_spec"].value;
+                            rowData[3] = row["qty"].value;
+                            qtysum+=row["qty"].value;
+                            arr.push(rowData);
+                        }
+                    }
+                    return arr;
+                })()
+            }
+        };
+        param.form.ths.push({ text: "合计数量", value: qtysum });
+        WebPrint.goPrintFormModel(param);
+        
+    }
+</script>

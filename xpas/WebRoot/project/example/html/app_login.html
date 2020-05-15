@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>SPD 2.0 手持终端</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+	
+	<script type="text/javascript">window.offline = true;</script>
+	<script src="../../../res_plugin/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+	<script src="../../../res_plugin/jquery/jquery_md5.js" type="text/javascript"></script>
+
+	<script src="../../../res/jscript/xwf.js" type="text/javascript"></script>
+	<script src="../../../res/jscript/xwf.ajax.js" type="text/javascript"></script>
+	<script src="../../../res/jscript/xwf.const.js" type="text/javascript"></script>
+	<script src="../../../res/control/window/xwf.window.js" type="text/javascript"></script>
+
+	<script src="../../../res_plugin/app/WebView.js" type="text/javascript"></script>
+	<script src="../../../res/jscript_mobile/xmf.app.js" type="text/javascript"></script>
+	<script src="../../../res/jscript/xwf.login.js" type="text/javascript"></script>
+
+	<style type="text/css">
+		body {
+			background-color: White;
+			font-family:微软雅黑;
+			margin: 0px;
+		}
+		#tbLayout {
+			table-layout: fixed;
+			border-collapse: collapse;			
+			margin: auto;
+			border: solid 0px red;			
+		}
+		#tbLayout td {
+			padding: 0px;
+			border: dotted 0px red;
+		}
+
+		.divUserkey {
+			font-size: 12pt;
+		}
+		.txtUserkey {
+			background-repeat: no-repeat;
+			background-position: left center;
+			padding-left: 50px;
+			height: 45px;
+			width: 230px;
+			border-radius: 4px;
+			border: solid 1px #446fa6;
+		}
+		#txtUserkey, #txtPassword {
+			padding: 0px 5px 0px 10px;
+			border: solid 0px red;
+			line-height: 40px;
+			height: 45px;
+			width: 215px;
+			font-size: 12pt;
+			border-radius: 4px;
+		}
+		#btnLogin {
+			font-size: 14pt;
+			line-height: 36px;
+			background-color: #e8ebf2;
+			border: solid 1px Green;
+			padding-right: 5px;
+			width: 120px;
+			height: 36px;
+			border-radius: 3px;
+		}
+		#btnLogin:hover {
+			background-color: #fe970c;
+			border: solid 1px red;
+		}
+
+		.spanVersion {
+			font-size: 9pt;
+			color: #c0c0c0;
+		}
+	</style>
+</head>
+<body onload="formLoad();">
+	<table id="tbLayout">
+		<tr>
+			<td style="font-weight:bold;font-size:14pt;padding-top:15px;">
+				<img src="../images/login.png" alt="" style="width:96px;height:96px;" />				
+				SPD2 智能终端<span class="spanVersion"> v1.0.0.3</span>
+			</td>
+		</tr>
+		<tr>
+			<td style="text-align:center;padding:5px 0px 20px 0px;background-image:url('../images/login_line1.png');background-repeat:no-repeat;background-position:center center;">
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="divUserkey" style="padding:30px 0px 5px 0px;">用户名称</div>
+				<div class="txtUserkey" style="background-image:url('../images/userkey.png');">
+					<input type="text" id="txtUserkey" value="" />
+				</div>
+				<div class="divUserkey" style="padding:30px 0px 5px 0px;">登录密码</div>
+				<div class="txtUserkey" style="background-image:url('../images/password.png');">
+					<input type="password" id="txtPassword" value="" />
+				</div>
+				<div style="padding:10px 0px 10px 0px;">
+					<input type="checkbox" id="chkRemember" /><label for="chkRemember">记住密码</label>
+				</div>
+				<div style="padding:0px 0px 10px 160px;">
+					<input type="button" id="btnLogin" value="登&nbsp;&nbsp;录" onclick="btnLogin_click();" />
+				</div>
+			</td></tr>
+		<tr>
+			<td style="text-align:center;padding:20px 0px 20px 0px;font-size:12pt;color:Gray;">
+				xpas-next.com @2018
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+
+<!-- login -->
+<script type="text/javascript">
+	var nTimes = 0;
+
+	var txtUserkey = gId("txtUserkey");
+	var txtPassword = gId("txtPassword");
+	var chkRemember = gId("chkRemember");
+	// ------------------------------------------------------------------------
+	function formLoad() {
+		if (App.os.equals("")) {
+			if (nTimes++ > 10) {
+				alert("App无响应，请尝试强制关闭后再重新打开。");
+			}
+			else {
+				setTimeout("formLoad()", 100);
+			}
+			return;
+		}
+		auoUpgrade();
+		// ------------------------------------------------
+		var jsonPara = {
+			urlMainDefault: "app_main.html",
+			txtUserkey: txtUserkey,
+			txtPassword: txtPassword,
+			chkRemember: chkRemember
+		};
+		initLogin(jsonPara);
+	}
+	//-------------------------------------------------------------------------
+	function btnLogin_click() { 
+		try {
+			loginSystem();
+		}
+		catch (e) {
+			alert(e.toString());
+		}
+	}
+	function changePassword() {
+		var cWin = new window.xwf_window({});
+		var winChangePW = cWin.openWindow({ noTitle: true, url: "../../../project/xpas/html/organization/change_password.html" }, { invoker: "login", txtPW: txtPassword });
+	}
+</script>
+
+<!-- 自动升级 -->
+<script type="text/javascript">
+	function auoUpgrade() {
+		var nReturn = 0;
+		var url = window.location.href;
+		// ------------------------------------------------
+		if (!urlPara.do_not_upgrade) {
+			if (!App.os.equals("windows")) {
+				nReturn = App.downloadH5App(g.httpServer + g.appPath + "project/g_spd/res/AppRoot.zip");
+				if (nReturn == 1) {
+					showMsg("发现新版APP，已成功升级到新版本。");
+					url += (url.indexOf("?") > 0 ? "&" : "?") + "r" + Math.random() + "=" + Math.random();
+					url += "&do_not_upgrade=1";
+					window.location.href = url;
+				}
+				else if (nReturn == -1) {
+					showWarn("App升级失败，请强制退出后重新打开重试。");
+				}
+				else {
+					// -- showMsg("无需升级。"); --
+				}
+			}
+		}
+	}
+</script>
