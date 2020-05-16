@@ -24,6 +24,9 @@
             showDetailColumn: false,
             totalRows: 0,                   // -- 总记录数 --
             pageNum: 0,                     // -- 当前页号 --
+            quickFields: "",                // -- 快速搜索字段 --
+            filterTreeeFlow: "",            // -- 流程树导航条件 --
+            filterQuick: "",                // -- 快速查询条件 --
             loading: false
         }
     },
@@ -44,6 +47,8 @@
                     this.dtbView = res.dtbView;
                     this.dtbViewField = res.dtbViewField;
                     this.dtbFlowNode = res.dtbFlowNode;
+                    this.quickFields = res.dtbView.rows[0]["quick_fields"].value;
+                    this.viewBarProps.searchPlaceholder = res.dtbView.rows[0]["quick_text"].value;
 
                     this.initNavTree();
                     this.initGrid();
@@ -107,11 +112,11 @@
                 }
             }
         },
-        getViewData(pageNum) {
+        getViewData(pageNum = 0) {
             this.loading = true;
             if (pageNum == 0) this.totalRows = 0;
 
-            let postData = { viewPk: this.viewPk, pageNum: pageNum };
+            let postData = { viewPk: this.viewPk, pageNum: pageNum, filter: this.getFilter() };
             ajax.send(this.controller + "/getViewData", postData).then(res => {
                 if (res.ok) {
                     this.dtbViewData = res.dtbViewData;
@@ -120,7 +125,7 @@
                         this.totalRows = res.totalRows;
                     }
 
-                    let viewData = [], data = [], dataRow;
+                    let viewData = [], dataRow;
                     let columns = this.dtbViewData.columns;
                     let rowCount = this.dtbViewData.rowCount;
                     let columnCount = this.dtbViewData.columnCount;
@@ -128,6 +133,7 @@
 
                     for (let i = 0; i < rowCount; i++) {
                         dataRow = this.dtbViewData.rows[i];
+                        let data = [];
                         for (let j = 0; j < columnCount; j++) {
                             data[columns[j].name] = dataRow[j].value;
                         }
@@ -135,17 +141,33 @@
                     }
 
                     this.viewData = viewData;
-                    this.loading = false;
                 }
                 else {
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });
+                    this.viewData = [];
                 }
+                this.loading = false;
             })
+        },
+        getFilter() {
+            let arrFilter = new Array();
+            if (!this.filterTreeeFlow.equals("")) {
+                arrFilter.push("(" + this.filterTreeeFlow + ")");
+            }
+            if (!this.filterQuick.equals("")) {
+                arrFilter.push("(" + this.filterQuick + ")");
+            }
+            if (arrFilter.length > 0) {
+                return arrFilter.join(" AND ");
+            }
+            return "";
         },
 
         onBarClick(button) {
             if (button.name.equals("refresh")) {
-                this.getViewData(0);
+                this.$refs.viewbar.clearSearch();
+                this.filterQuick = "";
+                this.getViewData();
             }
             else if (button.name.equals("close")) {
                 win.close();
@@ -155,12 +177,29 @@
             }
         },
         onBarSearch(searchText) {
-            this.$message(searchText);
+            if (this.quickFields.equals("")) {
+                this.$message("尚未配置快速搜索字段，请检查。");
+                return;
+            }
+
+            let arrSql = new Array();
+            let arrField = this.quickFields.split(",");
+            arrField.forEach(value => {
+                arrSql.push(value + " LIKE '%" + searchText + "%'");
+            });
+            this.filterQuick = arrSql.join(" OR ");
+            this.getViewData();
+        },
+        onBarUnsearch() {
+            this.filterQuick = "";
+            this.getViewData();
         },
 
         onFlowNodeClick(a, b, c) {
             console.log(a, b, c);
-            this.$message(a.dataRow["filter"].value);
+
+            this.filterTreeeFlow = a.dataRow["filter"].value;
+            this.getViewData(0);
         },
         onPageChange(pageNum) {
             this.pageNum = pageNum;
@@ -170,7 +209,7 @@
     props: ['attrs'],
     template: `<el-container>
         <el-header style="padding:0">
-            <view-bar @onclick="onBarClick" @onsearch="onBarSearch" :attrs="viewBarProps"></view-bar>
+            <view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></view-bar>
         </el-header>
         <el-container>
             <el-aside width="250px" style="margin:0;padding:0;border-left:solid 2px #ebeef5;border-bottom:solid 2px #ebeef5;border-top:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">
