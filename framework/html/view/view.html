@@ -1,44 +1,63 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>view.html</title>
-    <script src="../../../../framework/core/doys.js"></script>
+    <title>通用视图窗口</title>
+    <script src="../../core/doys.js"></script>
+
+    <script src="../../control/view/main-view/main-view.js"></script>
+    <script src="../../control/toolbar/view-bar/view-bar.js"></script>
+    <style type="text/css">
+        #mview {
+            --padding: 0px;
+            --background-color: #e0e0e0;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
-        <div id="divButton" class="divButtons">
-            <input type="button" id="btnOperate" onclick="btnOperate_click();" value="操作" />
-            <input type="button" id="btnClose" onclick="btnClose_click();" value="关闭" />
-        </div>
-        <div class="PanelA">
-            view.html
-        </div>
+        <main-view id="mview" ref="mview" :attrs="viewProps"></main-view>
     </div>
 </body>
 </html>
 
 <!-- winLoad -->
 <script type="text/javascript">
-    var app = new Vue({
+    let view = new Vue({
         el: '#app',
         data: {
+            mviewHeight: 500,
+            flag: true,
+            viewProps: {
 
+            }
         },
+        mounted() {
+            //this.abc();
+        },
+        methods: {
+            abc() {
+                if (this.flag) {
+                    gId("mview").style.height = "800px";
+                }
+                else {
+                    gId("mview").style.height = "500px";
+                }
+                this.flag = !this.flag;
+            }
+        }
     });
 
     // ------------------------------------------------------------------------
     function winLoad() {
+        var para = {
+            viewPk: win.para.viewPk,
+            flowPk: win.para.flowPk,
+            controller: win.para.controller,
+            vfUrl: win.para.vfUrl,
+            vfWindowState: win.para.vfWindowState
+        }
+        view.$refs.mview.init(para);
 
-    }
-
-    function btnClose_click() {
-        win.close();
-    }
-</script>
-
-<!-- xxx -->
-<script type="text/javascript">
-    function btnOperate_click() {
-
+        gId("mview").style.height = (win.p.maxHeight + 0) + "px";
     }
 </script>

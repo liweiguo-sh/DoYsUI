@@ -1,6 +1,7 @@
 ﻿Vue.component('main-view', {
     data: function () {
         return {
+            temp: [],
             viewPk: "",
             flowPk: "",
             controller: "",
@@ -27,7 +28,12 @@
             quickFields: "",                // -- 快速搜索字段 --
             filterTreeeFlow: "",            // -- 流程树导航条件 --
             filterQuick: "",                // -- 快速查询条件 --
-            loading: false
+            loading: false,
+
+            vfUrl: "",                      // -- vf窗口URL --
+            vfWindowState: "",              // -- vf窗口状态 --
+            winViewForm: null,              // -- vf编辑窗口 --
+            remark: ""
         }
     },
     mounted() {
@@ -40,6 +46,9 @@
             if (this.controller.equals("")) {
                 this.controller = "/core/base_view";
             }
+
+            this.vfUrl = para.vfUrl;
+            this.vfWindowState = para.vfWindowState;
 
             let postData = { viewPk: this.viewPk, flowPk: this.flowPk };
             ajax.send(this.controller + "/getViewSchema", postData).then(res => {
@@ -66,7 +75,7 @@
             this.viewBarProps = {
                 leftButtons: [
                     { name: "refresh", text: "刷新", icon: "el-icon-refresh" },
-                    { name: "addnew", text: "添加", icon: "el-icon-edit" }
+                    { name: "addnew", text: "添加", icon: "el-icon-plus" }
                 ],
                 rightButtons: [
                     { name: "config", text: "配置", type: "danger", icon: "el-icon-share" },
@@ -82,15 +91,17 @@
             if (this.dtbFlowNode == null) return;
             this.showFlowNode = true;
 
-            let data = [], nodes = [], dataRow;
+            let data = [], nodes = [];
             for (let i = 1; i < this.dtbFlowNode.rowCount; i++) {
-                dataRow = this.dtbFlowNode.rows[i];
+                let dataRow = this.dtbFlowNode.rows[i];
                 nodes.push({ id: i, label: dataRow["node_name"].value, dataRow: dataRow });
             }
 
-            dataRow = this.dtbFlowNode.rows[0];
+            let dataRow = this.dtbFlowNode.rows[0];
+            this.filterTreeeFlow = dataRow["filter"].value;
             data.push({ label: dataRow["flow_name"].value, dataRow: dataRow, children: nodes });
             this.dataFlowNode = data;
+
         },
         initGrid() {
             this.showSelectColumn = (this.dtbView.rows[0]["show_select"].value == 1);
@@ -112,6 +123,7 @@
                 }
             }
         },
+
         getViewData(pageNum = 0) {
             this.loading = true;
             if (pageNum == 0) this.totalRows = 0;
@@ -125,22 +137,7 @@
                         this.totalRows = res.totalRows;
                     }
 
-                    let viewData = [], dataRow;
-                    let columns = this.dtbViewData.columns;
-                    let rowCount = this.dtbViewData.rowCount;
-                    let columnCount = this.dtbViewData.columnCount;
-
-
-                    for (let i = 0; i < rowCount; i++) {
-                        dataRow = this.dtbViewData.rows[i];
-                        let data = [];
-                        for (let j = 0; j < columnCount; j++) {
-                            data[columns[j].name] = dataRow[j].value;
-                        }
-                        viewData.push(data);
-                    }
-
-                    this.viewData = viewData;
+                    this.viewData = this.getTableData();
                 }
                 else {
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });
@@ -148,6 +145,24 @@
                 }
                 this.loading = false;
             })
+        },
+        getTableData() {
+            let tableData = [];
+            let columns = this.dtbViewData.columns;
+            let rowCount = this.dtbViewData.rowCount;
+            let columnCount = this.dtbViewData.columnCount;
+
+            for (let i = 0; i < rowCount; i++) {
+                let dataRow = this.dtbViewData.rows[i];
+                let data = [];
+                for (let j = 0; j < columnCount; j++) {
+                    data[columns[j].name] = dataRow[j].value;
+                }
+                data["$dataRow"] = dataRow;
+
+                tableData.push(data);
+            }
+            return tableData;
         },
         getFilter() {
             let arrFilter = new Array();
@@ -168,6 +183,8 @@
                 this.$refs.viewbar.clearSearch();
                 this.filterQuick = "";
                 this.getViewData();
+                // -- TODO: --
+                this.$refs.eltable.setCurrentRow(5);
             }
             else if (button.name.equals("close")) {
                 win.close();
@@ -204,6 +221,47 @@
         onPageChange(pageNum) {
             this.pageNum = pageNum;
             this.getViewData(pageNum);
+        },
+
+        onViewClick(scope) {
+            let dataRowView = this.dtbViewData.rows[scope.$index];
+            //dataRowView["name"].value = (new Date()).toTimeString("HH:mm:ss:ms");
+            //this.viewData = this.getTableData();            
+
+            this.openEditForm(scope.$index);
+        },
+        openEditForm(recordRow) {
+            var prop = {
+                title: this.dtbView.rows[0]["name"].value + " 编辑窗口",
+                url: this.vfUrl,
+                modal: false,
+                parent: win
+            };
+            if (this.vfWindowState.equals("maximized")) {
+                prop.windowState = "maximized";
+                prop.noTitle = true;
+            }
+            var para = {
+                viewPk: this.viewPk,
+                flowPk: this.flowPk,
+                controller: this.controller,
+                //primaryKey: this.getPrimaryKey(),
+
+                dtbView: this.dtbView,
+                dtbViewField: this.dtbViewField,
+                dtbViewData: this.dtbViewData,
+                dataRowView: this.dtbViewData.rows[recordRow],
+                //foreignKey: this.jsonFKey,
+
+                //allowAddnew: this.vfAllowAddnew,
+                //allowModify: this.vfAllowModify,
+                //allowDelete: this.vfAllowDelete,
+                //allowCopy: this.vfAllowCopy,
+                //allowMove: this.vfAllowMove,
+                view: this
+            };
+
+            topWin.openWindow(prop, para);
         }
     },
     props: ['attrs'],
@@ -217,12 +275,12 @@
             </el-aside>
             <el-container>
                 <el-main style="margin1:0;padding:0;">
-                    <el-table v-loading="loading" :data="viewData" height="100%" size="small" border stripe highlight-current-row>
+                    <el-table ref="eltable" v-loading="loading" :data="viewData" height="100%" size="small" border stripe highlight-current-row>
                         <el-table-column type="index" label="序" align="center" fixed=""></el-table-column>
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
                             <template slot-scope="scope">
-                                <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                                <el-button @click="onViewClick(scope)" type="text" size="small">查看</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>

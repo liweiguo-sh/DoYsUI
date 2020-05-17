@@ -75,9 +75,6 @@ function initGlobalJs() {
     arrJS.push(g.path.framework + "/system/" + "login.js");
     arrJS.push(g.path.framework + "/system/" + "user.js");
 
-    // -- temp --
-    arrJS.push(g.path.framework + "/hehe.js");
-
     for (let js of arrJS) {
         if (js.indexOf(".js") > 0) {
             document.write("<script src='" + js + "?v=" + g.cfg.jsVer + "'></script>");

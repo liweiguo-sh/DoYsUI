@@ -213,7 +213,7 @@ window.xwf_window.prototype.createWindow = function (p) {
 };
 
 window.xwf_window.prototype.onFormLoad = function (event) {
-    var iframe =  event.target;
+    var iframe = event.target;
     if (!iframe || iframe.src == "about:blank") return;
 
     var win = iframe.win;

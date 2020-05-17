@@ -48,7 +48,7 @@ function dtbMenuToJson(dtbMenu, nodeKeyParent) {
             let menu = {};
             for (let j = 0; j < dtbMenu.columnCount; j++) {
                 let columnName = dtbMenu.columns[j].name;
-                menu[columnName] = dataRow[columnName].value;
+                menu[columnName.toCamelCase()] = dataRow[columnName].value;
             }
             menu["key"] = menu["pk"];
             if (nodeKeyParent.length >= 6) {

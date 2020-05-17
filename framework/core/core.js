@@ -39,11 +39,7 @@ function setLocalItem(key, value) {
     window.localStorage.setItem(key, value);
 }
 
-
-function __getParentWindow(objDoc) {
-    return objDoc.defaultView || objDoc.parentWindow || window;
-}
-
+// -- 定位 ---------------------------------------------------------------------
 function getOffsetTop(objDOM) {
     var nTop = objDOM.offsetTop;
     var offsetParent = objDOM.offsetParent;
@@ -104,7 +100,11 @@ function getTopOffsetLeft(objDOM) {
     }
     return nLeft;
 }
+function getParentWindow(objDoc) {
+    return objDoc.defaultView || objDoc.parentWindow || window;
+}
 
+// -- g.x.xxx -----------------------------------------------------------------
 g.x.extendJSON = function (json1, json2) {
     ///<summary>将json2附加并覆盖到json1，返回合集</summary>
     if (json2) {
@@ -114,8 +114,21 @@ g.x.extendJSON = function (json1, json2) {
     }
     return json1;
 };
+
 g.x.getEventTarget = function (evt) {
     evt = evt || window.event;
     if (!evt) return null;
     return (evt.target ? evt.target : evt.srcElement);
+};
+g.x.getCurrentStyle = function getCurrentStyle(oElement, sProperty) {
+    if (oElement.currentStyle) {
+        return oElement.currentStyle[sProperty];
+    }
+    else if (window.getComputedStyle) {
+        sProperty = sProperty.replace(/([A-Z])/g, "-$1").toLowerCase();
+        return window.getComputedStyle(oElement, null).getPropertyValue(sProperty);
+    }
+    else {
+        return null;
+    }
 };

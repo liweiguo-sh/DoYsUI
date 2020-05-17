@@ -47,11 +47,23 @@ String.prototype.right = function (len) {
     var start = (this.length > len ? this.length - len : 0);
     return this.substr(start, len);
 };
+String.prototype.toCamelCase = function () {
+    if (this.equals("")) {
+        return "";
+    }
+    return this.replace(/\_(\w)/g, (all, letter) => letter.toUpperCase());
+};
 
 // -- Date --------------------------------------------------------------------
-Date.prototype.toString = function (format) {
+Date.prototype.toDateString = function (format = "yyyy-MM-dd") {
+    return this.toString(format);
+};
+Date.prototype.toTimeString = function (format = "HH:mm:ss") {
+    return this.toString(format);
+};
+Date.prototype.toString = function (format = "yyyy-MM-dd HH:mm:ss") {
     ///<summary>日期时间对象格式化，默认返回 yyyy-MM-dd，除年份外，不支持短格式 </summary>
-    ///<param name="format">参数格式：yyyy-MM-dd hh:mm:ss.ms </param>
+    ///<param name="format">参数格式：yyyy-MM-dd HH:mm:ss.ms </param>
     var strReturn = format ? format : "yyyy-MM-dd";
 
     var YEAR = this.getFullYear().toString();
@@ -63,16 +75,13 @@ Date.prototype.toString = function (format) {
     var SECONDS = ("0" + this.getSeconds()).right(2);
     var MILLISECONDS = ("00" + this.getMilliseconds()).right(3);
 
-    strReturn = strReturn.replace("mm", MINUTES);
-    strReturn = strReturn.replace("MM", MONTH);
-    strReturn = strReturn.toLowerCase();
-
-    strReturn = strReturn.replace("mi", MINUTES);
     strReturn = strReturn.replace("yyyy", YEAR);
     strReturn = strReturn.replace("yy", YEAR.right(2));
+    strReturn = strReturn.replace("MM", MONTH);
     strReturn = strReturn.replace("dd", DAY);
-    strReturn = strReturn.replace("hh24", HOURS);
-    strReturn = strReturn.replace("hh", HOURS);
+
+    strReturn = strReturn.replace("HH", HOURS);
+    strReturn = strReturn.replace("mm", MINUTES);
     strReturn = strReturn.replace("ss", SECONDS);
     strReturn = strReturn.replace("ms", MILLISECONDS);
     return strReturn;
