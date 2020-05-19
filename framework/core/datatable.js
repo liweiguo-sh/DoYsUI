@@ -437,7 +437,6 @@ window.datatable.prototype.addRow = function (rowIndex) {
     }
 
     var newRow = {};
-    var fieldValue = "";
     for (var i = 0; i < this.columnCount; i++) {
         if (this.columns[i].columnType.equals("number")) {
             newRow[i] = { value: null };

@@ -25,6 +25,7 @@
             showDetailColumn: false,
             totalRows: 0,                   // -- 总记录数 --
             pageNum: 0,                     // -- 当前页号 --
+            currentRowIdx: 0,               // -- 当前行下标 --
             quickFields: "",                // -- 快速搜索字段 --
             filterTreeeFlow: "",            // -- 流程树导航条件 --
             filterQuick: "",                // -- 快速查询条件 --
@@ -146,24 +147,6 @@
                 this.loading = false;
             })
         },
-        getTableData() {
-            let tableData = [];
-            let columns = this.dtbViewData.columns;
-            let rowCount = this.dtbViewData.rowCount;
-            let columnCount = this.dtbViewData.columnCount;
-
-            for (let i = 0; i < rowCount; i++) {
-                let dataRow = this.dtbViewData.rows[i];
-                let data = [];
-                for (let j = 0; j < columnCount; j++) {
-                    data[columns[j].name] = dataRow[j].value;
-                }
-                data["$dataRow"] = dataRow;
-
-                tableData.push(data);
-            }
-            return tableData;
-        },
         getFilter() {
             let arrFilter = new Array();
             if (!this.filterTreeeFlow.equals("")) {
@@ -176,6 +159,43 @@
                 return arrFilter.join(" AND ");
             }
             return "";
+        },
+        getTableData() {
+            let tableData = [];
+            let columns = this.dtbViewData.columns;
+            let rowCount = this.dtbViewData.rowCount;
+            let columnCount = this.dtbViewData.columnCount;
+
+            for (let i = 0; i < rowCount; i++) {
+                let dataRow = this.dtbViewData.rows[i];
+                let data = [];
+                for (let j = 0; j < columnCount; j++) {
+                    data[columns[j].name] = dataRow[j].value;
+                }
+                //data["$dataRow"] = dataRow;
+                data["$idx"] = i;
+
+                tableData.push(data);
+            }
+            return tableData;
+        },
+        setCurrentRow(rowIdxNew) {
+            this.currentRowIdx = rowIdxNew;
+            this.$refs.eltable.setCurrentRow(this.viewData[rowIdxNew]);
+        },
+
+        getNextId() {
+            let nextRowIdx = this.currentRowIdx;
+            if (this.currentRowIdx < this.dtbViewData.rowCount - 1) {
+                nextRowIdx = this.currentRowIdx + 1;
+            }
+            else if (this.currentRowIdx == 0) {
+                return -1;
+            }
+            else {
+                nextRowIdx = this.currentRowIdx - 1;
+            }
+            return this.dtbViewData.rows[nextRowIdx]["id"].value;
         },
 
         onBarClick(button) {
@@ -224,13 +244,15 @@
         },
 
         onViewClick(scope) {
-            let dataRowView = this.dtbViewData.rows[scope.$index];
-            //dataRowView["name"].value = (new Date()).toTimeString("HH:mm:ss:ms");
-            //this.viewData = this.getTableData();            
-
-            this.openEditForm(scope.$index);
+            this.setCurrentRow(scope.$index);
+            this.openEditForm();
         },
-        openEditForm(recordRow) {
+        openEditForm() {
+            if (this.winViewForm) {
+                this.$message("窗口已打开");
+                return;
+            }
+            // --------------------------------------------
             var prop = {
                 title: this.dtbView.rows[0]["name"].value + " 编辑窗口",
                 url: this.vfUrl,
@@ -250,7 +272,7 @@
                 dtbView: this.dtbView,
                 dtbViewField: this.dtbViewField,
                 dtbViewData: this.dtbViewData,
-                dataRowView: this.dtbViewData.rows[recordRow],
+                dataRowView: this.dtbViewData.rows[this.currentRowIdx],
                 //foreignKey: this.jsonFKey,
 
                 //allowAddnew: this.vfAllowAddnew,
@@ -262,6 +284,72 @@
             };
 
             topWin.openWindow(prop, para);
+            //this.winViewForm = topWin.openWindow(prop, para);
+            //this.winViewForm.addEventListener("beforeClose", () => {
+            //this.winViewForm = null;
+            //});
+        },
+
+        onCurrentChange(val) {
+            this.currentRowIdx = val.$idx;
+        },
+        onVfMove(moveAction) {
+            let rowIdxNew;
+            if (moveAction.equals("first")) {
+                rowIdxNew = 0;
+            }
+            else if (moveAction.equals("previous")) {
+                if (this.currentRowIdx > 0) {
+                    rowIdxNew = this.currentRowIdx - 1;
+                }
+            }
+            else if (moveAction.equals("next")) {
+                if (this.currentRowIdx < this.dtbViewData.rowCount - 1) {
+                    rowIdxNew = this.currentRowIdx + 1;
+                }
+            }
+            else {
+                rowIdxNew = this.dtbViewData.rowCount - 1;
+            }
+            this.setCurrentRow(rowIdxNew);
+
+            return this.dtbViewData.rows[this.currentRowIdx];
+        },
+        afterVfInsert(dataRowView) {
+            this.dtbViewData.addRow(0);
+            this.dtbViewData.rows[0] = dataRowView;
+            for (let i = 0; i < this.dtbViewData.columnCount; i++) {
+                //let columnName = this.dtbViewData.columns[i].name;
+                //this.dtbViewData.rows[0][columnName] = dataRowView[columnName];
+            }
+
+            this.viewData = this.getTableData();
+            this.setCurrentRow(0);
+        },
+        afterVfUpdate(dataRowView) {
+            for (let i = 0; i < this.dtbViewData.columnCount; i++) {
+                this.dtbViewData.rows[this.currentRowIdx][i] = dataRowView[i];
+            }
+
+            this.viewData = this.getTableData();
+            this.setCurrentRow(this.currentRowIdx);
+        },
+        afterVfDelete() {
+            let rowIdxNew = this.currentRowIdx;
+            if (this.currentRowIdx == this.dtbViewData.rowCount - 1) {
+                rowIdxNew = this.currentRowIdx - 1;
+            }
+
+            this.dtbViewData.removeAt(this.currentRowIdx);
+            this.viewData = this.getTableData();
+
+            if (rowIdxNew >= 0) {
+                this.setCurrentRow(rowIdxNew);
+                return this.dtbViewData.rows[this.currentRowIdx];
+            }
+            else {
+                return null;
+            }
         }
     },
     props: ['attrs'],
@@ -275,7 +363,7 @@
             </el-aside>
             <el-container>
                 <el-main style="margin1:0;padding:0;">
-                    <el-table ref="eltable" v-loading="loading" :data="viewData" height="100%" size="small" border stripe highlight-current-row>
+                    <el-table ref="eltable" v-loading="loading"  @current-change="onCurrentChange" :data="viewData" height="100%" size="small" border stripe highlight-current-row>
                         <el-table-column type="index" label="序" align="center" fixed=""></el-table-column>
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
