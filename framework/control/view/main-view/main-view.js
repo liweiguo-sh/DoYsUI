@@ -33,7 +33,8 @@
 
             vfUrl: "",                      // -- vf窗口URL --
             vfWindowState: "",              // -- vf窗口状态 --
-            winViewForm: null,              // -- vf编辑窗口 --
+            // -- TODO：此处不可以定义winViewForm，回造成内存泄漏，有待进一步分析原因。后面直接使用没有泄漏问题，很是奇怪 --
+            // -- winViewForm: null,        // -- vf编辑窗口 --
             remark: ""
         }
     },
@@ -127,6 +128,8 @@
 
         getViewData(pageNum = 0) {
             this.loading = true;
+
+            if (this.winViewForm) this.winViewForm.close();   
             if (pageNum == 0) this.totalRows = 0;
 
             let postData = { viewPk: this.viewPk, pageNum: pageNum, filter: this.getFilter() };
@@ -203,8 +206,9 @@
                 this.$refs.viewbar.clearSearch();
                 this.filterQuick = "";
                 this.getViewData();
-                // -- TODO: --
-                this.$refs.eltable.setCurrentRow(5);
+            }
+            else if (button.name.equals("addnew")) {
+                this.openEditForm("addnew");
             }
             else if (button.name.equals("close")) {
                 win.close();
@@ -245,11 +249,14 @@
 
         onViewClick(scope) {
             this.setCurrentRow(scope.$index);
-            this.openEditForm();
+            this.openEditForm("view");
         },
-        openEditForm() {
+        openEditForm(firstAction) {
             if (this.winViewForm) {
-                this.$message("窗口已打开");
+                let para = {
+                    dataRowView: this.dtbViewData.rows[this.currentRowIdx]
+                };
+                this.vf.onViewMove(para);
                 return;
             }
             // --------------------------------------------
@@ -263,12 +270,11 @@
                 prop.windowState = "maximized";
                 prop.noTitle = true;
             }
-            var para = {
+            let para = {
                 viewPk: this.viewPk,
                 flowPk: this.flowPk,
                 controller: this.controller,
-                //primaryKey: this.getPrimaryKey(),
-
+                firstAction: firstAction,
                 dtbView: this.dtbView,
                 dtbViewField: this.dtbViewField,
                 dtbViewData: this.dtbViewData,
@@ -283,18 +289,23 @@
                 view: this
             };
 
-            topWin.openWindow(prop, para);
             //this.winViewForm = topWin.openWindow(prop, para);
-            //this.winViewForm.addEventListener("beforeClose", () => {
-            //this.winViewForm = null;
-            //});
+            this.winViewForm = topWin.openWindow(prop, para);
+            this.winViewForm.addEventListener("afterClose", () => {
+                this.winViewForm = null;
+            });
         },
 
         onCurrentChange(val) {
-            this.currentRowIdx = val.$idx;
+            if (val == null) {
+                this.currentRowIdx = -1;
+            }
+            else {
+                this.currentRowIdx = val.$idx;
+            }
         },
         onVfMove(moveAction) {
-            let rowIdxNew;
+            let rowIdxNew = this.currentRowIdx;
             if (moveAction.equals("first")) {
                 rowIdxNew = 0;
             }

@@ -39,7 +39,7 @@
 
         arrHtml.push("<ul>");
         for (var i = 0; i < arrALink.length; i++) {
-            arrHtml.push("\t<li><a href='" + arrALink[i] + (arrALink[i].indexOf("?") > 0 ? "&" : "?") + "rnd=" + rnd + "'>" + arrALink[i] + "</a></li>");
+            arrHtml.push("\t<li><a href='" + arrALink[i] + (arrALink[i].indexOf("?") > 0 ? "&" : "?") + "rnd=" + rnd + "' target='_self'>" + arrALink[i] + "</a></li>");
         }
         arrHtml.push("</ul>");
 

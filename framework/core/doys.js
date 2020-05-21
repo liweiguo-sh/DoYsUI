@@ -29,8 +29,12 @@
         CHAR5: "\5",
         CHAR6: "\6",
         CHAR7: "\7",
+
         zIndexWin: 1000,
         zIndexElement: 90000,
+
+        titleMessage: "系统消息...",
+        titleConfirm: "系统消息...",
         remark: "全局常量"
     };
     window.g.x = {};

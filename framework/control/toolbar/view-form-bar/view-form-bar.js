@@ -13,6 +13,7 @@
             moveButtons: [],
             vfButtons: [],
             dtbFormData: null,          // -- 基础表记录集 --
+            firstAction: "view",        // -- 首次进入动作，addnew 或 view --
             status: "none",             // -- 状态 --
             remark: ""
         }
@@ -33,15 +34,22 @@
         init() {
             this.controller = win.para.controller;
             this.view = win.para.view;
+            this.view.vf = this;
             this.viewPk = win.para.viewPk;
             this.flowPk = win.para.flowPk;
             this.dtbView = win.para.dtbView;
             this.dtbViewField = win.para.dtbViewField;
             this.dtbViewData = win.para.dtbViewData;
             this.dataRowView = win.para.dataRowView;
+            this.firstAction = win.para.firstAction;
 
-            this.setStatus("view");
-            this.getFormData();
+            if (this.firstAction.equals("addnew")) {
+                this.addnew();
+            }
+            else {
+                this.setStatus("view");
+                this.getFormData();
+            }
         },
         getFormData() {
             let id = this.dataRowView["id"].value;
@@ -132,13 +140,23 @@
             }
             else if (button.name.equals("delete")) {
                 if (!this.beforeDelete()) return;
-                if (this.delete()) {
-                    this.afterDelete();
-                }
+
+                this.$confirm("记录删除后不能恢复，确定要执行删除操作吗？", g.c.titleConfirm, {
+                    confirmButtonText: "确定", cancelButtonText: "取消", type: "warning"
+                }).then(() => {
+                    if (this.delete()) {
+                        this.afterDelete();
+                    }
+                })
             }
             else if (button.name.equals("cancel")) {
-                this.setStatus("view");
-                this.getFormData();
+                if (this.firstAction.equals("addnew")) {
+                    win.close();
+                }
+                else {
+                    this.setStatus("view");
+                    this.getFormData();
+                }
             }
         },
 
@@ -154,6 +172,7 @@
 
                     this.fillFormData();
                     this.setStatus("view");
+                    this.firstAction = "view";
                     win.flashTitle("数据保存成功  " + (new Date).toTimeString());
 
                     if (id == 0) {
@@ -193,6 +212,12 @@
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });
                 }
             });
+        },
+        onViewMove(para) {
+            this.dataRowView = para.dataRowView;
+
+            this.setStatus("view");
+            this.getFormData();
         },
 
         beforeSave() { return true; },

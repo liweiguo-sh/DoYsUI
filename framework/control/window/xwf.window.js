@@ -22,7 +22,6 @@ window.xwf_window.prototype = {
     doc: top.document,                  // -- 
     rangeContainer: null,               // -- 窗口活动区域容器 --
 
-    taskbar: null,                      // -- 任务栏控件 --
     zIndexFrom: 30000,                  // -- 初始窗口集zIndex --
     zIndex: 30000,                      // -- 当前最大zIndex --
 
@@ -65,10 +64,6 @@ window.xwf_window.prototype.init = function () {
     this.divModal.id = this.prefix + "divModal";
     this.divModal.className = this.prefix + "divModal";
     this.divModal.style.display = "none";
-
-    if (this.taskbar) {
-        this.taskbar.win = this;
-    }
 };
 
 // -- 创建、打开新窗口 --------------------------------------------------------
@@ -122,11 +117,6 @@ window.xwf_window.prototype.openWindow = function (_jsonProp, _jsonPara) {
     win.iframe.src = _jsonProp.url + (_jsonProp.url.indexOf("?") > 0 ? "&" : "?") + "rnd=" + Math.random();
     win.show();
     // ----------------------------------------------------
-    if (this.taskbar && !win.parent) {
-        var bar = this.taskbar.addBar({ key: win.id, text: win.p.text, title: win.p.title });
-        bar.win = win;
-        win.bar = bar;
-    }
     if (win.p.menu) win.p.menu.win = win;
 
     this.currentWin = win;
@@ -346,11 +336,6 @@ window.xwf_window.prototype.close = function (para) {
             _this.arrWindows.splice(i, 1);
             break;
         }
-    }
-    // -- 2、关闭任务栏 -----------------------------------
-    if (win.bar) {
-        win.bar.win = null; //-- 避免bar关闭时调用win.close() --
-        _this.taskbar.closeBar(win.bar);
     }
 
     // -- 3、回调事件 -------------------------------------

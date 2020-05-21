@@ -123,7 +123,7 @@
                     </tr>
                 </table>
                 <div style="height:40px;background-color: #4E5465 !important;">
-                    <taskbar id="taskbar" ref="taskBar" :deskbar-text="deskbarText" :taskbars="taskbars" @onclose="onTaskbarClose" @onclick="onTaskbarClick"></taskbar>
+                    <taskbar id="taskbar" ref="taskBar" :deskbar-text="deskbarText" :taskbars="taskbars" @onclick="onTaskbarClick"></taskbar>
                 </div>
             </el-header>
             <el-main style="margin:0px;padding:0px;overflow:hidden;">
@@ -209,29 +209,13 @@
             onMenuClick(menu) {
                 openMenu(menu);
             },
-            onTaskbarClick(taskbar) {
-                if (taskbar.name.equals("desktop")) {
-                    this.$message("打开桌面");
-                    Vue.prototype.$ELEMENT = { size: 'small', zIndex: 80000 };
+            onTaskbarClick(barName) {
+                if (barName.equals("desktop")) {
+                    this.$message("激活工作台事件处理...");
+                    //Vue.prototype.$ELEMENT = { size: 'small', zIndex: 80000 };
                 }
                 else {
-                    this.$message("打开菜单：" + taskbar.name);
-                }
-            },
-            onTaskbarClose(barClose, barNext) {
-                if (true) {
-                    if (barNext) {
-                        this.$message("main, 打开" + barNext.title);
-                    }
-                    else {
-                        this.$message("main, 显示工作台");
-                    }
-
-                    this.$refs.taskBar.closeBar(barClose, barNext);
-                    barClose.menu.opened = false;
-                }
-                else {
-                    this.$message("不允许关闭");
+                    // -- this.$message("点击bar：" + barName); --
                 }
             }
         }
@@ -253,10 +237,10 @@
         let win;
 
         // -- 判断重复打开 --
-        if (menu.opened && !menu.allow_multi) {
-            let taskbar = app.$refs.taskBar.findBar(menu.pk);
+        if (menu.opened && !menu.allowMulti) {
+            let taskbar = app.$refs.taskBar.findBarByMenuPk(menu.pk);
             if (taskbar) {
-                app.$refs.taskBar.activeBar(taskbar);
+                app.$refs.taskBar.activeBar(taskbar.name);
                 return;
             }
         }
@@ -292,12 +276,12 @@
         // -- 创建taskbar --
         menu.opened = true;
         let taskbar = {
-            name: menu.pk,
+            key: "" + win.id,
+            name: "" + win.id,
             title: menu.text,
-            menu: menu,
+            menuPk: menu.pk,
             win: win
         };
-        //win.taskBar = taskbar;
         app.$refs.taskBar.addBar(taskbar);
     }
 </script>
