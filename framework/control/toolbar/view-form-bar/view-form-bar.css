@@ -1,0 +1,18 @@
+﻿body {
+    margin: 0px 8px 0px 8px;
+    overflow-x: hidden;
+}
+
+.el-select {
+    width: 100%;
+}
+
+.el-col {
+    padding-right: 20px; /* 用于代替 <el-row :gutter="20"> */
+    border: solid 0px blue;
+}
+
+    .el-col:last-child {
+        padding-right: 10px;
+        border: solid 0px red;
+    }

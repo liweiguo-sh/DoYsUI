@@ -4,93 +4,81 @@
     <title>标签定义窗口</title>
     <script src="../../../../framework/core/doys.js"></script>
     <script src="../../../../framework/control/toolbar/view-form-bar/view-form-bar.js"></script>
-
-    <style type="text/css">
-        body {
-            margin: 3px 0px 0px 5px;
-            overflow-x: hidden;
-        }
-    </style>
 </head>
 <body>
     <div id="app" style="width:800px;">
         <view-form-bar id="vf" ref="vf" aaattrs="viewProps"></view-form-bar>
         <el-form :model="form" label-width="145px" label-position="left">
-            <el-row :gutter="gutter">
-                <el-col :span="c1">
+            <el-row>
+                <el-col :span="span[1]">
                     <el-form-item label="标签代码(料号)" placeholder="标签代码" required>
                         <el-input v-model="form.code" />
                     </el-form-item>
                 </el-col>
-                <el-col :span="c2">
+                <el-col :span="span[2]">
                     <el-form-item label="标签版本" required>
                         <el-input v-model="form.version" placeholder="标签版本" />
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-row :gutter="gutter">
-                <el-col :span="c1">
+            <el-row>
+                <el-col :span="span[1]">
                     <el-form-item label="标签名称(种类)" required>
                         <el-input v-model="form.name" placeholder="标签名称" />
                     </el-form-item>
                 </el-col>
-                <el-col :span="c2">
+                <el-col :span="span[2]">
                     <el-form-item label="停用">
                         <el-checkbox v-model="form.falg_disabled">停用标志</el-checkbox>
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-row :gutter="gutter">
-                <el-col :span="c1">
+            <el-row>
+                <el-col :span="span[1]">
                     <el-form-item label="产品名称">
-                        <el-select v-model="form.product_id" placeholder="请选择" filterable style="width:100%">
-                            <el-option :value="0" label="无"></el-option>
-                            <el-option :value="1" label="1-彩电"></el-option>
-                            <el-option :value="2" label="2-空调"></el-option>
-                            <el-option :value="3" label="3-洗衣机"></el-option>
-                            <el-option :value="4" label="4-冰箱"></el-option>
-                            <el-option :value="5" label="5-电视机"></el-option>
+                        <el-select v-model="form.product_id" placeholder="请选择" filterable :popper-append-to-body="false">
+                            <el-option v-for="item in ds.product_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col :span="c2">
+                <el-col :span="span[2]">
                     <el-form-item label="PN料号">
                         <el-input v-model="form.part_no" />
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-row :gutter="gutter">
-                <el-col :span="c1">
+            <el-row>
+                <el-col :span="span[1]">
                     <el-form-item label="打印机点数" required>
-                        <el-select v-model="form.point" placeholder="请选择" style="width:100%">
+                        <el-select v-model="form.point">
                             <el-option :value="300" label="300"></el-option>
                             <el-option :value="600" label="600"></el-option>
                             <el-option :value="1200" label="1200"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col :span="c2">
+                <el-col :span="span[2]">
                     <el-form-item label="纸张类型">
                         <el-input v-model="form.paper" />
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-row :gutter="gutter">
-                <el-col :span="c1">
+            <el-row>
+                <el-col :span="span[1]">
                     <el-form-item label="宽度(毫米)">
                         <el-input v-model="form.width" />
                     </el-form-item>
                 </el-col>
-                <el-col :span="c2">
+                <el-col :span="span[2]">
                     <el-form-item label="高度(毫米)">
                         <el-input v-model="form.height" />
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-row :gutter="gutter">
-                <el-col :span="c1+c2">
+            <el-row>
+                <el-col :span="span[0]">
                     <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                        <el-input v-model="form.remark" type="textarea" :rows="4" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -99,30 +87,54 @@
 </body>
 </html>
 
-<!-- winLoad -->
+<!-- vue.init -->
 <script type="text/javascript">
     var app = new Vue({
         el: '#app',
         data: {
-            c1: 12,
-            c2: 12,
-            gutter: 20,
+            span: [24, 12, 12],
             form: {},
-            view: {
-                fieldx: "不错"
-            }
-        },
-        mounted() {
-            this.$refs.vf.beforeSave1 = () => {
-                console.log("debug here")
-            }
+            ds: {}
         },
         methods: {
-
+            beforeAddnew: function () {
+                //this.$message("页面判断，允许添加");
+                return true;
+            },
+            afterAddnew: function () {
+                //this.$message("after addnew");
+            },
+            beforeSave: function () {
+                //this.$message("页面判断，允许保存");
+                return true;
+            },
+            afterSave: function () {
+                //this.$message("after save");
+            },
+            beforeDelete: function () {
+                //this.$message("页面判断，允许删除");
+                return true;
+            },
+            afterDelete: function () {
+                //this.$message("after delete");
+            },
+            beforeFlowClick: function () {
+                //this.$message("beforeClick");
+                return true;
+            },
+            afterFlowClick: function () {
+                //this.$message("afterClick");
+            },
+            onClick: function () {
+                this.$message("打印，版本号 = " + this.form.version);
+            }
         }
     });
+</script>
 
-    // ------------------------------------------------------------------------
+<!-- javascript block -->
+<script>
     function winLoad() {
+        win.flashTitle("hehe");
     }
 </script>

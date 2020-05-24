@@ -4,7 +4,7 @@
             controller: "",             // -- 视图controller --
             view: null,                 // -- 视图对象 --
             viewPk: "",                 // -- viewPk --
-            flowPk: "",                 // -- flowPk --
+            flowPks: "",                // -- flowPks --
             dtbView: null,              // -- dtbView --
             dtbViewField: null,         // -- dtbViewField --
             dtbViewData: null,          // -- 视图数据记录集 --
@@ -29,6 +29,10 @@
             // -- console.log(win.para); 
             setTimeout(() => { this.init() }, 10);
         }, true);
+
+        // -- 输出css --
+        let css = g.path.framework + "/control/toolbar/view-form-bar/view-form-bar.css?v=" + g.cfg.jsVer;
+        document.write("<link href='" + css + "' rel='stylesheet' />");
     },
     methods: {
         init() {
@@ -36,20 +40,57 @@
             this.view = win.para.view;
             this.view.vf = this;
             this.viewPk = win.para.viewPk;
-            this.flowPk = win.para.flowPk;
+            this.flowPks = win.para.flowPks;
             this.dtbView = win.para.dtbView;
             this.dtbViewField = win.para.dtbViewField;
             this.dtbViewData = win.para.dtbViewData;
             this.dataRowView = win.para.dataRowView;
-            this.firstAction = win.para.firstAction;
 
-            if (this.firstAction.equals("addnew")) {
-                this.addnew();
-            }
-            else {
-                this.setStatus("view");
-                this.getFormData();
-            }
+            this.firstAction = win.para.firstAction;
+            this.allowAddnew = win.para.allowAddnew && (win.para.dtbView.rows[0]["allow_addnew"].value == 1);
+            this.allowUpdate = (win.para.dtbView.rows[0]["allow_update"].value == 1);   // -- 视图允许添加 --
+            this.allowDelete = (win.para.dtbView.rows[0]["allow_delete"].value == 1);   // -- 视图允许添加 --
+
+            this.getFormSchema();
+        },
+        getFormSchema() {
+            let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
+            ajax.send(this.controller + "/getFormSchema", postData).then(res => {
+                if (res.ok) {
+                    // -- 1. 流程 --
+                    if (res.dtbFlowButton) this.dtbFlowButton = res.dtbFlowButton;
+
+                    // -- 2. 解析并处理字段数据源 --
+                    for (let key in res) {
+                        if (key.startsWith("dtbCDS_")) {
+                            let fieldName = key.substring(7);
+                            let arrRow = new Array();
+                            let dtbDS = res[key];
+                            for (let i = 0; i < dtbDS.rowCount; i++) {
+                                let jsonRow = {};
+                                for (let j = 0; j < dtbDS.columnCount; j++) {
+                                    let colName = dtbDS.columns[j].name;
+                                    jsonRow[colName] = "" + dtbDS.rows[i][j].value;
+                                }
+                                arrRow.push(jsonRow);
+                            }
+                            this.$parent.ds[fieldName] = arrRow;
+                        }
+                    }
+
+                    // -- 3. 加载form数据 --
+                    if (this.firstAction.equals("addnew")) {
+                        this.addnew();
+                    }
+                    else {
+                        //this.setStatus("view");
+                        this.getFormData();
+                    }
+                }
+                else {
+                    this.$alert(res.error, { type: "error", title: "系统消息 ..." });
+                }
+            })
         },
         getFormData() {
             let id = this.dataRowView["id"].value;
@@ -69,13 +110,15 @@
             let form = {};
             for (let i = 0; i < this.dtbViewData.columnCount; i++) {
                 let columnName = this.dtbViewData.columns[i].name;
-                form[columnName] = this.dataRowView[columnName].value;
+                form[columnName] = "" + this.dataRowView[columnName].value;
             }
             for (let i = 0; i < this.dtbFormData.columnCount; i++) {
                 let columnName = this.dtbFormData.columns[i].name;
-                form[columnName] = this.dtbFormData.rows[0][columnName].value;
+                form[columnName] = "" + this.dtbFormData.rows[0][columnName].value;
             }
             this.$parent.form = form;
+
+            this.setStatus("view");
         },
         setStatus(status) {
             this.status = status;
@@ -88,16 +131,47 @@
                 vfButtons.push({ name: "cancel", text: "取消", icon: "el-icon-back", group: "crud" });
             }
             else if (this.status.equals("view")) {
-                moveButtons.push({ name: "first", icon: "el-icon-d-arrow-left", group: "move" });
-                moveButtons.push({ name: "previous", icon: "el-icon-arrow-left", group: "move" });
-                moveButtons.push({ name: "next", icon: "el-icon-arrow-right", group: "move" });
-                moveButtons.push({ name: "last", icon: "el-icon-d-arrow-right", group: "move" });
+                // -- 1. move group --
+                moveButtons.push({ name: "first", icon: "el-icon-d-arrow-left", actionType: "move" });
+                moveButtons.push({ name: "previous", icon: "el-icon-arrow-left", actionType: "move" });
+                moveButtons.push({ name: "next", icon: "el-icon-arrow-right", actionType: "move" });
+                moveButtons.push({ name: "last", icon: "el-icon-d-arrow-right", actionType: "move" });
 
+                // -- 2. crud group --
+                if (this.allowAddnew) {
+                    vfButtons.push({ name: "addnew", text: "添加", icon: "el-icon-plus", group: "crud" });
+                }
 
-                vfButtons.push({ name: "save", text: "保存", icon: "el-icon-check", group: "crud" });
-                vfButtons.push({ name: "addnew", text: "添加", icon: "el-icon-plus", group: "crud" });
-                vfButtons.push({ name: "delete", text: "删除", icon: "el-icon-minus", group: "crud" });
-                vfButtons.push({ name: "close", text: "关闭", type: "", icon: "el-icon-close" });
+                // -- 3. flow group --
+                if (this.dtbFlowButton) {
+                    for (let i = 0; i < this.dtbFlowButton.rowCount; i++) {
+                        let dataRow = this.dtbFlowButton.rows[i];
+                        let buttonPk = dataRow["button_pk"].value;
+                        let name = dataRow["name"].value;
+                        let jsAssert = dataRow["assert_js"].value;
+                        let icon = dataRow["icon"].value || "el-icon-sort";
+                        let actionType = dataRow["action_type"].value;
+
+                        while (true) {
+                            let idxStart = jsAssert.indexOf("{");
+                            let idxEnd = jsAssert.indexOf("}");
+                            if (idxStart < 0) break;
+                            if (idxEnd <= idxStart) {
+                                alert("表达式错误，没有找到匹配的 \"}\":\n" + jsAssert);
+                                jsAssert = "false";
+                                break;
+                            }
+                            let columnName = jsAssert.substring(idxStart + 1, idxEnd - idxStart);
+                            jsAssert = jsAssert.replace("{" + columnName + "}", "" + this.dtbFormData.rows[0][columnName.trim()].value);
+                        }
+                        if (g.x.eval(jsAssert)) {
+                            vfButtons.push({ name: buttonPk, text: name, icon: icon, actionType: actionType, dataRow: dataRow });
+                        }
+                    }
+                }
+
+                // -- 9. close --
+                vfButtons.push({ name: "close", text: "关闭", type: "", icon: "el-icon-close", actionType: "close" });
             }
             // --------------------------------------------
             this.moveButtons = moveButtons;
@@ -108,45 +182,79 @@
             if (button.name.equals("close")) {
                 win.close();
             }
-            else if (button.group.equals("move")) {
-                this.dataRowView = this.view.onVfMove(button.name);
-                this.getFormData();
-            }
-            else if (button.group.equals("crud")) {
-                this.onCrud(button);
-            }
-            else if (button.name.equals("close")) {
-                win.close();
-            }
-            else if (button.name.equals("close")) {
-                win.close();
+            else if (button.name.equals("save") || button.name.equals("addnew") || button.name.equals("delete") || button.name.equals("cancel")) {
+                this.doCRUD(button);
             }
             else {
-                this.$message(button.name);
-            }
-        },
-        onCrud(button) {
-            if (button.name.equals("save")) {
-                if (!this.beforeSave()) return;
-                if (this.save()) {
-                    this.afterSave();
+                if (button.actionType.equals("move")) {
+                    this.dataRowView = this.view.onVfMove(button.name);
+                    this.getFormData();
+                }
+                else if (button.actionType.equals("sql")) {
+                    if (this.$parent.beforeFlowClick) {
+                        if (!this.$parent.beforeFlowClick()) {
+                            return false;
+                        }
+                    }
+
+                    this.$confirm("确定要执行 [" + button.text + "] 操作吗？", g.c.titleConfirm, {
+                        confirmButtonText: "确定", cancelButtonText: "取消", type: "warning",
+                        button: button,
+                        callback: (action, instance) => {
+                            if (action.equals("confirm")) {
+                                this.doFlow(instance.button);
+                            }
+                        }
+                    }).then((a, b, c) => {
+                        // -- 用了callback，此处就不会再进来 --
+                    })
+                }
+                else if (button.actionType.equals("client")) {
+                    if (this.$parent.onClick) {
+                        this.$parent.onClick();
+                    }
+                    else {
+                        this.$message("unimplemented client button, please add.");
+                    }
+                }
+                else {
+                    this.$message("unsupport actionType = " + button.actionType + ", button.name = " + button.name);
                 }
             }
+        },
+        doCRUD(button) {
+            if (button.name.equals("save")) {
+                if (this.$parent.beforeSave) {
+                    if (!this.$parent.beforeSave()) {
+                        return false;
+                    }
+                }
+                this.save();
+            }
             else if (button.name.equals("addnew")) {
-                if (!this.beforeAddnew()) return;
+                if (this.$parent.beforeAddnew) {
+                    if (!this.$parent.beforeAddnew()) {
+                        return false;
+                    }
+                }
+
                 if (this.addnew()) {
-                    this.afterAddnew();
+                    if (this.$parent.afterAddnew) {
+                        this.$parent.afterAddnew();
+                    }
                 }
             }
             else if (button.name.equals("delete")) {
-                if (!this.beforeDelete()) return;
+                if (this.$parent.beforeDelete) {
+                    if (!this.$parent.beforeDelete()) {
+                        return false;
+                    }
+                }
 
                 this.$confirm("记录删除后不能恢复，确定要执行删除操作吗？", g.c.titleConfirm, {
                     confirmButtonText: "确定", cancelButtonText: "取消", type: "warning"
                 }).then(() => {
-                    if (this.delete()) {
-                        this.afterDelete();
-                    }
+                    this.delete();
                 })
             }
             else if (button.name.equals("cancel")) {
@@ -154,12 +262,10 @@
                     win.close();
                 }
                 else {
-                    this.setStatus("view");
                     this.getFormData();
                 }
             }
         },
-
         save() {
             let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;
             let postData = { viewPk: this.viewPk, id: id, form: this.$parent.form };
@@ -171,9 +277,7 @@
                     this.dtbFormData = res.dtbFormData;
 
                     this.fillFormData();
-                    this.setStatus("view");
                     this.firstAction = "view";
-                    win.flashTitle("数据保存成功  " + (new Date).toTimeString());
 
                     if (id == 0) {
                         this.view.afterVfInsert(this.dataRowView);
@@ -181,6 +285,11 @@
                     else {
                         this.view.afterVfUpdate(this.dataRowView);
                     }
+
+                    if (this.$parent.afterSave) {
+                        this.$parent.afterSave();
+                    }
+                    win.flashTitle("数据保存成功  " + (new Date).toTimeString());
                 }
                 else {
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });
@@ -190,6 +299,7 @@
         addnew() {
             this.$parent.form = {};
             this.setStatus("addnew");
+            return true;
         },
         delete() {
             let id = this.dataRowView["id"].value;
@@ -206,6 +316,10 @@
 
                     this.dtbFormData = res.dtbFormData;
                     this.fillFormData();
+
+                    if (this.$parent.afterDelete) {
+                        this.$parent.afterDelete();
+                    }
                     win.flashTitle("数据删除成功  " + (new Date).toTimeString());
                 }
                 else {
@@ -213,19 +327,51 @@
                 }
             });
         },
+        remove() {
+
+        },
         onViewMove(para) {
             this.dataRowView = para.dataRowView;
-
-            this.setStatus("view");
             this.getFormData();
         },
+        doFlow(button) {
+            let flowPk = button.dataRow["flow_pk"].value;
+            let buttonPk = button.dataRow["button_pk"].value;
+            let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;
+            let remove = (button.dataRow["action_remove"].value == 1);
+            let idNext = remove ? this.view.getNextId() : 0;
+            let postData = { viewPk: this.viewPk, flowPk: flowPk, buttonPk: buttonPk, id: id, idNext: idNext, form: this.$parent.form };
+            ajax.send(this.controller + "/doFlow", postData).then(res => {
+                if (res.ok) {
+                    // -- 移除当前记录 --
+                    if (remove) {
+                        this.dataRowView = this.view.afterVfDelete();
+                        if (this.dataRowView == null) {
+                            win.close();
+                            return;
+                        }
+                        // -- 移除网格记录 --
+                        if (this.$parent.afterDelete) {
+                            this.$parent.afterDelete();
+                        }
+                    }
 
-        beforeSave() { return true; },
-        afterSave() { },
-        beforeAddnew() { return true; },
-        afterAddnew() { },
-        beforeDelete() { return true; },
-        afterDelete() { },
+                    // -- 刷新界面 --
+                    this.dtbFormData = res.dtbFormData;
+                    this.fillFormData();
+
+                    // -- afterFlowClick --
+                    win.flashTitle("当前操作成功  " + (new Date).toTimeString());
+                    if (this.$parent.afterFlowClick) {
+                        this.$parent.afterFlowClick();
+                    }
+                }
+                else {
+                    this.$alert(res.error, { type: "error", title: "系统消息 ..." });
+                }
+            });
+        },
+
         doSomething() {
             // -- do nothing --
         }

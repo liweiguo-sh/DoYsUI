@@ -105,6 +105,14 @@ function getParentWindow(objDoc) {
 }
 
 // -- g.x.xxx -----------------------------------------------------------------
+g.x.eval = function(jsString) {
+    try {
+        return eval(jsString);
+    }
+    catch (e) {
+        alert("表达式错误，请检查：\n" + jsString + "\n" + e.toString());
+    }
+};
 g.x.extendJSON = function (json1, json2) {
     ///<summary>将json2附加并覆盖到json1，返回合集</summary>
     if (json2) {

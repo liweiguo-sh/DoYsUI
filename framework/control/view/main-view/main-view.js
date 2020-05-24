@@ -3,11 +3,10 @@
         return {
             temp: [],
             viewPk: "",
-            flowPk: "",
+            flowPks: "",
             controller: "",
             dtbView: null,                  // -- sys_view --
-            dtbViewField: null,             // -- sys_view_field --
-            dtbFlowNode: null,              // -- sys_flow_node --
+            dtbViewField: null,             // -- sys_view_field --            
             dtbViewData: null,              // -- 视图数据记录集 --
             viewBarProps: {
                 leftButtons: [],
@@ -15,8 +14,14 @@
                 showSearch: true,
                 searchPlaceholder: "quick search ..."
             },
-            showFlowNode: false,
+            allowAddnew: false,             // -- 视图允许添加 --
+
+
+            dtbFlowNode: null,              // -- ## 导航树 ##--
+            showFlowNode: false,            // -- 显示导航树 --
             dataFlowNode: [],
+            navAllowAddnew: true,           // -- 导航节点允添加新纪录 --
+
             columnsL: [],                   // -- 左侧固定列 --
             columns: [],                    // -- 中间浮动列 --
             columnsR: [],                   // -- 右侧固定列（element-ui实现上有Bug，暂不支持） --
@@ -43,7 +48,7 @@
     methods: {
         init(para) {
             this.viewPk = para.viewPk;
-            this.flowPk = para.flowPk;
+            this.flowPks = para.flowPks;
             this.controller = para.controller;
             if (this.controller.equals("")) {
                 this.controller = "/core/base_view";
@@ -52,41 +57,49 @@
             this.vfUrl = para.vfUrl;
             this.vfWindowState = para.vfWindowState;
 
-            let postData = { viewPk: this.viewPk, flowPk: this.flowPk };
+            let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
             ajax.send(this.controller + "/getViewSchema", postData).then(res => {
                 if (res.ok) {
                     this.dtbView = res.dtbView;
+                    this.allowAddnew = this.dtbView.rows[0]["allow_addnew"].value;
+
                     this.dtbViewField = res.dtbViewField;
                     this.dtbFlowNode = res.dtbFlowNode;
+                    if (this.dtbFlowNode.rowCount == 0) this.dtbFlowNode = null;
                     this.quickFields = res.dtbView.rows[0]["quick_fields"].value;
-                    this.viewBarProps.searchPlaceholder = res.dtbView.rows[0]["quick_text"].value;
+                    this.searchPlaceholder = res.dtbView.rows[0]["quick_text"].value;
 
                     this.initNavTree();
                     this.initGrid();
 
                     this.getViewData(0);
+                    this.initToolbar();
                 }
                 else {
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });
                 }
             })
-
-            this.initToolbar();
         },
         initToolbar() {
+            let leftButtons = [
+                { name: "refresh", text: "刷新", icon: "el-icon-refresh" }
+            ]
+            if (this.allowAddnew && this.navAllowAddnew) {
+                leftButtons.push({ name: "addnew", text: "添加", icon: "el-icon-plus" });
+            }
+
+            let rightButtons = [
+                { name: "config", text: "配置", type: "danger", icon: "el-icon-share" },
+                { name: "filter", text: "更多筛选", type: "success", icon: "el-icon-star-off" },
+                { name: "export", text: "数据导出", type: "success", icon: "el-icon-download" },
+                { name: "close", text: "关闭", type: "info", icon: "el-icon-close" }
+            ]
+
             this.viewBarProps = {
-                leftButtons: [
-                    { name: "refresh", text: "刷新", icon: "el-icon-refresh" },
-                    { name: "addnew", text: "添加", icon: "el-icon-plus" }
-                ],
-                rightButtons: [
-                    { name: "config", text: "配置", type: "danger", icon: "el-icon-share" },
-                    { name: "filter", text: "更多筛选", type: "success", icon: "el-icon-star-off" },
-                    { name: "export", text: "数据导出", type: "success", icon: "el-icon-download" },
-                    { name: "close", text: "关闭", type: "info", icon: "el-icon-close" }
-                ],
+                leftButtons: leftButtons,
+                rightButtons: rightButtons,
                 showSearch: true,
-                searchPlaceholder: "quick search ..."
+                searchPlaceholder: this.searchPlaceholder
             }
         },
         initNavTree() {
@@ -101,6 +114,7 @@
 
             let dataRow = this.dtbFlowNode.rows[0];
             this.filterTreeeFlow = dataRow["filter"].value;
+            this.navAllowAddnew = (dataRow["allow_addnew"].value == 1);
             data.push({ label: dataRow["flow_name"].value, dataRow: dataRow, children: nodes });
             this.dataFlowNode = data;
 
@@ -129,7 +143,7 @@
         getViewData(pageNum = 0) {
             this.loading = true;
 
-            if (this.winViewForm) this.winViewForm.close();   
+            if (this.winViewForm) this.winViewForm.close();
             if (pageNum == 0) this.totalRows = 0;
 
             let postData = { viewPk: this.viewPk, pageNum: pageNum, filter: this.getFilter() };
@@ -237,10 +251,12 @@
         },
 
         onFlowNodeClick(a, b, c) {
-            console.log(a, b, c);
-
+            //console.log(a, b, c);
             this.filterTreeeFlow = a.dataRow["filter"].value;
+            this.navAllowAddnew = (a.dataRow["allow_addnew"].value == 1);
+
             this.getViewData(0);
+            this.initToolbar();
         },
         onPageChange(pageNum) {
             this.pageNum = pageNum;
@@ -272,7 +288,7 @@
             }
             let para = {
                 viewPk: this.viewPk,
-                flowPk: this.flowPk,
+                flowPks: this.flowPks,
                 controller: this.controller,
                 firstAction: firstAction,
                 dtbView: this.dtbView,
@@ -281,7 +297,7 @@
                 dataRowView: this.dtbViewData.rows[this.currentRowIdx],
                 //foreignKey: this.jsonFKey,
 
-                //allowAddnew: this.vfAllowAddnew,
+                allowAddnew: this.allowAddnew && this.navAllowAddnew,
                 //allowModify: this.vfAllowModify,
                 //allowDelete: this.vfAllowDelete,
                 //allowCopy: this.vfAllowCopy,

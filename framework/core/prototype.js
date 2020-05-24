@@ -12,9 +12,6 @@ window.gId = function (elementId) {
 }
 
 // -- String ------------------------------------------------------------------
-String.prototype.trim = function () {
-    return this.replace(/^\s+|\s+$/, '');
-};
 String.prototype.equals = function (str) {
     ///<summary>判断字符串是否相等，忽略大小写。如果想要区分大小写，使用compare()。</summary>
     if (str == null) return false;

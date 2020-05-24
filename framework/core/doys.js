@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2020-04-22
+ * Modify Date: 2020-05-23
  * Copyright 2020, doys-next.com
  */
 (function () {
@@ -16,7 +16,7 @@
             project: "/project"                 // -- 项目根目录 --
         },
         cfg: {
-            jsVer: "200422",                    // -- js版本号，解决js文件缓存问题 --
+            jsVer: "2020_05-23",                // -- js版本号，解决js文件缓存问题 --
             ajaxType: "axios",                  // -- ["axios", "fetch", "others"] --
             remark: "全局配置项集合"
         }
@@ -41,6 +41,7 @@
 
     // -- init --------------------------------------------
     initGolbal();
+    initGlobalCss();
     initGlobalJs();
     initPage();
 })()
@@ -57,6 +58,19 @@ function initGolbal() {
 
     g.prefix = g.prefix.replace("{domain}", document.domain);
 }
+function initGlobalCss() {
+    var arrCss = new Array();
+
+    // -- plugin --
+    arrCss.push(g.path.plugin + "/element/index.css");
+
+    // -- core --
+    arrCss.push(g.path.framework + "/css/global.css");
+
+    for (let css of arrCss) {
+        document.write("<link href='" + css + "?v=" + g.cfg.jsVer + "' rel='stylesheet' />");
+    }
+}
 function initGlobalJs() {
     var arrJS = new Array();
 
@@ -65,9 +79,7 @@ function initGlobalJs() {
         arrJS.push(g.path.plugin + "/axios.min.js");
     }
     arrJS.push(g.path.plugin + "/vue.js");
-    arrJS.push(g.path.plugin + "/element/index.css");
     arrJS.push(g.path.plugin + "/element/index.js");
-
 
     // -- core --
     arrJS.push(g.path.framework + "/core/" + "prototype.js");
@@ -80,15 +92,7 @@ function initGlobalJs() {
     arrJS.push(g.path.framework + "/system/" + "user.js");
 
     for (let js of arrJS) {
-        if (js.indexOf(".js") > 0) {
-            document.write("<script src='" + js + "?v=" + g.cfg.jsVer + "'></script>");
-        }
-        else if (js.indexOf(".css") > 0) {
-            document.write("<link href='" + js + "?v=" + g.cfg.jsVer + "' rel='stylesheet' />");
-        }
-        else {
-            alert("debug here");
-        }
+        document.write("<script src='" + js + "?v=" + g.cfg.jsVer + "'></script>");
     }
 }
 function initPage() {
