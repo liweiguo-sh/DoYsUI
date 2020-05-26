@@ -48,8 +48,8 @@
 
             this.firstAction = win.para.firstAction;
             this.allowAddnew = win.para.allowAddnew && (win.para.dtbView.rows[0]["allow_addnew"].value == 1);
-            this.allowUpdate = (win.para.dtbView.rows[0]["allow_update"].value == 1);   // -- 视图允许添加 --
-            this.allowDelete = (win.para.dtbView.rows[0]["allow_delete"].value == 1);   // -- 视图允许添加 --
+            this.allowDelete = (win.para.dtbView.rows[0]["allow_delete"].value == 1);   // -- 视图允许删除 --
+            this.allowUpdate = (win.para.dtbView.rows[0]["allow_update"].value == 1);   // -- 视图允许修改 --            
 
             this.getFormSchema();
         },
@@ -137,12 +137,7 @@
                 moveButtons.push({ name: "next", icon: "el-icon-arrow-right", actionType: "move" });
                 moveButtons.push({ name: "last", icon: "el-icon-d-arrow-right", actionType: "move" });
 
-                // -- 2. crud group --
-                if (this.allowAddnew) {
-                    vfButtons.push({ name: "addnew", text: "添加", icon: "el-icon-plus", group: "crud" });
-                }
-
-                // -- 3. flow group --
+                // -- 2. flow group --
                 if (this.dtbFlowButton) {
                     for (let i = 0; i < this.dtbFlowButton.rowCount; i++) {
                         let dataRow = this.dtbFlowButton.rows[i];
@@ -165,7 +160,12 @@
                             jsAssert = jsAssert.replace("{" + columnName + "}", "" + this.dtbFormData.rows[0][columnName.trim()].value);
                         }
                         if (g.x.eval(jsAssert)) {
-                            vfButtons.push({ name: buttonPk, text: name, icon: icon, actionType: actionType, dataRow: dataRow });
+                            let button = { name: buttonPk, text: name, icon: icon, actionType: actionType, dataRow: dataRow };
+                            if (buttonPk.equals("addnew")) {
+                                // -- 添加按钮特殊处理 --
+                                button.hide = !this.allowAddnew;
+                            }
+                            vfButtons.push(button);
                         }
                     }
                 }
@@ -381,7 +381,7 @@
             <el-button v-for="button in moveButtons" @click="onClick(button)" :key="button.name" :icon="button.icon" size="medium" style='width:36px;padding-left:0px;padding-right:0px;'></el-button>
         </el-button-group>
         <el-button-group>
-            <el-button v-for="button in vfButtons" size="medium" @click="onClick(button)" :key="button.name" :icon= "button.icon" :type="button.type" plain >
+            <el-button v-for="button in vfButtons" v-show="!button.hide" size="medium" @click="onClick(button)" :key="button.name" :icon= "button.icon" :type="button.type" plain >
                 {{ button.text }}
             </el-button>
         </el-button-group>

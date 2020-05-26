@@ -40,6 +40,9 @@
                 <el-image style="width:100%; height:100%" :src="logoUrl"></el-image>
             </el-row>
             <el-row>
+                <el-input v-model="tenantId" placeholder="企业代码" prefix-icon="el-icon-office-building" clearable></el-input>
+            </el-row>
+            <el-row>
                 <el-input v-model="userkey" placeholder="用户名" prefix-icon="el-icon-user-solid" clearable></el-input>
             </el-row>
             <el-row>
@@ -75,6 +78,7 @@
         el: '#app',
         data: {
             logoUrl: '../../image/login/doys.png',
+            tenantId: "",
             userkey: "",
             password: "",
             verifyCode: "",
@@ -87,9 +91,11 @@
         mounted() {
             this.remenber = getLocalItem("login.remenber", "0").equals("1");
             if (this.remenber) {
+                this.tenantId = getLocalItem("login.tenantId")
                 this.userkey = getLocalItem("login.userkey");
                 this.password = getLocalItem("login.password");
             }
+            this.tenantId = getUrlItem("tenantId") || this.tenantId;
             this.userkey = getUrlItem("userkey") || this.userkey;
             this.password = getUrlItem("password") || this.password;
 
@@ -161,6 +167,7 @@
 
     function getLoginPara() {
         return {
+            tenantId: app.tenantId,
             userkey: app.userkey,
             password: app.password,
             verifyCode: app.verifyCode,

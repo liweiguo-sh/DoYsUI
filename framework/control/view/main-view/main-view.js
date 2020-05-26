@@ -4,7 +4,7 @@
             temp: [],
             viewPk: "",
             flowPks: "",
-            controller: "",
+            controller: "/core/base_view",  // -- 视图后台控制类 --
             dtbView: null,                  // -- sys_view --
             dtbViewField: null,             // -- sys_view_field --            
             dtbViewData: null,              // -- 视图数据记录集 --
@@ -18,9 +18,9 @@
 
 
             dtbFlowNode: null,              // -- ## 导航树 ##--
-            showFlowNode: false,            // -- 显示导航树 --
-            dataFlowNode: [],
-            navAllowAddnew: true,           // -- 导航节点允添加新纪录 --
+            showNavArea: false,             // -- 显示导航区 --
+            dataFlowNode: [],               // -- 导航树data --
+            navAllowAddnew: true,           // -- 当前导航节点允添加新纪录 --
 
             columnsL: [],                   // -- 左侧固定列 --
             columns: [],                    // -- 中间浮动列 --
@@ -49,11 +49,6 @@
         init(para) {
             this.viewPk = para.viewPk;
             this.flowPks = para.flowPks;
-            this.controller = para.controller;
-            if (this.controller.equals("")) {
-                this.controller = "/core/base_view";
-            }
-
             this.vfUrl = para.vfUrl;
             this.vfWindowState = para.vfWindowState;
 
@@ -61,11 +56,14 @@
             ajax.send(this.controller + "/getViewSchema", postData).then(res => {
                 if (res.ok) {
                     this.dtbView = res.dtbView;
-                    this.allowAddnew = this.dtbView.rows[0]["allow_addnew"].value;
+                    this.controller = this.dtbView.rows[0]["controller"].value || this.controller;
+                    this.allowAddnew = (this.dtbView.rows[0]["allow_addnew"].value == 1);
 
                     this.dtbViewField = res.dtbViewField;
                     this.dtbFlowNode = res.dtbFlowNode;
-                    if (this.dtbFlowNode.rowCount == 0) this.dtbFlowNode = null;
+                    if (this.dtbFlowNode && this.dtbFlowNode.rowCount == 0) {
+                        this.dtbFlowNode = null;
+                    }
                     this.quickFields = res.dtbView.rows[0]["quick_fields"].value;
                     this.searchPlaceholder = res.dtbView.rows[0]["quick_text"].value;
 
@@ -104,20 +102,27 @@
         },
         initNavTree() {
             if (this.dtbFlowNode == null) return;
-            this.showFlowNode = true;
+            this.showNavArea = true;
 
             let data = [], nodes = [];
             for (let i = 1; i < this.dtbFlowNode.rowCount; i++) {
                 let dataRow = this.dtbFlowNode.rows[i];
-                nodes.push({ id: i, label: dataRow["node_name"].value, dataRow: dataRow });
+                nodes.push({ id: dataRow["node_pk"].value + i, label: dataRow["node_name"].value, dataRow: dataRow });
             }
 
             let dataRow = this.dtbFlowNode.rows[0];
             this.filterTreeeFlow = dataRow["filter"].value;
             this.navAllowAddnew = (dataRow["allow_addnew"].value == 1);
-            data.push({ label: dataRow["flow_name"].value, dataRow: dataRow, children: nodes });
+            data.push({ id: dataRow["flow_pk"].value, label: dataRow["flow_name"].value, dataRow: dataRow, children: nodes });
             this.dataFlowNode = data;
-
+            
+            try {
+                // -- TODO: 不生效??? --
+                this.$refs.eltree.setCurrentKey(this.dataFlowNode[0].children[0].id);
+            }
+            catch (e) {
+                console.log(e);
+            }
         },
         initGrid() {
             this.showSelectColumn = (this.dtbView.rows[0]["show_select"].value == 1);
@@ -131,11 +136,13 @@
                     align: dataRow["align"].value,
                     width: dataRow["width"].value
                 }
-                if (dataRow["fixed"].value.equals("left")) {
-                    this.columnsL.push(column);
-                }
-                else {
-                    this.columns.push(column);
+                if (dataRow["sequence"].value > 0) {
+                    if (dataRow["fixed"].value.equals("left")) {
+                        this.columnsL.push(column);
+                    }
+                    else {
+                        this.columns.push(column);
+                    }
                 }
             }
         },
@@ -298,14 +305,9 @@
                 //foreignKey: this.jsonFKey,
 
                 allowAddnew: this.allowAddnew && this.navAllowAddnew,
-                //allowModify: this.vfAllowModify,
-                //allowDelete: this.vfAllowDelete,
-                //allowCopy: this.vfAllowCopy,
-                //allowMove: this.vfAllowMove,
                 view: this
             };
 
-            //this.winViewForm = topWin.openWindow(prop, para);
             this.winViewForm = topWin.openWindow(prop, para);
             this.winViewForm.addEventListener("afterClose", () => {
                 this.winViewForm = null;
@@ -385,12 +387,12 @@
             <view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></view-bar>
         </el-header>
         <el-container>
-            <el-aside width="250px" style="margin:0;padding:0;border-left:solid 2px #ebeef5;border-bottom:solid 2px #ebeef5;border-top:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">
-                <el-tree @node-click="onFlowNodeClick" :data="dataFlowNode" v-if="showFlowNode" default-expand-all highlight-current></el-tree>
+            <el-aside v-show="showNavArea" width="250px" style="margin:0;padding:0;border-left:solid 2px #ebeef5;border-bottom:solid 2px #ebeef5;border-top:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">
+                <el-tree ref="eltree" @node-click="onFlowNodeClick" :data="dataFlowNode" node-key="id" :expand-on-click-node="false" default-expand-all highlight-current></el-tree>
             </el-aside>
             <el-container>
                 <el-main style="margin1:0;padding:0;">
-                    <el-table ref="eltable" v-loading="loading"  @current-change="onCurrentChange" :data="viewData" height="100%" size="small" border stripe highlight-current-row>
+                    <el-table ref="eltable" v-loading="loading" @current-change="onCurrentChange" :data="viewData" height="100%" size="small" border stripe highlight-current-row>
                         <el-table-column type="index" label="序" align="center" fixed=""></el-table-column>
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">

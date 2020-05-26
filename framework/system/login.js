@@ -8,6 +8,7 @@
 function login(para) {
     const promise = new Promise(function (resolve, reject) {
         let paraLogin = {
+            tenantId: para.tenantId,
             userkey: para.userkey.toLowerCase(),
             password: para.password,
             verifyCode: para.verifyCode,
@@ -21,10 +22,12 @@ function login(para) {
 
                     setLocalItem("login.remenber", app.remenber ? "1" : "0");
                     if (app.remenber) {
+                        setLocalItem("login.tenantId", paraLogin.tenantId);
                         setLocalItem("login.userkey", paraLogin.userkey);
                         setLocalItem("login.password", para.password);
                     }
                     else {
+                        setLocalItem("login.tenantId", "");
                         setLocalItem("login.userkey", "");
                         setLocalItem("login.password", "");
                     }
