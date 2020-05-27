@@ -3,7 +3,7 @@
 <head>
     <title>标签定义窗口</title>
     <script src="../../../../framework/core/doys.js"></script>
-    <script src="../../../../framework/control/toolbar/view-form-bar/view-form-bar.js"></script>
+    <script src="../../../../framework/control/view-form-bar/view-form-bar.js"></script>
 </head>
 <body>
     <div id="app" style="width:800px;">
@@ -97,6 +97,9 @@
             ds: {}
         },
         methods: {
+            afterMove: function () {
+                //this.$message("after move");
+            },
             beforeAddnew: function () {
                 //this.$message("页面判断，允许添加");
                 return true;

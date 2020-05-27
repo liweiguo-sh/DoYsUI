@@ -31,7 +31,7 @@
         }, true);
 
         // -- 输出css --
-        let css = g.path.framework + "/control/toolbar/view-form-bar/view-form-bar.css?v=" + g.cfg.jsVer;
+        let css = g.path.framework + "/control/view-form-bar/view-form-bar.css?v=" + g.cfg.jsVer;
         document.write("<link href='" + css + "' rel='stylesheet' />");
     },
     methods: {
@@ -176,6 +176,11 @@
             // --------------------------------------------
             this.moveButtons = moveButtons;
             this.vfButtons = vfButtons;
+
+            // -- afterMove -------------------------------
+            if (this.$parent.afterMove) {
+                this.$parent.afterMove();
+            }
         },
 
         onClick(button) {
@@ -298,8 +303,9 @@
         },
         addnew() {
             this.$parent.form = {};
+            //this.$parent.$refs.form.resetFields();
+            //this.$parent.$refs.form.clearValidate();
             this.setStatus("addnew");
-            return true;
         },
         delete() {
             let id = this.dataRowView["id"].value;
@@ -372,6 +378,12 @@
             });
         },
 
+        getId() {
+            if (this.status.equals("view")) {
+                return this.dtbFormData.rows[0]["id"].value;
+            }
+            return 0;
+        },
         doSomething() {
             // -- do nothing --
         }

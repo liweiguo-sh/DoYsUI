@@ -1,7 +1,6 @@
 ﻿Vue.component('main-view', {
     data: function () {
         return {
-            temp: [],
             viewPk: "",
             flowPks: "",
             controller: "/core/base_view",  // -- 视图后台控制类 --
@@ -384,7 +383,7 @@
     props: ['attrs'],
     template: `<el-container>
         <el-header style="padding:0">
-            <view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></view-bar>
+            <main-view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></main-view-bar>
         </el-header>
         <el-container>
             <el-aside v-show="showNavArea" width="250px" style="margin:0;padding:0;border-left:solid 2px #ebeef5;border-bottom:solid 2px #ebeef5;border-top:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">

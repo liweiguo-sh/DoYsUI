@@ -1,4 +1,4 @@
-﻿Vue.component('view-bar', {
+﻿Vue.component('sub-view-bar', {
     data: function () {
         return {
             searchText: ""
@@ -24,7 +24,7 @@
     props: ['attrs'],
     template: `<el-row>
         <el-col :span="20">
-            <el-button v-for="button in attrs.leftButtons" @click="onClick(button)" :key="button.name" :icon="button.icon" :type="button.type" plain>
+            <el-button v-for="button in attrs.leftButtons" @click="onClick(button)" :key="button.name" :icon="button.icon" :type="button.type" size="small" plain>
                 {{button.text}}
             </el-button>
             <el-input v-if="attrs.showSearch" v-model="searchText" @change="onSearch" @clear="onClear" :placeholder="attrs.searchPlaceholder" clearable style="width:250px;margin-left:15px;"></el-input>
