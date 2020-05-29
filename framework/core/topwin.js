@@ -34,6 +34,25 @@
     remark: ""
 };
 
+topWin.sessionTimeout = function () {
+    app.$alert("会话已超时，请重新登录系统。", "系统消息...", {
+        confirmButtonText: "确定",
+        type: 'warning',
+        customClass: "alertClass"
+    }).then(() => {
+        window.location.href = getUrlItem("urlLogin");
+    })
+};
+topWin.alert = function (message, type = "info", callback) {
+    app.$alert(message, "系统消息...", {
+        confirmButtonText: "确定",
+        type: type,
+        customClass: "alertClass"
+    }).then(() => {
+        if (callback) callback();
+    })
+};
+
 // -- 读取子系统菜单、调用菜单 -----------------------------------------------------
 topWin.getMenus = function (systemKey, clientType) {
     if (g.a.send("processType=com.xznext.Framework&actionType=getMenu", { systemKey: systemKey, clientType: clientType }, true)) {

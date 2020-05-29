@@ -165,6 +165,12 @@
                                 // -- 添加按钮特殊处理 --
                                 button.hide = !this.allowAddnew;
                             }
+                            else if (buttonPk.equals("delete")) {
+                                button.hide = !this.allowDelete;
+                            }
+                            else if (buttonPk.equals("save")) {
+                                button.hide = !this.allowUpdate;
+                            }
                             vfButtons.push(button);
                         }
                     }
@@ -237,17 +243,7 @@
                 this.save();
             }
             else if (button.name.equals("addnew")) {
-                if (this.$parent.beforeAddnew) {
-                    if (!this.$parent.beforeAddnew()) {
-                        return false;
-                    }
-                }
-
-                if (this.addnew()) {
-                    if (this.$parent.afterAddnew) {
-                        this.$parent.afterAddnew();
-                    }
-                }
+                this.addnew();
             }
             else if (button.name.equals("delete")) {
                 if (this.$parent.beforeDelete) {
@@ -297,20 +293,33 @@
                     win.flashTitle("数据保存成功  " + (new Date).toTimeString());
                 }
                 else {
-                    this.$alert(res.error, { type: "error", title: "系统消息 ..." });
+                    topWin.alert(res.error, "error");                    
                 }
             });
         },
         addnew() {
+            // -- beforeAddnew --
+            if (this.$parent.beforeAddnew) {
+                if (!this.$parent.beforeAddnew()) {
+                    return false;
+                }
+            }
+
+            // -- do addnew --
             this.$parent.form = {};
             //this.$parent.$refs.form.resetFields();
             //this.$parent.$refs.form.clearValidate();
             this.setStatus("addnew");
+
+            // -- afterAddnew --
+            if (this.$parent.afterAddnew) {
+                this.$parent.afterAddnew();
+            }
         },
         delete() {
             let id = this.dataRowView["id"].value;
             let idNext = this.view.getNextId();
-            let postData = { viewPk: this.viewPk, id: id, idNext, idNext };
+            let postData = { viewPk: this.viewPk, id: id, idNext, idNext, form: this.$parent.form };
             ajax.send(this.controller + "/delete", postData).then(res => {
                 if (res.ok) {
                     this.dataRowView = this.view.afterVfDelete();

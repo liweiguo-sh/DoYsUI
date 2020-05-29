@@ -17,6 +17,8 @@
             filterExternal: "",             // -- 外部条件 --
             allowAddnew: false,             // -- 视图允许添加 --
 
+            showViewBar: true,              // -- ## 顶部工具条 ## --
+
 
             dtbFlowNode: null,              // -- ## 导航树 ##--
             showNavArea: false,             // -- 显示导航区 --
@@ -93,7 +95,7 @@
                 { name: "config", text: "配置", type: "danger", icon: "el-icon-share" },
                 { name: "export", text: "数据导出", type: "success", icon: "el-icon-download" }
             ]
-
+            this.showViewBar = (leftButtons.length > 0);
             this.viewBarProps = {
                 leftButtons: leftButtons,
                 rightButtons: [],
@@ -241,7 +243,12 @@
                 this.getViewData();
             }
             else if (button.name.equals("addnew")) {
-                this.openEditForm("addnew");
+                let cancel = false;
+                this.$emit("onaddnew", (val) => { cancel = val; });
+
+                if (!cancel) {
+                    this.openEditForm("addnew");
+                }
             }
             else if (button.name.equals("close")) {
                 win.close();
@@ -393,9 +400,8 @@
             }
         }
     },
-    props: ['attrs'],
     template: `<el-container>
-        <el-header style="padding:0px;height:35px">
+        <el-header v-show="showViewBar" style="padding:0px;height:35px">
             <sub-view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></sub-view-bar>
         </el-header>
         <el-container>

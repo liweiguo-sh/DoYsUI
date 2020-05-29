@@ -42,6 +42,12 @@ ajax.send = function (url, data) {
                         response.data[key] = value;
                     }
                 }
+                if (!response.data.ok) {
+                    if (response.data.error.indexOf("session timeout") >= 0) {
+                        topWin.sessionTimeout();
+                        return;
+                    }
+                }
                 resolve(response.data);
             }).catch(e => {
                 reject(e);

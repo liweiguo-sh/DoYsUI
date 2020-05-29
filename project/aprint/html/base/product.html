@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>客户资料维护</title>
+    <title>产品定义</title>
     <script src="../../../../framework/core/doys.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -10,23 +10,18 @@
 <body>
     <div id="app" style="width:800px;">
         <view-form-bar id="vf" ref="vf" aaattrs="viewProps"></view-form-bar>
-        <el-form :model="form" ref="form" :rules="rules" label-width="145px" label-position="left">
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="客户代码" required>
-                        <el-input v-model="form.code" placeholder="客户代码" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="简称" required>
-                        <el-input v-model="form.short_name" placeholder="简称" />
+                    <el-form-item label="产品代码" required>
+                        <el-input v-model="form.code" placeholder="产品代码" />
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[0]">
-                    <el-form-item label="客户名称" required prop="name">
-                        <el-input v-model="form.name" placeholder="客户全称" />
+                    <el-form-item label="产品名称" required>
+                        <el-input v-model="form.name" placeholder="产品名称" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -38,7 +33,7 @@
                 </el-col>
             </el-row>
             <el-row>
-                <sub-view id="grid" ref="grid" style="height:300px;"></sub-view>
+                <sub-view id="grid" ref="grid" style="height:350px;" @onaddnew="onGridAddnew"></sub-view>
             </el-row>
         </el-form>
     </div>
@@ -52,39 +47,48 @@
         data: {
             span: [24, 12, 12],
             form: {},
-            ds: {},
-
-            rules: {
-                name: [
-                    { required: true, message: '请输入客户名称', trigger: 'change' },
-                    { max: 5, message: '长度在 3 到 25 个字符', trigger: '1blur' }
-                ]
-            }
+            ds: {}
         },
 
         methods: {
+            onGridAddnew: function (callback) {
+                if (!this.$refs.vf.status.equals("view")) {
+                    callback(true);
+                    topWin.alert("请先保存主表。", (val) => {
+                        win.flashTitle("请先保存主表");
+                    });
+                }
+            },
+
             afterMove: function () {
-                let filter = "customer_id = " + this.$refs.vf.getId();
+                let productId = this.$refs.vf.getId();
+                let filter = "product_id = " + productId;
                 if (this.$refs.grid.initialized) {
                     this.$refs.grid.setFilter(filter);
                 }
                 else {
                     var para = {
-                        viewPk: "customer_para",
+                        viewPk: "product_para",
                         flowPks: "'sys_crud'",
                         filter: filter,
-                        vfUrl: g.path.project + "/aprint/html/base/customer_para.html"
+                        vfUrl: g.path.project + "/aprint/html/base/product_para.html"
                     }
                     this.$refs.grid.init(para);
                 }
             },
             beforeSave: function () {
                 if (!this.form.name) {
-                    this.$message("请输入客户名称。");
+                    this.$message("请输入产品名称。");
                     return false;
                 }
                 return true;
             }
         }
     });
+</script>
+
+<script>
+    function getProductId() {
+        return app.$refs.vf.getId();
+    }
 </script>

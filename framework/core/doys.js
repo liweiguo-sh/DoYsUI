@@ -87,10 +87,11 @@ function initGlobalJs() {
     arrJS.push(g.path.framework + "/core/" + "datatable.js");
     arrJS.push(g.path.framework + "/core/" + "ajax.js");
 
-    // -- core --
-    arrJS.push(g.path.framework + "/system/" + "login.js");
-    arrJS.push(g.path.framework + "/system/" + "user.js");
+    // -- control --
+    arrJS.push(g.path.framework + "/control/sub-view/sub-view-bar.js");
+    arrJS.push(g.path.framework + "/control/sub-view/sub-view.js");
 
+    // -- output javascript --
     for (let js of arrJS) {
         document.write("<script src='" + js + "?v=" + g.cfg.jsVer + "'></script>");
     }
@@ -107,16 +108,20 @@ function initPage() {
 function importFrameworkRes(fileRes) {
     ///<summary>按需导入框架资源文件，js或css等</summary>
     ///<param name="fileRes">框架资源文件名称，不包含路径</param>
-    if (fileRes.endWith(".js")) {
-        if (fileRes.equals("login.js")) {
-            fileRes = g.path.framework + "/system/login.js"
-        }
-        else {
-            alert(fileRes);
-        }
-        document.write("<script src='" + fileRes + "?v=" + g.cfg.jsVer + "'></script>");
+
+    var arrJS = new Array();
+    if (fileRes.equals("echarts")) {
+        arrJS.push(g.path.plugin + "/echarts/echarts.min.js");
+    }
+    else if (fileRes.equals("view-form-bar")) {
+        arrJS.push(g.path.framework + "/control/view-form-bar/view-form-bar.js");
     }
     else {
-        alert(fileJs);
+        alert("importFrameworkRes found unknown resource: " + fileRes);
+    }
+
+    // -- output javascript --
+    for (let js of arrJS) {
+        document.write("<script src='" + js + "?v=" + g.cfg.jsVer + "'></script>");
     }
 }

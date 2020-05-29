@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>产品参数定义</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:600px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col>
+                    <el-form-item label="参数" required>
+                        <el-input v-model="form.code" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col>
+                    <el-form-item label="名称" required>
+                        <el-input v-model="form.name" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col>
+                    <el-form-item label="默认值">
+                        <el-input v-model="form.default_value" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col>
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            form: {}
+        },
+        methods: {
+            afterAddnew: function () {
+                this.form.product_id = win.parentWindow.getProductId();
+            }
+        }
+    });
+</script>
+
