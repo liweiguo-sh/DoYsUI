@@ -14,6 +14,7 @@
                 searchPlaceholder: "quick search ..."
             },
             allowAddnew: false,             // -- 视图允许添加 --
+            detailAlise: "查看",             // -- 查看 --
 
 
             dtbFlowNode: null,              // -- ## 导航树 ##--
@@ -57,6 +58,7 @@
                     this.dtbView = res.dtbView;
                     this.controller = this.dtbView.rows[0]["controller"].value || this.controller;
                     this.allowAddnew = (this.dtbView.rows[0]["allow_addnew"].value == 1);
+                    this.detailAlise = this.dtbView.rows[0]["detail_alise"].value || this.detailAlise;
 
                     this.dtbViewField = res.dtbViewField;
                     this.dtbFlowNode = res.dtbFlowNode;
@@ -114,7 +116,7 @@
             this.navAllowAddnew = (dataRow["allow_addnew"].value == 1);
             data.push({ id: dataRow["flow_pk"].value, label: dataRow["flow_name"].value, dataRow: dataRow, children: nodes });
             this.dataFlowNode = data;
-            
+
             try {
                 // -- TODO: 不生效??? --
                 this.$refs.eltree.setCurrentKey(this.dataFlowNode[0].children[0].id);
@@ -271,7 +273,13 @@
 
         onViewClick(scope) {
             this.setCurrentRow(scope.$index);
-            this.openEditForm("view");
+
+            let cancel = false;
+            this.$emit("ondetailclick", this.dtbViewData.rows[this.currentRowIdx], (val) => { cancel = val; });
+
+            if (!cancel) {
+                this.openEditForm("view");
+            }
         },
         openEditForm(firstAction) {
             if (this.winViewForm) {
@@ -396,7 +404,7 @@
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
                             <template slot-scope="scope">
-                                <el-button @click="onViewClick(scope)" type="text" size="small">查看</el-button>
+                                <el-button @click="onViewClick(scope)" type="text" size="small">{{detailAlise}}</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>

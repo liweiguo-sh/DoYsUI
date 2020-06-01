@@ -57,8 +57,9 @@
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
             ajax.send(this.controller + "/getFormSchema", postData).then(res => {
                 if (res.ok) {
-                    // -- 1. 流程 --
+                    // -- 1. 流程按钮、视图按钮 --
                     if (res.dtbFlowButton) this.dtbFlowButton = res.dtbFlowButton;
+                    if (res.dtbViewButton) this.dtbViewButton = res.dtbViewButton;
 
                     // -- 2. 解析并处理字段数据源 --
                     for (let key in res) {
@@ -138,40 +139,45 @@
                 moveButtons.push({ name: "last", icon: "el-icon-d-arrow-right", actionType: "move" });
 
                 // -- 2. flow group --
-                if (this.dtbFlowButton) {
-                    for (let i = 0; i < this.dtbFlowButton.rowCount; i++) {
-                        let dataRow = this.dtbFlowButton.rows[i];
-                        let buttonPk = dataRow["button_pk"].value;
-                        let name = dataRow["name"].value;
-                        let jsAssert = dataRow["assert_js"].value;
-                        let icon = dataRow["icon"].value || "el-icon-sort";
-                        let actionType = dataRow["action_type"].value;
+                for (let t = 0; t < 2; t++) {
+                    let dtbButton;
+                    if (t == 0 && this.dtbFlowButton) dtbButton = this.dtbFlowButton;
+                    if (t == 1 && this.dtbViewButton) dtbButton = this.dtbViewButton;
+                    if (dtbButton) {
+                        for (let i = 0; i < dtbButton.rowCount; i++) {
+                            let dataRow = dtbButton.rows[i];
+                            let buttonPk = dataRow["button_pk"].value;
+                            let name = dataRow["name"].value;
+                            let jsAssert = dataRow["assert_js"].value;
+                            let icon = dataRow["icon"].value || "el-icon-sort";
+                            let actionType = dataRow["action_type"].value;
 
-                        while (true) {
-                            let idxStart = jsAssert.indexOf("{");
-                            let idxEnd = jsAssert.indexOf("}");
-                            if (idxStart < 0) break;
-                            if (idxEnd <= idxStart) {
-                                alert("表达式错误，没有找到匹配的 \"}\":\n" + jsAssert);
-                                jsAssert = "false";
-                                break;
+                            while (true) {
+                                let idxStart = jsAssert.indexOf("{");
+                                let idxEnd = jsAssert.indexOf("}");
+                                if (idxStart < 0) break;
+                                if (idxEnd <= idxStart) {
+                                    alert("表达式错误，没有找到匹配的 \"}\":\n" + jsAssert);
+                                    jsAssert = "false";
+                                    break;
+                                }
+                                let columnName = jsAssert.substring(idxStart + 1, idxEnd - idxStart);
+                                jsAssert = jsAssert.replace("{" + columnName + "}", "" + this.dtbFormData.rows[0][columnName.trim()].value);
                             }
-                            let columnName = jsAssert.substring(idxStart + 1, idxEnd - idxStart);
-                            jsAssert = jsAssert.replace("{" + columnName + "}", "" + this.dtbFormData.rows[0][columnName.trim()].value);
-                        }
-                        if (g.x.eval(jsAssert)) {
-                            let button = { name: buttonPk, text: name, icon: icon, actionType: actionType, dataRow: dataRow };
-                            if (buttonPk.equals("addnew")) {
-                                // -- 添加按钮特殊处理 --
-                                button.hide = !this.allowAddnew;
+                            if (g.x.eval(jsAssert)) {
+                                let button = { name: buttonPk, text: name, icon: icon, actionType: actionType, dataRow: dataRow };
+                                if (buttonPk.equals("addnew")) {
+                                    // -- 添加按钮特殊处理 --
+                                    button.hide = !this.allowAddnew;
+                                }
+                                else if (buttonPk.equals("delete")) {
+                                    button.hide = !this.allowDelete;
+                                }
+                                else if (buttonPk.equals("save")) {
+                                    button.hide = !this.allowUpdate;
+                                }
+                                vfButtons.push(button);
                             }
-                            else if (buttonPk.equals("delete")) {
-                                button.hide = !this.allowDelete;
-                            }
-                            else if (buttonPk.equals("save")) {
-                                button.hide = !this.allowUpdate;
-                            }
-                            vfButtons.push(button);
                         }
                     }
                 }
@@ -222,7 +228,9 @@
                 }
                 else if (button.actionType.equals("client")) {
                     if (this.$parent.onClick) {
-                        this.$parent.onClick();
+                        if (this.$parent.onClick(button)) {
+                            topWin.message("TODO:（view-form-bar.js）调用后台代码，此处待实现。", "error");
+                        }
                     }
                     else {
                         this.$message("unimplemented client button, please add.");
@@ -293,7 +301,7 @@
                     win.flashTitle("数据保存成功  " + (new Date).toTimeString());
                 }
                 else {
-                    topWin.alert(res.error, "error");                    
+                    topWin.alert(res.error, "error");
                 }
             });
         },

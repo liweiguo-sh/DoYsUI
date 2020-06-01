@@ -52,6 +52,13 @@ topWin.alert = function (message, type = "info", callback) {
         if (callback) callback();
     })
 };
+topWin.message = function (message, type = "info") {
+    app.$message({
+        showClose: true,
+        message: message,
+        type: type              // -- success、warning、error --
+    });
+};
 
 // -- 读取子系统菜单、调用菜单 -----------------------------------------------------
 topWin.getMenus = function (systemKey, clientType) {

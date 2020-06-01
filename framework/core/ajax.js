@@ -50,7 +50,13 @@ ajax.send = function (url, data) {
                 }
                 resolve(response.data);
             }).catch(e => {
-                reject(e);
+                if (e.response.status == 404) {
+                    topWin.message(e.message, "error");
+                }
+                else {
+                    topWin.message(e.message, "error");
+                    reject(e);
+                }
             })
         }
         // -- fetch --

@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签打印窗口</title>
+    <script src="../../../../framework/core/doys.js"></script>
+
+    <script src="../../../../framework/control/main-view/main-view-bar.js"></script>
+    <script src="../../../../framework/control/main-view/main-view.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="8">
+                <el-row>
+                    <el-button @click="print">打印</el-button>
+                </el-row>
+                <el-row>
+                    <el-col>
+                        <hr />
+                    </el-col>
+                </el-row>
+                <el-form label-width="140px" label-position="left">
+                    <el-row>
+                        <el-col>
+                            <el-form-item label="标签" required>
+                                <el-select v-model="labelId" @change="onLabelChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                    <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                                        <span style="float: left">{{ item.code }}</span>
+                                        <span style="float: right;">{{ item.name }}</span>
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col>
+                            <el-form-item label="客户">
+                                <el-select v-model="customerId" @change="onCustomerChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                    <el-option v-for="item in customers" :key="item.id" :value="item.id" :label="item.name"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col>
+                            <el-form-item label="产品料号(PN)">
+                                <el-select v-model="productPnId" @change="onProductPnChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                    <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.productName + '    ' + item.pn">
+                                        <span style="float: left">{{ item.productName }}</span>
+                                        <span style="float: right;">{{ item.pn }}</span>
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="12">
+                            <el-form-item label="打印数量" required>
+                                <el-input v-model="qty" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="份数" required>
+                                <el-input v-model="copies" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col>
+                            <hr />
+                        </el-col>
+                    </el-row>
+                    <el-row v-for="item in kvVars">
+                        <el-col>
+                            <el-form-item :label="item.k">
+                                <el-input v-model="item.v" @change="onVarChange" placeholder="打印前请赋值..." />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-col>
+            <el-col :span="1">&nbsp;</el-col>
+            <el-col :span="15">
+                <main-view id="mview" ref="mview" @ondetailclick="onDetailClick"></main-view>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            labelId: null,
+            labelContent: null,
+            customerId: null,
+            productPnId: null,
+            labels: [],
+            customers: [],
+            productPns: [],
+            qty: null,
+            copies: 1,
+
+            kvCustomer: [],
+            kvProductPn: [],
+            kvVars: []
+        },
+        mounted() {
+            let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
+            ajax.send("/aprint/labelQuickPrint/getInitData", postData).then(res => {
+                if (res.ok) {
+                    let labels = [];
+                    let dtbLabel = res.dtbLabel;
+                    for (let i = 0; i < dtbLabel.rowCount; i++) {
+                        let dataRow = dtbLabel.rows[i];
+                        labels.push({ id: "" + dataRow["id"].value, code: dataRow["code"].value, name: dataRow["name"].value, dataRow: dataRow });
+                    }
+                    this.labels = labels;
+
+                    let customers = [];
+                    let dtbCustomer = res.dtbCustomer;
+                    for (let i = 0; i < dtbCustomer.rowCount; i++) {
+                        let dataRow = dtbCustomer.rows[i];
+                        customers.push({ id: "" + dataRow["id"].value, name: dataRow["name"].value, dataRow: dataRow });
+                    }
+                    this.customers = customers;
+
+                    let productPns = [];
+                    let dtbProductPn = res.dtbProductPn;
+                    for (let i = 0; i < dtbProductPn.rowCount; i++) {
+                        let dataRow = dtbProductPn.rows[i];
+                        productPns.push({ id: "" + dataRow["id"].value, productName: dataRow["product_name"].value, pn: dataRow["pn"].value, dataRow: dataRow });
+                    }
+                    this.productPns = productPns;
+                }
+                else {
+                }
+            });
+        },
+        methods: {
+            onLabelChange() {
+                ajax.send("/aprint/label/getLabelContentById", { labelId: this.labelId }).then(res => {
+                    this.labelContent = res.content;
+                    this.kvVars = res.vars;
+
+
+                    let vars = [];
+                    if (this.kvVars) {
+                        let arr1 = this.kvVars.split(";");
+                        for (let i = 0; i < arr1.length; i++) {
+                            let arr2 = arr1[i].split(",");
+                            vars.push({ "k": arr2[0], "v": arr2[1] });
+                        }
+                    }
+                    this.kvVars = vars;
+
+                    this.initLabel();
+                });
+            },
+            onCustomerChange() {
+                ajax.send("/aprint/label/getCustomerParaByCustomerId", { customerId: this.customerId }).then(res => {
+                    let kvCustomer = [];
+                    let dtb = res.dtbCustomerPara;
+                    for (let i = 0; i < dtb.rowCount; i++) {
+                        kvCustomer.push({ k: dtb.rows[i]["para_code"].value, v: dtb.rows[i]["para_value"].value });
+                    }
+                    this.kvCustomer = kvCustomer;
+
+                    this.initLabel();
+                });
+            },
+            onProductPnChange() {
+                ajax.send("/aprint/label/getProductPnParaByProductPnId", { productPnId: this.productPnId }).then(res => {
+                    let kvProductPn = [];
+                    let dtb = res.dtbProductPnPara;
+                    for (let i = 0; i < dtb.rowCount; i++) {
+                        kvProductPn.push({ k: dtb.rows[i]["para_code"].value, v: dtb.rows[i]["para_value"].value });
+                    }
+                    this.kvProductPn = kvProductPn;
+
+                    this.initLabel();
+                });
+            },
+            onVarChange() {
+                this.initLabel();
+            },
+            initLabel(quickPrint = false) {
+                if (!this.labelId) return;
+
+                let para = {
+                    action: "initLabel",
+                    labelContent: this.labelContent,
+                    kvCustomer: this.kvCustomer,
+                    kvProductPn: this.kvProductPn,
+                    kvVars: this.kvVars,
+                    quickPrint: (quickPrint ? "1" : "0")
+                }
+                top.initLabel(para);
+            },
+
+            print() {
+                this.initLabel(true);
+            },
+            method2() {
+                let para = {
+                    action: "printPreview"
+                }
+                top.printPreview(para);
+            },
+            onDetailClick: function (dataRow, callback) {
+                callback(true);
+                topWin.alert(dataRow["id"].value);
+            }
+        }
+    });
+
+    // ------------------------------------------------------------------------
+    function winLoad() {
+        gId("mview").style.height = (win.p.maxHeight - 0) + "px";
+
+        var para = {
+            viewPk: "label_for_quick_print"
+        }
+        app.$refs.mview.init(para);
+    }
+</script>

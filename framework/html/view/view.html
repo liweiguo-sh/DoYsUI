@@ -22,7 +22,7 @@
 </html>
 
 <!-- winLoad -->
-<script type="text/javascript">
+<script>
     let view = new Vue({
         el: '#app',
         data: {
@@ -50,6 +50,8 @@
 
     // ------------------------------------------------------------------------
     function winLoad() {
+        gId("mview").style.height = (win.p.maxHeight + 0) + "px";
+        
         var para = {
             viewPk: win.para.viewPk,
             flowPks: win.para.flowPks,
@@ -57,7 +59,5 @@
             vfWindowState: win.para.vfWindowState
         }
         view.$refs.mview.init(para);
-
-        gId("mview").style.height = (win.p.maxHeight + 0) + "px";
     }
 </script>

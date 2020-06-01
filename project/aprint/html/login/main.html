@@ -24,7 +24,7 @@
         body {
             overflow: hidden;
         }
-        
+
         .el-header {
             background-color: white;
             color: #324057;
@@ -211,7 +211,8 @@
             },
             onTaskbarClick(barName) {
                 if (barName.equals("desktop")) {
-                    this.$message("激活工作台事件处理...");
+                    // -- TODO: 激活工作台 --
+                    //this.$message("激活工作台事件处理...");
                     //Vue.prototype.$ELEMENT = { size: 'small', zIndex: 80000 };
                 }
                 else {
@@ -268,6 +269,7 @@
             win = topWin.openFullWindow(prop, para);
         }
         else {
+            //openMasoDesigner({ labelId: 3 });
             app.$alert("unsupport sys_view.type: " + menu.type, { type: "error", title: "系统消息 ..." });
             return;
         }
@@ -282,5 +284,83 @@
             win: win
         };
         app.$refs.taskBar.addBar(taskbar);
+    }
+</script>
+
+<!-- js invoke shell -->
+<script>
+    function jsInvokeCommonShell(para) {
+        if (!window.commonJsInvokeShell) {
+            topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "warning");
+            return "{\"success\": \"false\"}";
+        }
+
+        try {
+            if (para.action.equals("designLabel")) {
+                return commonJsInvokeShell(para);
+            }
+            else if (para.action.equals("initLabel")) {
+                return commonJsInvokeShell(para);
+            }
+            else {
+                topWin.alert("尚未实现的 action：" + para.action + "，请检查。", "error");
+            }
+        }
+        catch (e) {
+            topWin.alert(e.toString(), "error");
+        }
+    }
+
+
+    function openMasoDesigner(para) {
+        ajax.send("/aprint/label/getLabelContentById", para).then(res => {
+            let para = {
+                action: 'designLabel',
+                labelCode: res.id,
+                labelVersion: res.version,
+                labelContent: res.content,
+                labelName: res.name,
+                labelType: res.type
+            }
+            let returnString = jsInvokeCommonShell(para);
+
+            let jsonReturn = JSON.parse(returnString);
+            if (jsonReturn.success) {
+                topWin.message("success");
+            }
+            else {
+                topWin.alert(jsonReturn.message);
+            }
+        });
+    }
+    function initLabel(para) {
+        jsInvokeCommonShell(para);
+    }
+</script>
+<!-- shell invoke js -->
+<script>
+    function commonShellInvokeJs(para) {
+        try {
+            if (para.action.equals("saveLabelContent")) {
+                saveMasoLabel(para);
+            }
+            else {
+                topWin.alert("尚未实现的 action：" + para.action + "，请检查。", "error");
+            }
+        }
+        catch (e) {
+            topWin.alert(e.toString(), "error");
+        }
+    }
+
+    function saveMasoLabel(para) {
+        let postData = {
+            id: para.labelCode,
+            content: para.labelContent,
+            vars: para.labelVars
+        };
+        ajax.send("/aprint/label/saveLabelContent", postData).then(res => {
+            topWin.message("标签保存成功。", "success");
+        });
     }
 </script>

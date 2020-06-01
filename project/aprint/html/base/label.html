@@ -13,55 +13,48 @@
         <el-form :model="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="标签代码(料号)" placeholder="标签代码" required>
-                        <el-input v-model="form.code" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="标签版本" required>
-                        <el-input v-model="form.version" placeholder="标签版本" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="标签名称(种类)" required>
-                        <el-input v-model="form.name" placeholder="标签名称" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="停用">
-                        <el-checkbox v-model="form.falg_disabled">停用标志</el-checkbox>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="产品名称">
-                        <el-select v-model="form.product_id" placeholder="请选择" filterable :popper-append-to-body="false">
+                    <el-form-item label="产品名称" required>
+                        <el-select v-model="form.product_id" filterable :popper-append-to-body="false">
                             <el-option v-for="item in ds.product_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="PN料号">
-                        <el-input v-model="form.part_no" />
+                    <el-form-item label="版本" required>
+                        <el-input v-model="form.version" :disabled="true" />
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="打印机点数" required>
-                        <el-select v-model="form.point">
-                            <el-option :value="300" label="300"></el-option>
-                            <el-option :value="600" label="600"></el-option>
-                            <el-option :value="1200" label="1200"></el-option>
+                    <el-form-item label="代码(料号)" required>
+                        <el-input v-model="form.code" placeholder="标签代码（PN料号）" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="标签名称">
+                        <el-input v-model="form.name" placeholder="标签名称" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="类型" required>
+                        <el-select v-model="form.type">
+                            <el-option value="MASO" label="MASO"></el-option>
+                            <el-option value="BarTender" label="BarTender" :disabled="true"></el-option>
+                            <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
+                            <el-option value="PDF" label="PDF" :disabled="true"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="纸张类型">
-                        <el-input v-model="form.paper" />
+                    <el-form-item label="打印机点数" required>
+                        <el-select v-model="form.point">
+                            <el-option value="300" label="300"></el-option>
+                            <el-option value="600" label="600"></el-option>
+                            <el-option value="1200" label="1200"></el-option>
+                        </el-select>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -107,10 +100,19 @@
                 return true;
             },
             afterAddnew: function () {
-                //this.$message("after addnew");
+                this.form.product_id = "0";
+                this.form.type = "MASO";
+                this.form.version = "1";
+
+                this.form.width = "80";
+                this.form.height = "40";
+                this.form.point = "600";                
             },
             beforeSave: function () {
-                //this.$message("页面判断，允许保存");
+                if (!this.form.code) {
+                    topWin.alert("请输入标签代码", "warning");
+                    return false;
+                }
                 return true;
             },
             afterSave: function () {
@@ -130,8 +132,13 @@
             afterFlowClick: function () {
                 //this.$message("afterClick");
             },
-            onClick: function () {
-                this.$message("打印，版本号 = " + this.form.version);
+            onClick: function (button) {
+                if (button.name.equals("label_design")) {
+                    top.openMasoDesigner({ labelId: this.form.id });
+                }
+                else {
+                    topWin.alert("name = " + button.name + ", text = " + button.text);
+                }
             }
         }
     });
