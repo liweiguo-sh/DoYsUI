@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>空白模板窗口</title>
+    <script src="../../../framework/core/prototype.js"></script>
+    <script src="../../../framework/core/core.js"></script>
+
+    <style type="text/css">
+        body {
+            font-family: 微软雅黑;
+        }
+
+        #divButtons {
+            background-color: #f0f0f0;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+            #divButtons input[type='button'] {
+                color: green;
+                height: 36px;
+                line-height: 36px;
+                padding-left: 15px;
+                padding-right: 15px;
+                --min-width: 80px;
+            }
+
+        #divCanvas {
+            height: 500px;
+            width: 1000px;
+            --border: dotted 1px green;
+            background-color: lightblue;
+            overflow: hidden;
+            position: absolute;
+        }
+
+        #divE1 {
+            height: 100px;
+            width: 200px;
+            position: absolute;
+            z-index: 10;
+        }
+        #divE2 {
+            height: 200px;
+            width: 300px;
+            position: absolute;
+            z-index: 5;
+        }
+
+
+        .canDrag {
+            --z-index: 200;
+            border: solid 1px red;
+        }
+        .cantDrag {
+            border: solid 1px black;
+            --z-index: 100;
+        }
+    </style>
+</head>
+<body onload="winLoad();">
+    <div id="divButtons">
+        <input type="button" id="btnSetDraggable1" onclick="btnSetDraggable1_click();" value="setDraggable1" />
+        <input type="button" id="btnSetDraggable2" onclick="btnSetDraggable2_click();" value="setDraggable2" />
+        <input type="button" id="btnCancelDraggable" onclick="btnCancelDraggable2_click();" value="cancelDraggable" />
+
+        <input type="button" id="btnPaint1" onclick="btnPaint1_click();" value="绘图1小" />
+        <input type="button" id="btnPaint2" onclick="btnPaint2_click();" value="绘图2" />
+    </div>
+    <div id="divCanvas">
+        <canvas id="divE1" class="cantDrag" onmousedown="btnSetDraggable1_click()"></canvas>
+        <canvas id="divE2" class="cantDrag" onmousedown="btnSetDraggable2_click()"></canvas>                
+    </div>
+    <canvas id="draw" style="width:200px;height:100px;border:solid 1px blue;"></canvas>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    let divCanvas = gId("divCanvas");
+    let divE1 = gId("divE1");
+    let divE2 = gId("divE2");
+    // ------------------------------------------------------------------------
+    function winLoad() { 
+    }
+</script>
+<!-- controls event -->
+<script>
+    function btnSetDraggable1_click() {
+        setUnDraggable();
+        setDraggable(divE1);
+    }
+    function btnSetDraggable2_click() {
+        setUnDraggable();
+        setDraggable(divE2);
+    }
+
+    function btnCancelDraggable_click() {
+        setUnDraggable();
+    }
+
+    function setDraggable(domDrag) {
+        domDrag.ondragstart = function (evt) {
+            ondragstart(evt, divCanvas, domDrag);
+        };
+        domDrag.ondragend = function (evt) {
+            ondragend(evt, domDrag);
+        };
+
+        domDrag.draggable = true;
+        domDrag.className = "canDrag";
+    }
+    function setUnDraggable() {
+        divE1.draggable = false;
+        divE1.className = "cantDrag";
+        divE2.draggable = false;
+        divE2.className = "cantDrag";
+    }
+</script>
+
+<!-- main-drag -->
+<script>
+    let dragOffsetX, dragOffsetY;
+    function ondragstart(evt, domContainer, domDrag) {
+        dragOffsetX = domContainer.offsetLeft;                          // -- 容器偏移量 --
+        dragOffsetX += domContainer.clientLeft;                         // -- 容器边框宽度 --
+        dragOffsetX += g.x.getStyleValue(domContainer, "paddingLeft");  // -- 容器padding --
+        dragOffsetX += g.x.getStyleValue(domDrag, "marginLeft");        // -- 拖动对象margin --
+        dragOffsetX += domDrag.clientLeft;                              // -- 拖动对象边框宽度 --
+        dragOffsetX += evt.offsetX;                                     // -- 拖动对象偏移量(鼠标坐标相对于拖动对象) --
+
+        dragOffsetY = domContainer.offsetTop;                           // -- 容器偏移量 --
+        dragOffsetY += domContainer.clientTop;                          // -- 容器边框宽度 --
+        dragOffsetY += g.x.getStyleValue(domContainer, "paddingTop");   // -- 容器padding --  19
+        dragOffsetY += g.x.getStyleValue(domDrag, "marginTop");         // -- 拖动对象margin --  15
+        dragOffsetY += domDrag.clientTop;                               // -- 拖动对象边框宽度 --
+        dragOffsetY += evt.offsetY;                                     // -- 拖动对象偏移量(鼠标坐标相对于拖动对象) --
+    }
+    function ondragend(evt, domDrag) {
+        domDrag.style.left = (evt.clientX - dragOffsetX) + "px";
+        domDrag.style.top = (evt.clientY - dragOffsetY) + "px";
+    }
+</script>
+<!-- main-paint -->
+<script>
+    function btnPaint1_click() {
+        var draw = gId("divE1");
+        var context = draw.getContext("2d");
+
+        context.fillStyle = "#A088F5";
+        context.fillRect(50, 30, 150, 75);
+    }
+    function btnPaint2_click() {
+        var draw = gId("divE2");
+        var context = draw.getContext("2d");
+
+        context.fillStyle = "#F588A0";
+        context.fillRect(60, 20, 130, 95);
+    }
+</script>

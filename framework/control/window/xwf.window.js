@@ -454,14 +454,14 @@ window.xwf_window.prototype.autoSize = function (_this, win) {
     var top = win.p.top, left = win.p.left, width = win.p.width, height = win.p.height;
     //-------------------------------------------------
     if (height < scrollHeight) {
-        var marginBottom = parseInt(g.x.getCurrentStyle(contentBody, "marginBottom").replace("px"));
+        var marginBottom = g.x.getStyleValue(contentBody, "marginBottom"); 
         height = scrollHeight + marginBottom;
     }
     height = Math.min(height, _this.maxHeight);
     iframe.style.height = height + "px";
 
     if (width < scrollWidth) {
-        var marginRight = parseInt(g.x.getCurrentStyle(contentBody, "marginRight").replace("px"));
+        var marginRight = g.x.getStyleValue(contentBody, "marginRight"); 
         width = scrollWidth + marginRight;
     }
     width = Math.min(width, _this.maxWidth);

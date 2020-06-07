@@ -16,11 +16,23 @@
             allowAddnew: false,             // -- 视图允许添加 --
             detailAlise: "查看",             // -- 查看 --
 
+            showAside: false,               // -- ## 左侧区域 --
+            showNavTree: false,             // -- ## 流程树 --
+            dtbFlowNode: null,              // -- 流程树记录集 --            
+            dataFlowNode: [],               // -- 流程树data --
+            flowAllowAddnew: true,          // -- 当前导航节点允添加新纪录 --
+            filterFlowTree: "",             // -- 流程树导航条件 --
 
-            dtbFlowNode: null,              // -- ## 导航树 ##--
-            showNavArea: false,             // -- 显示导航区 --
-            dataFlowNode: [],               // -- 导航树data --
-            navAllowAddnew: true,           // -- 当前导航节点允添加新纪录 --
+            showFlowTree: false,            // -- ## 导航树 --
+            navTreeProps: {                 // -- 导航树属性 --
+                label: "label",
+                children: "children",
+                isLeaf: "isLeaf"
+            },
+            dtbTree: null,                  // -- 导航树记录集 --
+            dtbTreeLevel: null,             // -- 导航树层级记录集 --
+            dataNavNode: [],                // -- 导航树根节点数据 --
+            filterNavTree: "",              // -- 导航树导航条件 --
 
             columnsL: [],                   // -- 左侧固定列 --
             columns: [],                    // -- 中间浮动列 --
@@ -31,12 +43,11 @@
             totalRows: 0,                   // -- 总记录数 --
             pageNum: 0,                     // -- 当前页号 --
             currentRowIdx: 0,               // -- 当前行下标 --
-            quickFields: "",                // -- 快速搜索字段 --
-            filterTreeeFlow: "",            // -- 流程树导航条件 --
+            quickFields: "",                // -- 快速搜索字段 --            
             filterQuick: "",                // -- 快速查询条件 --
             loading: false,
 
-            vfUrl: "",                      // -- vf窗口URL --
+            vfUrl: "",                      // -- ## viewForm --
             vfWindowState: "",              // -- vf窗口状态 --
             // -- TODO：此处不可以定义winViewForm，回造成内存泄漏，有待进一步分析原因。后面直接使用没有泄漏问题，很是奇怪 --
             // -- winViewForm: null,        // -- vf编辑窗口 --
@@ -65,9 +76,13 @@
                     if (this.dtbFlowNode && this.dtbFlowNode.rowCount == 0) {
                         this.dtbFlowNode = null;
                     }
+                    this.dtbTree = res.dtbTree;
+                    this.dtbTreeLevel = res.dtbTreeLevel;
+
                     this.quickFields = res.dtbView.rows[0]["quick_fields"].value;
                     this.searchPlaceholder = res.dtbView.rows[0]["quick_text"].value;
 
+                    this.initFlowTree();
                     this.initNavTree();
                     this.initGrid();
 
@@ -83,7 +98,7 @@
             let leftButtons = [
                 { name: "refresh", text: "刷新", icon: "el-icon-refresh" }
             ]
-            if (this.allowAddnew && this.navAllowAddnew) {
+            if (this.allowAddnew && this.flowAllowAddnew) {
                 leftButtons.push({ name: "addnew", text: "添加", icon: "el-icon-plus" });
             }
 
@@ -101,28 +116,57 @@
                 searchPlaceholder: this.searchPlaceholder
             }
         },
-        initNavTree() {
+        initFlowTree() {
             if (this.dtbFlowNode == null) return;
-            this.showNavArea = true;
+            this.showAside = true;
+            this.showFlowTree = true;
 
+            let firstId;
             let data = [], nodes = [];
             for (let i = 1; i < this.dtbFlowNode.rowCount; i++) {
                 let dataRow = this.dtbFlowNode.rows[i];
-                nodes.push({ id: dataRow["node_pk"].value + i, label: dataRow["node_name"].value, dataRow: dataRow });
+                nodes.push({
+                    id: "" + dataRow["node_pk"].value,
+                    label: dataRow["node_name"].value,
+                    dataRow: dataRow
+                });
+                if (i == 1) {
+                    firstId = dataRow["node_pk"].value;
+                    this.filterFlowTree = dataRow["filter"].value;  // -- 默认流程第一个节点为初始流程筛选条件 --
+                }
             }
 
             let dataRow = this.dtbFlowNode.rows[0];
-            this.filterTreeeFlow = dataRow["filter"].value;
-            this.navAllowAddnew = (dataRow["allow_addnew"].value == 1);
+            this.flowAllowAddnew = (dataRow["allow_addnew"].value == 1);
+
             data.push({ id: dataRow["flow_pk"].value, label: dataRow["flow_name"].value, dataRow: dataRow, children: nodes });
             this.dataFlowNode = data;
 
-            try {
-                // -- TODO: 不生效??? --
-                this.$refs.eltree.setCurrentKey(this.dataFlowNode[0].children[0].id);
-            }
-            catch (e) {
-                console.log(e);
+            setTimeout(() => {
+                // -- 延时触发，自动选中流程第一个节点 --
+                this.$refs.treeFlow.setCurrentKey(firstId);
+            }, 500);
+        },
+        initNavTree() {
+            if (!this.dtbTree) return;
+
+            this.showAside = true;
+            this.showNavTree = true;
+
+            let data = [];
+            // --------------------------------------------
+            data.push({
+                key: "_root_",
+                value: this.dtbTree.rows[0]["node_value"].value,
+                label: this.dtbTree.rows[0]["name"].value
+            });
+            this.dataNavNode = data;
+
+            if (this.dtbTree.rows[0]["auto_expand"].value == 1) {
+                setTimeout(() => {
+                    // -- 延时触发，自动展开根节点 --
+                    this.$refs.treeNav.store["root"].childNodes[0].expand();
+                }, 500);
             }
         },
         initGrid() {
@@ -148,6 +192,29 @@
             }
         },
 
+        getTreeNode(node, resolve) {
+            if (!this.dtbTree) return;
+
+            let treePk = this.dtbTree.rows[0]["pk"].value;
+            let postData = { treePk: treePk, nodeLevel: node.level, nodeValue: "" + node.data.value };
+            ajax.send(this.controller + "/getTreeNode", postData).then(res => {
+                if (res.ok) {
+                    let data = [];
+                    for (let i = 0; i < res.dtbTreeNode.rowCount; i++) {
+                        let dataRow = res.dtbTreeNode.rows[i];
+                        data.push({
+                            value: dataRow["node_value"].value,
+                            label: dataRow["node_name"].value,
+                            isLeaf: (dataRow["is_leaf"].value == 1)
+                        });
+                    }
+                    resolve(data);
+                }
+                else {
+                    this.$alert(res.error, { type: "error", title: "系统消息 ..." });
+                }
+            });
+        },
         getViewData(pageNum = 0) {
             this.loading = true;
 
@@ -174,8 +241,11 @@
         },
         getFilter() {
             let arrFilter = new Array();
-            if (!this.filterTreeeFlow.equals("")) {
-                arrFilter.push("(" + this.filterTreeeFlow + ")");
+            if (!this.filterFlowTree.equals("")) {
+                arrFilter.push("(" + this.filterFlowTree + ")");
+            }
+            if (!this.filterNavTree.equals("")) {
+                arrFilter.push("(" + this.filterNavTree + ")");
             }
             if (!this.filterQuick.equals("")) {
                 arrFilter.push("(" + this.filterQuick + ")");
@@ -258,13 +328,20 @@
             this.getViewData();
         },
 
-        onFlowNodeClick(a, b, c) {
-            //console.log(a, b, c);
-            this.filterTreeeFlow = a.dataRow["filter"].value;
-            this.navAllowAddnew = (a.dataRow["allow_addnew"].value == 1);
+        onFlowNodeClick(data, node, c) {
+            this.filterFlowTree = data.dataRow["filter"].value;
+            this.flowAllowAddnew = (data.dataRow["allow_addnew"].value == 1);
 
             this.getViewData(0);
             this.initToolbar();
+        },
+        onNavNodeClick(data, node, c) {
+            let level = node.level - 1;
+            let nodeValue = data.value;
+            let sqlNav = this.dtbTreeLevel.rows[level]["sql_nav"].value;
+
+            this.filterNavTree = sqlNav.replace("{node_value}", nodeValue);
+            this.getViewData(0);
         },
         onPageChange(pageNum) {
             this.pageNum = pageNum;
@@ -311,7 +388,7 @@
                 dataRowView: this.dtbViewData.rows[this.currentRowIdx],
                 //foreignKey: this.jsonFKey,
 
-                allowAddnew: this.allowAddnew && this.navAllowAddnew,
+                allowAddnew: this.allowAddnew && this.flowAllowAddnew,
                 view: this
             };
 
@@ -394,8 +471,9 @@
             <main-view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></main-view-bar>
         </el-header>
         <el-container>
-            <el-aside v-show="showNavArea" width="250px" style="margin:0;padding:0;border-left:solid 2px #ebeef5;border-bottom:solid 2px #ebeef5;border-top:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">
-                <el-tree ref="eltree" @node-click="onFlowNodeClick" :data="dataFlowNode" node-key="id" :expand-on-click-node="false" default-expand-all highlight-current></el-tree>
+            <el-aside v-show="showAside" width="250px" style="margin:0;padding:0;border-left:solid 2px #ebeef5;border-bottom:solid 2px #ebeef5;border-top:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">
+                <el-tree v-show="showFlowTree" ref="treeFlow" @node-click="onFlowNodeClick" :data="dataFlowNode" node-key="id" :expand-on-click-node="false" default-expand-all highlight-current></el-tree>
+                <el-tree v-show="showNavTree" ref="treeNav" :props="navTreeProps" @node-click="onNavNodeClick" :data="dataNavNode" :load="getTreeNode" lazy :expand-on-click-node="false" highlight-current></el-tree>
             </el-aside>
             <el-container>
                 <el-main style="margin1:0;padding:0;">

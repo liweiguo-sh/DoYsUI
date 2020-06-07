@@ -53,6 +53,9 @@ ajax.send = function (url, data) {
                 if (e.response.status == 404) {
                     topWin.message(e.message, "error");
                 }
+                else if (e.response.status == 403) {
+                    topWin.message(e.message, "error");
+                }
                 else {
                     topWin.message(e.message, "error");
                     reject(e);

@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>产品料号参数维护</title>
+	<script src="../../../../framework/core/doys.js"></script>
+	<script>
+		importFrameworkRes("view-form-bar");
+	</script>
+</head>
+<body>
+	<div id="app" style="width:650px;">
+		<view-form-bar ref="vf"></view-form-bar>
+		<el-form :model="form" ref="form" label-width="145px" label-position="left">
+			<el-row>
+				<el-col>
+					<el-form-item label="参数代码" required>
+						<el-input v-model="form.para_code" :disabled="true" />
+					</el-form-item>
+				</el-col>
+			</el-row>
+			<el-row>
+				<el-col>
+					<el-form-item label="参数名称" required>
+						<el-input v-model="form.para_name" :disabled="true" />
+					</el-form-item>
+				</el-col>
+			</el-row>
+			<el-row>
+				<el-col>
+					<el-form-item label="参数值" required>
+						<el-input v-model="form.para_value" placeholder="参数值" />
+					</el-form-item>
+				</el-col>
+			</el-row>
+		</el-form>
+	</div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+	var app = new Vue({
+		el: '#app',
+		data: {
+			form: {}
+		}
+	});
+</script>

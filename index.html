@@ -29,20 +29,42 @@
         var arrHtml = new Array();
         var arrALink = new Array();
 
+        // -- test --
         arrALink.push("test/chrome/debug.html");
         arrALink.push("test/ajax.html");
 
+        // -- aprint --
         arrALink.push("");
+        arrALink.push("aprint");
         arrALink.push("project/aprint/html/login/login.html");
         arrALink.push("project/aprint/html/login/login.html?tenantId=F100&userkey=developer&password=34821015&systemKey=001&autoLogin=true");
         arrALink.push("project/aprint/html/login/login.html?userkey=user1");
+        
+        // -- ems --
+        arrALink.push("EMS");
+        arrALink.push("project/ems/html/login/login.html");
+        arrALink.push("project/ems/html/login/login.html?tenantId=F100&userkey=developer&password=34821015&systemKey=001&autoLogin=true");
+        arrALink.push("project/ems/html/login/login.html?userkey=user1");
 
+        // -- label design practice --
+        arrALink.push("");
+        arrALink.push("label design practice");
+        arrALink.push("test/label/test/blank.html");
+
+        // -- 输出链接 --
         arrHtml.push("<ul>");
         for (var i = 0; i < arrALink.length; i++) {
-            arrHtml.push("\t<li><a href='" + arrALink[i] + (arrALink[i].indexOf("?") > 0 ? "&" : "?") + "rnd=" + rnd + "' target='_self'>" + arrALink[i] + "</a></li>");
+            if (arrALink[i].indexOf("/") > 0) {
+                arrHtml.push("\t<li><a href='" + arrALink[i] + (arrALink[i].indexOf("?") > 0 ? "&" : "?") + "rnd=" + rnd + "' target='_self'>" + arrALink[i] + "</a></li>");
+            }
+            else if (arrALink[i] == "") {
+                arrHtml.push("<br />");
+            }
+            else {
+                arrHtml.push("<b>" + arrALink[i] + "</b>");
+            }
         }
         arrHtml.push("</ul>");
-
         window.document.getElementById("divLink").innerHTML = arrHtml.join("\n");
     }
 </script>

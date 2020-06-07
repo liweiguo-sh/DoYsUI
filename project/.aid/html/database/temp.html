@@ -16,6 +16,7 @@
         <el-row>
             <el-col>
                 <el-button @click="refreshDatabase">刷新数据库</el-button>
+                <el-button @click="clearGarbageData">清除无效数据</el-button>
                 <el-button onclick="win.close();">关闭</el-button>
             </el-col>
         </el-row>
@@ -68,6 +69,17 @@
                     }
                 })
             },
+            clearGarbageData() {
+                ajax.send("/system/common/clearGarbageData", {}).then((res) => {
+                    if (res.ok) {
+                        this.$message("垃圾数据清除成功");
+                    }
+                    else {
+                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
+                    }
+                })
+            },
+
             refreshView() {
                 ajax.send("/system/view/refresh", { viewPk: this.viewPk }).then((res) => {
                     if (res.ok) {

@@ -6,7 +6,13 @@
  * Copyright 2020, doys-next.com
  */
 
-var urlPara = _getUrlPara();
+(function () {
+    if (!window.g) window.g = {};
+    if (!g.x) g.x = {};
+
+    window.urlPara = _getUrlPara();
+})()
+
 function _getUrlPara(url) {
     //<summary>取页面url参数, 返回JSON格式</summary>
     if (url) {
@@ -70,7 +76,7 @@ function getTopOffsetTop(objDOM) {
             if (parentWindow.frameElement == null) break; // -- 顶级窗口(非DIV+IFRAME模拟)--
             nTop -= offsetParent.ownerDocument.documentElement.scrollTop; // -- 窗口滚动条当前滚动高度 --
             offsetParent = parentWindow.frameElement; // -- 窗口的IFRAME容器 --
-            nTop += (offsetParent.offsetTop + offsetParent.clientTop) + parseInt(g.x.getCurrentStyle(offsetParent, "paddingTop").replace("px"));
+            nTop += (offsetParent.offsetTop + offsetParent.clientTop) + g.x.getStyleValue(offsetParent, "paddingTop");
         } else if (offsetParent.tagName == "HTML") {
             //alert("???");
         } else {
@@ -90,10 +96,12 @@ function getTopOffsetLeft(objDOM) {
             if (parentWindow.frameElement == undefined) break; // -- 顶级窗口(非DIV+IFRAME模拟)--
             nLeft -= offsetParent.ownerDocument.documentElement.scrollLeft; // -- 窗口滚动条当前滚动高度 --
             offsetParent = parentWindow.frameElement; // -- 窗口的IFRAME容器 --
-            nLeft += (offsetParent.offsetLeft + offsetParent.clientLeft) + +parseInt(g.x.getCurrentStyle(offsetParent, "paddingLeft").replace("px"));
-        } else if (offsetParent.tagName == "HTML") {
+            nLeft += (offsetParent.offsetLeft + offsetParent.clientLeft) + g.x.getStyleValue(offsetParent, "paddingLeft");
+        }
+        else if (offsetParent.tagName == "HTML") {
             //alert("???");
-        } else {
+        }
+        else {
             nLeft += (offsetParent.offsetLeft + offsetParent.clientLeft);
         }
         offsetParent = offsetParent.offsetParent;
@@ -105,7 +113,7 @@ function getParentWindow(objDoc) {
 }
 
 // -- g.x.xxx -----------------------------------------------------------------
-g.x.eval = function(jsString) {
+g.x.eval = function (jsString) {
     try {
         return eval(jsString);
     }
@@ -129,14 +137,10 @@ g.x.getEventTarget = function (evt) {
     return (evt.target ? evt.target : evt.srcElement);
 };
 g.x.getCurrentStyle = function getCurrentStyle(oElement, sProperty) {
-    if (oElement.currentStyle) {
-        return oElement.currentStyle[sProperty];
-    }
-    else if (window.getComputedStyle) {
-        sProperty = sProperty.replace(/([A-Z])/g, "-$1").toLowerCase();
-        return window.getComputedStyle(oElement, null).getPropertyValue(sProperty);
-    }
-    else {
-        return null;
-    }
+    sProperty = sProperty.replace(/([A-Z])/g, "-$1").toLowerCase();
+    return window.getComputedStyle(oElement, null).getPropertyValue(sProperty);
+};
+g.x.getStyleValue = function getCurrentStyle(oElement, sProperty) {
+    let style = g.x.getCurrentStyle(oElement, sProperty);
+    return parseInt(style.replace("px"));
 };
