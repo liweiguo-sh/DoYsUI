@@ -31,8 +31,17 @@
 </head>
 <body onload="formLoad()">
     <div id="home">
-        <div style="height:50px;"></div>
-        <div id="chart1" style="width:600px;height:400px;margin-left:30%;">chart1</div>
+        <el-row>
+            <div style="height:50px;"></div>
+        </el-row>
+        <el-row>
+            <el-col :span="8">
+                <div id="chart1" style="width:600px;height:400px;margin-left:30%;">chart1</div>
+            </el-col>
+            <el-col :span="8">
+                <div id="chart2" style="width:600px;height:400px;margin-left:30%;">chart2</div>
+            </el-col>
+        </el-row>
     </div>
 </body>
 </html>
@@ -61,25 +70,61 @@
 <script>
     function loadChart1() {
         var chart1 = echarts.init(gId('chart1'));
-        var option = {
+        var option1 = {
             title: {
-                text: 'ECharts 图表示例'
+                text: '全校用水量对比'
             },            
             tooltip: {},
             legend: {
-                data: ['打印量']
+                data: ['立方米']
             },
             xAxis: {
-                data: ["外箱", "内箱", "吊牌", "包装袋", "物流标", "其它"]
+                data: ["1号楼", "2号楼", "3号楼", "4号楼", "5号楼", "6号楼"]
             },
             yAxis: {},
             series: [{
-                name: '打印量',
+                name: '立方米',
                 type: 'bar',
                 data: [15, 120, 336, 150, 530, 320]
             }]
         };
 
-        chart1.setOption(option);
+        chart1.setOption(option1);
+
+        let chart2 = echarts.init(gId('chart2'));
+        let option2 = {
+            //标题
+            title: {
+                text: '一号楼日用水量统计'
+            },
+            //工具箱
+            //保存图片
+            toolbox: {
+                show: true,
+                feature: {
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
+            //图例-每一条数据的名字叫销量
+            legend: {
+                data: ['用水量']
+            },
+            //x轴
+            xAxis: {
+                data: ["06-01", "06-02", "06-03", "06-04", "06-05", "06-06"]
+            },
+            //y轴没有显式设置，根据值自动生成y轴
+            yAxis: {},
+            //数据-data是最终要显示的数据
+            series: [{
+                name: '销量',
+                type: 'line',
+                data: [40, 20, 35, 60, 55, 10]
+            }]
+        };
+
+        chart2.setOption(option2);
     }
 </script>

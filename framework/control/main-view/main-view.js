@@ -162,6 +162,8 @@
             });
             this.dataNavNode = data;
 
+            this.filterNavTree = this.dtbTreeLevel.rows[0]["sql_nav"].value;    // -- 根节点导航条件 --
+
             if (this.dtbTree.rows[0]["auto_expand"].value == 1) {
                 setTimeout(() => {
                     // -- 延时触发，自动展开根节点 --
@@ -342,6 +344,8 @@
 
             this.filterNavTree = sqlNav.replace("{node_value}", nodeValue);
             this.getViewData(0);
+
+            this.$refs.treeNav.selectedNode = node;
         },
         onPageChange(pageNum) {
             this.pageNum = pageNum;
@@ -386,11 +390,14 @@
                 dtbViewField: this.dtbViewField,
                 dtbViewData: this.dtbViewData,
                 dataRowView: this.dtbViewData.rows[this.currentRowIdx],
-                //foreignKey: this.jsonFKey,
 
                 allowAddnew: this.allowAddnew && this.flowAllowAddnew,
                 view: this
             };
+            if (this.$refs.treeNav && this.$refs.treeNav.selectedNode) {
+                let treeNode = this.$refs.treeNav.selectedNode;
+                para[this.dtbTreeLevel.rows[treeNode.level - 1]["foreign_key"].value] = treeNode.data.value;
+            }
 
             this.winViewForm = topWin.openWindow(prop, para);
             this.winViewForm.addEventListener("afterClose", () => {

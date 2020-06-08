@@ -13,9 +13,7 @@
         },
         onSearch() {
             this.searchText = this.searchText.trim();
-            if (!this.searchText.equals("")) {
-                this.$emit('onsearch', this.searchText);
-            }
+            this.$emit('onsearch', this.searchText);
         },
         onClear() {
             this.$emit('onclear');

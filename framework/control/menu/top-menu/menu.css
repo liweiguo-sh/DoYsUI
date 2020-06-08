@@ -30,3 +30,9 @@
     .el-menu-item.is-active {
         color: orange !important;
     }
+
+/** 菜单项分割线 **/
+.el-menu-item-cutting-line {
+    margin: 5px 0px 5px 10px;
+    border-top: solid 1px #e0e0e0;
+}

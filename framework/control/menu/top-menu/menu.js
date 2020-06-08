@@ -25,8 +25,9 @@ Vue.component('sub-menu', {
         }
     },
     template: `
-        <div> 
-            <el-menu-item v-if="!menu.children" @click="onMenuClick(menu)" :index="menu.key" :key="menu.key">{{menu.text}}</el-menu-item>
+        <div>
+            <div v-if="menu.text=='-'"><div class='el-menu-item-cutting-line'></div></div>
+            <el-menu-item v-else-if="!menu.children" @click="onMenuClick(menu)" :index="menu.key" :key="menu.key">{{menu.text}}</el-menu-item>
             <el-submenu v-else :index="menu.key">
                 <template slot="title">{{menu.text}}</template>
                 <sub-menu v-for="menu in menu.menus" v-on:menuclick="onMenuClick" :index="menu.key" :key="menu.key" :menu="menu">{{menu.text}}</sub-menu>
