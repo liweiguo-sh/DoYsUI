@@ -63,7 +63,7 @@
 
                     // -- 2. 解析并处理字段数据源 --
                     for (let key in res) {
-                        if (key.startsWith("dtbCDS_")) {
+                        if (key.startWith("dtbCDS_")) {
                             let fieldName = key.substring(7);
                             let arrRow = new Array();
                             let dtbDS = res[key];

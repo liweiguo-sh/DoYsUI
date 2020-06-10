@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签变量定义</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:900px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="变量名称" required>
+                        <el-input v-model="form.name" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="类型" required>
+                        <el-select v-model="form.type">
+                            <el-option value="string" label="字符串"></el-option>
+                            <el-option value="date" label="日期"></el-option>
+                            <el-option value="seq" label="序列"></el-option>
+                            <el-option value="quote" label="引用"></el-option>
+                            <el-option value="ai" label="特殊字符"></el-option>
+                            <el-option value="js" label="JavaScript 脚本" :disabled="true"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="变量值">
+                        <el-input v-model="form.value" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="引用来源" required>
+                        <el-select v-model="form.quote_from">
+                            <el-option value="" label="无"></el-option>
+                            <el-option value="product" label="产品参数"></el-option>
+                            <el-option value="customer" label="客户参数"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="规则">
+                        <el-input v-model="form.rule" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="引用参数">
+                        <el-input v-model="form.quote_name" />
+                    </el-form-item>
+                </el-col>                
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="格式化模板">
+                        <el-input v-model="form.format" placeholder="eg: ????-??-??" />
+                    </el-form-item>
+                </el-col>               
+                <el-col :span="span[2]">
+                    <el-form-item label="长度">
+                        <el-input v-model="form.value_len" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="格式化预览">
+                        <el-input v-model="form.value_preview" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="序号">
+                        <el-input v-model="form.sequence" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 13, 11],
+            form: {}
+        },
+        methods: {
+            afterAddnew: function () {
+                this.form.label_id = win.parentWindow.getLabelId();
+            },
+            beforeSave: function () {
+                if (!this.form.value) this.form.value = "";
+                if (!this.form.value_len) this.form.value_len = "1";
+
+                if (this.form.value.length > this.form.value_len.toInt()) {
+                    this.form.value_len = "" + this.form.value.length;
+                }
+                if (this.form.value_len.toInt() <= 0) {
+                    this.form.value_len = "1";
+                }
+                return true;
+            }
+        }
+    });
+</script>

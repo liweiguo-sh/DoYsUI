@@ -26,7 +26,7 @@ String.prototype.equals = function (str) {
         return (this.toUpperCase().trim().localeCompare(str.toUpperCase()) == 0);
     }
 };
-String.prototype.startsWith = function (prefix) {
+String.prototype.startWith = function (prefix) {
     if (this.substring(0, prefix.length).equals(prefix)) {
         return true;
     }
@@ -49,6 +49,51 @@ String.prototype.toCamelCase = function () {
         return "";
     }
     return this.replace(/\_(\w)/g, (all, letter) => letter.toUpperCase());
+};
+
+String.prototype.toInt = function () {
+    ///<summary>将字符串转换为int, 如果是null或者空，则转换为0</summary>
+    if (this == null) {
+        return 0;
+    }
+    var value = this.trim();
+    if (value == "") {
+        return 0;
+    }
+    value = parseInt(value, 10);
+    if (isNaN(value)) value = 0;
+    return value;
+};
+String.prototype.toNumber = function () {
+    ///<summary>将字符串转换为int, 如果是null或者空，则转换为0</summary>
+    if (this == null) {
+        return 0;
+    }
+    var value = this.trim();
+    if (value == "") {
+        return 0;
+    }
+    value = parseFloat(value);
+    if (isNaN(value)) value = 0;
+    return value;
+};
+String.prototype.toDate = function () {
+    ///<summary>将字符串转换为Date, 假定字符串符合日期格式(yyyy-MM-dd hh:mm:ss.ms)</summary>
+    if (this == null || this == "" || this.length < 10) {
+        return null;
+    }
+
+    var YEAR = parseInt(this.substring(0, 4), 10);
+    var MONTH = parseInt(this.substring(5, 7), 10) - 1;
+    var DAY = parseInt(this.substring(8, 10), 10);
+
+    var HOUR = (this.length >= 13 ? parseInt(this.substring(11, 13), 10) : 0);
+    var MINUTE = (this.length >= 16 ? parseInt(this.substring(14, 16), 10) : 0);
+    var SECOND = (this.length >= 19 ? parseInt(this.substring(17, 19), 10) : 0);
+    var MILLISECOND = (this.length >= 21 ? parseInt(this.substring(20), 10) : 0);
+
+    var dtNew = new Date(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MILLISECOND);
+    return dtNew;
 };
 
 // -- Date --------------------------------------------------------------------

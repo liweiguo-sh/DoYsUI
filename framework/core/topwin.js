@@ -45,6 +45,7 @@ topWin.sessionTimeout = function () {
 };
 topWin.alert = function (message, type = "info", callback) {
     app.$alert(message, "系统消息...", {
+        dangerouslyUseHTMLString: true,
         confirmButtonText: "确定",
         type: type,
         customClass: "alertClass"
@@ -56,6 +57,7 @@ topWin.message = function (message, type = "info") {
     app.$message({
         showClose: true,
         message: message,
+        dangerouslyUseHTMLString: true,
         type: type              // -- success、warning、error --
     });
 };

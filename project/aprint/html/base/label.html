@@ -8,76 +8,83 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:800px;">
+    <div id="app" style="width:810px;margin-bottom:10px;">
         <view-form-bar id="vf" ref="vf" aaattrs="viewProps"></view-form-bar>
-        <el-form :model="form" label-width="145px" label-position="left">
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="产品名称" required>
-                        <el-select v-model="form.product_id" filterable :popper-append-to-body="false">
-                            <el-option v-for="item in ds.product_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="版本" required>
-                        <el-input v-model="form.version" :disabled="true" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="代码(料号)" required>
-                        <el-input v-model="form.code" placeholder="标签代码（PN料号）" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="标签名称">
-                        <el-input v-model="form.name" placeholder="标签名称" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="类型" required>
-                        <el-select v-model="form.type">
-                            <el-option value="MASO" label="MASO"></el-option>
-                            <el-option value="BarTender" label="BarTender" :disabled="true"></el-option>
-                            <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
-                            <el-option value="PDF" label="PDF" :disabled="true"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="打印机点数" required>
-                        <el-select v-model="form.point">
-                            <el-option value="300" label="300"></el-option>
-                            <el-option value="600" label="600"></el-option>
-                            <el-option value="1200" label="1200"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="宽度(毫米)">
-                        <el-input v-model="form.width" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="高度(毫米)">
-                        <el-input v-model="form.height" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="4" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-        </el-form>
+        <el-tabs type1="card">
+            <el-tab-pane label="基本信息">
+                <el-form :model="form" label-width="145px" label-position="left">
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="产品名称" required>
+                                <el-select v-model="form.product_id" filterable :popper-append-to-body="false">
+                                    <el-option v-for="item in ds.product_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="版本" required>
+                                <el-input v-model="form.version" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="代码(料号)" required>
+                                <el-input v-model="form.code" placeholder="标签代码（PN料号）" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="标签名称">
+                                <el-input v-model="form.name" placeholder="标签名称" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="类型" required>
+                                <el-select v-model="form.type">
+                                    <el-option value="MASO" label="MASO"></el-option>
+                                    <el-option value="BarTender" label="BarTender" :disabled="true"></el-option>
+                                    <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
+                                    <el-option value="PDF" label="PDF" :disabled="true"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="打印机点数" required>
+                                <el-select v-model="form.point">
+                                    <el-option value="300" label="300"></el-option>
+                                    <el-option value="600" label="600"></el-option>
+                                    <el-option value="1200" label="1200"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="宽度(毫米)">
+                                <el-input v-model="form.width" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="高度(毫米)">
+                                <el-input v-model="form.height" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="备注">
+                                <el-input v-model="form.remark" type="textarea" :rows="4" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="标签变量">
+                <sub-view id="grid" ref="grid" style="height:360px;" @onaddnew="onGridAddnew"></sub-view>
+            </el-tab-pane>
+        </el-tabs>
     </div>
 </body>
 </html>
@@ -92,15 +99,46 @@
             ds: {}
         },
         methods: {
-            afterMove: function () {
-                //this.$message("after move");
+            onGridAddnew: function (callback) {
+                if (!this.$refs.vf.status.equals("view")) {
+                    callback(true);
+                    topWin.alert("请先保存主表。", (val) => {
+                        win.flashTitle("请先保存主表");
+                    });
+                }
+                else {
+                    if (this.$refs.vf.dtbFormData.rows[0]["astatus"].value != 0) {
+                        callback(true);
+                        topWin.alert("非制单状态下不能新增标签变量。", (val) => {
+                            win.flashTitle("非制单状态下不能新增标签变量");
+                        });
+                    }
+                }
             },
+
+            afterMove: function () {
+                let labelId = this.$refs.vf.getId();
+                let filter = "label_id = " + labelId;
+                if (this.$refs.grid.initialized) {
+                    this.$refs.grid.setFilter(filter);
+                }
+                else {
+                    var para = {
+                        viewPk: "label_variable",
+                        flowPks: "'sys_crud'",
+                        filter: filter,
+                        vfUrl: g.path.project + "/aprint/html/base/label_variable.html"
+                    }
+                    this.$refs.grid.init(para);
+                }
+            },
+
             beforeAddnew: function () {
                 //this.$message("页面判断，允许添加");
                 return true;
             },
             afterAddnew: function () {
-                this.form.product_id = "0";
+                this.form.product_id = (win.para.product_id ? "" + win.para.product_id : "0");
                 this.form.type = "MASO";
                 this.form.version = "1";
 
@@ -125,6 +163,7 @@
             afterDelete: function () {
                 //this.$message("after delete");
             },
+
             beforeFlowClick: function () {
                 //this.$message("beforeClick");
                 return true;
@@ -146,7 +185,7 @@
 
 <!-- javascript block -->
 <script>
-    function winLoad() {
-        console.log("winLoad");
+    function getLabelId() {
+        return app.$refs.vf.getId();
     }
 </script>

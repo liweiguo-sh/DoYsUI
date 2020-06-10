@@ -47,11 +47,14 @@ ajax.send = function (url, data) {
                         topWin.sessionTimeout();
                         return;
                     }
+                    else {
+                        topWin.alert(response.data.error, "error");
+                    }
                 }
                 resolve(response.data);
             }).catch(e => {
                 if (e.response.status == 404) {
-                    topWin.message(e.message, "error");
+                    topWin.message(e.message + "<br />" + e.config.url, "error");
                 }
                 else if (e.response.status == 403) {
                     topWin.message(e.message, "error");

@@ -52,8 +52,9 @@
         init(para) {
             this.initialized = true;
             this.viewPk = para.viewPk;
+            this.controller = para.controller || this.controller;
             this.flowPks = para.flowPks;
-            this.filterExternal = para.filter;
+            this.filterExternal = para.filter || this.filterExternal;
             this.vfUrl = para.vfUrl;
             this.vfWindowState = para.vfWindowState || this.vfWindowState;
 

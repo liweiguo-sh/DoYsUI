@@ -59,6 +59,7 @@
     methods: {
         init(para) {
             this.viewPk = para.viewPk;
+            this.controller = para.controller || this.controller;
             this.flowPks = para.flowPks;
             this.vfUrl = para.vfUrl;
             this.vfWindowState = para.vfWindowState;
@@ -168,7 +169,7 @@
                 setTimeout(() => {
                     // -- 延时触发，自动展开根节点 --
                     this.$refs.treeNav.store["root"].childNodes[0].expand();
-                }, 500);
+                }, 200);
             }
         },
         initGrid() {

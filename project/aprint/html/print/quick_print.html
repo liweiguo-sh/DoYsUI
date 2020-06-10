@@ -12,6 +12,7 @@
         <el-row>
             <el-col :span="8">
                 <el-row>
+                    <el-button @click="generateData">生成数据</el-button>
                     <el-button @click="print">打印</el-button>
                 </el-row>
                 <el-row>
@@ -70,10 +71,10 @@
                             <hr />
                         </el-col>
                     </el-row>
-                    <el-row v-for="item in kvVars">
+                    <el-row v-for="item in variables" :key="item.name">
                         <el-col>
-                            <el-form-item :label="item.k">
-                                <el-input v-model="item.v" @change="onVarChange" placeholder="打印前请赋值..." />
+                            <el-form-item :label="item.name">
+                                <el-input v-model="item.value" @change="onVarChange" placeholder="打印前请赋值..." />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -81,7 +82,7 @@
             </el-col>
             <el-col :span="1">&nbsp;</el-col>
             <el-col :span="15">
-                <main-view id="mview" ref="mview" @ondetailclick="onDetailClick"></main-view>
+                <sub-view id="grid" ref="grid" @ondetailclick="onDetailClick"></sub-view>
             </el-col>
         </el-row>
     </div>
@@ -103,13 +104,11 @@
             qty: null,
             copies: 1,
 
-            kvCustomer: [],
-            kvProductPn: [],
-            kvVars: []
+            variables: []
         },
         mounted() {
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
-            ajax.send("/aprint/labelQuickPrint/getInitData", postData).then(res => {
+            ajax.send("/aprint/quick_print/getInitData", postData).then(res => {
                 if (res.ok) {
                     let labels = [];
                     let dtbLabel = res.dtbLabel;
@@ -141,45 +140,31 @@
         },
         methods: {
             onLabelChange() {
-                ajax.send("/aprint/label/getLabelContentById", { labelId: this.labelId }).then(res => {
-                    this.labelContent = res.content;
-                    this.kvVars = res.vars;
+                ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.labelId }).then(res => {
+                    this.dtbLabel = res.dtbLabel;
+                    this.dtbLabelVariable = res.dtbLabelVariable;
 
-
-                    let vars = [];
-                    if (this.kvVars) {
-                        let arr1 = this.kvVars.split(";");
-                        for (let i = 0; i < arr1.length; i++) {
-                            let arr2 = arr1[i].split(",");
-                            vars.push({ "k": arr2[0], "v": arr2[1] });
-                        }
+                    let variables = [];
+                    for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
+                        variables.push({
+                            name: this.dtbLabelVariable.rows[i]["name"].value,
+                            value: this.dtbLabelVariable.rows[i]["value"].value
+                        });
                     }
-                    this.kvVars = vars;
+                    this.variables = variables;
 
                     this.initLabel();
                 });
             },
             onCustomerChange() {
                 ajax.send("/aprint/label/getCustomerParaByCustomerId", { customerId: this.customerId }).then(res => {
-                    let kvCustomer = [];
-                    let dtb = res.dtbCustomerPara;
-                    for (let i = 0; i < dtb.rowCount; i++) {
-                        kvCustomer.push({ k: dtb.rows[i]["para_code"].value, v: dtb.rows[i]["para_value"].value });
-                    }
-                    this.kvCustomer = kvCustomer;
-
+                    this.dtbCustomerPara = res.dtbCustomerPara;                    
                     this.initLabel();
                 });
             },
             onProductPnChange() {
                 ajax.send("/aprint/label/getProductPnParaByProductPnId", { productPnId: this.productPnId }).then(res => {
-                    let kvProductPn = [];
-                    let dtb = res.dtbProductPnPara;
-                    for (let i = 0; i < dtb.rowCount; i++) {
-                        kvProductPn.push({ k: dtb.rows[i]["para_code"].value, v: dtb.rows[i]["para_value"].value });
-                    }
-                    this.kvProductPn = kvProductPn;
-
+                    this.dtbProductPnPara = res.dtbProductPnPara;
                     this.initLabel();
                 });
             },
@@ -188,6 +173,34 @@
             },
             initLabel(quickPrint = false) {
                 if (!this.labelId) return;
+
+                for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
+                    let name = this.dtbLabelVariable.rows[i]["name"].value;
+                    let type = this.dtbLabelVariable.rows[i]["type"].value;
+
+                    if (type.equals("quote")) {
+                        let quoteFrom = this.dtbLabelVariable.rows[i]["quote_from"].value;
+                        if (quoteFrom.equals("customer") && this.dtbCustomerPara) {
+                            for (let j = 0; j < this.dtbCustomerPara.rowCount; j++) {
+                                let paraCode = this.dtbCustomerPara.rows[j]["para_code"].value;
+                                if (paraCode.equals(name)) {
+                                    this.variables[i]["value"] = this.dtbCustomerPara.rows[j]["para_value"].value;
+                                    break;
+                                }
+                            }
+                        }
+                        else if (quoteFrom.equals("product") && this.dtbProductPnPara) {
+                            for (let j = 0; j < this.dtbProductPnPara.rowCount; j++) {
+                                let paraCode = this.dtbProductPnPara.rows[j]["para_code"].value;
+                                if (paraCode.equals(name)) {
+                                    this.variables[i]["value"] = this.dtbProductPnPara.rows[j]["para_value"].value;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
 
                 let para = {
                     action: "initLabel",
@@ -199,7 +212,36 @@
                 }
                 top.initLabel(para);
             },
+            syncLabel() {
 
+            },
+
+            generateData() {
+                if (!this.labelId) {
+                    topWin.alert("请先选择要打印的标签。");
+                    return;
+                }
+                if (!this.qty || this.qty < 0) {
+                    topWin.alert("请输入打印数量。");
+                    return;
+                }
+
+                let postData = {
+                    labelId: this.labelId,
+                    qty: this.qty,
+                    copies: this.copies,
+                    variables: this.variables
+                };
+                ajax.send("/aprint/quick_print/generatePrintData", postData).then(res => {
+                    if (res.ok) {
+                        topWin.message("yes");
+                        this.$refs.grid.setFilter("1 = 1");
+                    }
+                    else {
+
+                    }
+                });
+            },
             print() {
                 this.initLabel(true);
             },
@@ -218,11 +260,13 @@
 
     // ------------------------------------------------------------------------
     function winLoad() {
-        gId("mview").style.height = (win.p.maxHeight - 0) + "px";
+        gId("grid").style.height = (win.p.maxHeight - 0) + "px";
 
         var para = {
-            viewPk: "label_for_quick_print"
+            viewPk: "x_label",
+            controller: "/aprint/print/x_label_view",
+            filter: "1 = 0"
         }
-        app.$refs.mview.init(para);
+        app.$refs.grid.init(para);
     }
 </script>
