@@ -48,7 +48,13 @@ ajax.send = function (url, data) {
                         return;
                     }
                     else {
-                        topWin.alert(response.data.error, "error");
+                        if (topWin) {
+                            topWin.alert(response.data.error, "error");
+                        }
+                        else {
+                            resolve(response.data);
+                            return;
+                        }
                     }
                 }
                 resolve(response.data);

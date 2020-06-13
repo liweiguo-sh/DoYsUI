@@ -1,4 +1,4 @@
-﻿var topWin = {                          // -- 全局对象 --
+﻿let topWin = {                          // -- 全局对象 --
     os: urlPara.os,                     // -- 客户端操作系统 --
     systemName: "",                     // -- 子系统名称(例如：xpas，即项目目录) --
     serverName: "",                     // -- 服务端部署实例名称 --
@@ -59,6 +59,17 @@ topWin.message = function (message, type = "info") {
         message: message,
         dangerouslyUseHTMLString: true,
         type: type              // -- success、warning、error --
+    });
+};
+topWin.confirm = function (message, type = "warning", callbackOk, callbackCancel) {
+    app.$confirm(message, "系统提示...", {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: type || "warning"
+    }).then(() => {
+        if (callbackOk) callbackOk();
+    }).catch(() => {
+        if (callbackCancel) callbackCancel();
     });
 };
 

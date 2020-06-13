@@ -3,24 +3,46 @@
 <head>
     <title>标签打印窗口</title>
     <script src="../../../../framework/core/doys.js"></script>
-
-    <script src="../../../../framework/control/main-view/main-view-bar.js"></script>
-    <script src="../../../../framework/control/main-view/main-view.js"></script>
 </head>
 <body>
     <div id="app">
         <el-row>
             <el-col :span="8">
                 <el-row>
-                    <el-button @click="generateData">生成数据</el-button>
-                    <el-button @click="print">打印</el-button>
+                    <el-button @click="createTask" type="primary">生成数据</el-button>
+                    <el-button @click="deleteTask" v-show="taskId">删除数据</el-button>
+                    <el-button @click="print" type="danger" v-show="taskId">打印</el-button>
+                </el-row>
+                <el-row style="margin-top:10px;">
+                    <el-col :span="11">
+                        <el-input v-model="taskId" placeholder="任务单ID" :disabled="true">
+                            <template slot="prepend">
+                                任务单号
+                            </template>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="1">&nbsp;</el-col>
+                    <el-col :span="7">
+                        <el-input v-model="rowNoFrom">
+                            <template slot="prepend">
+                                起始行号
+                            </template>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="5">
+                        <el-input v-model="rowNoTo">
+                            <template slot="prepend">
+                                到
+                            </template>
+                        </el-input>
+                    </el-col>
                 </el-row>
                 <el-row>
                     <el-col>
                         <hr />
                     </el-col>
                 </el-row>
-                <el-form label-width="140px" label-position="left">
+                <el-form label-width="140px" label-position="left" size1="medium">
                     <el-row>
                         <el-col>
                             <el-form-item label="标签" required>
@@ -94,17 +116,22 @@
     var app = new Vue({
         el: '#app',
         data: {
-            labelId: null,
-            labelContent: null,
+            dtbLabel: null,
+            dtbLabelVariable: null,
+
+            variables: [],              // -- 标签变量集合 --
             customerId: null,
             productPnId: null,
             labels: [],
             customers: [],
             productPns: [],
+
+            labelId: null,
             qty: null,
             copies: 1,
-
-            variables: []
+            taskId: null,
+            rowNoFrom: null,
+            rowNoTo: null
         },
         mounted() {
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
@@ -158,7 +185,7 @@
             },
             onCustomerChange() {
                 ajax.send("/aprint/label/getCustomerParaByCustomerId", { customerId: this.customerId }).then(res => {
-                    this.dtbCustomerPara = res.dtbCustomerPara;                    
+                    this.dtbCustomerPara = res.dtbCustomerPara;
                     this.initLabel();
                 });
             },
@@ -171,9 +198,8 @@
             onVarChange() {
                 this.initLabel();
             },
-            initLabel(quickPrint = false) {
+            initLabel(quickPrint = false, taskData = "") {
                 if (!this.labelId) return;
-
                 for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
                     let name = this.dtbLabelVariable.rows[i]["name"].value;
                     let type = this.dtbLabelVariable.rows[i]["type"].value;
@@ -201,14 +227,13 @@
                     }
                 }
 
-
                 let para = {
                     action: "initLabel",
-                    labelContent: this.labelContent,
-                    kvCustomer: this.kvCustomer,
-                    kvProductPn: this.kvProductPn,
-                    kvVars: this.kvVars,
-                    quickPrint: (quickPrint ? "1" : "0")
+                    labelId: this.labelId,
+                    labelContent: this.dtbLabel.rows[0]["content"].value,
+                    variables: this.variables,
+                    quickPrint: (quickPrint ? "1" : "0"),
+                    taskData: taskData
                 }
                 top.initLabel(para);
             },
@@ -216,7 +241,7 @@
 
             },
 
-            generateData() {
+            createTask() {
                 if (!this.labelId) {
                     topWin.alert("请先选择要打印的标签。");
                     return;
@@ -232,24 +257,70 @@
                     copies: this.copies,
                     variables: this.variables
                 };
-                ajax.send("/aprint/quick_print/generatePrintData", postData).then(res => {
+                ajax.send("/aprint/quick_print/createTask", postData).then(res => {
                     if (res.ok) {
-                        topWin.message("yes");
-                        this.$refs.grid.setFilter("1 = 1");
+                        this.taskId = res.taskId;
+                        this.$refs.grid.setFilter("task_id = " + this.taskId);
+
+                        this.onLabelChange();
+                        this.rowNoFrom = 1;
+                        this.rowNoTo = this.qty; 
                     }
                     else {
-
                     }
                 });
             },
-            print() {
-                this.initLabel(true);
+            deleteTask() {
+                if (!this.taskId) return;
+
+                topWin.confirm("确定要删除当前已生成的打印数据吗？", "", () => {
+                    let postData = {
+                        taskId: this.taskId
+                    };
+                    ajax.send("/aprint/quick_print/deleteTask", postData).then(res => {
+                        if (res.ok) {
+                            this.taskId = 0;
+                            this.$refs.grid.setFilter("task_id = " + this.taskId);
+                        }
+                        else {
+                        }
+                    });
+                });
             },
-            method2() {
-                let para = {
-                    action: "printPreview"
-                }
-                top.printPreview(para);
+            print() {
+                let postData = {
+                    labelId: this.labelId,
+                    taskId: this.taskId,
+                    rowNoFrom: this.rowNoFrom,
+                    rowNoTo: this.rowNoTo
+                };
+                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
+                    if (res.ok) {
+                        let DATA = [];
+                        let dtbTaskData = res.dtbTaskData;
+
+                        let rowCount = dtbTaskData.rowCount;
+                        let columnCount = dtbTaskData.columnCount;
+
+                        let arr = [];
+                        for (let i = 0; i < columnCount; i++) {                            
+                            arr.push(dtbTaskData.columns[i].name);
+                        }
+                        DATA.push(arr.join(g.c.CHAR2));
+
+                        for (let i = 0; i < rowCount; i++) {
+                            let arr = [];
+                            for (let j = 0; j < columnCount; j++) {
+                                arr.push(dtbTaskData.rows[i][j].value);
+                            }
+                            DATA.push(arr.join(g.c.CHAR2));
+                        }
+                         
+                        this.initLabel(false, DATA.join(g.c.CHAR1));
+                    }
+                    else {
+                    }
+                });
             },
             onDetailClick: function (dataRow, callback) {
                 callback(true);

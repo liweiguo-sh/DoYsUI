@@ -291,17 +291,16 @@
 <!-- js invoke shell -->
 <script>
     function jsInvokeCommonShell(para) {
-        if (!window.commonJsInvokeShell) {
-            //topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "warning");
+        if (!chrome.webview) {
             return "{\"success\": false, \"message\": \"当前操作需要客户端支持，请在码尚客户端中使用。\"}";
         }
 
         try {
             if (para.action.equals("designLabel")) {
-                return commonJsInvokeShell(para);
+                return chrome.webview.postMessage(para);
             }
             else if (para.action.equals("initLabel")) {
-                return commonJsInvokeShell(para);
+                return chrome.webview.postMessage(para);
             }
             else {
                 topWin.alert("尚未实现的 action：" + para.action + "，请检查。", "error");
