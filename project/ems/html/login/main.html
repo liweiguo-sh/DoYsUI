@@ -268,9 +268,12 @@
             let para = {};
             win = topWin.openFullWindow(prop, para);
         }
+        else if (menu.type.equals("")) {
+            topWin.message("功能开发中，请等待...", "warning");
+            return;
+        }
         else {
-            //openMasoDesigner({ labelId: 3 });
-            app.$alert("unsupport sys_view.type: " + menu.type, { type: "error", title: "系统消息 ..." });
+            topWin.alert("unsupport sys_view.type: " + menu.type, "error");
             return;
         }
 

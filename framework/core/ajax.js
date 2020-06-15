@@ -7,7 +7,7 @@
  */
 
 var ajax = {};
-ajax.send = function (url, data) {
+ajax.send = function (url, data, option = { autoShowErr: true }) {
     const ajaxType = g.cfg.ajaxType;
     const promise = new Promise(function (resolve, reject) {
         // -- axios --
@@ -48,12 +48,11 @@ ajax.send = function (url, data) {
                         return;
                     }
                     else {
-                        if (topWin) {
-                            topWin.alert(response.data.error, "error");
-                        }
-                        else {
-                            resolve(response.data);
-                            return;
+                        if (option && option.autoShowErr) {
+                            if (topWin) {
+                                topWin.alert(response.data.error, "error");
+                                return;
+                            }
                         }
                     }
                 }

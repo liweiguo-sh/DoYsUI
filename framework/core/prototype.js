@@ -103,6 +103,9 @@ Date.prototype.toDateString = function (format = "yyyy-MM-dd") {
 Date.prototype.toTimeString = function (format = "HH:mm:ss") {
     return this.toString(format);
 };
+Date.prototype.toStr = function (format = "yyyy-MM-dd") {
+    return this.toString(format);
+};
 Date.prototype.toString = function (format = "yyyy-MM-dd HH:mm:ss") {
     ///<summary>日期时间对象格式化，默认返回 yyyy-MM-dd，除年份外，不支持短格式 </summary>
     ///<param name="format">参数格式：yyyy-MM-dd HH:mm:ss.ms </param>

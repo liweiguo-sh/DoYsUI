@@ -61,53 +61,28 @@
         methods: {
             refreshDatabase() {
                 ajax.send("/system/database/refresh", {}).then((res) => {
-                    if (res.ok) {
-                        this.$message("刷库成功");
-                    }
-                    else {
-                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
-                    }
+                    topWin.message("刷库成功", "success");
                 })
             },
             clearGarbageData() {
                 ajax.send("/system/common/clearGarbageData", {}).then((res) => {
-                    if (res.ok) {
-                        this.$message("垃圾数据清除成功");
-                    }
-                    else {
-                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
-                    }
+                    topWin.message("垃圾数据清除成功", "success");
                 })
             },
 
             refreshView() {
                 ajax.send("/system/view/refresh", { viewPk: this.viewPk }).then((res) => {
-                    if (res.ok) {
-                        this.$message("视图刷新成功");
-                    }
-                    else {
-                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
-                    }
-                })
+                    topWin.message("视图刷新成功", "success");
+                });
             },
             testDataTable() {
                 ajax.send("/once/a", { nMaxCount: this.nMaxCount }).then((res) => {
-                    if (res.ok) {
-                        this.$message("测试完成");
-                    }
-                    else {
-                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
-                    }
+                    topWin.message("测试完成", "success");
                 })
             },
             generateMockData() {
                 ajax.send("/system/mock/generate_data", { tablePk: this.mockTableName, rowCount: this.mockRowCount, mockMode: this.mockMode }).then((res) => {
-                    if (res.ok) {
-                        this.$message("模拟数据生成完毕");
-                    }
-                    else {
-                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
-                    }
+                    topWin.message("模拟数据生成完毕", "success");
                 })
             }
         }

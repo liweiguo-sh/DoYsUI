@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>故障定义</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;">
+        <view-form-bar id="vf" ref="vf" aaattrs="viewProps"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="故障类型" required>
+                        <el-input v-model="form.type" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="故障名称">
+                        <el-input v-model="form.name" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="3" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 10, 14],
+            form: {}
+        },
+
+        methods: {            
+            beforeSave: function () {
+                if (!this.form.type) {
+                    topWin.alert("请输入故障类型。", "warning");
+                    return false;
+                }
+                return true;
+            }
+        }
+    });
+</script>

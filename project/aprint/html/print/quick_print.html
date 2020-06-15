@@ -264,7 +264,7 @@
 
                         this.onLabelChange();
                         this.rowNoFrom = 1;
-                        this.rowNoTo = this.qty; 
+                        this.rowNoTo = this.qty;
                     }
                     else {
                     }
@@ -303,7 +303,7 @@
                         let columnCount = dtbTaskData.columnCount;
 
                         let arr = [];
-                        for (let i = 0; i < columnCount; i++) {                            
+                        for (let i = 0; i < columnCount; i++) {
                             arr.push(dtbTaskData.columns[i].name);
                         }
                         DATA.push(arr.join(g.c.CHAR2));
@@ -315,7 +315,7 @@
                             }
                             DATA.push(arr.join(g.c.CHAR2));
                         }
-                         
+
                         this.initLabel(false, DATA.join(g.c.CHAR1));
                     }
                     else {
