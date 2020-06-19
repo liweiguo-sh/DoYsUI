@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>菜单定义</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;">
+        <view-form-bar id="vf" ref="vf" aaattrs="viewProps"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="NODE_KEY">
+                        <el-input v-model="form.pk" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="序号" required>
+                        <el-input v-model="form.sequence" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="标题" required>
+                        <el-input v-model="form.text" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="类型" required>
+                        <el-select v-model="form.type">
+                            <el-option value="" label="菜单"></el-option>
+                            <el-option value="win" label="标准窗口"></el-option>
+                            <el-option value="view" label="视图"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="类型值" required>
+                        <el-input v-model="form.type_pk" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="允许重复打开">
+                        <el-checkbox v-model="form.allow_multi"></el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="url">
+                        <el-input v-model="form.url" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="flow_pks">
+                        <el-input v-model="form.flow_pks" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="vf_url">
+                        <el-input v-model="form.vf_url" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {}
+        },
+
+        methods: {
+            beforeAddnew: function () {
+                if (!win.para.view.navNodeValue) {
+                    topWin.alert("请选择左侧上级菜单。", "warning", () => {
+                        win.close();
+                    });
+                    return false;
+                }
+                return true;
+            },
+            beforeSave: function () {
+                if (!this.form.text) {
+                    topWin.alert("请输入菜单标题。", "warning");
+                    return false;
+                }
+                if (!this.form.id) {
+                    this.form.pkParent = win.para.view.navNodeValue;
+                }
+                return true;
+            }
+        }
+    });
+</script>

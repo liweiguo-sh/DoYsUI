@@ -6,12 +6,40 @@
     <script>
         importFrameworkRes("view-form-bar");
     </script>
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .avatar-uploader .el-upload:hover {
+                border-color: #409EFF;
+            }
+
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            line-height: 178px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <div id="app" style="width:810px;margin-bottom:10px;">
+    <div id="app" style="width:810px;margin-bottom:10px;height:480px;">
         <view-form-bar id="vf" ref="vf" aaattrs="viewProps"></view-form-bar>
-        <el-tabs type1="card">
-            <el-tab-pane label="基本信息">
+        <el-tabs ref="tab" v-model="activeTabName" @tab-click="onTabClick">
+            <el-tab-pane name="baseInfo" :key="0" label="基本信息">
                 <el-form :model="form" label-width="145px" label-position="left">
                     <el-row>
                         <el-col :span="span[1]">
@@ -44,7 +72,7 @@
                             <el-form-item label="类型" required>
                                 <el-select v-model="form.type">
                                     <el-option value="MASO" label="MASO"></el-option>
-                                    <el-option value="BarTender" label="BarTender" :disabled="true"></el-option>
+                                    <el-option value="BarTender" label="BarTender"></el-option>
                                     <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
                                     <el-option value="PDF" label="PDF" :disabled="true"></el-option>
                                 </el-select>
@@ -81,8 +109,18 @@
                     </el-row>
                 </el-form>
             </el-tab-pane>
-            <el-tab-pane label="标签变量">
-                <sub-view id="grid" ref="grid" style="height:360px;" @onaddnew="onGridAddnew"></sub-view>
+            <el-tab-pane name="labelVariable" :key="1" label="标签变量">
+                <sub-view id="grid" ref="grid" style="height:370px;" @onaddnew="onGridAddnew"></sub-view>
+            </el-tab-pane>
+            <el-tab-pane name="labelFile" :key="2" v-if="form.type.equals('BarTender')" :label="form.type + ' 标签文件'">
+                <el-upload class="avatar-uploader"
+                           :action="uploadAction"
+                           :show-file-list="false"
+                           :on-success="handleAvatarSuccess"
+                           :before-upload="beforeAvatarUpload">
+                    <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </el-upload>
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -95,10 +133,21 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {},
-            ds: {}
+            activeTabName: "baseInfo",
+            form: {
+                type: ""
+            },
+            ds: {},
+            imageUrl: "",
+            uploadAction: ""
+        },
+        mounted() {
+            //this.uploadAction = g.prefix + "/aprint/labels/bartender/upload";
         },
         methods: {
+            onTabClick: function (a, b, c) {
+                this.initGrid();
+            },
             onGridAddnew: function (callback) {
                 if (!this.$refs.vf.status.equals("view")) {
                     callback(true);
@@ -115,8 +164,9 @@
                     }
                 }
             },
+            initGrid: function () {
+                if (!this.activeTabName.equals("labelVariable")) return;
 
-            afterMove: function () {
                 let labelId = this.$refs.vf.getId();
                 let filter = "label_id = " + labelId;
                 if (this.$refs.grid.initialized) {
@@ -131,6 +181,10 @@
                     }
                     this.$refs.grid.init(para);
                 }
+            },
+
+            afterMove: function () {
+                this.initGrid();
             },
 
             beforeAddnew: function () {
@@ -151,6 +205,7 @@
                     topWin.alert("请输入标签代码", "warning");
                     return false;
                 }
+                delete this.form.content;
                 return true;
             },
             afterSave: function () {
@@ -173,11 +228,26 @@
             },
             onClick: function (button) {
                 if (button.name.equals("label_design")) {
-                    top.openMasoDesigner({ labelId: this.form.id });
+                    if (this.form.type.equals("MASO")) {
+                        top.openMasoDesigner({ labelId: this.form.id });
+                    }
+                    else if (this.form.type.equals("BarTender")) {
+                        alert("hehe");
+                    }
+                    else {
+
+                    }
                 }
                 else {
                     topWin.alert("name = " + button.name + ", text = " + button.text);
                 }
+            },
+
+            beforeAvatarUpload: function () {
+                this.uploadAction = g.prefix + "/aprint/labels/bartender/upload?labelId=" + this.$refs.vf.getId();
+            },
+            handleAvatarSuccess: function () {
+
             }
         }
     });

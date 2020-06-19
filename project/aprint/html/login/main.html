@@ -9,9 +9,12 @@
 
     <script src="../../../../framework/core/doys.js"></script>
     <script src="../../../../framework/core/topwin.js"></script>
-    <script src="../../../../framework/control/menu/top-menu/menu.js"></script>
     <script src="../../../../framework/control/taskbar/eltabs/taskbar.js"></script>
     <script src="../../../../framework/control/window/xwf.window.js"></script>
+
+    <script>
+        importFrameworkRes("main-menu");
+    </script>
 
     <!-- layout-main -->
     <style type="text/css">
@@ -127,7 +130,7 @@
                 </div>
             </el-header>
             <el-main style="margin:0px;padding:0px;overflow:hidden;">
-                <iframe id="ifrHome" src="home.html" frameborder="0"></iframe>
+                <iframe id="ifrHome" src="about:blank" frameborder="0"></iframe>
             </el-main>
             <!--<el-footer style="height:40px;line-height:40px;">foot</el-footer>-->
         </el-container>
@@ -169,6 +172,8 @@
                 }
                 this.$message("当前用户没有指定登录的子系统权限，请检查。");
             })
+
+            gId("ifrHome").src = "home.html?v=" + g.cfg.jsVer;
         },
         methods: {
             fullScreen() {

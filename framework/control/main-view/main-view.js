@@ -33,6 +33,7 @@
             dtbTreeLevel: null,             // -- 导航树层级记录集 --
             dataNavNode: [],                // -- 导航树根节点数据 --
             filterNavTree: "",              // -- 导航树导航条件 --
+            navNodeValue: "",               // -- 导航节点值 --
 
             columnsL: [],                   // -- 左侧固定列 --
             columns: [],                    // -- 中间浮动列 --
@@ -347,6 +348,7 @@
             this.getViewData(0);
 
             this.$refs.treeNav.selectedNode = node;
+            this.navNodeValue = data.value;
         },
         onPageChange(pageNum) {
             this.pageNum = pageNum;

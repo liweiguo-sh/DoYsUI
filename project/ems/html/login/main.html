@@ -2,16 +2,20 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>doys-main</title>
+    <title>EMS 能源管理系统 1.0</title>
     <link href="../../../../framework/control/menu/top-menu/menu.css" rel="stylesheet" />
     <link href="../../../../framework/control/taskbar/eltabs/taskbar.css" rel="stylesheet" />
     <link href="../../../../framework/control/window/xwf.window.css" rel="stylesheet" />
 
-    <script src="../../../../framework/core/doys.js"></script>
+    <script src="../../../../framework/core/doys.js?v=20200619"></script>
     <script src="../../../../framework/core/topwin.js"></script>
     <script src="../../../../framework/control/menu/top-menu/menu.js"></script>
     <script src="../../../../framework/control/taskbar/eltabs/taskbar.js"></script>
     <script src="../../../../framework/control/window/xwf.window.js"></script>
+
+    <script>
+        importFrameworkRes("main-menu");
+    </script>
 
     <!-- layout-main -->
     <style type="text/css">
@@ -127,7 +131,7 @@
                 </div>
             </el-header>
             <el-main style="margin:0px;padding:0px;overflow:hidden;">
-                <iframe id="ifrHome" src="home.html" frameborder="0"></iframe>
+                <iframe id="ifrHome" src="about:blank" frameborder="0"></iframe>
             </el-main>
             <!--<el-footer style="height:40px;line-height:40px;">foot</el-footer>-->
         </el-container>
@@ -169,6 +173,8 @@
                 }
                 this.$message("当前用户没有指定登录的子系统权限，请检查。");
             })
+
+            gId("ifrHome").src = "home.html?v=" + g.cfg.jsVer;
         },
         methods: {
             fullScreen() {

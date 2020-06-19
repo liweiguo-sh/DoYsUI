@@ -171,7 +171,7 @@ window.xwf_menu.prototype.onMenuClick = function(_this, menu) {
             return;
         }
         // ------------------------------------------------
-        if (menu.children > 0) {
+        if (!menu.isLeaf) {
             if (menu.expanded) {
                 _this.collapseMenu(menu);
             } else {

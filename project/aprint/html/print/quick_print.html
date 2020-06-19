@@ -12,6 +12,7 @@
                     <el-button @click="createTask" type="primary">生成数据</el-button>
                     <el-button @click="deleteTask" v-show="taskId">删除数据</el-button>
                     <el-button @click="print" type="danger" v-show="taskId">打印</el-button>
+                    <el-button @click="preview" v-show="labelId">预览</el-button>
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
@@ -321,6 +322,9 @@
                     else {
                     }
                 });
+            },
+            preview() {
+                this.initLabel();
             },
             onDetailClick: function (dataRow, callback) {
                 callback(true);

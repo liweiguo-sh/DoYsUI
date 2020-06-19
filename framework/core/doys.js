@@ -16,7 +16,7 @@
             project: "/project"                 // -- 项目根目录 --
         },
         cfg: {
-            jsVer: "2020-05-27",                // -- js版本号，解决js文件缓存问题 --
+            jsVer: "2020-06-19",                // -- js版本号，解决js文件缓存问题 --
             ajaxType: "axios",                  // -- ["axios", "fetch", "others"] --
             remark: "全局配置项集合"
         }
@@ -115,6 +115,9 @@ function importFrameworkRes(fileRes) {
     }
     else if (fileRes.equals("view-form-bar")) {
         arrJS.push(g.path.framework + "/control/view-form-bar/view-form-bar.js");
+    }
+    else if (fileRes.equals("main-menu")) {
+        arrJS.push(g.path.framework + "/control/menu/top-menu/menu.js");
     }
     else {
         alert("importFrameworkRes found unknown resource: " + fileRes);

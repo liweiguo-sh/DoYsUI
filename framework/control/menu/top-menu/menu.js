@@ -27,7 +27,7 @@ Vue.component('sub-menu', {
     template: `
         <div>
             <div v-if="menu.text=='-'"><div class='el-menu-item-cutting-line'></div></div>
-            <el-menu-item v-else-if="!menu.children" @click="onMenuClick(menu)" :index="menu.key" :key="menu.key">{{menu.text}}</el-menu-item>
+            <el-menu-item v-else-if="menu.isLeaf" @click="onMenuClick(menu)" :index="menu.key" :key="menu.key">{{menu.text}}</el-menu-item>
             <el-submenu v-else :index="menu.key">
                 <template slot="title">{{menu.text}}</template>
                 <sub-menu v-for="menu in menu.menus" v-on:menuclick="onMenuClick" :index="menu.key" :key="menu.key" :menu="menu">{{menu.text}}</sub-menu>
@@ -56,7 +56,7 @@ function dtbMenuToJson(dtbMenu, nodeKeyParent) {
                 menu["text"] = menu["text"];
             }
 
-            if (menu.children) {
+            if (!menu.isLeaf) {
                 menu["menus"] = dtbMenuToJson(dtbMenu, pk);
             }
 
