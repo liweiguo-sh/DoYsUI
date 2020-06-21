@@ -125,7 +125,9 @@ g.x.extendJSON = function (json1, json2) {
     ///<summary>将json2附加并覆盖到json1，返回合集</summary>
     if (json2) {
         for (var key in json2) {
-            json1[key] = json2[key];
+            if (json2[key]) {
+                json1[key] = json2[key];
+            }
         }
     }
     return json1;

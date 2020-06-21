@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>建筑定义</title>
+    <title>数据库配置</title>
     <script src="../../../../framework/core/doys.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -13,24 +13,30 @@
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="区域名称">
-                        <el-input v-model="form.area_name" :disabled="true" />
-                    </el-form-item>
-                </el-col>
-                <el-col></el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="建筑名称" required>
-                        <el-input v-model="form.name" />
+                    <el-form-item label="pk">
+                        <el-input v-model="form.pk" :disabled="true" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="序号">
-                        <el-input v-model="form.sequence" />
+                    <el-form-item label="name">
+                        <el-input v-model="form.name" :disabled="true" />
                     </el-form-item>
                 </el-col>
             </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="text">
+                        <el-input v-model="form.text" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="类型">
+                        <el-select v-model="form.type">
+                            <el-option value="MySQL" label="MySQL"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>            
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
@@ -51,27 +57,7 @@
             span: [24, 12, 12],
             form: {}
         },
-
-        methods: {
-            beforeAddnew: function () {
-                if (!win.para.area_id) {
-                    topWin.alert("请先选择左侧导航区的区域节点。", "warning", () => {
-                        win.close();
-                    });
-                    return false;
-                }
-                return true;
-            },
-            afterAddnew: function () {
-                this.form.area_id = win.para.area_id;
-            },
-            beforeSave: function () {
-                if (!this.form.name) {
-                    topWin.alert("请输入建筑名称。", "warning");
-                    return false;
-                }
-                return true;
-            }
+        methods: {            
         }
     });
 </script>

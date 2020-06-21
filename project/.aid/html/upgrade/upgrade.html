@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>空白窗口</title>
+    <title>系统升级</title>
     <script src="../../../../framework/core/doys.js"></script>
 
     <style type="text/css">
@@ -15,7 +15,7 @@
     <div id="app">
         <el-row>
             <el-col>
-                <el-button @click="refreshDatabase">刷新数据库</el-button>
+                <el-button @click="upgradeDatabase">升级数据库</el-button>
                 <el-button @click="clearGarbageData">清除无效数据</el-button>
                 <el-button onclick="win.close();">关闭</el-button>
             </el-col>
@@ -59,9 +59,9 @@
             mockRowCount: ""
         },
         methods: {
-            refreshDatabase() {
-                ajax.send("/system/database/refresh", {}).then((res) => {
-                    topWin.message("刷库成功", "success");
+            upgradeDatabase() {
+                ajax.send("/framework/upgrade/database", {}).then((res) => {
+                    topWin.message("数据库升级成功", "success");
                 })
             },
             clearGarbageData() {

@@ -15,10 +15,10 @@
                 searchPlaceholder: "quick search ..."
             },
             filterExternal: "",             // -- 外部条件 --
+            extUserDef: {},                 // -- 用户自定义参数 --
             allowAddnew: false,             // -- 视图允许添加 --
 
             showViewBar: true,              // -- ## 顶部工具条 ## --
-
 
             dtbFlowNode: null,              // -- ## 导航树 ##--
             showNavArea: false,             // -- 显示导航区 --
@@ -53,12 +53,14 @@
             this.initialized = true;
             this.viewPk = para.viewPk;
             this.controller = para.controller || this.controller;
-            this.flowPks = para.flowPks;
+            this.flowPks = para.flowPks || this.flowPks;
             this.filterExternal = para.filter || this.filterExternal;
+            this.extUserDef = para.extUserDef || this.extUserDef;
             this.vfUrl = para.vfUrl;
             this.vfWindowState = para.vfWindowState || this.vfWindowState;
 
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
+            postData = g.x.extendJSON(postData, this.extUserDef);
             ajax.send(this.controller + "/getViewSchema", postData).then(res => {
                 if (res.ok) {
                     this.dtbView = res.dtbView;
@@ -129,6 +131,7 @@
             }
         },
         initGrid() {
+            let columnsL = [], columns = [];
             this.showSelectColumn = (this.dtbView.rows[0]["show_select"].value == 1);
             this.showDetailColumn = (this.dtbView.rows[0]["show_detail"].value == 1);
 
@@ -142,13 +145,15 @@
                 }
                 if (dataRow["sequence"].value > 0) {
                     if (dataRow["fixed"].value.equals("left")) {
-                        this.columnsL.push(column);
+                        columnsL.push(column);
                     }
                     else {
-                        this.columns.push(column);
+                        columns.push(column);
                     }
                 }
             }
+            this.columnsL = columnsL;
+            this.columns = columns;
         },
         setFilter(filterExternal) {
             this.filterExternal = filterExternal;
@@ -162,6 +167,7 @@
             if (pageNum == 0) this.totalRows = 0;
 
             let postData = { viewPk: this.viewPk, pageNum: pageNum, filter: this.getFilter() };
+            postData = g.x.extendJSON(postData, this.extUserDef);
             ajax.send(this.controller + "/getViewData", postData).then(res => {
                 if (res.ok) {
                     this.dtbViewData = res.dtbViewData;

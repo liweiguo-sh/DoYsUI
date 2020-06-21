@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>标签打印窗口</title>
-    <script src="../../../../framework/core/doys.js"></script>
+    <script src="../../../../framework/core/doys.js?v=20200621"></script>
 </head>
 <body>
     <div id="app">
@@ -182,6 +182,7 @@
                     this.variables = variables;
 
                     this.initLabel();
+                    this.initGrid();
                 });
             },
             onCustomerChange() {
@@ -261,7 +262,7 @@
                 ajax.send("/aprint/quick_print/createTask", postData).then(res => {
                     if (res.ok) {
                         this.taskId = res.taskId;
-                        this.$refs.grid.setFilter("task_id = " + this.taskId);
+                        this.initGrid();
 
                         this.onLabelChange();
                         this.rowNoFrom = 1;
@@ -281,7 +282,7 @@
                     ajax.send("/aprint/quick_print/deleteTask", postData).then(res => {
                         if (res.ok) {
                             this.taskId = 0;
-                            this.$refs.grid.setFilter("task_id = " + this.taskId);
+                            this.initGrid();
                         }
                         else {
                         }
@@ -326,6 +327,18 @@
             preview() {
                 this.initLabel();
             },
+
+            initGrid() {
+                var para = {
+                    viewPk: "x_label",
+                    controller: "/aprint/print/x_label_view",
+                    filter: "task_id = " + this.taskId,
+                    extUserDef: {
+                        labelId: this.labelId
+                    }
+                }
+                this.$refs.grid.init(para);
+            },
             onDetailClick: function (dataRow, callback) {
                 callback(true);
                 topWin.alert(dataRow["id"].value);
@@ -336,12 +349,6 @@
     // ------------------------------------------------------------------------
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
-
-        var para = {
-            viewPk: "x_label",
-            controller: "/aprint/print/x_label_view",
-            filter: "1 = 0"
-        }
-        app.$refs.grid.init(para);
+        app.initGrid();
     }
 </script>

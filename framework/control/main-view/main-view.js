@@ -13,6 +13,7 @@
                 showSearch: true,
                 searchPlaceholder: "quick search ..."
             },
+            extUserDef: {},                 // -- 用户自定义参数 --
             allowAddnew: false,             // -- 视图允许添加 --
             detailAlise: "查看",             // -- 查看 --
 
@@ -61,11 +62,13 @@
         init(para) {
             this.viewPk = para.viewPk;
             this.controller = para.controller || this.controller;
-            this.flowPks = para.flowPks;
+            this.flowPks = para.flowPks || this.flowPks;
+            this.extUserDef = para.extUserDef || this.extUserDef;
             this.vfUrl = para.vfUrl;
             this.vfWindowState = para.vfWindowState;
 
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
+            postData = g.x.extendJSON(postData, this.extUserDef);
             ajax.send(this.controller + "/getViewSchema", postData).then(res => {
                 if (res.ok) {
                     this.dtbView = res.dtbView;
@@ -174,6 +177,7 @@
             }
         },
         initGrid() {
+            let columnsL = [], columns = [];
             this.showSelectColumn = (this.dtbView.rows[0]["show_select"].value == 1);
             this.showDetailColumn = (this.dtbView.rows[0]["show_detail"].value == 1);
 
@@ -187,13 +191,15 @@
                 }
                 if (dataRow["sequence"].value > 0) {
                     if (dataRow["fixed"].value.equals("left")) {
-                        this.columnsL.push(column);
+                        columnsL.push(column);
                     }
                     else {
-                        this.columns.push(column);
+                        columns.push(column);
                     }
                 }
             }
+            this.columnsL = columnsL;
+            this.columns = columns;
         },
 
         getTreeNode(node, resolve) {
@@ -226,6 +232,7 @@
             if (pageNum == 0) this.totalRows = 0;
 
             let postData = { viewPk: this.viewPk, pageNum: pageNum, filter: this.getFilter() };
+            postData = g.x.extendJSON(postData, this.extUserDef);
             ajax.send(this.controller + "/getViewData", postData).then(res => {
                 if (res.ok) {
                     this.dtbViewData = res.dtbViewData;

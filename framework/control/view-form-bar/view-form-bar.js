@@ -149,7 +149,7 @@
                             let buttonPk = dataRow["button_pk"].value;
                             let name = dataRow["name"].value;
                             let jsAssert = dataRow["assert_js"].value;
-                            let icon = dataRow["icon"].value || "el-icon-sort";
+                            let icon = dataRow["icon"].value || "el-icon-magic-stick";
                             let actionType = dataRow["action_type"].value;
 
                             while (true) {
@@ -229,11 +229,11 @@
                 else if (button.actionType.equals("client")) {
                     if (this.$parent.onClick) {
                         if (this.$parent.onClick(button)) {
-                            topWin.message("TODO:（view-form-bar.js）调用后台代码，此处待实现。", "error");
+                            this.doClick(button);
                         }
                     }
                     else {
-                        this.$message("unimplemented client button, please add.");
+                        this.doClick(button);
                     }
                 }
                 else {
@@ -352,6 +352,18 @@
         },
         remove() {
 
+        },
+        doClick(button) {
+            let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;
+            let postData = { viewPk: this.viewPk, id: id, form: this.$parent.form, buttonName: button.name };
+            ajax.send(this.controller + "/doClick", postData).then(res => {
+                if (res.ok) {                    
+                    win.flashTitle("当前操作成功  " + (new Date).toTimeString());
+                }
+                else {
+                    topWin.alert(res.error, "error");
+                }
+            });
         },
         onViewMove(para) {
             this.dataRowView = para.dataRowView;
