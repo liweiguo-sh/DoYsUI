@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>dds测试</title>
+    <script src="../../../../framework/core/doys.js"></script>
+
+    <style type="text/css">
+        .el-row {
+            margin-bottom: 20px;
+            vertical-align: middle
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col>
+                <el-button @click="test1">测试一</el-button>
+                <el-button @click="test2">测试二</el-button>
+                <el-button @click="test3">测试-3</el-button>
+                <el-button onclick="win.close();">关闭</el-button>
+            </el-col>
+        </el-row>        
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+        },
+        methods: {
+            test1() {
+                ajax.send("/test/dds/test1", {}).then((res) => {
+                    topWin.message("测试1完成", "success");
+                })
+            },
+            test2() {
+                ajax.send("/test/dds/test2", {}).then((res) => {
+                    topWin.message("测试2完成", "success");
+                })
+            },
+            test3() {
+                ajax.send("/test/dds/test3", {}).then((res) => {
+                    topWin.message("测试 3 完成", "success");
+                })
+            }
+        }
+    });
+
+    // ------------------------------------------------------------------------
+    function winLoad() {
+
+    }
+</script>
