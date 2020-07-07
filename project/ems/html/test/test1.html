@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>测试一</title>
+    <script src="../../../../framework/core/doys.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col>
+                <el-button @click="method1">测试操作A</el-button>
+                <el-button onclick="win.close();">关闭</el-button>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {},
+        methods: {
+            method1() {
+                ajax.send("/ems/test/test1/t1", {}).then((res) => {
+                    if (res.ok) {
+                        topWin.message("当前操作成功");
+                    }
+                })
+            }
+        }
+    });
+
+    // ------------------------------------------------------------------------
+    function winLoad() {
+
+    }
+</script>

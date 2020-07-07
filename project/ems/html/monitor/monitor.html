@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>设备监控</title>
+    <script src="../../../../framework/core/doys.js"></script>
+
+    <style>
+        html, body, #app, .el-container {
+            margin: 0px;
+            padding: 0px;
+            height: 100%;
+        }
+
+        .currentLocation {
+            color: #F56C6C;
+        }
+
+        .el-tag {
+            margin-right: 15px;
+        }
+
+        .tagSubLocation {
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        #ifr {
+            width: 100%;
+            padding: 0px;
+            margin: 0px;
+            border: dotted 0px green;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-container style="border:1px solid #eee">
+            <el-aside width="210px" style="background-color:#545c64">
+                <el-menu @select="menuClick" :default-openeds="['1']" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+                    <el-submenu index="1">
+                        <template slot="title">
+                            <i class="el-icon-menu"></i>监控导航
+                        </template>
+                        <el-menu-item index="default">设备运行图</el-menu-item>
+                        <el-menu-item index="1-2">运行日报</el-menu-item>
+                        <el-menu-item index="1-3">运行月报</el-menu-item>
+                        <el-menu-item index="1-4">运行年报</el-menu-item>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
+            <el-main>
+                <el-breadcrumb separator-class="el-icon-arrow-right">
+                    <el-breadcrumb-item>
+                        <a @click="locationClick()">全部</a>
+                    </el-breadcrumb-item>
+                    <el-breadcrumb-item v-for="item in locations" :key="item.key">
+                        <a @click="locationClick(item.key)">{{item.name}}</a>
+                    </el-breadcrumb-item>
+                    <el-breadcrumb-item v-if="currentLocation">
+                        <span class="currentLocation">{{currentLocation}}</span>
+                    </el-breadcrumb-item>
+                </el-breadcrumb>
+                <el-card class="box-card" v-if="subLocations.length" style="margin-top:15px">
+                    <el-tag @click="locationClick(tag.key)" class="tagSubLocation" v-for="tag in subLocations" :key="tag.key" :type="tag.type" effect="dark">
+                        {{tag.name}}
+                    </el-tag>
+                </el-card>
+                <iframe id="ifr" src="" style="margin-top:15px"></iframe>
+            </el-main>
+        </el-container>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            enum: ["", "success", "info", "danger", "warning"],
+
+            locations: [],
+            currentLocation: "",
+            subLocations: [],
+
+            menuKey: "default",
+            locationKey: ""
+        },
+        mounted() {
+
+        },
+        methods: {
+            menuClick(key, keyPath) {
+                this.menuKey = key;
+                this.doMain();
+            },
+            locationClick(locationKey = "ROOT") {
+                this.locationKey = locationKey;
+                let para = {
+                    locationKey: locationKey
+                };
+                ajax.send("/ems/monitor/location/getSubLocation", para).then((res) => {
+                    if (res.ok) {
+                        let locations = [];
+                        let locationPath = res.locationPath;
+                        if (locationPath) {
+                            let arrPath = locationPath.split(g.c.CHAR1);
+                            for (let i = 0; i < arrPath.length - 1; i++) {
+                                let item = arrPath[i].split(g.c.CHAR2);
+                                locations.push({
+                                    key: item[0],
+                                    name: item[1]
+                                });
+                            }
+                            let item = arrPath[arrPath.length - 1].split(g.c.CHAR2);
+                            this.currentLocation = item[1];
+                        }
+                        else {
+                            this.currentLocation = "";
+                        }
+                        this.locations = locations;
+
+                        // --------------------------------
+                        let subLocations = [];
+                        let dtbSubLocation = res.dtbSubLocation;
+                        for (let i = 0; i < dtbSubLocation.rowCount; i++) {
+                            subLocations.push({
+                                key: locationKey + "_" + dtbSubLocation.rows[i]["id"].value,
+                                name: dtbSubLocation.rows[i]["name"].value,
+                                type: this.enum[i % this.enum.length]
+                            });
+                        }
+                        this.subLocations = subLocations;
+
+                        // --------------------------------
+                        this.doMain();
+                    }
+                })
+            },
+
+            doMain() {
+                let ifr = gId("ifr");
+                console.log(this.menuKey);
+                console.log(this.locationKey);
+                if (this.menuKey.equals("default")) {
+                    ifr.src = "./overview_water_meter.html?locationKey=" + this.locationKey + "&rnd=" + Math.random();
+                }
+                else {
+                    topWin.message("功能开发中，敬请期待...", "warning");
+                }
+            }
+        }
+    });
+
+    // ------------------------------------------------------------------------
+    function winLoad() {
+        gId("ifr").style.height = (win.p.maxHeight - 150) + "px";
+
+        app.locationClick();
+    }
+</script>

@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>水表设备运行图</title>
+    <script src="../../../../framework/core/doys.js"></script>
+
+    <style>
+        html, body, #app {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .el-card {
+            width: 30%;
+            float: left;
+            margin-right: 3%;
+            margin-bottom: 30px;
+        }
+
+        .water_meter_name {
+            cursor: default;
+            float: right;
+            padding: 3px 0px 0px 0px;
+        }
+
+        .num {
+            background-color: black;
+            padding: 6px 5px 5px 5px;
+            font-size: 16pt;
+            color: white;
+        }
+
+            .num:first-child {
+                padding-left: 15px;
+            }
+
+            .num:last-child {
+                padding-right: 12px;
+            }
+
+        .numL {
+            font-weight: bold;
+        }
+
+        .numR {
+        }
+    </style>
+</head>
+<body onload="winLoad();">
+    <div id="app">
+        <el-card v-for="item in items" :key="item.id">
+            <div slot="header">
+                <span>{{item.fullname}}</span><br />
+                <el-button class="water_meter_name" type="text">{{item.name}}</el-button>
+                <div style="height:6px;"></div>
+            </div>
+            <div>
+                <el-row>
+                    <el-col :span="9">
+                        <el-image style="width:100px; height:100px" src="../../image/water_meter/1.jpg" fit="fit"></el-image>
+                    </el-col>
+                    <el-col :span="15">
+                        <el-row>
+                            <el-col :span="8">
+                                <el-image v-if="item.status" style="width:40px; height:40px" src="../../image/water_meter/alert.svg" :fit="fit"></el-image>
+                                <el-image v-if="!item.status" style="width:40px; height:40px" src="../../image/water_meter/run.jpg" :fit="fit"></el-image>
+                            </el-col>
+                            <el-col :span="16">
+                                <span v-if="item.status" style="color:red;height:40px;line-height:40px;">
+                                    {{item.status_text}}
+                                </span>
+                            </el-col>
+                        </el-row>
+                        <el-row><div style="height:35px;">&nbsp;</div></el-row>
+                        <el-row>
+                            <span v-for="num in item.numsL" class="num numL">{{num}}</span>
+                            <span class="num" style="width:1px;"></span>
+                            <span v-for="num in item.numsR" class="num numR">{{num}}</span>
+                        </el-row>
+                    </el-col>
+                </el-row>
+            </div>
+        </el-card>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            locationKey: "",
+            items: []
+        },
+        methods: {
+            init() {
+                let para = {
+                    locationKey: this.locationKey
+                }
+                ajax.send("/ems/monitor/overview_water_meter/getWaterMeter", para).then((res) => {
+                    if (res.ok) {
+                        let dtb = res.dtbWaterMeter;
+
+                        let items = [];
+                        for (let i = 0; i < dtb.rowCount; i++) {
+                            let dataRow = dtb.rows[i];
+                            items.push({
+                                id: "" + dataRow["id"].value,
+                                name: dataRow["name"].value,
+                                num: dataRow["rt_num"].value,
+                                numsL: this.getNums("" + dataRow["rt_num"].value, "L"),
+                                numsR: this.getNums("" + dataRow["rt_num"].value, "R"),
+                                status: dataRow["status_run"].value,
+                                status_text: dataRow["status_run_text"].value,
+                                fullname: dataRow["fullname"].value
+                            });
+                        }
+
+                        this.items = items;
+                    }
+                })
+            },
+            getNums(num, LR) {
+                let arr = num.split(".");
+                if (LR.equals("L")) {
+                    let str1 = arr[0];
+                    while (str1.length < 5) {
+                        str1 = "0" + str1;
+                    }
+                    return str1.split("");
+                }
+                else {
+                    let str2 = arr[1];
+                    while (str2.length < 2) {
+                        str2 += "0";
+                    }
+                    return str2.split("");
+                }
+            }
+        }
+    });
+
+    // ------------------------------------------------------------------------
+    function winLoad() {
+        app.locationKey = urlPara["locationKey"];
+        app.init();
+    }
+</script>

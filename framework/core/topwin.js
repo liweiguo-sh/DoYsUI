@@ -1,4 +1,4 @@
-﻿let topWin = {                          // -- 全局对象 --
+﻿var topWin = {                          // -- 全局对象，此处不能用 let 定义，否则无法通过 top.topWin 访问 --
     os: urlPara.os,                     // -- 客户端操作系统 --
     systemName: "",                     // -- 子系统名称(例如：xpas，即项目目录) --
     serverName: "",                     // -- 服务端部署实例名称 --

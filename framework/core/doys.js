@@ -13,10 +13,11 @@
             base: "DoYsUI",                     // -- 前台应用根目录 --
             framework: "/framework",            // -- 框架根目录 --
             plugin: "/plugin",                  // -- 插件根路径 --
-            project: "/project"                 // -- 项目根目录 --
+            project: "/project",                // -- 项目根目录 --
+            resRun: "/resRun",                  // -- 资源目录(后台运行时)
         },
         cfg: {
-            jsVer: "20200621",                  // -- js版本号，解决js文件缓存问题 --
+            jsVer: "20200701",                  // -- js版本号，解决js文件缓存问题 --
             ajaxType: "axios",                  // -- ["axios", "fetch", "others"] --
             remark: "全局配置项集合"
         }
@@ -57,6 +58,7 @@ function initGolbal() {
     g.path.project = g.path.base + g.path.project;
 
     g.prefix = g.prefix.replace("{domain}", document.domain);
+    g.path.resRun = g.prefix + g.path.resRun;
 }
 function initGlobalCss() {
     var arrCss = new Array();

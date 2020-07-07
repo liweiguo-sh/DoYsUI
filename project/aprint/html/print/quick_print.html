@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>标签打印窗口</title>
-    <script src="../../../../framework/core/doys.js?v=20200621"></script>
+    <script src="../../../../framework/core/doys.js?v=20200701"></script>
 </head>
 <body>
     <div id="app">
@@ -11,8 +11,8 @@
                 <el-row>
                     <el-button @click="createTask" type="primary">生成数据</el-button>
                     <el-button @click="deleteTask" v-show="taskId">删除数据</el-button>
-                    <el-button @click="print" type="danger" v-show="taskId">打印</el-button>
                     <el-button @click="preview" v-show="labelId">预览</el-button>
+                    <el-button @click="print" type="danger" v-show="taskId">打印</el-button>                    
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
@@ -233,11 +233,39 @@
                     action: "initLabel",
                     labelId: this.labelId,
                     labelContent: this.dtbLabel.rows[0]["content"].value,
+                    labelType: this.dtbLabel.rows[0]["type"].value,
+                    labelSummary: this.getLabelSummary(),
                     variables: this.variables,
                     quickPrint: (quickPrint ? "1" : "0"),
-                    taskData: taskData
+                    taskId: this.taskId,
+                    taskData: taskData                    
                 }
+                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
+                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
+                        return;
+                    }
+                    para.urlLabelFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+
+                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
+                        return;
+                    }
+                    para.urlDataFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                }
+
                 top.initLabel(para);
+            },
+            getLabelSummary() {
+                let dataRow = this.dtbLabel.rows[0];
+                let arr = new Array();
+
+                arr.push("标签代码：" + dataRow["code"].value);
+                arr.push("名称：" + dataRow["name"].value);
+                arr.push("宽高：" + dataRow["width"].value + "×" + dataRow["height"].value);
+                arr.push("备注：" + dataRow["remark"].value);
+
+                return arr.join("    ");
             },
             syncLabel() {
 

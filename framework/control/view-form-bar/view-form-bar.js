@@ -161,7 +161,7 @@
                                     jsAssert = "false";
                                     break;
                                 }
-                                let columnName = jsAssert.substring(idxStart + 1, idxEnd - idxStart);
+                                let columnName = jsAssert.substring(idxStart + 1, idxEnd);
                                 jsAssert = jsAssert.replace("{" + columnName + "}", "" + this.dtbFormData.rows[0][columnName.trim()].value);
                             }
                             if (g.x.eval(jsAssert)) {
@@ -412,6 +412,12 @@
                 return this.dtbFormData.rows[0]["id"].value;
             }
             return 0;
+        },
+        getValue(columnName) {
+            if (this.status.equals("view")) {
+                return this.dtbFormData.rows[0][columnName].value;
+            }
+            return null;
         },
         doSomething() {
             // -- do nothing --
