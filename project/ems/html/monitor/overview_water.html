@@ -56,16 +56,16 @@
             </div>
             <div>
                 <el-row>
-                    <el-col :span="9">
-                        <el-image style="width:100px; height:100px" src="../../image/water_meter/1.jpg" fit="fit"></el-image>
+                    <el-col :span="8">
+                        <el-image style="width:100px; height:100px" src="../../image/meter/water/5.png" fit="fit"></el-image>
                     </el-col>
-                    <el-col :span="15">
+                    <el-col :span="16">
                         <el-row>
-                            <el-col :span="8">
-                                <el-image v-if="item.status" style="width:40px; height:40px" src="../../image/water_meter/alert.svg" :fit="fit"></el-image>
-                                <el-image v-if="!item.status" style="width:40px; height:40px" src="../../image/water_meter/run.jpg" :fit="fit"></el-image>
+                            <el-col :span="6">
+                                <el-image v-if="item.status" style="width:40px; height:40px" src="../../image/meter/alert.svg" fit="fit"></el-image>
+                                <el-image v-if="!item.status" style="width:40px; height:40px" src="../../image/meter/run.svg" fit="fit"></el-image>
                             </el-col>
-                            <el-col :span="16">
+                            <el-col :span="18" style="height:60px;">
                                 <span v-if="item.status" style="color:red;height:40px;line-height:40px;">
                                     {{item.status_text}}
                                 </span>
@@ -90,15 +90,17 @@
     var app = new Vue({
         el: '#app',
         data: {
+            deviceStatus: "0",
             locationKey: "",
             items: []
         },
         methods: {
-            init() {
+            init() {                
                 let para = {
+                    deviceStatus: this.deviceStatus,
                     locationKey: this.locationKey
                 }
-                ajax.send("/ems/monitor/overview_water_meter/getWaterMeter", para).then((res) => {
+                ajax.send("/ems/monitor/overview_meter/getWaterMeter", para).then((res) => {
                     if (res.ok) {
                         let dtb = res.dtbWaterMeter;
 
@@ -131,7 +133,7 @@
                     return str1.split("");
                 }
                 else {
-                    let str2 = arr[1];
+                    let str2 = arr.length > 1 ? arr[1] : "";
                     while (str2.length < 2) {
                         str2 += "0";
                     }
@@ -143,7 +145,9 @@
 
     // ------------------------------------------------------------------------
     function winLoad() {
+        app.deviceStatus = urlPara["deviceStatus"];
         app.locationKey = urlPara["locationKey"];
+        
         app.init();
     }
 </script>

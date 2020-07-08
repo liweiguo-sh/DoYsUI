@@ -48,18 +48,34 @@
                     </el-submenu>
                 </el-menu>
             </el-aside>
-            <el-main>
-                <el-breadcrumb separator-class="el-icon-arrow-right">
-                    <el-breadcrumb-item>
-                        <a @click="locationClick()">全部</a>
-                    </el-breadcrumb-item>
-                    <el-breadcrumb-item v-for="item in locations" :key="item.key">
-                        <a @click="locationClick(item.key)">{{item.name}}</a>
-                    </el-breadcrumb-item>
-                    <el-breadcrumb-item v-if="currentLocation">
-                        <span class="currentLocation">{{currentLocation}}</span>
-                    </el-breadcrumb-item>
-                </el-breadcrumb>
+            <el-main style="padding-top:10px;">
+                <el-row>
+                    <el-col :span="16">
+                        <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-top:12px;">
+                            <el-breadcrumb-item>
+                                <a @click="locationClick()">全部</a>
+                            </el-breadcrumb-item>
+                            <el-breadcrumb-item v-for="item in locations" :key="item.key">
+                                <a @click="locationClick(item.key)">{{item.name}}</a>
+                            </el-breadcrumb-item>
+                            <el-breadcrumb-item v-if="currentLocation">
+                                <span class="currentLocation">{{currentLocation}}</span>
+                            </el-breadcrumb-item>
+                        </el-breadcrumb>
+                    </el-col>
+                    <el-col :span="8" style="text-align:right;">
+                        <el-select v-model="deviceStatus" @change="deviceStatusChange" style="width:100px;">
+                            <el-option value="" label="全部"></el-option>
+                            <el-option value="0" label="正常"></el-option>
+                            <el-option value="1" label="报警"></el-option>
+                        </el-select>
+                        <el-select v-model="deviceType" @change="deviceTypeChange" style="width:150px;">
+                            <el-option value="water" label="水表"></el-option>
+                            <el-option value="electricity" label="电表"></el-option>
+                            <el-option value="gas" label="燃气表" :disabled="true"></el-option>
+                        </el-select>
+                    </el-col>
+                </el-row>
                 <el-card class="box-card" v-if="subLocations.length" style="margin-top:15px">
                     <el-tag @click="locationClick(tag.key)" class="tagSubLocation" v-for="tag in subLocations" :key="tag.key" :type="tag.type" effect="dark">
                         {{tag.name}}
@@ -84,6 +100,8 @@
             subLocations: [],
 
             menuKey: "default",
+            deviceStatus: "",
+            deviceType: "water",            
             locationKey: ""
         },
         mounted() {
@@ -93,6 +111,12 @@
             menuClick(key, keyPath) {
                 this.menuKey = key;
                 this.doMain();
+            },
+            deviceStatusChange() {
+                this.doMain();
+            },
+            deviceTypeChange() {
+                this.locationClick();
             },
             locationClick(locationKey = "ROOT") {
                 this.locationKey = locationKey;
@@ -140,10 +164,24 @@
 
             doMain() {
                 let ifr = gId("ifr");
-                console.log(this.menuKey);
-                console.log(this.locationKey);
+                let urlIfr = "";
+                let urlPara = "locationKey = " + this.locationKey + "&deviceStatus=" + this.deviceStatus;
+                // ----------------------------------------
                 if (this.menuKey.equals("default")) {
-                    ifr.src = "./overview_water_meter.html?locationKey=" + this.locationKey + "&rnd=" + Math.random();
+                    if (this.deviceType.equals("water")) {
+                        urlIfr = "./overview_water.html";
+                    }
+                    else if (this.deviceType.equals("electricity")) {
+                        urlIfr = "./overview_electricity.html";
+                    }
+                    else if (this.deviceType.equals("electricity")) {
+                        urlIfr = "./overview_gas.html";
+                    }
+                    else {
+                        alert("debug here");
+                        return;
+                    }
+                    ifr.src = urlIfr + "?" + urlPara + "&rnd=" + Math.random();
                 }
                 else {
                     topWin.message("功能开发中，敬请期待...", "warning");
@@ -154,7 +192,7 @@
 
     // ------------------------------------------------------------------------
     function winLoad() {
-        gId("ifr").style.height = (win.p.maxHeight - 150) + "px";
+        gId("ifr").style.height = (win.p.maxHeight - 162) + "px";
 
         app.locationClick();
     }

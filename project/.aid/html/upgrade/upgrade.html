@@ -34,13 +34,13 @@
         </el-row>
         <el-row>
             <el-col>
-                <el-input v-model="mockTableName" placeholder="请输入 table_pk" style="width:295px;"></el-input>
+                <el-input v-model="mockTableName" placeholder="请输入 table_name" style="width:295px;"></el-input>
                 <el-input v-model="mockRowCount" placeholder="记录条数" style="width:100px;"></el-input>
                 <el-select v-model="mockMode" placeholder="模拟方式">
-                    <el-option key="0" value="0" label="追加生成"></el-option>
+                    <el-option key="0" value="0" label="追加生成" :disabled="true"></el-option>
                     <el-option key="1" value="1" label="删除旧记录，重新生成"></el-option>
                 </el-select>
-                <el-button @click="generateMockData">生成模拟数据</el-button>
+                <el-button @click="generateMockData" type="primary">生成模拟数据</el-button>
             </el-col>
         </el-row>
     </div>
@@ -54,7 +54,7 @@
         data: {
             viewPk: "",
             nMaxCount: 1,
-            mockMode: "0",
+            mockMode: "1",
             mockTableName: "",
             mockRowCount: ""
         },
@@ -81,7 +81,7 @@
                 })
             },
             generateMockData() {
-                ajax.send("/system/mock/generate_data", { tablePk: this.mockTableName, rowCount: this.mockRowCount, mockMode: this.mockMode }).then((res) => {
+                ajax.send("/system/mock/generate_data", { tableName: this.mockTableName, rowCount: this.mockRowCount, mockMode: this.mockMode }).then((res) => {
                     topWin.message("模拟数据生成完毕", "success");
                 })
             }
