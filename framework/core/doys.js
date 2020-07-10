@@ -114,6 +114,7 @@ function importFrameworkRes(fileRes) {
     var arrJS = new Array();
     if (fileRes.equals("echarts")) {
         arrJS.push(g.path.plugin + "/echarts/echarts.min.js");
+        arrJS.push(g.path.plugin + "/echarts/echarts.ext.js");
     }
     else if (fileRes.equals("view-form-bar")) {
         arrJS.push(g.path.framework + "/control/view-form-bar/view-form-bar.js");

@@ -2,44 +2,89 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>login</title>
-    <script src="../../../../framework/core/doys.js?v=20200619"></script>
+    <title>home</title>
+    <script src="../../../../framework/core/doys.js?v=20200620"></script>
     <script>
         importFrameworkRes("echarts");
     </script>
 
     <style type="text/css">
         html {
-            height: 98%;
-            margin: 6px;
+            --height: 100%;
+            margin: 0px;
             padding: 0px;
             background-color: white;
         }
 
         body {
-            height: 100%;
+            --height: 99%;
             margin: 0px;
             padding: 0px;
             background-color: white;
-            border-bottom: solid 1px #c0c0c0;
+            border-bottom: solid 1px #e0e0e0;
         }
 
         #home {
-            height: 100%;
+            padding-top: 15px;
+        }
+
+        .el-col {
+            border: solid 0px red;
         }
     </style>
 </head>
 <body onload="formLoad()">
     <div id="home">
         <el-row>
-            <div style="height:50px;"></div>
-        </el-row>
-        <el-row>
-            <el-col :span="8">
-                <div id="chart1" style="width:600px;height:400px;margin-left:30%;">chart1</div>
+            <el-col :span="4" style="padding-top:15px;padding-left:15px;">
+                <el-card class="box-card">
+                    <div slot="header" class="clearfix">
+                        <span>设备概况</span>
+                    </div>
+                    <div v-for="item in devices" class="text item" style="margin-bottom:20px;">
+                        {{item}}
+                    </div>
+                </el-card>
+                <div id="divLeft2" style="height:200px;margin-top:35px;"></div>
             </el-col>
-            <el-col :span="8">
-                <div id="chart2" style="width:600px;height:400px;margin-left:30%;">chart2</div>
+            <el-col :span="16">
+                <el-row>
+                    <div id="divMiddleTop" style="height:350px;"></div>
+                </el-row>
+                <el-row>
+                    <el-col :span="1">&nbsp;</el-col>
+                    <el-col :span="11">
+                        <div id="divMiddleMiddleLeft" style="height:300px;"></div>
+                    </el-col>
+                    <el-col :span="11">
+                        <div id="divMiddleMiddleRight" style="height:300px;"></div>
+                    </el-col>
+                    <el-col :span="1">&nbsp;</el-col>
+                </el-row>
+                <el-row>
+                    <div style="height:35px;"></div>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <div id="divMiddleBottomLeft" style="height:300px;"></div>
+                    </el-col>
+                    <el-col :span="8">
+                        <div id="divMiddleBottomCenter" style="height:300px;"></div>
+                    </el-col>
+                    <el-col :span="8">
+                        <div id="divMiddleBottomRight" style="height:300px;"></div>
+                    </el-col>
+                </el-row>
+            </el-col>
+            <el-col :span="4" style="padding-top:15px;padding-right:15px;">
+                <el-card class="box-card">
+                    <div slot="header" class="clearfix">
+                        <span>本月数据</span>
+                    </div>
+                    <div v-for="item in devices" class="text item" style="margin-bottom:20px;">
+                        {{item}}
+                    </div>
+                </el-card>
             </el-col>
         </el-row>
     </div>
@@ -51,45 +96,143 @@
     var app = new Vue({
         el: '#home',
         data: {
-
-        },
-        mounted() {
-
+            devices: [
+                "水表数量：508", "电表数量：806", "燃气表数量：269"
+            ],
+            devices: [
+                "用电量：5942KW", "用水量：4728L", "用气量：912L"
+            ],
         },
         methods: {
+            init() {
+                this.resize();
 
+                this.loadCharLeft2();
+
+                this.loadCharMiddleTop();
+                this.loadCharMiddleMiddleLeft();
+                this.loadCharMiddleMiddleRight();
+                this.loadCharMiddleBottomLeft();
+                this.loadCharMiddleBottomCenter();
+                this.loadCharMiddleBottomRight();
+            },
+            resize() {
+                //let maxHeight = win.p.maxHeight;
+
+                //gId("divMiddleTop").style.height = "300" + "px";
+            },
+
+            loadCharLeft2() {
+                let para = {};
+                ajax.send("/ems/home/echats/getLeft2", para).then((res) => {
+                    if (res.ok) {
+                        let para = {
+                            divChart: gId("divLeft2"),
+                            title: "设备报警统计",
+                            color: ['#FF0000 '],
+                            dtb: res.dtb
+                        }
+                        echartExt.barSimple(para);
+                    }
+                });
+            },
+
+            loadCharMiddleTop() {
+                let para = {};
+                ajax.send("/ems/home/echats/getMiddleTop", para).then((res) => {
+                    if (res.ok) {
+                        let para = {
+                            divChart: gId("divMiddleTop"),
+                            title: "当月用电量趋势图",
+                            dtb: res.dtb
+                        }
+                        echartExt.baseArea(para);
+                    }
+                });
+            },
+            loadCharMiddleMiddleLeft() {
+                let para = {};
+                ajax.send("/ems/home/echats/getMiddleMiddleLeft", para).then((res) => {
+                    if (res.ok) {
+                        let para = {
+                            divChart: gId("divMiddleMiddleLeft"),
+                            title: "当月用水量趋势图",
+                            color: ['#0066FF'],
+                            dtb: res.dtb
+                        }
+                        echartExt.baseArea(para);
+                    }
+                });
+            },
+            loadCharMiddleMiddleRight() {
+                let para = {};
+                ajax.send("/ems/home/echats/getMiddleMiddleRight", para).then((res) => {
+                    if (res.ok) {
+                        let para = {
+                            divChart: gId("divMiddleMiddleRight"),
+                            title: "当月用气量趋势图",
+                            color: ['#FF5511'],
+                            dtb: res.dtb
+                        }
+                        echartExt.baseArea(para);
+                    }
+                });
+            },
+
+            loadCharMiddleBottomLeft() {
+                let para = {};
+                ajax.send("/ems/home/echats/getMiddleBottomLeft", para).then((res) => {
+                    if (res.ok) {
+                        let para = {
+                            divChart: gId("divMiddleBottomLeft"),
+                            title: "当月用水量分布图",
+                            seriesName: "当月累计用水量",
+                            dtb: res.dtb
+                        }
+                        echartExt.pieSimple(para);
+                    }
+                });
+            },
+            loadCharMiddleBottomCenter() {
+                let para = {};
+                ajax.send("/ems/home/echats/getMiddleBottomCenter", para).then((res) => {
+                    if (res.ok) {
+                        let para = {
+                            divChart: gId("divMiddleBottomCenter"),
+                            title: "当月用电量分布图",
+                            seriesName: "当月累计用电量",
+                            dtb: res.dtb
+                        }
+                        echartExt.pieSimple(para);
+                    }
+                });
+            },
+            loadCharMiddleBottomRight() {
+                let para = {};
+                ajax.send("/ems/home/echats/getMiddleBottomRight", para).then((res) => {
+                    if (res.ok) {
+                        let para = {
+                            divChart: gId("divMiddleBottomRight"),
+                            title: "当月用电气分布图",
+                            seriesName: "当月累计用气量",
+                            dtb: res.dtb
+                        }
+                        echartExt.pieSimple(para);
+                    }
+                });
+            }
         }
     })
 
     function formLoad() {
-        loadChart1();
+        app.init();
     }
 </script>
 
 <!-- charts -->
 <script>
     function loadChart1() {
-        var chart1 = echarts.init(gId('chart1'));
-        var option1 = {
-            title: {
-                text: '全校用水量对比'
-            },            
-            tooltip: {},
-            legend: {
-                data: ['立方米']
-            },
-            xAxis: {
-                data: ["1号楼", "2号楼", "3号楼", "4号楼", "5号楼", "6号楼"]
-            },
-            yAxis: {},
-            series: [{
-                name: '立方米',
-                type: 'bar',
-                data: [15, 120, 336, 150, 530, 320]
-            }]
-        };
 
-        chart1.setOption(option1);
 
         let chart2 = echarts.init(gId('chart2'));
         let option2 = {
