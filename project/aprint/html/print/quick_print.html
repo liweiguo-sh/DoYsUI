@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>标签打印窗口</title>
-    <script src="../../../../framework/core/doys.js?v=20200701"></script>
+    <script src="../../../../framework/core/doys.js?v=20200702"></script>
 </head>
 <body>
     <div id="app">
@@ -202,6 +202,10 @@
             },
             initLabel(quickPrint = false, taskData = "") {
                 if (!this.labelId) return;
+
+                for (let i = 0; i < this.variables.length; i++) {
+                    this.variables[i].value = "";
+                }
                 for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
                     let name = this.dtbLabelVariable.rows[i]["name"].value;
                     let type = this.dtbLabelVariable.rows[i]["type"].value;

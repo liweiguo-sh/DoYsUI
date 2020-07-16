@@ -18,7 +18,7 @@
 </body>
 </html>
 
-<!-- winLoad -->
+<!-- appInit -->
 <script>
     var app = new Vue({
         el: '#app',
@@ -27,17 +27,19 @@
             method1() {
                 ajax.send("/", {}).then((res) => {
                     if (res.ok) {
-                        this.$message("当前操作成功");
+                        topWin.message("当前操作成功");
                     }
-                    else {
-                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
+                    else {                        
+                        topWin.alert("系统信息 ...", "error");
                     }
                 })
             }
         }
     });
+</script>
 
-    // ------------------------------------------------------------------------
+<!-- winLoad -->
+<script>
     function winLoad() {
 
     }

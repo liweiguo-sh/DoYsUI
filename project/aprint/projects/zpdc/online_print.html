@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>产线打印界面</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <script>
+        //importFrameworkRes("view-form-bar");
+    </script>
+    <style type="text/css">
+        .el-select {
+            width: 100%;
+        }
+
+        .el-col {
+            padding-right: 20px; /* 用于代替 <el-row :gutter="20"> */
+            border: solid 0px blue;
+        }
+
+            .el-col:last-child {
+                padding-right: 10px;
+                border: solid 0px red;
+            }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:800px;margin:auto;">
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="产线">
+                        <el-select v-model="form.line_no">
+                            <el-option value="A" label="A线"></el-option>
+                            <el-option value="B" label="B线"></el-option>
+                            <el-option value="C" label="C线"></el-option>
+                            <el-option value="D" label="D线"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="生产日期">
+                        <el-input v-model="form.mfg_date" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="标签">
+                        <el-select v-model="form.label_id">
+                            <el-option value="1" label="铭牌贴"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="客户">
+                        <el-select v-model="form.customer_id">
+                            <el-option value="1" label="青岛海尔空调厂"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="机种">
+                        <el-select v-model="form.pn">
+                            <el-option value="2" label="CPPN1234"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="客户机种">
+                        <el-select v-model="form.pn_customer">
+                            <el-option value="2" label="CPPN1234-A"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <hr />
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="预申请标签数量">
+                        <el-input v-model="form.qty_apply" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[1]">
+                    <el-form-item label="剩余未打印数量">
+                        <el-input v-model="form.qty_remain" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-button type="primary">批量申请</el-button>
+                </el-col>
+                <el-col :span="span[2]" style="text-align:right;">
+                    <el-button type="primary">打印下一张</el-button>
+                </el-col>
+            </el-row>
+            <div style="height:5px;"></div>
+            <hr />
+            <el-row>
+                <el-card style="margin-top:10px;">
+                    <el-image style="width:70%;height:70%;" src="../../image/labels/zpdc/label_001.jpg"></el-image>
+                </el-card>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    // -- 900 * 1600 --
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {
+                line_no: "A",
+                mfg_date: (new Date()).toStr(),
+                label_id: "1",
+                customer_id: "1",
+                pn: "2",
+                pn_customer: "2",
+                qty_apply: "100",
+                qty_remain: "87"
+            }
+        }
+    });
+</script>

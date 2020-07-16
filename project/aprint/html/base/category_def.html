@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签分类定义</title>
+    <script src="../../../../framework/core/doys.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="6">
+                <el-tree ref="treeNav" :props="navTreeProps" node-key="id" @node-click="onNavNodeClick" :data="dataNavNode" :load="getTreeNode" lazy :expand-on-click-node="false" highlight-current></el-tree>
+            </el-col>
+            <el-col :span="18">
+                <sub-view id="grid" ref="grid" style="height:300px;"></sub-view>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    let app = new Vue({
+        el: '#app',
+        data: {
+            idRoot: 0,
+            navTreeProps: {
+                label: "label",
+                isLeaf: "isLeaf"
+            },
+            dataNavNode: []
+        },
+        methods: {
+            getTreeNode(node, resolve) {
+                let postData = { level: node.level, idParent: node.data.id };
+                ajax.send("/aprint/base/category/getCategoryNode", postData).then(res => {
+                    if (res.ok) {
+                        let dtbNode = res.dtbNode;
+                        let dataRow;
+                        let data = [];
+
+                        for (let i = 0; i < dtbNode.rowCount; i++) {
+                            dataRow = dtbNode.rows[i];
+                            data.push({
+                                id: dataRow["id"].value + "",
+                                value: dataRow["id"].value + "",
+                                label: dataRow["name"].value,
+                                isLeaf: (dataRow["is_leaf"].value == 1)
+                            });
+                        }
+                        resolve(data);
+
+                        // -- 延时自动展开根节点, 不需要延??? --
+                        if (node.level == 0) {
+                            idRoot = data[0].id;
+                            setTimeout(() => {
+                                this.$refs.treeNav.setCurrentKey(idRoot);
+                                this.$refs.treeNav.store["root"].childNodes[0].expand();
+
+                                var para = {
+                                    viewPk: "category",
+                                    flowPks: "'sys_crud'",
+                                    filter: "id_parent = " + idRoot,
+                                    vfUrl: g.path.project + "/aprint/html/base/category.html"
+                                }
+
+                                app.$refs.grid.init(para);
+                            }, 200);
+                        }
+                    }
+                });
+            },
+            onNavNodeClick(data, node, c) {
+                let idParent = node.data.id;
+                this.$refs.grid.setFilter("id_parent = " + idParent);
+            },
+            method1() {
+                ajax.send("/", {}).then((res) => {
+                    if (res.ok) {
+                        this.$message("当前操作成功");
+                    }
+                    else {
+                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
+                    }
+                })
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    let grid = gId("grid");
+    function winLoad() {
+        grid.style.height = (win.p.maxHeight - 0) + "px";
+
+
+    }
+</script>
