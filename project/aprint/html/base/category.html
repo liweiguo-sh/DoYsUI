@@ -44,7 +44,7 @@
             span: [24, 12, 12],
             form: {},
             idParent: 0,
-            nodeParent: null
+            appParent: null
         },
 
         methods: {
@@ -61,21 +61,12 @@
             },
             afterSave: function (para) {
                 if (para.addnew) {
-                    //this.nodeParent.childNodes = [];
-                    this.nodeParent.loaded = false;
-                    this.nodeParent.loadData();
-                }
-                else {
-                    //this.nodeParent.childNodes = [];
-                    this.nodeParent.loaded = false;
-                    this.nodeParent.loadData();
+                    app.appParent.updateCurrentNode();
                 }
             },
 
             afterDelete: function () {
-                this.nodeParent.loaded = false;
-                //this.nodeParent.expand();
-                this.nodeParent.loadData();
+                app.appParent.updateCurrentNode();
             }
         }
     });
@@ -86,7 +77,8 @@
     let winParent;
     function winLoad() {
         winParent = win.parentWindow;
+
         app.idParent = winParent.app.idParent;
-        app.nodeParent = winParent.app.nodeParent;
+        app.appParent = winParent.app;
     }
 </script>

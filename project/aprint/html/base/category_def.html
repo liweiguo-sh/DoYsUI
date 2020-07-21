@@ -1,5 +1,4 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <title>标签分类定义</title>
@@ -9,7 +8,7 @@
     <div id="app">
         <el-row>
             <el-col :span="6">
-                <el-tree ref="treeNav" :props="navTreeProps" node-key="id" @node-click="onNavNodeClick" :data="dataNavNode" :load="getTreeNode" lazy :expand-on-click-node="false" highlight-current></el-tree>
+                <el-tree ref="treeNav" :props="treeProps" node-key="nodeKey" :data="dataTree" @node-click="onNodeClick" @node-expand="onNodeExpand" :expand-on-click-node="false" highlight-current></el-tree>
             </el-col>
             <el-col :span="18">
                 <sub-view id="grid" ref="grid" style="height:300px;"></sub-view>
@@ -24,62 +23,130 @@
     var app = new Vue({
         el: '#app',
         data: {
+            nodeKeyRoot: "000",         // -- 根节点NodeKey --
+            nodeKeyParent: "",          // -- 当前选中节点的NodeKey --
             idParent: 0,                // -- 当前选中节点的ID --
-            nodeParent: null,           // -- 当前选中的节点 --
-            navTreeProps: {
-                label: "label",
+            treeProps: {
+                label: "name",
                 isLeaf: "isLeaf"
             },
-            dataNavNode: []            
+            dataTree: [],
+            gridLoaded: false           // -- 网格是否已加载 --
         },
+        mounted() { },
         methods: {
-            getTreeNode(node, resolve) {
-                let postData = { level: node.level, idParent: node.data.id };
+            initTree() {
+                ajax.send("/aprint/base/category/getCategoryRoot", {}).then(res => {
+                    if (res.ok) {
+                        let dtbNode = res.dtbNode;
+                        let data = [];
 
-                this.nodeParent = node;
+                        this.idParent = dtbNode.rows[0]["id"].value;
+                        this.nodeKeyParent = dtbNode.rows[0]["node_key"].value;
+                        data.push({
+                            nodeKey: this.nodeKeyParent,
+                            id: this.idParent,
+                            name: dtbNode.rows[0]["name"].value,
+                            children: []
+                        });
+                        this.dataTree = data;
+
+
+                        this.nodeKeyRoot = this.nodeKeyParent;
+                        this.loadTreeNode(this.nodeKeyRoot);
+                    }
+                });
+            },
+            loadTreeNode(nodeKey) {
+                let postData = { nodeKeyParent: nodeKey };
                 ajax.send("/aprint/base/category/getCategoryNode", postData).then(res => {
                     if (res.ok) {
                         let dtbNode = res.dtbNode;
-                        let dataRow;
-                        let data = [];
+                        let nodeKeyParent = res.nodeKeyParent;
+                        let dataParent = this.dataTree[0];
 
-                        for (let i = 0; i < dtbNode.rowCount; i++) {
-                            dataRow = dtbNode.rows[i];
-                            data.push({
-                                id: dataRow["id"].value + "",
-                                value: dataRow["id"].value + "",
-                                label: dataRow["name"].value,
-                                isLeaf: (dataRow["is_leaf"].value == 1)
-                            });
+                        // -- 计算当前节点data对象 --
+                        for (let i = 1; i < nodeKeyParent.length / 3; i++) {
+                            let key = nodeKey.substring(0, 3 * (i + 1));
+                            for (let j = 0; j < dataParent.children.length; j++) {
+                                if (dataParent.children[j].nodeKey.equals(key)) {
+                                    dataParent = dataParent.children[j];
+                                    break;
+                                }
+                            }
                         }
-                        resolve(data);
+                        if (dtbNode.rowCount == 0) {
+                            dataParent.children = [];
+                            return;
+                        }
+
+                        let data = [];
+                        for (let i = 0; i < dtbNode.rowCount; i++) {
+                            let dataRow = dtbNode.rows[i];
+                            let children = [];
+                            if (dataRow["is_leaf"].value == 0) {
+                                children.push({
+                                    id: data.id + "_0",
+                                    name: "loading...",
+                                    isVirtual: true
+                                });
+                            }
+
+                            data.push({
+                                nodeKey: dataRow["node_key"].value,
+                                id: dataRow["id"].value + "",
+                                name: dataRow["name"].value,
+                                children: children,
+                                dataRow: dataRow
+                            });
+
+
+                        }
+                        dataParent.children = data;
 
                         // -- 延时自动展开根节点, 不需要延??? --
-                        if (node.level == 0) {
-                            this.idParent = data[0].id;
-                            setTimeout(() => {
-                                this.$refs.treeNav.setCurrentKey(this.idParent);
-                                this.$refs.treeNav.store["root"].childNodes[0].expand();
+                        if (nodeKeyParent.equals(this.nodeKeyRoot)) {
+                            if (!this.gridLoaded) {
+                                setTimeout(() => {
+                                    this.$refs.treeNav.setCurrentKey(this.nodeKeyRoot);
+                                    this.$refs.treeNav.store["root"].childNodes[0].expand();
 
-                                var para = {
-                                    viewPk: "category",
-                                    flowPks: "'sys_crud'",
-                                    filter: "id_parent = " + this.idParent,
-                                    vfUrl: g.path.project + "/aprint/html/base/category.html"
-                                }
+                                    var para = {
+                                        viewPk: "category",
+                                        flowPks: "'sys_crud'",
+                                        filter: "id_parent = " + this.idParent,
+                                        vfUrl: g.path.project + "/aprint/html/base/category.html"
+                                    }
 
-                                app.$refs.grid.init(para);
-                            }, 200);
+                                    app.$refs.grid.init(para);
+
+                                    this.gridLoaded = true;
+                                }, 200);
+                            }
+                            else {
+                                // -- do nothing --
+                            }
                         }
                     }
                 });
             },
-            onNavNodeClick(data, node, c) {
-                this.idParent = node.data.id;
-                this.$refs.grid.setFilter("id_parent = " + this.idParent);
 
-                this.nodeParent = node;
-            }
+            onNodeExpand(data, node, c) {
+                if (data.children && data.children.length == 1 && data.children[0].isVirtual) {
+                    this.loadTreeNode(data.nodeKey);
+                }
+
+            },
+            onNodeClick(data, node, c) {
+                this.idParent = node.data.id;
+                this.nodeKeyParent = data.nodeKey;
+
+                this.$refs.grid.setFilter("id_parent = " + this.idParent);
+            },
+
+            updateCurrentNode() {
+                this.loadTreeNode(this.nodeKeyParent);
+            },
         }
     });
 </script>
@@ -90,7 +157,6 @@
     function winLoad() {
         grid.style.height = (win.p.maxHeight - 0) + "px";
 
-        console.log(top.jsVer);
-        console.log(g.cfg.jsVer);
+        app.initTree();
     }
 </script>
