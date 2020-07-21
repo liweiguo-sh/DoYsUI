@@ -12,7 +12,7 @@
                     <el-button @click="createTask" type="primary">生成数据</el-button>
                     <el-button @click="deleteTask" v-show="taskId">删除数据</el-button>
                     <el-button @click="preview" v-show="labelId">预览</el-button>
-                    <el-button @click="print" type="danger" v-show="taskId">打印</el-button>                    
+                    <el-button @click="print" type="danger" v-show="taskId">打印</el-button>
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
@@ -181,68 +181,70 @@
                     }
                     this.variables = variables;
 
-                    this.initLabel();
+                    this.initLabel({});
                     this.initGrid();
                 });
             },
             onCustomerChange() {
                 ajax.send("/aprint/label/getCustomerParaByCustomerId", { customerId: this.customerId }).then(res => {
                     this.dtbCustomerPara = res.dtbCustomerPara;
-                    this.initLabel();
+                    this.initLabel({});
                 });
             },
             onProductPnChange() {
                 ajax.send("/aprint/label/getProductPnParaByProductPnId", { productPnId: this.productPnId }).then(res => {
                     this.dtbProductPnPara = res.dtbProductPnPara;
-                    this.initLabel();
+                    this.initLabel({});
                 });
             },
             onVarChange() {
-                this.initLabel();
+                this.initLabel({userInput});
             },
-            initLabel(quickPrint = false, taskData = "") {
+            initLabel(para) {
                 if (!this.labelId) return;
 
-                for (let i = 0; i < this.variables.length; i++) {
-                    this.variables[i].value = "";
-                }
-                for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
-                    let name = this.dtbLabelVariable.rows[i]["name"].value;
-                    let type = this.dtbLabelVariable.rows[i]["type"].value;
+                if (!para.userInput) {
+                    for (let i = 0; i < this.variables.length; i++) {
+                        this.variables[i].value = "";
+                    }
+                    for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
+                        let name = this.dtbLabelVariable.rows[i]["name"].value;
+                        let type = this.dtbLabelVariable.rows[i]["type"].value;
 
-                    if (type.equals("quote")) {
-                        let quoteFrom = this.dtbLabelVariable.rows[i]["quote_from"].value;
-                        if (quoteFrom.equals("customer") && this.dtbCustomerPara) {
-                            for (let j = 0; j < this.dtbCustomerPara.rowCount; j++) {
-                                let paraCode = this.dtbCustomerPara.rows[j]["para_code"].value;
-                                if (paraCode.equals(name)) {
-                                    this.variables[i]["value"] = this.dtbCustomerPara.rows[j]["para_value"].value;
-                                    break;
+                        if (type.equals("quote")) {
+                            let quoteFrom = this.dtbLabelVariable.rows[i]["quote_from"].value;
+                            if (quoteFrom.equals("customer") && this.dtbCustomerPara) {
+                                for (let j = 0; j < this.dtbCustomerPara.rowCount; j++) {
+                                    let paraCode = this.dtbCustomerPara.rows[j]["para_code"].value;
+                                    if (paraCode.equals(name)) {
+                                        this.variables[i]["value"] = this.dtbCustomerPara.rows[j]["para_value"].value;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        else if (quoteFrom.equals("product") && this.dtbProductPnPara) {
-                            for (let j = 0; j < this.dtbProductPnPara.rowCount; j++) {
-                                let paraCode = this.dtbProductPnPara.rows[j]["para_code"].value;
-                                if (paraCode.equals(name)) {
-                                    this.variables[i]["value"] = this.dtbProductPnPara.rows[j]["para_value"].value;
-                                    break;
+                            else if (quoteFrom.equals("product") && this.dtbProductPnPara) {
+                                for (let j = 0; j < this.dtbProductPnPara.rowCount; j++) {
+                                    let paraCode = this.dtbProductPnPara.rows[j]["para_code"].value;
+                                    if (paraCode.equals(name)) {
+                                        this.variables[i]["value"] = this.dtbProductPnPara.rows[j]["para_value"].value;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                let para = {
+                let para1 = {
                     action: "initLabel",
                     labelId: this.labelId,
                     labelContent: this.dtbLabel.rows[0]["content"].value,
                     labelType: this.dtbLabel.rows[0]["type"].value,
                     labelSummary: this.getLabelSummary(),
                     variables: this.variables,
-                    quickPrint: (quickPrint ? "1" : "0"),
+                    quickPrint: (para.quickPrint ? "1" : "0"),
                     taskId: this.taskId,
-                    taskData: taskData                    
+                    taskData: para.taskData
                 }
                 if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
                     if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
@@ -258,7 +260,7 @@
                     para.urlDataFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
                 }
 
-                top.initLabel(para);
+                top.initLabel(para1);
             },
             getLabelSummary() {
                 let dataRow = this.dtbLabel.rows[0];
@@ -350,14 +352,14 @@
                             DATA.push(arr.join(g.c.CHAR2));
                         }
 
-                        this.initLabel(false, DATA.join(g.c.CHAR1));
+                        this.initLabel({quickPrint: false, taskData: DATA.join(g.c.CHAR1)});
                     }
                     else {
                     }
                 });
             },
             preview() {
-                this.initLabel();
+                this.initLabel({});
             },
 
             initGrid() {

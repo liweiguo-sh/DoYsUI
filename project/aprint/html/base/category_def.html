@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html>
 <head>
     <title>标签分类定义</title>
@@ -20,19 +21,22 @@
 
 <!-- appInit -->
 <script>
-    let app = new Vue({
+    var app = new Vue({
         el: '#app',
         data: {
-            idRoot: 0,
+            idParent: 0,                // -- 当前选中节点的ID --
+            nodeParent: null,           // -- 当前选中的节点 --
             navTreeProps: {
                 label: "label",
                 isLeaf: "isLeaf"
             },
-            dataNavNode: []
+            dataNavNode: []            
         },
         methods: {
             getTreeNode(node, resolve) {
                 let postData = { level: node.level, idParent: node.data.id };
+
+                this.nodeParent = node;
                 ajax.send("/aprint/base/category/getCategoryNode", postData).then(res => {
                     if (res.ok) {
                         let dtbNode = res.dtbNode;
@@ -52,15 +56,15 @@
 
                         // -- 延时自动展开根节点, 不需要延??? --
                         if (node.level == 0) {
-                            idRoot = data[0].id;
+                            this.idParent = data[0].id;
                             setTimeout(() => {
-                                this.$refs.treeNav.setCurrentKey(idRoot);
+                                this.$refs.treeNav.setCurrentKey(this.idParent);
                                 this.$refs.treeNav.store["root"].childNodes[0].expand();
 
                                 var para = {
                                     viewPk: "category",
                                     flowPks: "'sys_crud'",
-                                    filter: "id_parent = " + idRoot,
+                                    filter: "id_parent = " + this.idParent,
                                     vfUrl: g.path.project + "/aprint/html/base/category.html"
                                 }
 
@@ -71,18 +75,10 @@
                 });
             },
             onNavNodeClick(data, node, c) {
-                let idParent = node.data.id;
-                this.$refs.grid.setFilter("id_parent = " + idParent);
-            },
-            method1() {
-                ajax.send("/", {}).then((res) => {
-                    if (res.ok) {
-                        this.$message("当前操作成功");
-                    }
-                    else {
-                        this.$alert(res.error, { type: "error", title: "系统信息 ..." });
-                    }
-                })
+                this.idParent = node.data.id;
+                this.$refs.grid.setFilter("id_parent = " + this.idParent);
+
+                this.nodeParent = node;
             }
         }
     });
@@ -94,6 +90,7 @@
     function winLoad() {
         grid.style.height = (win.p.maxHeight - 0) + "px";
 
-
+        console.log(top.jsVer);
+        console.log(g.cfg.jsVer);
     }
 </script>

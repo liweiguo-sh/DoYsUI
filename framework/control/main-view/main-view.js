@@ -215,7 +215,8 @@
                         data.push({
                             value: dataRow["node_value"].value,
                             label: dataRow["node_name"].value,
-                            isLeaf: (dataRow["is_leaf"].value == 1)
+                            isLeaf: (dataRow["is_leaf"].value == 1),
+                            dataRow: dataRow
                         });
                     }
                     resolve(data);
@@ -348,10 +349,15 @@
         },
         onNavNodeClick(data, node, c) {
             let level = node.level - 1;
-            let nodeValue = data.value;
             let sqlNav = this.dtbTreeLevel.rows[level]["sql_nav"].value;
 
-            this.filterNavTree = sqlNav.replace("{node_value}", nodeValue);
+            let dataRow = data.dataRow;
+            for (let key in dataRow) {
+                if (dataRow[key] && dataRow[key].value != null) {
+                    sqlNav = sqlNav.replace("{" + key + "}", dataRow[key].value);
+                }
+            }
+            this.filterNavTree = sqlNav;
             this.getViewData(0);
 
             this.$refs.treeNav.selectedNode = node;

@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>区域定义</title>
+    <title>分类定义</title>
     <script src="../../../../framework/core/doys.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -13,12 +13,12 @@
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="区域名称" required>
+                    <el-form-item label="分类名称" required>
                         <el-input v-model="form.name" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="序号" required>
+                    <el-form-item label="序号">
                         <el-input v-model="form.sequence" />
                     </el-form-item>
                 </el-col>
@@ -30,6 +30,7 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <el-input v-model="form.id_parent" type="hidden"></el-input>
         </el-form>
     </div>
 </body>
@@ -41,16 +42,40 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {}
+            form: {},
+            idParent: 0,
+            nodeParent: null
         },
 
         methods: {
+            afterAddnew: function () {
+                this.form.id_parent = this.idParent;
+            },
+
             beforeSave: function () {
                 if (!this.form.name) {
-                    topWin.alert("请输入区域名称。", "warning");
+                    topWin.alert("请输入分类名称。", "warning");
                     return false;
                 }
                 return true;
+            },
+            afterSave: function (para) {
+                if (para.addnew) {
+                    //this.nodeParent.childNodes = [];
+                    this.nodeParent.loaded = false;
+                    this.nodeParent.loadData();
+                }
+                else {
+                    //this.nodeParent.childNodes = [];
+                    this.nodeParent.loaded = false;
+                    this.nodeParent.loadData();
+                }
+            },
+
+            afterDelete: function () {
+                this.nodeParent.loaded = false;
+                //this.nodeParent.expand();
+                this.nodeParent.loadData();
             }
         }
     });
@@ -58,10 +83,10 @@
 
 <!-- winLoad -->
 <script>
-    let grid = gId("grid");
+    let winParent;
     function winLoad() {
-        grid.style.height = (win.p.maxHeight - 0) + "px";
-
-
+        winParent = win.parentWindow;
+        app.idParent = winParent.app.idParent;
+        app.nodeParent = winParent.app.nodeParent;
     }
 </script>

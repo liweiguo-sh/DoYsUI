@@ -17,7 +17,7 @@
             resRun: "/resRun",                  // -- 资源目录(后台运行时)
         },
         cfg: {
-            jsVer: "20200701",                  // -- js版本号，解决js文件缓存问题 --
+            jsVer: top.jsVer,                   // -- js版本号，解决js文件缓存问题 --
             ajaxType: "axios",                  // -- ["axios", "fetch", "others"] --
             remark: "全局配置项集合"
         }

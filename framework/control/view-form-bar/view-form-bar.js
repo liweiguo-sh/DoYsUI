@@ -280,6 +280,7 @@
             let postData = { viewPk: this.viewPk, id: id, form: this.$parent.form };
             ajax.send(this.controller + "/save", postData).then(res => {
                 if (res.ok) {
+                    let addnew = this.status.equals("addnew");
                     let dtbViewData = res.dtbViewData;
 
                     this.dataRowView = dtbViewData.rows[0];
@@ -296,7 +297,7 @@
                     }
 
                     if (this.$parent.afterSave) {
-                        this.$parent.afterSave();
+                        this.$parent.afterSave({ addnew: addnew });
                     }
                     win.flashTitle("数据保存成功  " + (new Date).toTimeString());
                 }
@@ -332,16 +333,18 @@
                 if (res.ok) {
                     this.dataRowView = this.view.afterVfDelete();
 
-                    if (this.dataRowView == null) {
-                        win.close();
-                        return;
+                    if (this.dataRowView) {
+                        this.dtbFormData = res.dtbFormData;
+                        this.fillFormData();
                     }
-
-                    this.dtbFormData = res.dtbFormData;
-                    this.fillFormData();
 
                     if (this.$parent.afterDelete) {
                         this.$parent.afterDelete();
+                    }
+
+                    if (this.dataRowView == null) {
+                        win.close();
+                        return;
                     }
                     win.flashTitle("数据删除成功  " + (new Date).toTimeString());
                 }
@@ -357,7 +360,7 @@
             let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;
             let postData = { viewPk: this.viewPk, id: id, form: this.$parent.form, buttonName: button.name };
             ajax.send(this.controller + "/doClick", postData).then(res => {
-                if (res.ok) {                    
+                if (res.ok) {
                     win.flashTitle("当前操作成功  " + (new Date).toTimeString());
                 }
                 else {
