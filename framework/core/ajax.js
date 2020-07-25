@@ -12,6 +12,7 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
     const promise = new Promise(function (resolve, reject) {
         // -- axios --
         if (ajaxType.equals("axios")) {
+            if (window.win) win.setDisabled(true, "waiting ...");
             let axiosCfg = {
                 method: "GET",
                 url: g.prefix + url
@@ -22,6 +23,7 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
             }
             axios.defaults.withCredentials = true;
             axios(axiosCfg).then((response) => {
+                if (window.win) win.setDisabled();
                 let keys, type, value;
                 for (var key in response.data) {
                     keys = key.split(g.c.CHAR1);
@@ -58,15 +60,26 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
                 }
                 resolve(response.data);
             }).catch(e => {
-                if (e.response.status == 404) {
-                    topWin.message(e.message + "<br />" + e.config.url, "error");
-                }
-                else if (e.response.status == 403) {
-                    topWin.message(e.message, "error");
+                if (window.win) win.setDisabled();
+                if (e.response) {
+                    if (e.response.status == 404) {
+                        topWin.message(e.message + "<br />" + e.config.url, "error");
+                    }
+                    else if (e.response.status == 403) {
+                        topWin.message(e.message, "error");
+                    }
+                    else {
+                        topWin.message(e.message, "error");
+                        reject(e);
+                    }
                 }
                 else {
-                    topWin.message(e.message, "error");
-                    reject(e);
+                    app.$message({
+                        showClose: true,
+                        message: e.message,
+                        dangerouslyUseHTMLString: true,
+                        type: "error"
+                    });
                 }
             })
         }

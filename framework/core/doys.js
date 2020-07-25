@@ -7,7 +7,7 @@
  */
 (function () {
     window.g = {
-        debug: true,                            // -- 开发调试模式 --
+        debug: false,                           // -- 调试模式 --
         prefix: "http://{domain}:9988/DoYsSV",  // -- 后台服务入口，实例：http://192.168.169.1:9988，{domain}表示和前端相同 --
         path: {
             base: "DoYsUI",                     // -- 前台应用根目录 --
@@ -47,6 +47,8 @@
     initPage();
 })()
 function initGolbal() {
+    g.debug = document.documentURI.indexOf("//127.0.0.1") > 0;
+    
     let src = document.currentScript.src;
     let idx = src.indexOf("//");
 

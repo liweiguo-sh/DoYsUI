@@ -7,13 +7,13 @@
     <link href="../../../../framework/control/taskbar/eltabs/taskbar.css" rel="stylesheet" />
     <link href="../../../../framework/control/window/xwf.window.css" rel="stylesheet" />
 
-    <script src="../../../../framework/core/doys.js?v=20200619"></script>
+    <script src="../../../../framework/core/doys.js?v=20200623"></script>
     <script src="../../../../framework/core/topwin.js"></script>
     <script src="../../../../framework/control/taskbar/eltabs/taskbar.js"></script>
     <script src="../../../../framework/control/window/xwf.window.js"></script>
 
     <script>
-        var jsVer = "20200721";
+        var jsVer = "20200722";
 
         importFrameworkRes("main-menu");
     </script>
@@ -302,7 +302,10 @@
 <script>
     function jsInvokeCommonShell(para) {
         if (!chrome.webview) {
-            return "{\"success\": false, \"message\": \"当前操作需要客户端支持，请在码尚客户端中使用。\"}";
+            if (!g.debug) {
+                topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "error");
+            }
+            return;
         }
 
         try {

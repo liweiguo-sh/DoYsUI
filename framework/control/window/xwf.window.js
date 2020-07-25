@@ -454,14 +454,14 @@ window.xwf_window.prototype.autoSize = function (_this, win) {
     var top = win.p.top, left = win.p.left, width = win.p.width, height = win.p.height;
     //-------------------------------------------------
     if (height < scrollHeight) {
-        var marginBottom = g.x.getStyleValue(contentBody, "marginBottom"); 
+        var marginBottom = g.x.getStyleValue(contentBody, "marginBottom");
         height = scrollHeight + marginBottom;
     }
     height = Math.min(height, _this.maxHeight);
     iframe.style.height = height + "px";
 
     if (width < scrollWidth) {
-        var marginRight = g.x.getStyleValue(contentBody, "marginRight"); 
+        var marginRight = g.x.getStyleValue(contentBody, "marginRight");
         width = scrollWidth + marginRight;
     }
     width = Math.min(width, _this.maxWidth);
@@ -533,26 +533,37 @@ window.xwf_window.prototype.toFront = function (winRoot, margin) {
 window.xwf_window.prototype.setDisabled = function (blDisabled, title) {
     var win = this;
     var _this = win._this;
-    var docContent = win.document;
 
-    if (!docContent.divDisabled) {
-        docContent.divDisabled = docContent.createElement("DIV");
-        docContent.body.appendChild(docContent.divDisabled);
-        docContent.divDisabled.className = "divWinDisabled";    // -- 引用页面自行实现Disabled效果 --
-        docContent.divDisabled.style.position = "absolute";
-    }
-
+    // -- 判断是否需要 disable ----------------------------------
+    if (!win.disabledCount) win.disabledCount = 0;
     if (blDisabled) {
-        docContent.divDisabled.style.display = "";
-        docContent.divDisabled.innerHTML = title;
-
-        docContent.divDisabled.style.top = "0px";
-        docContent.divDisabled.style.left = "0px";
-        docContent.divDisabled.style.width = docContent.body.offsetWidth + "px";
-        docContent.divDisabled.style.height = docContent.body.offsetHeight + "px";
+        win.disabledCount++;
     }
     else {
-        docContent.divDisabled.style.display = "none";
+        win.disabledCount--;
+    }
+    if (win.disabledCount < 0) win.disabledCount = 0;
+    blDisabled = (win.disabledCount > 0);
+
+    // -- 创建模态层 -------------------------------------------
+    if (!win.divDisabled) {
+        win.divDisabled = win.document.createElement("DIV");
+        win.document.body.appendChild(win.divDisabled);
+        win.divDisabled.className = "winDisabled";
+    }
+
+    // -- 展示模态层 -------------------------------------------
+    if (blDisabled) {
+        win.divDisabled.style.display = "";
+        win.divDisabled.innerHTML = "<div><i class='el-icon-loading'></i></div>"; //title || "waiting ...";
+
+        win.divDisabled.style.top = "0px";
+        win.divDisabled.style.left = "0px";
+        win.divDisabled.style.width = win.document.body.parentElement.offsetWidth + "px";
+        win.divDisabled.style.height = win.document.body.parentElement.offsetHeight + "px";
+    }
+    else {
+        win.divDisabled.style.display = "none";
     }
 };
 
