@@ -115,7 +115,13 @@
             }
             for (let i = 0; i < this.dtbFormData.columnCount; i++) {
                 let columnName = this.dtbFormData.columns[i].name;
-                form[columnName] = "" + this.dtbFormData.rows[0][columnName].value;
+                let dataType = this.dtbFormData.columns[i].dataType;
+                if (dataType.equals("tinyint")) {
+                    form[columnName] = this.dtbFormData.rows[0][columnName].value;
+                }
+                else {
+                    form[columnName] = "" + this.dtbFormData.rows[0][columnName].value;
+                }
             }
             this.$parent.form = form;
 

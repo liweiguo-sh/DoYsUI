@@ -92,14 +92,20 @@ window.datatable.prototype.readFromData = function (fieldString, dataString) {
         var objRow = { $: "" };     // -- N: 添加, U:修改, D:删除 --
         var columnType = "", dataValue = null;
         for (var iCol = 0; iCol < this.columnCount; iCol++) {
+            if (this.columns[iCol].name.equals("cdate")) {
+                console.log("here");
+            }
             columnType = this.columns[iCol].columnType;
             dataValue = arrRows[iCol];
             if (dataValue != "") {
-                if (columnType.equals("int")) {
-                    dataValue = isNaN(dataValue) ? null : parseInt(dataValue);
-                }
-                else if (columnType.equals("number")) {
-                    dataValue = isNaN(dataValue) ? null : parseFloat(dataValue);
+                if (columnType.equals("number")) {
+                    let dataType = this.columns[iCol].dataType;
+                    if (dataType.equals("tinyint")) {
+                        dataValue = (dataValue != null && dataValue.equals("1"));
+                    }
+                    else {
+                        dataValue = isNaN(dataValue) ? null : parseFloat(dataValue);
+                    }
                 }
                 else if (columnType.equals("datetime")) {
                     // -- dataValue = dataValue.substring(0, 10);

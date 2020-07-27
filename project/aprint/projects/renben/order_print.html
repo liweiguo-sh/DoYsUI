@@ -16,7 +16,7 @@
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
-                        <el-input v-model="taskId" placeholder="任务单ID" :disabled="true">
+                        <el-input v-model="taskPk" placeholder="任务单号" :disabled="true">
                             <template slot="prepend">
                                 任务单号
                             </template>
@@ -106,6 +106,7 @@
             dtbOrder: null,
             dtbLabel: null,
             dtbLabelVariable: null,
+            dtbTask: null,
 
             variables: [],              // -- 标签变量集合 --
             labels: [],
@@ -114,19 +115,19 @@
             qty: null,
 
             taskId: null,
+            taskPk: null,
             rowNoFrom: null,
             rowNoTo: null
         },
         mounted() { },
         methods: {
             reset() {
-                this.orderItems = [];
                 this.variables = [];
 
-                //this.labelId = null;
                 this.qty = 0;
 
                 this.taskId = null;
+                this.taskPk = null;
                 this.rowNoFrom = null;
                 this.rowNoTo = null;
             },
@@ -158,6 +159,8 @@
             },
 
             onLabelChange() {
+                this.reset();
+
                 ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.labelId }).then(res => {
                     this.dtbLabel = res.dtbLabel;
                     this.dtbLabelVariable = res.dtbLabelVariable;
@@ -166,48 +169,48 @@
                 });
             },
             onVarChange() {
-                this.initLabel({ userInput: true });
+                this.initLabel();
             },
 
             setVariables() {
                 let variables = [];
-
-                // -- 加载订单变量 --
-                if (this.dtbOrder.rowCount == 1) {
-                    for (let i = 0; i < this.dtbOrder.columnCount; i++) {
-                        let columnName = this.dtbOrder.columns[i].name;
-                        let columnValue = this.dtbOrder.rows[0][columnName].value;
-                        variables.push({
-                            name: columnName,
-                            value: columnValue,
-                            disabled: true
-                        });
-                    }
-                }
-
                 // -- 加载标签变量 --
                 if (this.dtbLabelVariable && this.dtbLabelVariable.rowCount > 0) {
                     for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
                         let name = this.dtbLabelVariable.rows[i]["name"].value;
                         let value = this.dtbLabelVariable.rows[i]["value"].value;
+                        let type = this.dtbLabelVariable.rows[i]["type"].value;
+                        let disabled = (this.dtbLabelVariable.rows[i]["flag_manual_modify"].value == 0);
 
-                        for (let i = 0; i < variables.length; i++) {
-                            if (name.equals(variables[i].name)) {
-                                name = "";
+                        // -- 已订单变量值为准(如果有) --
+                        if (this.dtbOrder.rowCount == 1) {
+                            for (let i = 0; i < this.dtbOrder.columnCount; i++) {
+                                let columnName = this.dtbOrder.columns[i].name;
+                                let columnValue = this.dtbOrder.rows[0][columnName].value;
+
+                                if (columnName.equals(name)) {
+                                    value = columnValue;
+                                    disabled = true;    // -- 订单变量值不允许修改 --
+                                    break;
+                                }
                             }
                         }
-
-                        if (name) {
-                            variables.push({
-                                name: name,
-                                value: value,
-                                disabled: false
-                            });
-                        }
+                        // -- 加入变量集合 --
+                        variables.push({
+                            name: name,
+                            value: value,
+                            type: type,
+                            disabled: disabled
+                        });
                     }
                 }
 
-                // -- 刷界面 --
+                // -- 保留用户修改过的值(仅限字符类型的变量，并且允许手工修改) --
+                for (let i = 0; i < this.variables.length; i++) {
+                    if (variables[i].type.equals("string") && !variables[i].disabled) {
+                        variables[i].value = this.variables[i].value;
+                    }
+                }
                 this.variables = variables;
 
                 this.initLabel({});
@@ -273,10 +276,15 @@
                 };
                 ajax.send("/aprint/quick_print/createTask", postData).then(res => {
                     if (res.ok) {
-                        this.taskId = res.taskId;
+                        this.dtbTask = res.dtbTask;
+                        this.taskId = this.dtbTask.rows[0]["id"].value;
+                        this.taskPk = this.dtbTask.rows[0]["pk"].value;
+                        this.dtbLabelVariable = res.dtbLabelVariable;
+
+                        this.setVariables();
+
                         this.initGrid();
 
-                        this.onLabelChange();
                         this.rowNoFrom = 1;
                         this.rowNoTo = this.qty;
                     }
@@ -293,7 +301,10 @@
                     };
                     ajax.send("/aprint/quick_print/deleteTask", postData).then(res => {
                         if (res.ok) {
-                            this.taskId = 0;
+                            this.taskId = null;
+                            this.taskPk = null;
+                            this.rowNoFrom = null;
+                            this.rowNoTo = null;
                             this.initGrid();
                         }
                         else {

@@ -20,6 +20,7 @@
                 <el-col :span="span[2]">
                     <el-form-item label="类型" required>
                         <el-select v-model="form.type">
+                            <el-option value="fixed" label="固定值"></el-option>
                             <el-option value="string" label="字符串"></el-option>
                             <el-option value="date" label="日期"></el-option>
                             <el-option value="seq" label="序列"></el-option>
@@ -56,14 +57,14 @@
                     <el-form-item label="引用参数">
                         <el-input v-model="form.quote_name" />
                     </el-form-item>
-                </el-col>                
+                </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="格式化模板">
                         <el-input v-model="form.format" placeholder="eg: ????-??-??" />
                     </el-form-item>
-                </el-col>               
+                </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="长度">
                         <el-input v-model="form.value_len" />
@@ -75,6 +76,16 @@
                     <el-form-item label="格式化预览">
                         <el-input v-model="form.value_preview" :disabled="true" />
                     </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="修改选项">
+                        <el-checkbox v-model="form.flag_manual_modify">允许打印前手工修改变量值</el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    &nbsp;
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="序号">
