@@ -46,7 +46,7 @@
                 <el-form label-width="140px" label-position="left" size1="medium">
                     <el-row>
                         <el-form-item label="订单单号" required>
-                            <el-input placeholder="请输入订单单号" v-model="orderNumber" @change="searchOrderNumber">
+                            <el-input placeholder="请输入订单单号， 测试样例:1230001、2、3" v-model="orderNumber" @change="searchOrderNumber">
                                 <el-button slot="append" icon="el-icon-search" @click="searchOrderNumber"></el-button>
                             </el-input>
                         </el-form-item>
@@ -101,7 +101,7 @@
     var app = new Vue({
         el: '#app',
         data: {
-            orderNumber: "1230001",
+            orderNumber: "",
 
             dtbOrder: null,
             dtbLabel: null,
@@ -142,7 +142,7 @@
                     return;
                 }
 
-                this.loadLabels();
+                //this.loadLabels();
                 this.setVariables();
             },
             loadLabels() {
@@ -370,5 +370,6 @@
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
 
         app.initGrid();
+        app.loadLabels();
     }
 </script>

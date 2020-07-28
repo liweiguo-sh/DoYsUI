@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>订单接口数据库配置</title>
+    <script src="../../../../framework/core/doys.js"></script>
+</head>
+<body>
+    <div id="app" style="width:900px;">
+        <el-button @click="saveJdbcConfig" type="primary">保存配置</el-button>
+        <el-button onclick="win.close();">关闭</el-button>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left" style="margin-top:5px;">
+            <el-row :gutter="20">
+                <el-col :span="span[1]">
+                    <el-form-item label="启用" required>
+                        <el-checkbox v-model="flag_active">启用当前配置</el-checkbox>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <el-row :gutter="20">
+                <el-col :span="span[1]">
+                    <el-form-item label="username" required>
+                        <el-input v-model="username" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="password" required>
+                        <el-input v-model="password" show-password />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20">
+                <el-col :span="span[0]">
+                    <el-form-item label="url" required>
+                        <el-input v-model="url" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row :gutter="20">
+                <el-col :span="span[1]">
+                    <el-form-item label="driver" required>
+                        <el-input v-model="driver" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <el-row :gutter="20">
+                <el-col :span="span[2]">
+                    <el-form-item label="订单表" required>
+                        <el-input v-model="tablename" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[1]">
+                    <el-form-item label="订单单号字段" required>
+                        <el-input v-model="fieldname" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+
+            pk: "",
+            flag_active: false,
+
+            url: "",
+            driver: "",
+            username: "",
+            password: "",
+            tablename: "",
+            fieldname: ""
+        },
+
+        methods: {
+            getJdbcConfig: function () {
+                ajax.send("/aprint/projects/renben/JdbcConfig/getJdbcConfig", { pk: this.pk }).then((res) => {
+                    let dtb = res.dtbCfgJdbc;
+
+                    if (dtb.rowCount == 1) {
+                        this.pk = dtb.rows[0]["pk"].value;
+                        this.flag_active = (dtb.rows[0]["flag_active"].value == 1);
+
+                        this.url = dtb.rows[0]["url"].value;
+                        this.driver = dtb.rows[0]["driver"].value;
+                        this.username = dtb.rows[0]["username"].value;
+                        this.password = dtb.rows[0]["password"].value;
+                        this.tablename = dtb.rows[0]["tablename"].value;
+                        this.fieldname = dtb.rows[0]["fieldname"].value;
+                    }
+                })
+            },
+            saveJdbcConfig: function () {
+                let para = {
+                    pk: this.pk,
+                    url: this.url,
+                    driver: this.driver,
+                    username: this.username,
+                    password: this.password,
+                    tablename: this.tablename,
+                    fieldname: this.fieldname,
+                    flag_active: (this.flag_active ? 1 : 0)
+                }
+                ajax.send("/aprint/projects/renben/JdbcConfig/saveJdbcConfig", para).then((res) => {
+                    let dtb = res.dtbCfgJdbc;
+
+                    if (dtb.rowCount == 1) {
+                        this.pk = dtb.rows[0]["pk"].value;
+                        this.flag_active = (dtb.rows[0]["flag_active"].value == 1);
+
+                        this.url = dtb.rows[0]["url"].value;
+                        this.driver = dtb.rows[0]["driver"].value;
+                        this.username = dtb.rows[0]["username"].value;
+                        this.password = dtb.rows[0]["password"].value;
+                        this.tablename = dtb.rows[0]["tablename"].value;
+                        this.fieldname = dtb.rows[0]["fieldname"].value;
+                        
+                        topWin.message("订单数据库配置保存成功。", "success");
+                    }
+                    else {
+                        topWin.alert("保存订单数据库服务器连接参数失败，请检查。");
+                    }
+                })
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.getJdbcConfig();
+    }
+</script>
