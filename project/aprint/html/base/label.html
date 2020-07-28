@@ -36,11 +36,11 @@
     </style>
 </head>
 <body>
-    <div id="app" style="width:810px;margin-bottom:10px;height:480px;">
+    <div id="app" style="width:900px;margin-bottom:10px;height:480px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-tabs ref="tab" v-model="activeTabName" @tab-click="onTabClick">
             <el-tab-pane name="baseInfo" :key="0" label="基本信息">
-                <el-form :model="form" label-width="145px" label-position="left">
+                <el-form :model="form" label-width="135px" label-position="left">
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="产品名称" required>
@@ -50,25 +50,20 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
-                            <el-form-item label="版本" required>
-                                <el-input v-model="form.version" :disabled="true" />
+                            <el-form-item label="标签分类" required>
+                                <el-input placeholder="请选择标签分类" v-model="form.category_fullname">
+                                    <el-button slot="append" icon="el-icon-search" @click="selectCategory"></el-button>
+                                </el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="span[1]">
-                            <el-form-item label="代码(料号)" required>
-                                <el-input v-model="form.code" placeholder="标签代码（PN料号）" />
+                            <el-form-item label="标签代码" required>
+                                <el-input v-model="form.code" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
-                            <el-form-item label="标签名称">
-                                <el-input v-model="form.name" placeholder="标签名称" />
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="span[1]">
                             <el-form-item label="类型" required>
                                 <el-select v-model="form.type">
                                     <el-option value="MASO" label="MASO"></el-option>
@@ -76,10 +71,17 @@
                                     <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
                                     <el-option value="PDF" label="PDF" :disabled="true"></el-option>
                                 </el-select>
+                            </el-form-item>                            
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="标签名称" required>
+                                <el-input v-model="form.name" placeholder="标签名称" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
-                            <el-form-item label="打印机点数" required>
+                            <el-form-item label="打印机点数">
                                 <el-select v-model="form.point">
                                     <el-option value="300" label="300"></el-option>
                                     <el-option value="600" label="600"></el-option>
@@ -219,7 +221,7 @@
                 // ----------------------------------------
                 this.uploadAction1 = g.prefix + "/aprint/labels/bartender/upload?labelId=" + labelId + "&labelType=BarTender&fileType=label";
                 this.uploadAction2 = g.prefix + "/aprint/labels/bartender/upload?labelId=" + labelId + "&labelType=BarTender&fileType=data";
-                
+
                 if (labelFileName) {
                     this.urlLabelFile = g.path.resRun + "/aprint/label_file/" + labelFileName;
                 }
@@ -293,6 +295,20 @@
                 }
             },
 
+            selectCategory: function () {
+                var prop = {
+                    url: g.path.project + "/aprint/html/select/select_category.html",
+                    parent: win,
+                    modal: true
+                };
+                var para = {
+                    callback: (para) => {
+                        this.form.category_id = para.categoryId;
+                        this.form.category_fullname = para.categoryFullname;
+                    }
+                };
+                topWin.openWindow(prop, para);
+            },
             beforeUpload1: function () {
                 //this.uploadAction = g.prefix + "/aprint/labels/bartender/upload?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=label";
             },

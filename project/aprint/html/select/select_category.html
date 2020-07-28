@@ -1,18 +1,29 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>标签分类定义</title>
+    <title>标签分类选择</title>
     <script src="../../../../framework/core/doys.js"></script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #divTree {
+            overflow: auto;
+            margin: 5px 5px 10px 0px;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
         <el-row>
-            <el-col :span="6">
+            <el-button onclick="win.close();">关闭</el-button>
+        </el-row>
+        <el-row>
+            <div id="divTree">
                 <el-tree ref="treeNav" :props="treeProps" node-key="nodeKey" :data="dataTree" @node-click="onNodeClick" @node-expand="onNodeExpand" :expand-on-click-node="false" highlight-current></el-tree>
-            </el-col>
-            <el-col :span="18">
-                <sub-view id="grid" ref="grid" style="height:300px;"></sub-view>
-            </el-col>
+            </div>
         </el-row>
     </div>
 </body>
@@ -30,8 +41,7 @@
                 label: "name",
                 isLeaf: "isLeaf"
             },
-            dataTree: [],
-            gridLoaded: false           // -- 网格是否已加载 --
+            dataTree: []
         },
         mounted() { },
         methods: {
@@ -65,7 +75,7 @@
                         let nodeKeyParent = res.nodeKeyParent;
                         let dataParent = this.dataTree[0];
 
-                        // -- 计算当前节点data对象 --
+                        // -- 查找当前节点data对象 --
                         for (let i = 1; i < nodeKeyParent.length / 3; i++) {
                             let key = nodeKey.substring(0, 3 * (i + 1));
                             for (let j = 0; j < dataParent.children.length; j++) {
@@ -76,6 +86,7 @@
                             }
                         }
 
+                        // -- 加载子节点数据 --
                         let data = [];
                         for (let i = 0; i < dtbNode.rowCount; i++) {
                             let dataRow = dtbNode.rows[i];
@@ -100,28 +111,9 @@
                         }
                         dataParent.children = data;
 
-                        // -- 延时自动展开根节点, 不需要延??? --
+                        // -- 首次加载展开根节点 --
                         if (nodeKeyParent.equals(this.nodeKeyRoot)) {
-                            if (!this.gridLoaded) {
-                                setTimeout(() => {
-                                    this.$refs.treeNav.setCurrentKey(this.nodeKeyRoot);
-                                    this.$refs.treeNav.store["root"].childNodes[0].expand();
-
-                                    var para = {
-                                        viewPk: "category",
-                                        flowPks: "'sys_crud'",
-                                        filter: "id_parent = " + this.idParent,
-                                        vfUrl: g.path.project + "/aprint/html/base/category.html"
-                                    }
-
-                                    app.$refs.grid.init(para);
-
-                                    this.gridLoaded = true;
-                                }, 200);
-                            }
-                            else {
-                                // -- do nothing --
-                            }
+                            this.$refs.treeNav.store["root"].childNodes[0].expand();
                         }
                     }
                 });
@@ -133,24 +125,28 @@
                 }
             },
             onNodeClick(data, node, c) {
-                this.idParent = node.data.id;
-                this.nodeKeyParent = data.nodeKey;
+                if (data.nodeKey.length == 3) {
+                    return;
+                }
 
-                this.$refs.grid.setFilter("id_parent = " + this.idParent);
-            },
-
-            updateCurrentNode() {
-                this.loadTreeNode(this.nodeKeyParent);
-            },
+                let dataRow = data.dataRow;
+                let para = {
+                    categoryId: dataRow["id"].value,
+                    categoryFullname: dataRow["fullname"].value
+                }
+                win.para.callback(para);
+                win.close();
+            }
         }
     });
 </script>
 
 <!-- winLoad -->
 <script>
-    let grid = gId("grid");
+    let divTree = gId("divTree");
     function winLoad() {
-        grid.style.height = (win.p.maxHeight - 0) + "px";
+        divTree.style.height = (win.p.maxHeight * 0.6) + "px";
+        divTree.style.width = "420px";
 
         app.initTree();
     }

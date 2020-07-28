@@ -464,7 +464,7 @@
         },
         afterVfUpdate(dataRowView) {
             for (let i = 0; i < this.dtbViewData.columnCount; i++) {
-                this.dtbViewData.rows[this.currentRowIdx][i] = dataRowView[i];
+                this.dtbViewData.rows[this.currentRowIdx][i].value = dataRowView[i].value;
             }
 
             this.viewData = this.getTableData();
