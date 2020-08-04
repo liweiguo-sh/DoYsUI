@@ -282,6 +282,12 @@
             }
         },
         save() {
+            for (let key in this.$parent.form) {
+                if (g.x.isString(this.$parent.form[key])) {
+                    this.$parent.form[key] = this.$parent.form[key].trim();
+                }
+            }
+
             let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;
             let postData = { viewPk: this.viewPk, id: id, form: this.$parent.form };
             ajax.send(this.controller + "/save", postData).then(res => {

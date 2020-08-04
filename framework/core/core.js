@@ -146,3 +146,8 @@ g.x.getStyleValue = function getCurrentStyle(oElement, sProperty) {
     let style = g.x.getCurrentStyle(oElement, sProperty);
     return parseInt(style.replace("px"));
 };
+
+g.x.isString = function (obj) {
+    let result = Object.prototype.toString.call(obj);
+    return result == "[object String]";
+}

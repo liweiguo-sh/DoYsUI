@@ -46,8 +46,9 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="允许重复打开">
-                        <el-checkbox v-model="form.allow_multi"></el-checkbox>
+                    <el-form-item label="打开选项">
+                        <el-checkbox v-model="form.allow_multi">允许重复打开</el-checkbox>
+                        <el-checkbox v-model="form.flag_maximized">最大化</el-checkbox>
                     </el-form-item>
                 </el-col>
             </el-row>

@@ -3,8 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <title>login</title>
-    <script src="../../../../framework/core/doys.js?v=20200619"></script>
+    <script src="../../../../framework/core/doys.js?v=20200803"></script>
     <script src="../../../../framework/system/login.js"></script>
+    <script src="../../../../framework/system/user.js"></script>
 
     <!-- 仅login.html页面需要单独引用下列js -->
     <script src="../../../../plugin/util/jquery-3.1.1.min.js"></script>
@@ -40,7 +41,7 @@
                 <el-input v-model="tenantId" placeholder="企业代码" prefix-icon="el-icon-office-building" clearable></el-input>
             </el-row>
             <el-row>
-                <el-input v-model="userkey" placeholder="用户名" prefix-icon="el-icon-user-solid" clearable></el-input>
+                <el-input v-model="userPk" placeholder="用户名" prefix-icon="el-icon-user-solid" clearable></el-input>
             </el-row>
             <el-row>
                 <el-input v-model="password" placeholder="密码" prefix-icon="el-icon-lock" show-password></el-input>
@@ -76,7 +77,7 @@
         data: {
             logoUrl: '../../image/login/doys.png',
             tenantId: "",
-            userkey: "",
+            userPk: "",
             password: "",
             verifyCode: "",
             verifyCodeUrl: "",
@@ -89,11 +90,11 @@
             this.remenber = getLocalItem("login.remenber", "0").equals("1");
             if (this.remenber) {
                 this.tenantId = getLocalItem("login.tenantId")
-                this.userkey = getLocalItem("login.userkey");
+                this.userPk = getLocalItem("login.userPk");
                 this.password = getLocalItem("login.password");
             }
             this.tenantId = getUrlItem("tenantId") || this.tenantId;
-            this.userkey = getUrlItem("userkey") || this.userkey;
+            this.userPk = getUrlItem("userPk") || this.userPk;
             this.password = getUrlItem("password") || this.password;
 
             ajax.send('/user/getVerifyCode').then(response => {
@@ -165,7 +166,7 @@
     function getLoginPara() {
         return {
             tenantId: app.tenantId,
-            userkey: app.userkey,
+            userPk: app.userPk,
             password: app.password,
             verifyCode: app.verifyCode,
             urlMain: urlMain

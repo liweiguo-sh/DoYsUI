@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>用户权限配置</title>
+    <script src="../../../../framework/core/doys.js?v=20200701"></script>
+
+    <style>
+        .el-card {
+            height: 500px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:800px;">
+        <el-row>
+            <el-button @click="save">保存</el-button>
+            <el-button onclick="win.close();">关闭</el-button>
+        </el-row>
+        <el-row>
+            <div style="height:10px;"></div>
+        </el-row>
+        <el-row>
+            <el-col :span="12">
+                <el-card style="margin-right:20px;" :height="600">
+                    <el-tree ref="treeUser" :data="dataUser" @node-click="onUserClick" :expand-on-click-node="false" highlight-current></el-tree>
+                </el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card>
+                    <el-tabs ref="tab" v-model="activeTabName" atab-click="onTabClick">
+                        <el-tab-pane name="group" :key="1" label="隶属用户组">
+                            <el-tree ref="treeGroup" :data="dataGroup" node-key="groupPk" show-checkbox :expand-on-click-node="false" highlight-current></el-tree>
+                        </el-tab-pane>
+                        <el-tab-pane name="menu" :key="0" label="可访问菜单">
+                            <el-tree ref="treeMenu" :data="dataMenu" node-key="menuPk" show-checkbox :expand-on-click-node="false" highlight-current></el-tree>
+                        </el-tab-pane>
+                    </el-tabs>
+                </el-card>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            activeTabName: "group",
+
+            dataUser: [],
+            dataGroup: [],
+            dataMenu: [],
+
+            userPk: "",
+            groupPks: "",
+            menuPks: ""
+        },
+        mounted() {
+            this.init();
+        },
+        methods: {
+            init() {
+                ajax.send("/framework/aid/menu_acl/getGroupAndUserAndMenu", {}).then(res => {
+                    let dtbUser = res.dtbUser;
+                    let dtbGroup = res.dtbGroup;
+                    let dtbMenu = res.dtbMenu;
+                    let dataUser = [], dataGroup = [], dataMenu = [];
+
+                    // -- 1. 加载用户 -------------------------
+                    for (let i = 0; i < dtbUser.rowCount; i++) {
+                        dataUser.push({
+                            userPk: dtbUser.rows[i]["pk"].value,
+                            label: dtbUser.rows[i]["name"].value + " (" + dtbUser.rows[i]["pk"].value + ")"
+                        });
+                    }
+
+                    this.dataUser.push({
+                        userPk: "",
+                        label: "组成员用户",
+                        children: dataUser
+                    });
+
+                    // -- 1. 加载用户组 ---------------------
+                    for (let i = 0; i < dtbGroup.rowCount; i++) {
+                        dataGroup.push({
+                            groupPk: dtbGroup.rows[i]["pk"].value,
+                            label: dtbGroup.rows[i]["name"].value + " (" + dtbGroup.rows[i]["pk"].value + ")"
+                        });
+                    }
+
+                    this.dataGroup.push({
+                        groupPk: "",
+                        label: "用户组",
+                        children: dataGroup
+                    });
+
+                    // -- 3. 加载菜单 -------------------------
+                    this.loadSubMenuData(dataMenu, dtbMenu, 0, 0);
+                    this.dataMenu = dataMenu;
+
+                    // -- 9. 展开树 --------------------------
+                    setTimeout(() => {
+                        this.$refs.treeUser.store["root"].childNodes[0].expand();
+                        this.$refs.treeGroup.store["root"].childNodes[0].expand();                        
+                        this.$refs.treeMenu.store["root"].childNodes[0].expand();
+                    }, 200);
+                });
+            },
+            loadSubMenuData(dataParent, dtbMenu, len, idx) {
+                let dataLast;
+
+                for (let i = idx; i < dtbMenu.rowCount; i++) {
+                    let menuPk = dtbMenu.rows[i]["pk"].value;
+                    let menuText = dtbMenu.rows[i]["text"].value;
+
+                    if (menuPk.length == len + 3) {
+                        dataLast = {
+                            menuPk: menuPk,
+                            label: menuText
+                        };
+                        if (len == 0) {
+                            dataParent.push(dataLast);
+                        }
+                        else {
+                            dataParent.children.push(dataLast);
+                        }
+                    }
+                    else if (menuPk.length > len + 3) {
+                        dataLast.children = [];
+                        i = this.loadSubMenuData(dataLast, dtbMenu, len + 3, i) - 1;
+                    }
+                    else {
+                        return i;
+                    }
+                }
+                return dtbMenu.rowCount;
+            },
+            save() {
+                let arrGroupPk = this.$refs.treeGroup.getCheckedKeys();
+                for (let i = arrGroupPk.length - 1; i >= 0; i--) {
+                    if (arrGroupPk[i] == null || arrGroupPk[i].equals("")) {
+                        arrGroupPk.splice(i, 1);
+                    }
+                }
+                if (arrGroupPk.length > 0) {
+                    this.groupPks = "'" + arrGroupPk.join("', '") + "'";
+                }
+                else {
+                    this.groupPks = "";
+                }
+
+                let arrMenuPk = this.$refs.treeMenu.getCheckedKeys();
+                for (let i = arrMenuPk.length - 1; i >= 0; i--) {
+                    if (arrMenuPk[i] == null || arrMenuPk[i].equals("")) {
+                        arrMenuPk.splice(i, 1);
+                    }
+                }
+                if (arrMenuPk.length > 0) {
+                    this.menuPks = "'" + arrMenuPk.join("', '") + "'";
+                }
+                else {
+                    this.menuPks = "";
+                }
+
+                // ----------------------------------------
+                let post = { userPk: this.userPk, groupPks: this.groupPks, menuPks: this.menuPks };
+                ajax.send("/framework/aid/menu_acl/saveUserAcl", post).then(res => {
+                    win.flashTitle("用户权限配置保存成功。");
+
+                });
+            },
+
+            onUserClick(data, node, c) {
+                this.userPk = data.userPk;
+
+                ajax.send("/framework/aid/menu_acl/getMenuAndGroupByUser", { userPk: this.userPk }).then(res => {
+                    let dtbMenu = res.dtbMenu;
+                    let dtbGroup = res.dtbGroup;
+                    let checkedKeysGroup = [], checkedKeysMenu = [];
+
+                    for (let i = 0; i < dtbGroup.rowCount; i++) {
+                        checkedKeysGroup.push(dtbGroup.rows[i]["group_pk"].value);
+                    }
+                    this.$refs.treeGroup.setCheckedKeys(checkedKeysGroup);
+
+                    for (let i = 0; i < dtbMenu.rowCount; i++) {
+                        checkedKeysMenu.push(dtbMenu.rows[i]["menu_pk"].value);
+                    }
+                    this.$refs.treeMenu.setCheckedKeys(checkedKeysMenu);
+
+                });
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+
+    }
+</script>

@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>视图配置</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:1300px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-tabs ref="tab" v-model="activeTabName" @tab-click="onTabClick">
+            <el-tab-pane name="main" :key="0" label="基本信息">
+                <el-form :model="form" ref="form" label-width="120px" label-position="left">
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="视图标识" required>
+                                <el-input v-model="form.pk" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="名称" required>
+                                <el-input v-model="form.name" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="子系统" required>
+                                <el-select v-model="form.system_name" filterable :popper-append-to-body="false">
+                                    <el-option v-for="item in ds.system_name" :key="item.name" :value="item.name" :label="item.text"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="导航树">
+                                <el-select v-model="form.tree_pk" clearable filterable :popper-append-to-body="false">
+                                    <el-option v-for="item in ds.tree_pk" :key="item.pk" :value="item.pk" :label="item.pk"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="基础表" required>
+                                <el-select v-model="form.table_pk" filterable :popper-append-to-body="false">
+                                    <el-option v-for="item in ds.table_pk" :key="item.pk" :value="item.pk" :label="item.name + ' (' + item.database_pk + ')'">
+                                        <span style="float: left">{{ item.name }}</span>
+                                        <span style="float: right;">{{ item.database_pk }}</span>
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="数据库" required>
+                                <el-select v-model="form.database_pk" filterable :popper-append-to-body="false">
+                                    <el-option v-for="item in ds.database_pk" :key="item.pk" :value="item.pk" :label="item.text"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="导航树宽度">
+                                <el-input v-model="form.tree_width" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="网格列配置">
+                                <el-checkbox v-model="form.show_detail">编辑列</el-checkbox>
+                                <el-checkbox v-model="form.show_select">选择列</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="编辑列名称">
+                                <el-input v-model="form.detail_alise" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="数据源">
+                                <el-input v-model="form.sql_data_source" type="textarea" :rows="6" spellcheck="false" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="ORDER BY">
+                                <el-input v-model="form.sql_orderby" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="quick_fields">
+                                <el-input v-model="form.quick_fields" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="quick_text">
+                                <el-input v-model="form.quick_text" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="备注">
+                                <el-input v-model="form.remark" type="textarea" :rows="2" spellcheck="false" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="controller">
+                                <el-input v-model="form.controller" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2] + span[3]">
+                            <el-form-item label="编辑控制">
+                                <el-checkbox v-model="form.allow_addnew">允许添加</el-checkbox>
+                                <el-checkbox v-model="form.allow_update">允许修改</el-checkbox>
+                                <el-checkbox v-model="form.allow_delete">允许删除</el-checkbox>
+                                <el-checkbox v-model="form.allow_copy">允许复制</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane name="viewFields" :key="1" label="视图字段">
+                <sub-view id="divFields" ref="gridFields" view-height="540"></sub-view>
+            </el-tab-pane>
+        </el-tabs>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 8, 8, 8],
+            activeTabName: "main",
+
+            ds: [],
+            form: {}
+        },
+        methods: {
+            onTabClick: function (tab, evt) {
+                this.showGrid(); 
+            },
+            showGrid: function () {
+                if (this.activeTabName.equals("viewFields")) {
+                    let filter = "view_pk = '" + this.form.pk + "'";
+
+                    if (this.$refs.gridFields.initialized) {
+                        this.$refs.gridFields.setFilter(filter);
+                    }
+                    else {
+                        
+                        var para = {
+                            viewPk: "sys_view_field",
+                            flowPks: "'sys_crud'",
+                            filter: filter,
+                            vfUrl: g.path.project + "/.aid/html/view/view_field.html"
+                        }
+                        this.$refs.gridFields.init(para);
+                    }
+                }
+            },
+
+            afterMove: function () {
+                this.showGrid();
+            }
+        }
+    });
+</script>

@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>视图字段配置</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:1200px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-tabs ref="tab" v-model="activeTabName" @tab-click="onTabClick">
+            <el-tab-pane name="main" :key="0" label="基本信息">
+                <el-form :model="form" ref="form" label-width="120px" label-position="left">
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="字段">
+                                <el-input v-model="form.name" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="名称">
+                                <el-input v-model="form.text" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="title">
+                                <el-input v-model="form.title" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="主键">
+                                <el-checkbox v-model="form.flag_pkey" :disabled="true">是否主键字段</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="自增量">
+                                <el-checkbox v-model="form.flag_identity" :disabled="true">是否自增量</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="允许空值">
+                                <el-checkbox v-model="form.flag_nullable" :disabled="true">是否允许空值</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="数据类型">
+                                <el-input v-model="form.type" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="字段类型">
+                                <el-input v-model="form.datatype" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="字段长度">
+                                <el-input v-model="form.len" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="网格宽度">
+                                <el-input v-model="form.width" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="固定列">
+                                <el-select v-model="form.fixed" clearable>
+                                    <el-option value="left" label="左侧固定列"></el-option>
+                                    <el-option value="right" label="右侧固定列" :disabled="true"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="默认值">
+                                <el-input v-model="form.default_value" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="数据源类型">
+                                <el-select v-model="form.data_source_type" clearable>
+                                    <el-option value="sql" label="SQL"></el-option>
+                                    <el-option value="enum" label="枚举值" :disabled="true"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="align">
+                                <el-select v-model="form.align">
+                                    <el-option value="left" label="左对齐"></el-option>
+                                    <el-option value="center" label="居中"></el-option>
+                                    <el-option value="right" label="右对齐"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[3]">
+                            <el-form-item label="序号" required>
+                                <el-input v-model="form.sequence" />
+                            </el-form-item>
+                        </el-col>                        
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="数据源">
+                                <el-input v-model="form.data_source" type="textarea" :rows="4" spellcheck="false" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="备注">
+                                <el-input v-model="form.remark" type="textarea" :rows="3" spellcheck="false" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane name="ext" :key="1" label="扩展信息">
+                待扩展
+            </el-tab-pane>
+        </el-tabs>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 8, 8, 8],
+            activeTabName: "main",
+
+            ds: [],
+            form: {}
+        },
+        methods: {
+            onTabClick: function (tab, evt) {
+                if (this.activeTabName.equals("ext")) {
+                    win.flashTitle("待扩展...");
+                }
+            }           
+        }
+    });
+</script>

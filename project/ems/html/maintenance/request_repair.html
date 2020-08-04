@@ -86,7 +86,7 @@
         methods: {
             afterAddnew: function () {
                 this.form.bus_date = (new Date()).toStr();
-                this.form.bus_user = topWin.username;
+                this.form.bus_user = topWin.userName;
             },
             beforeSave: function () {
                 if (!this.form.water_meter_id) {

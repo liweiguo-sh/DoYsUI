@@ -112,7 +112,7 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane name="labelVariable" :key="1" label="标签变量">
-                <sub-view id="grid" ref="grid" style="height:370px;" @onaddnew="onGridAddnew"></sub-view>
+                <sub-view id="grid" ref="grid" view-height="370" @onaddnew="onGridAddnew"></sub-view>
             </el-tab-pane>
             <el-tab-pane name="labelFile" :key="2" v-if="form.type.equals('BarTender')" :label="form.type + ' 标签文件'">
                 <el-row>
@@ -175,8 +175,8 @@
             //this.uploadAction = g.prefix + "/aprint/labels/bartender/upload";
         },
         methods: {
-            onTabClick: function (a, b, c) {
-                this.initGrid();
+            onTabClick: function (tab, evt) {
+                this.showGrid();
             },
             onGridAddnew: function (callback) {
                 if (!this.$refs.vf.status.equals("view")) {
@@ -194,22 +194,22 @@
                     }
                 }
             },
-            initGrid: function () {
-                if (!this.activeTabName.equals("labelVariable")) return;
-
-                let labelId = this.$refs.vf.getId();
-                let filter = "label_id = " + labelId;
-                if (this.$refs.grid.initialized) {
-                    this.$refs.grid.setFilter(filter);
-                }
-                else {
-                    var para = {
-                        viewPk: "label_variable",
-                        flowPks: "'sys_crud'",
-                        filter: filter,
-                        vfUrl: g.path.project + "/aprint/html/base/label_variable.html"
+            showGrid: function () {
+                if (this.activeTabName.equals("labelVariable")) {
+                    let labelId = this.$refs.vf.getId();
+                    let filter = "label_id = " + labelId;
+                    if (this.$refs.grid.initialized) {
+                        this.$refs.grid.setFilter(filter);
                     }
-                    this.$refs.grid.init(para);
+                    else {
+                        var para = {
+                            viewPk: "label_variable",
+                            flowPks: "'sys_crud'",
+                            filter: filter,
+                            vfUrl: g.path.project + "/aprint/html/base/label_variable.html"
+                        }
+                        this.$refs.grid.init(para);
+                    }
                 }
             },
 
@@ -236,7 +236,7 @@
                 }
 
                 // ----------------------------------------
-                this.initGrid();
+                this.showGrid();
             },
 
             beforeAddnew: function () {

@@ -1,13 +1,14 @@
 ﻿/*
-* xwf.datatable JavaScript Library v1.0
+* doys.datatable JavaScript Library v1.0
 * Author: Volant Lee
 * Create Date: 2012-12-21
-* Modify Date: 2015-08-13
-* Copyright 2012, http://www.xznext.com/
+* Modify Date: 2020-08-01
+* Copyright 2020, doys-next.com
 * Description: DataTable 
-* 特别说明：js排序是按照拼音排序，结果和SQL Server有可能不一致，使用时要慎重。
+* 特别说明1：js排序是按照拼音排序，结果和SQL Server有可能不一致，使用时要慎重。
 *           例如多音字“瞿qu,ju”，js认为念“qu”，SQL Server认为念“ju”。
 *           类似问题java版datatable尚未测试。
+*       2：数据库字段名不能用“length”，与js中的数组属性length冲突。
 */
 
 // -- 类定义 ------------------------------------------------------------------
@@ -82,7 +83,15 @@ window.datatable.prototype.readFromData = function (fieldString, dataString) {
             objCol[arrProp[0]] = arrProp[1];
         }
         this.columns[iCol] = objCol;
-        this.columns[objCol.name] = this.columns[iCol];
+        try {
+            if (objCol.name.equals("length")) {
+                debugger;
+            }
+            this.columns[objCol.name] = this.columns[iCol];
+        } catch (e) {
+            debugger;
+            console.log(e);
+        }
     }
     //-- 初始化数据集 -----------------
     this.rows = dataString.split(g.c.CHAR1);
@@ -92,9 +101,6 @@ window.datatable.prototype.readFromData = function (fieldString, dataString) {
         var objRow = { $: "" };     // -- N: 添加, U:修改, D:删除 --
         var columnType = "", dataValue = null;
         for (var iCol = 0; iCol < this.columnCount; iCol++) {
-            if (this.columns[iCol].name.equals("cdate")) {
-                console.log("here");
-            }
             columnType = this.columns[iCol].columnType;
             dataValue = arrRows[iCol];
             if (dataValue != "") {

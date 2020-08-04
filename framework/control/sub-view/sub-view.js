@@ -2,6 +2,8 @@
     data: function () {
         return {
             initialized: false,
+            elTableHeight: "100%",          // -- el-table高度 --
+
             viewPk: "",
             flowPks: "",
             controller: "/core/base_view",  // -- 视图后台控制类 --
@@ -46,8 +48,6 @@
             remark: ""
         }
     },
-    mounted() {
-    },
     methods: {
         init(para) {
             this.initialized = true;
@@ -80,6 +80,8 @@
 
                     this.getViewData(0);
                     this.initToolbar();
+
+                    this.resize();
                 }
                 else {
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });
@@ -405,8 +407,29 @@
             else {
                 return null;
             }
+        },
+
+        resize(para) {
+            if (para && para.viewHeight) {
+                this.viewHeight = para.viewHeight;
+            }
+
+            if (this.viewHeight) {
+                let height = this.viewHeight;
+                if (this.showViewBar) {
+                    height = height - 35;       // -- 工具栏 --
+                }
+                height = height - 50;           // -- 分页栏 --
+
+                this.elTableHeight = height;
+            }
+
+            //this.$refs.eltable.doLayout();
+            //this.$refs.eltable.debouncedUpdateLayout();
         }
     },
+
+    props: ['viewHeight'],
     template: `<el-container>
         <el-header v-show="showViewBar" style="padding:0px;height:35px">
             <sub-view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></sub-view-bar>
@@ -417,7 +440,7 @@
             </el-aside>
             <el-container>
                 <el-main style="margin1:0;padding:0;">
-                    <el-table ref="eltable" v-loading="loading" @current-change="onCurrentChange" :data="viewData" height="100%" size="small" border stripe highlight-current-row>
+                    <el-table ref="eltable" v-loading="loading" @current-change="onCurrentChange" :data="viewData" :height="elTableHeight" size="small" border stripe highlight-current-row>
                         <el-table-column type="index" label="序" align="center" fixed=""></el-table-column>
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">

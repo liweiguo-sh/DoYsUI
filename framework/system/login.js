@@ -9,12 +9,15 @@ function login(para) {
     const promise = new Promise(function (resolve, reject) {
         let paraLogin = {
             tenantId: para.tenantId,
-            userkey: para.userkey.toLowerCase(),
+            userPk: para.userPk.toLowerCase(),
             password: para.password,
             verifyCode: para.verifyCode,
             loginTime: (new Date()).getTime().toString()
         }
-        paraLogin.password = $.md5($.md5(para.userkey + "^" + para.password + "^doys-next.com") + "^" + paraLogin.loginTime.substring(2));
+        let passwordMD5 = UtilUser.passwordMD5(paraLogin.userPk, paraLogin.password);
+        let passwordLoginMD5 = UtilUser.passwordLoginMD5(passwordMD5, paraLogin.loginTime);
+
+        paraLogin.password = passwordLoginMD5;
         ajax.send("/user/login", paraLogin).then(response => {
             if (response.ok) {
                 if (para.urlMain) {
@@ -23,19 +26,19 @@ function login(para) {
                     setLocalItem("login.remenber", app.remenber ? "1" : "0");
                     if (app.remenber) {
                         setLocalItem("login.tenantId", paraLogin.tenantId);
-                        setLocalItem("login.userkey", paraLogin.userkey);
+                        setLocalItem("login.userPk", paraLogin.userPk);
                         setLocalItem("login.password", para.password);
                     }
                     else {
                         setLocalItem("login.tenantId", "");
-                        setLocalItem("login.userkey", "");
+                        setLocalItem("login.userPk", "");
                         setLocalItem("login.password", "");
                     }
 
                     for (let key in response) {
                         if (key.equals(g.c.ok)) {
                         }
-                        else if (key.equals("userkey") || key.equals("token")) {
+                        else if (key.equals("userPk") || key.equals("token")) {
                             arrPara.push(key + "=" + response[key]);
                         }
                         else {

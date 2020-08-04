@@ -15,7 +15,7 @@
     officeNodeKey: "",
     officeShortname: "",
 
-    userKey: "",
+    userPk: "",
     userName: "",
     nickname: "",
     groupKeys: "",
@@ -230,11 +230,11 @@ topWin.matchGroup = function (strGroupKeys) {
     }
     return false;
 };
-topWin.matchUser = function (strUserKeys) {
-    if (strUserKeys == null || strUserKeys.equals("")) return false;
-    var arrKeys = strUserKeys.replaceAll(";", ",").split(",");
+topWin.matchUser = function (strUserPks) {
+    if (strUserPks == null || strUserPks.equals("")) return false;
+    var arrKeys = strUserPks.replaceAll(";", ",").split(",");
     for (var i = 0; i < arrKeys.length; i++) {
-        if (this.userKey.equals(arrKeys[i])) {
+        if (this.userPk.equals(arrKeys[i])) {
             return true;
         }
     }
