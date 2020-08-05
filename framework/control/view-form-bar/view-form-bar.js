@@ -61,7 +61,24 @@
                     if (res.dtbFlowButton) this.dtbFlowButton = res.dtbFlowButton;
                     if (res.dtbViewButton) this.dtbViewButton = res.dtbViewButton;
 
-                    // -- 2. 解析并处理字段数据源 --
+                    // -- 2. 初始化 form --
+                    let form = {}, columnName;
+                    for (let i = 0; i < this.dtbViewField.rowCount; i++) {
+                        columnName = this.dtbViewField.rows[i]["name"].value;
+                        if (this.dtbViewField.rows[i]["table_pk"].value.equals(this.dtbViewField.rows[0]["table_pk"].value)) {
+                            form[columnName] = "";
+                        }
+                        else {
+                            form[columnName] = "";
+                        }
+                    }
+                    for (let key in this.$parent.form) {
+                        // -- 强制保持页面原有的 this.$parent.form 原有的定义 --
+                        form[key] = this.$parent.form[key];
+                    }
+                    this.$parent.form = form;
+
+                    // -- 3. 解析并处理字段数据源 --
                     for (let key in res) {
                         if (key.startWith("dtbCDS_")) {
                             let fieldName = key.substring(7);
@@ -109,9 +126,11 @@
         },
         fillFormData() {
             let form = {};
-            for (let i = 0; i < this.dtbViewData.columnCount; i++) {
-                let columnName = this.dtbViewData.columns[i].name;
-                form[columnName] = "" + this.dataRowView[columnName].value;
+            if (this.dataRowView) {
+                for (let i = 0; i < this.dtbViewData.columnCount; i++) {
+                    let columnName = this.dtbViewData.columns[i].name;
+                    form[columnName] = "" + this.dataRowView[columnName].value;
+                }
             }
             for (let i = 0; i < this.dtbFormData.columnCount; i++) {
                 let columnName = this.dtbFormData.columns[i].name;
@@ -295,8 +314,14 @@
                     let addnew = this.status.equals("addnew");
                     let dtbViewData = res.dtbViewData;
 
-                    this.dataRowView = dtbViewData.rows[0];
                     this.dtbFormData = res.dtbFormData;
+                    if (dtbViewData.rowCount == 0) {
+                        this.dataRowView = null;
+                        topWin.alert("数据已保存，但不符合网格显示条件，请刷新网格。", "warning");
+                    }
+                    else {
+                        this.dataRowView = dtbViewData.rows[0];
+                    }
 
                     this.fillFormData();
                     this.firstAction = "view";
@@ -327,7 +352,7 @@
             }
 
             // -- do addnew --
-            this.$parent.form = {};
+            this.clear();
             //this.$parent.$refs.form.resetFields();
             //this.$parent.$refs.form.clearValidate();
             this.setStatus("addnew");
@@ -367,6 +392,11 @@
         },
         remove() {
 
+        },
+        clear() {
+            for (let key in this.$parent.form) {
+                this.$parent.form[key] = "";
+            }
         },
         doClick(button) {
             let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;

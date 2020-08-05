@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>客户标签范围配置</title>
+    <script src="../../../../framework/core/doys.js?v=20200701"></script>
+
+    <style>
+        .el-card {
+            height: 500px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:800px;">
+        <el-row>
+            <el-button @click="save">保存</el-button>
+            <el-button onclick="win.close();">关闭</el-button>
+        </el-row>
+        <el-row>
+            <div style="height:10px;"></div>
+        </el-row>
+        <el-row>
+            <el-col :span="12">
+                <el-card style="margin-right:20px;" :height="600">
+                    <el-tree ref="treeCustomer" :data="dataCustomer" @node-click="onCustomerClick" :expand-on-click-node="false" highlight-current></el-tree>
+                </el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card>
+                    <el-tree ref="treeLabel" :data="dataLabel" node-key="labelId" show-checkbox :expand-on-click-node="false" highlight-current></el-tree>
+                </el-card>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            activeTabName: "label",
+
+            dataCustomer: [],
+            dataLabel: [],
+
+            customerId: 0,
+            labelIds: ""
+        },
+        mounted() {
+            this.init();
+        },
+        methods: {
+            init() {
+                ajax.send("/aprint/cfg/customer_label/getCustomerAndLabel", {}).then(res => {
+                    let dtbCustomer = res.dtbCustomer;
+                    let dtbLabel = res.dtbLabel;
+                    let dataCustomer = [], dataLabel = [];
+
+                    // -- 1. 加载客户 ---------------------
+                    for (let i = 0; i < dtbCustomer.rowCount; i++) {
+                        dataCustomer.push({
+                            customerId: dtbCustomer.rows[i]["id"].value,
+                            label: dtbCustomer.rows[i]["name"].value
+                        });
+                    }
+
+                    this.dataCustomer.push({
+                        customerId: 0,
+                        label: "客户",
+                        children: dataCustomer
+                    });
+
+                    // -- 2. 加载标签 -------------------------
+                    for (let i = 0; i < dtbLabel.rowCount; i++) {
+                        dataLabel.push({
+                            labelId: dtbLabel.rows[i]["id"].value,
+                            label: dtbLabel.rows[i]["name"].value + " (" + dtbLabel.rows[i]["code"].value + ")"
+                        });
+                    }
+
+                    this.dataLabel.push({
+                        labelId: 0,
+                        label: "标签",
+                        children: dataLabel
+                    });
+
+                    // -- 9. 展开树 --------------------------
+                    setTimeout(() => {
+                        this.$refs.treeCustomer.store["root"].childNodes[0].expand();
+                        this.$refs.treeLabel.store["root"].childNodes[0].expand();
+                    }, 200);
+                });
+            },
+            ___loadSubLabelData(dataParent, dtbLabel, len, idx) {
+                let dataLast;
+
+                for (let i = idx; i < dtbLabel.rowCount; i++) {
+                    let labelPk = dtbLabel.rows[i]["pk"].value;
+                    let labelText = dtbLabel.rows[i]["text"].value;
+
+                    if (labelPk.length == len + 3) {
+                        dataLast = {
+                            labelPk: labelPk,
+                            label: labelText
+                        };
+                        if (len == 0) {
+                            dataParent.push(dataLast);
+                        }
+                        else {
+                            dataParent.children.push(dataLast);
+                        }
+                    }
+                    else if (labelPk.length > len + 3) {
+                        dataLast.children = [];
+                        i = this.loadSubLabelData(dataLast, dtbLabel, len + 3, i) - 1;
+                    }
+                    else {
+                        return i;
+                    }
+                }
+                return dtbLabel.rowCount;
+            },
+            save() {
+                let arrLabelPk = this.$refs.treeLabel.getCheckedKeys();
+                for (let i = arrLabelPk.length - 1; i >= 0; i--) {
+                    if (!arrLabelPk[i]) {
+                        arrLabelPk.splice(i, 1);
+                    }
+                }
+                if (arrLabelPk.length > 0) {
+                    this.labelIds = arrLabelPk.join(",");
+                }
+                else {
+                    this.labelIds = "";
+                }
+
+                // ----------------------------------------
+                let post = { customerId: this.customerId, labelIds: this.labelIds };
+                ajax.send("/aprint/cfg/customer_label/saveCustomerLabel", post).then(res => {
+                    win.flashTitle("客户标签范围配置保存成功。");
+
+                });
+            },
+
+            onCustomerClick(data, node, c) {
+                this.customerId = data.customerId;
+                ajax.send("/aprint/cfg/customer_label/getLabelByCustomer", { customerId: this.customerId }).then(res => {
+                    let dtbLabel = res.dtbLabel;
+                    let checkedKeysLabel = [];
+
+                    for (let i = 0; i < dtbLabel.rowCount; i++) {
+                        checkedKeysLabel.push(dtbLabel.rows[i]["label_id"].value);
+                    }
+                    this.$refs.treeLabel.setCheckedKeys(checkedKeysLabel);
+
+                });
+            }
+        }
+    });
+</script>

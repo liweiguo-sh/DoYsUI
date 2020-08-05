@@ -259,7 +259,7 @@
             initLabel(para) {
                 if (!this.labelId) return;
 
-                let para1 = {
+                let paraInvoke = {
                     action: "initLabel",
                     labelId: this.labelId,
                     labelContent: this.dtbLabel.rows[0]["content"].value,
@@ -275,16 +275,16 @@
                         topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
                         return;
                     }
-                    para.urlLabelFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+                    paraInvoke.urlLabelFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
 
                     if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
                         topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
                         return;
                     }
-                    para.urlDataFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                    paraInvoke.urlDataFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
                 }
 
-                top.initLabel(para1);
+                top.initLabel(paraInvoke);
             },
             getLabelSummary() {
                 let dataRow = this.dtbLabel.rows[0];

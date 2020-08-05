@@ -83,7 +83,9 @@
                         <el-col :span="span[2]">
                             <el-form-item label="打印机点数">
                                 <el-select v-model="form.point">
+                                    <el-option value="200" label="200"></el-option>
                                     <el-option value="300" label="300"></el-option>
+                                    <el-option value="400" label="400"></el-option>
                                     <el-option value="600" label="600"></el-option>
                                     <el-option value="1200" label="1200"></el-option>
                                 </el-select>
@@ -250,7 +252,7 @@
 
                 this.form.width = "80";
                 this.form.height = "40";
-                this.form.point = "600";
+                this.form.point = "200";
             },
             beforeSave: function () {
                 if (!this.form.code) {
