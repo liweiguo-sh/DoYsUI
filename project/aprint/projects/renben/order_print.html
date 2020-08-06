@@ -102,6 +102,7 @@
         el: '#app',
         data: {
             orderNumber: "",
+            customerCode: "",
 
             dtbOrder: null,
             dtbLabel: null,
@@ -142,12 +143,21 @@
                     return;
                 }
 
-                //this.loadLabels();
+                this.labelId = "";
+                this.dtbLabelVariable = null;
+                if (this.dtbOrder.rows[0]["customer_code"]) {
+                    this.customerCode = this.dtbOrder.rows[0]["customer_code"].value;
+                }
+                else {
+                    this.customerCode = "";
+                }                    
+
+                this.loadLabels();
                 this.setVariables();
             },
-            loadLabels() {
-                let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
-                ajax.send("/aprint/quick_print/getInitData", postData).then(res => {
+            loadLabels() {                
+                let post = { customerCode: this.customerCode };
+                ajax.send("/aprint/projects/renben/order_print/getLabelByCustomer", post).then(res => {
                     let labels = [];
                     let dtbLabel = res.dtbLabel;
                     for (let i = 0; i < dtbLabel.rowCount; i++) {
@@ -370,6 +380,6 @@
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
 
         app.initGrid();
-        app.loadLabels();
+        //app.loadLabels();
     }
 </script>

@@ -8,6 +8,7 @@
     <div id="app" style="width:900px;">
         <el-button @click="saveJdbcConfig" type="primary">保存配置</el-button>
         <el-button onclick="win.close();">关闭</el-button>
+        <hr />
         <el-form :model="form" ref="form" label-width="145px" label-position="left" style="margin-top:5px;">
             <el-row :gutter="20">
                 <el-col :span="span[1]">
@@ -19,6 +20,7 @@
                     &nbsp;
                 </el-col>
             </el-row>
+            <hr />
             <el-row :gutter="20">
                 <el-col :span="span[1]">
                     <el-form-item label="username" required>
@@ -48,15 +50,26 @@
                     &nbsp;
                 </el-col>
             </el-row>
+            <hr />
             <el-row :gutter="20">
-                <el-col :span="span[2]">
+                <el-col :span="span[1]">
                     <el-form-item label="订单表" required>
                         <el-input v-model="tablename" />
                     </el-form-item>
                 </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <el-row :gutter="20">
                 <el-col :span="span[1]">
                     <el-form-item label="订单单号字段" required>
-                        <el-input v-model="fieldname" />
+                        <el-input v-model="field_order_number" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="客户代码字段" required>
+                        <el-input v-model="field_customer_code" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -80,9 +93,9 @@
             username: "",
             password: "",
             tablename: "",
-            fieldname: ""
+            field_order_number: "",
+            field_customer_code: ""
         },
-
         methods: {
             getJdbcConfig: function () {
                 ajax.send("/aprint/projects/renben/JdbcConfig/getJdbcConfig", { pk: this.pk }).then((res) => {
@@ -97,7 +110,8 @@
                         this.username = dtb.rows[0]["username"].value;
                         this.password = dtb.rows[0]["password"].value;
                         this.tablename = dtb.rows[0]["tablename"].value;
-                        this.fieldname = dtb.rows[0]["fieldname"].value;
+                        this.field_order_number = dtb.rows[0]["field_order_number"].value;
+                        this.field_customer_code = dtb.rows[0]["field_customer_code"].value;
                     }
                 })
             },
@@ -109,7 +123,8 @@
                     username: this.username,
                     password: this.password,
                     tablename: this.tablename,
-                    fieldname: this.fieldname,
+                    field_order_number: this.field_order_number,
+                    field_customer_code: this.field_customer_code,
                     flag_active: (this.flag_active ? 1 : 0)
                 }
                 ajax.send("/aprint/projects/renben/JdbcConfig/saveJdbcConfig", para).then((res) => {
@@ -124,7 +139,8 @@
                         this.username = dtb.rows[0]["username"].value;
                         this.password = dtb.rows[0]["password"].value;
                         this.tablename = dtb.rows[0]["tablename"].value;
-                        this.fieldname = dtb.rows[0]["fieldname"].value;
+                        this.field_order_number = dtb.rows[0]["field_order_number"].value;
+                        this.field_customer_code = dtb.rows[0]["field_customer_code"].value;
                         
                         topWin.message("订单数据库配置保存成功。", "success");
                     }
