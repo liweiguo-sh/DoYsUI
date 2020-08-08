@@ -68,7 +68,7 @@
         #tdTopLeft {
             width: 270px;
             text-align: left;
-            background-image: url('../../image/main/doys.png');
+            background-image: url('../../image/main/always.png');
             background-position: left center;
             background-repeat: no-repeat;
             background-size: auto 100%;
@@ -313,7 +313,7 @@
             content: para.labelContent,
             vars: para.labelVars
         };
-        ajax.send("/aprint/label/saveLabelContent", postData).then(res => {
+        ajax.send("/aprint/labels/maso/MasoFile/saveLabelContent", postData).then(res => {
             topWin.message("标签保存成功。", "success");
         });
     }

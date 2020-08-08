@@ -135,7 +135,7 @@
                                    :on-success="afterUpload2"
                                    :with-credentials="true"
                                    :show-file-list="false">
-                            <el-button type="primary">上传数据源模板文件 (.xls;.xlsx)</el-button>
+                            <el-button type="primary">上传数据源模板文件 (.csv;.txt)</el-button>
                         </el-upload>
                     </el-col>
                 </el-row>
@@ -315,13 +315,16 @@
                 //this.uploadAction = g.prefix + "/aprint/labels/bartender/upload?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=label";
             },
             afterUpload1: function (a, b, c) {
+                topWin.message("BarTender标签文件上传成功", "success");  
                 this.urlLabelFile = g.path.resRun + "/aprint/label_file/" + a.filename;
             },
             beforeUpload2: function () {
                 //this.uploadAction = g.prefix + "/aprint/labels/bartender/upload?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=data";
             },
             afterUpload2: function (a, b, c) {
+                topWin.message("数据源模板文件上传成功", "success");                
                 this.urlDataFile = g.path.resRun + "/aprint/label_file/" + a.filename;
+                this.showGrid();
             }
         }
     });
