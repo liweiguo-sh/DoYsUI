@@ -8,7 +8,7 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:900px;">
+    <div id="app" style="width:900px;height:540px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
@@ -25,7 +25,7 @@
                             <el-option value="date" label="日期"></el-option>
                             <el-option value="seq" label="序列"></el-option>
                             <el-option value="quote" label="引用"></el-option>
-                            <el-option value="ai" label="特殊字符"></el-option>
+                            <el-option value="ai" label="特殊字符" :disabled="true"></el-option>
                             <el-option value="js" label="JavaScript 脚本" :disabled="true"></el-option>
                         </el-select>
                     </el-form-item>
@@ -49,8 +49,8 @@
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="规则">
-                        <el-input v-model="form.rule" />
+                    <el-form-item label="长度">
+                        <el-input v-model="form.value_len" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
@@ -59,33 +59,48 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <div v-if="'date'.equals(form.type)">
+                <el-row>
+                    <el-col :span="span[1]">
+                        <el-form-item label="偏移量">
+                            <el-col :span="12">
+                                <el-input v-model="form.rule_date_offset" />
+                            </el-col>
+                            <el-col :span="12" style="padding-right:0px;">
+                                <el-select v-model="form.rule_date_offset_unit" placeholder="请选择">
+                                    <el-option label="天" value="DAY"></el-option>
+                                    <el-option label="周" value="WEEK"></el-option>
+                                    <el-option label="月" value="MONTH"></el-option>
+                                    <el-option label="年" value="YEAR"></el-option>
+                                </el-select>
+                            </el-col>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="span[2]">
+                        <el-form-item label="格式化模板">
+                            <el-input v-model="form.rule_date_format" placeholder="示例: yyyy-MM-dd" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </div>
+            <div v-if="'seq'.equals(form.type)">
+                <el-row>
+                    <el-col :span="span[0]">
+                        <el-form-item label="序列归零条件">
+                            <el-card>
+                                <el-checkbox-group v-model="checkedLabelVariables">
+                                    <el-checkbox v-for="name in labelVariables" :label="name" :key="name">{{name}}</el-checkbox>
+                                </el-checkbox-group>
+                            </el-card>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </div>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="格式化模板">
-                        <el-input v-model="form.format" placeholder="eg: ????-??-??" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="长度">
-                        <el-input v-model="form.value_len" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="格式化预览">
-                        <el-input v-model="form.value_preview" :disabled="true" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
                     <el-form-item label="修改选项">
                         <el-checkbox v-model="form.flag_manual_modify">允许打印前手工修改变量值</el-checkbox>
                     </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    &nbsp;
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="序号">
@@ -96,9 +111,12 @@
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                        <el-input v-model="form.remark" type="textarea" :rows="3" />
                     </el-form-item>
                 </el-col>
+            </el-row>
+            <el-row v-show="false">
+                <el-input v-model="form.seq_fields" placeholder="form.seq_fields"></el-input>
             </el-row>
         </el-form>
     </div>
@@ -111,7 +129,9 @@
         el: '#app',
         data: {
             span: [24, 13, 11],
-            form: {}
+            form: {},
+            checkedLabelVariables: [],
+            labelVariables: []
         },
         methods: {
             afterAddnew: function () {
@@ -127,8 +147,38 @@
                 if (this.form.value_len.toInt() <= 0) {
                     this.form.value_len = "1";
                 }
+
+                let arrTemp = new Array();
+                for (let i = 0; i < this.checkedLabelVariables.length; i++) {
+                    if (this.checkedLabelVariables[i]) {
+                        arrTemp.push(this.checkedLabelVariables[i]);
+                    }
+                }
+                arrTemp.sort();
+                this.form.seq_fields = arrTemp.join(",");
                 return true;
+            },
+
+            afterMove: function () {
+                this.checkedLabelVariables = this.form.seq_fields.split(",");
             }
         }
     });
+</script>
+<!-- winLoad -->
+<script>
+    let winParent;
+    function winLoad() {
+        let labelVariables = [];
+        let labelId = win.parentWindow.getLabelId();
+        let post = { labelId: labelId };
+        ajax.send("/aprint/label/getLabelVariable", post).then(res => {
+            let dtbLabelVariable = res.dtbLabelVariable;
+            for (let i = 0; i < dtbLabelVariable.rowCount; i++) {
+                let dataRow = dtbLabelVariable.rows[i];
+                labelVariables.push(dataRow["name"].value);
+            }
+        })
+        app.labelVariables = labelVariables;
+    }
 </script>

@@ -120,7 +120,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-upload class="upload-demo"
-                                   :action="uploadAction1"
+                                   :action="actionUploadLabelFile_BarTender"
                                    :before-upload="beforeUpload1"
                                    :on-success="afterUpload1"
                                    :with-credentials="true"
@@ -130,7 +130,7 @@
                     </el-col>
                     <el-col :span="12">
                         <el-upload class="upload-demo"
-                                   :action="uploadAction2"
+                                   :action="actionUploadDataFile_BarTender"
                                    :before-upload="beforeUpload2"
                                    :on-success="afterUpload2"
                                    :with-credentials="true"
@@ -144,12 +144,10 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-link type="primary" v-if="urlLabelFile" :href="urlLabelFile" icon="el-icon-postcard" target="_blank">标签文件</el-link>
+                        <el-link type="primary" v-if="urlLabelFile_BarTender" :href="urlLabelFile_BarTender" icon="el-icon-postcard"   target="_blank">标签模板文件</el-link>
                     </el-col>
                     <el-col :span="12">
-                        <el-col :span="8">
-                            <el-link type="primary" v-if="urlDataFile" :href="urlDataFile" target="_blank">数据源模板</el-link>
-                        </el-col>
+                        <el-link type="primary" v-if="urlDataFile_BarTender"  :href="urlDataFile_BarTender"  icon="el-icon-notebook-2" target="_blank">数据模板文件</el-link>
                     </el-col>
                 </el-row>
             </el-tab-pane>
@@ -169,12 +167,10 @@
                 type: ""
             },
             ds: {},
-            uploadAction: "",
-            urlLabelFile: "",
-            urlDataFile: ""
-        },
-        mounted() {
-            //this.uploadAction = g.prefix + "/aprint/labels/bartender/upload";
+            actionUploadLabelFile_BarTender: "",    // -- 上传标签文件 Action（BarTender）--
+            actionUploadDataFile_BarTender: "",     // -- 上传数据文件 Action（BarTender）--
+            urlLabelFile_BarTender: "",             // -- 标签模板文件（BarTender）--
+            urlDataFile_BarTender: ""               // -- 数据模板文件（BarTender）--
         },
         methods: {
             onTabClick: function (tab, evt) {
@@ -221,20 +217,20 @@
                 let dataFileName = this.$refs.vf.getValue("data_file_name");
 
                 // ----------------------------------------
-                this.uploadAction1 = g.prefix + "/aprint/labels/bartender/upload?labelId=" + labelId + "&labelType=BarTender&fileType=label";
-                this.uploadAction2 = g.prefix + "/aprint/labels/bartender/upload?labelId=" + labelId + "&labelType=BarTender&fileType=data";
+                this.actionUploadLabelFile_BarTender = g.prefix + "/aprint/labels/BarTenderFile/uploadLabelFile?labelId=" + labelId;
+                this.actionUploadDataFile_BarTender = g.prefix + "/aprint/labels/BarTenderFile/uploadDataFile?labelId=" + labelId;
 
                 if (labelFileName) {
-                    this.urlLabelFile = g.path.resRun + "/aprint/label_file/" + labelFileName;
+                    this.urlLabelFile_BarTender = g.path.resRun + "/aprint/label_file/" + labelFileName;
                 }
                 else {
-                    this.urlLabelFile = "";
+                    this.urlLabelFile_BarTender = "";
                 }
                 if (dataFileName) {
-                    this.urlDataFile = g.path.resRun + "/aprint/label_file/" + dataFileName;
+                    this.urlDataFile_BarTender = g.path.resRun + "/aprint/label_file/" + dataFileName;
                 }
                 else {
-                    this.urlDataFile = "";
+                    this.urlDataFile_BarTender = "";
                 }
 
                 // ----------------------------------------
@@ -312,19 +308,24 @@
                 topWin.openWindow(prop, para);
             },
             beforeUpload1: function () {
-                //this.uploadAction = g.prefix + "/aprint/labels/bartender/upload?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=label";
+                //this.uploadAction = g.prefix + "/aprint/labels/BarTenderFile/uploadFile?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=label";
             },
             afterUpload1: function (a, b, c) {
                 topWin.message("BarTender标签文件上传成功", "success");  
-                this.urlLabelFile = g.path.resRun + "/aprint/label_file/" + a.filename;
+                this.urlLabelFile_BarTender = g.path.resRun + "/aprint/label_file/" + a.filename;
             },
             beforeUpload2: function () {
-                //this.uploadAction = g.prefix + "/aprint/labels/bartender/upload?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=data";
+                //this.uploadAction = g.prefix + "/aprint/labels/BarTenderFile/uploadFile?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=data";
             },
-            afterUpload2: function (a, b, c) {
-                topWin.message("数据源模板文件上传成功", "success");                
-                this.urlDataFile = g.path.resRun + "/aprint/label_file/" + a.filename;
-                this.showGrid();
+            afterUpload2: function (res, b, c) {                
+                if (res.ok) {
+                    win.flashTitle("数据源模板文件上传成功", "success");
+                    this.urlDataFile_BarTender = g.path.resRun + "/aprint/label_file/" + res.filename;
+                    this.showGrid();
+                }
+                else {
+                    topWin.alert(res.error, "error");
+                }
             }
         }
     });

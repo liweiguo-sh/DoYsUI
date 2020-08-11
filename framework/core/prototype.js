@@ -145,8 +145,17 @@ Date.prototype.add = function (n1, datepart) {
     else if (datepart.equals("h")) {
         numAdd = n1 * 60 * 60 * 1000;
     }
-    else if (datepart.equals("d")) {
+    else if (datepart.equals("d") || datepart.equals("day")) {
         numAdd = n1 * 24 * 60 * 60 * 1000;
+    }
+    else if (datepart.equals("week")) {
+        numAdd = n1 * 7 * 24 * 60 * 60 * 1000;
+    }
+    else if (datepart.equals("month")) {
+        return new Date(this.setMonth(this.getMonth() + n1));
+    }
+    else if (datepart.equals("year")) {
+        return new Date(this.setFullYear(this.getFullYear() + n1));
     }
     else {
         alert("暂不支持的格式[" + datepart + "]。");

@@ -99,7 +99,10 @@
                     </el-row>
                     <el-row v-for="item in variables" :key="item.name">
                         <el-col>
-                            <el-form-item :label="item.name">
+                            <el-form-item :label="item.name" v-if="item.type.equals('date')">
+                                <el-date-picker v-model="item.value" @change="onVarChange" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
+                            </el-form-item>
+                            <el-form-item :label="item.name" v-else>
                                 <el-input v-model="item.value" @change="onVarChange" :disabled="item.disabled" placeholder="打印前请赋值..." />
                             </el-form-item>
                         </el-col>
@@ -172,8 +175,17 @@
             });
         },
         methods: {
-            onLabelChange() {
+            reset() {
+                this.taskId = 0;
+                this.taskPk = "";
                 this.variables = [];
+                this.qty = 0;
+                this.rowNoFrom = 0;
+                this.rowNoTo = 0;
+                this.copies = 1;
+            },
+            onLabelChange() {
+                this.reset();
 
                 ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.labelId }).then(res => {
                     this.dtbLabel = res.dtbLabel;
@@ -208,6 +220,7 @@
                         let name = this.dtbLabelVariable.rows[i]["name"].value;
                         let value = this.dtbLabelVariable.rows[i]["value"].value;
                         let type = this.dtbLabelVariable.rows[i]["type"].value;
+                        let dateFormat = this.dtbLabelVariable.rows[i]["rule_date_format"].value;
                         let disabled = (this.dtbLabelVariable.rows[i]["flag_manual_modify"].value == 0);
 
                         // -- 代入客户变量或产品变量(如果有) --
@@ -234,12 +247,24 @@
                                 }
                             }
                         }
+                        else if (type.equals("date")) {
+                            let offset = this.dtbLabelVariable.rows[i]["rule_date_offset"].value;
+                            let offset_unit = this.dtbLabelVariable.rows[i]["rule_date_offset_unit"].value;
+
+                            if (offset && offset_unit) {
+                                value = (new Date()).add(offset, offset_unit).toStr();
+                            }
+                            else {
+                                value = (new Date()).toStr();
+                            }
+                        }
 
                         // -- 加入变量集合 --
                         variables.push({
                             name: name,
                             value: value,
                             type: type,
+                            dateFormat: dateFormat,
                             disabled: disabled
                         });
                     }
@@ -247,10 +272,11 @@
 
                 // -- 保留用户修改过的值(仅限字符类型的变量，并且允许手工修改) --
                 for (let i = 0; i < this.variables.length; i++) {
-                    if (variables[i].type.equals("string") && !variables[i].disabled) {
+                    if ((variables[i].type.equals("string") || variables[i].type.equals("date"))
+                        && !variables[i].disabled) {
                         variables[i].value = this.variables[i].value;
                     }
-                }
+                }                
                 this.variables = variables;
 
                 this.initLabel({});
@@ -259,6 +285,21 @@
             initLabel(para) {
                 if (!this.labelId) return;
 
+                // -- 格式化 --
+                for (let i = 0; i < this.variables.length; i++) {
+                    let varValue = this.variables[i].value;
+                    let type = this.variables[i].type;
+                    let dateFormat = this.variables[i].dateFormat;
+
+                    if (type.equals("date") && dateFormat) {
+                        this.variables[i].valueFormat = varValue.toDate().toString(dateFormat);
+                    }
+                    else {
+                        this.variables[i].valueFormat = varValue;
+                    }
+                }
+
+                // ----------------------------------------
                 let paraInvoke = {
                     action: "initLabel",
                     labelId: this.labelId,
