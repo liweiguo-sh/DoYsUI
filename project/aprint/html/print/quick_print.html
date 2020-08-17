@@ -316,13 +316,13 @@
                         topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
                         return;
                     }
-                    paraInvoke.urlLabelFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+                    paraInvoke.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
 
                     if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
                         topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
                         return;
                     }
-                    paraInvoke.urlDataFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                    paraInvoke.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
                 }
 
                 top.initLabel(paraInvoke);

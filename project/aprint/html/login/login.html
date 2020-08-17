@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>login</title>
-    <script src="../../../../framework/core/doys.js?v=20200803"></script>
+    <script src="../../../../framework/core/doys.js?v=20200811"></script>
     <script src="../../../../framework/system/login.js"></script>
     <script src="../../../../framework/system/user.js"></script>
 
@@ -12,17 +12,20 @@
     <script src="../../../../plugin/util/jquery_md5.js"></script>
 
     <style type="text/css">
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             background-image: url('../../image/login/background.png');
             background-position: center center;
-            background-size: cover;
             background-repeat: no-repeat no-repeat;
+            background-size: cover;
         }
 
         .box-card {
             width: 360px;
-            margin-left: 60%;
-            margin-top: 15%;
         }
 
         .el-row {
@@ -33,14 +36,14 @@
         .image1 {
             position: absolute;
             left: 8%;
-            top: 6%;   
+            top: 6%;
         }
     </style>
 </head>
 <body onload="winLoad()">
     <img src="../../image/login/maso1.png" class="image1" />
     <div id="app">
-        <el-card class="box-card">
+        <el-card id="elCardLogin" class="box-card">
             <el-row style="text-align:center;">
                 <el-image style="width:100%; height:100%" :src="logoUrl"></el-image>
             </el-row>
@@ -94,6 +97,13 @@
             syncLoginMode: true
         },
         mounted() {
+            let heightBlank = document.body.offsetHeight - gId("elCardLogin").offsetHeight;
+            let widthBlank = document.body.offsetWidth - gId("elCardLogin").offsetWidth;
+
+            gId("elCardLogin").style.marginTop = (0.6* heightBlank) + "px";
+            gId("elCardLogin").style.marginLeft = (0.8 * widthBlank) + "px";
+
+            // --------------------------------------------
             this.remenber = getLocalItem("login.remenber", "0").equals("1");
             if (this.remenber) {
                 this.tenantId = getLocalItem("login.tenantId")

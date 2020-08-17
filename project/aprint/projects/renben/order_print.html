@@ -245,7 +245,7 @@
                         topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
                         return;
                     }
-                    para.urlLabelFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+                    para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
 
                     if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
                         topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");

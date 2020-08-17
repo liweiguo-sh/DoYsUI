@@ -71,7 +71,7 @@
                                     <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
                                     <el-option value="PDF" label="PDF" :disabled="true"></el-option>
                                 </el-select>
-                            </el-form-item>                            
+                            </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
@@ -144,10 +144,10 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-link type="primary" v-if="urlLabelFile_BarTender" :href="urlLabelFile_BarTender" icon="el-icon-postcard"   target="_blank">标签模板文件</el-link>
+                        <el-link type="primary" v-if="urlLabelFile_BarTender" :href="urlLabelFile_BarTender" icon="el-icon-postcard" target="_blank">标签模板文件</el-link>
                     </el-col>
                     <el-col :span="12">
-                        <el-link type="primary" v-if="urlDataFile_BarTender"  :href="urlDataFile_BarTender"  icon="el-icon-notebook-2" target="_blank">数据模板文件</el-link>
+                        <el-link type="primary" v-if="urlDataFile_BarTender" :href="urlDataFile_BarTender" icon="el-icon-notebook-2" target="_blank">数据模板文件</el-link>
                     </el-col>
                 </el-row>
             </el-tab-pane>
@@ -221,13 +221,13 @@
                 this.actionUploadDataFile_BarTender = g.prefix + "/aprint/labels/BarTenderFile/uploadDataFile?labelId=" + labelId;
 
                 if (labelFileName) {
-                    this.urlLabelFile_BarTender = g.path.resRun + "/aprint/label_file/" + labelFileName;
+                    this.urlLabelFile_BarTender = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + labelFileName;
                 }
                 else {
                     this.urlLabelFile_BarTender = "";
                 }
                 if (dataFileName) {
-                    this.urlDataFile_BarTender = g.path.resRun + "/aprint/label_file/" + dataFileName;
+                    this.urlDataFile_BarTender = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + dataFileName;
                 }
                 else {
                     this.urlDataFile_BarTender = "";
@@ -311,16 +311,16 @@
                 //this.uploadAction = g.prefix + "/aprint/labels/BarTenderFile/uploadFile?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=label";
             },
             afterUpload1: function (a, b, c) {
-                topWin.message("BarTender标签文件上传成功", "success");  
-                this.urlLabelFile_BarTender = g.path.resRun + "/aprint/label_file/" + a.filename;
+                topWin.message("BarTender标签文件上传成功", "success");
+                this.urlLabelFile_BarTender = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + a.filename;
             },
             beforeUpload2: function () {
                 //this.uploadAction = g.prefix + "/aprint/labels/BarTenderFile/uploadFile?labelId=" + this.$refs.vf.getId() + "&labelType=BarTender&fileType=data";
             },
-            afterUpload2: function (res, b, c) {                
+            afterUpload2: function (res, b, c) {
                 if (res.ok) {
                     win.flashTitle("数据源模板文件上传成功", "success");
-                    this.urlDataFile_BarTender = g.path.resRun + "/aprint/label_file/" + res.filename;
+                    this.urlDataFile_BarTender = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + res.filename;
                     this.showGrid();
                 }
                 else {

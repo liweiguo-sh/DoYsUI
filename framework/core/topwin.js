@@ -1,20 +1,10 @@
-﻿var topWin = {                          // -- 全局对象，此处不能用 let 定义，否则无法通过 top.topWin 访问 --
+﻿var topWin = {                          // -- 全局对象，此处不能用 let 定义，否则无法通过 top.topWin 访问 --    
     os: urlPara.os,                     // -- 客户端操作系统 --
     systemName: "",                     // -- 子系统名称(例如：xpas，即项目目录) --
     serverName: "",                     // -- 服务端部署实例名称 --
     loginUrl: urlPara["loginUrl"] || (g.appPath + "project/xpas/html/login.html"),   // -- 登录来源url --
 
-    office0Id: 0,
-    office0Name: "",
-    office0Shortname: "",
-    office1Id: 0,
-    office1Name: "",
-    office1Shortname: "",
-    officeId: 0,
-    officeName: "",
-    officeNodeKey: "",
-    officeShortname: "",
-
+    tenantId: 0,
     userPk: "",
     userName: "",
     nickname: "",
