@@ -120,22 +120,24 @@
                 <el-row>
                     <el-col :span="12">
                         <el-upload class="upload-demo"
+                                   accept=".btw"
                                    :action="actionUploadLabelFile_BarTender"
                                    :before-upload="beforeUpload1"
                                    :on-success="afterUpload1"
-                                   :with-credentials="true"
+                                   :with-credentials="true"                                   
                                    :show-file-list="false">
-                            <el-button type="primary">上传标签文件 (.bwt)</el-button>
+                            <el-button type="primary">上传标签文件 (.btw)</el-button>
                         </el-upload>
                     </el-col>
                     <el-col :span="12">
                         <el-upload class="upload-demo"
+                                   accept=".csv,.txt"
                                    :action="actionUploadDataFile_BarTender"
                                    :before-upload="beforeUpload2"
                                    :on-success="afterUpload2"
                                    :with-credentials="true"
                                    :show-file-list="false">
-                            <el-button type="primary">上传数据源模板文件 (.csv;.txt)</el-button>
+                            <el-button type="primary">上传数据源模板文件 (.csv, .txt)</el-button>
                         </el-upload>
                     </el-col>
                 </el-row>

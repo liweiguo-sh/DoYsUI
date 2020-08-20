@@ -85,6 +85,7 @@ window.xwf_window.prototype.openWindow = function (_jsonProp, _jsonPara) {
         windowState: "normal",
         width: 360,
         height: 120,
+        maxWidth: this.maxWidth,
         maxHeight: this.maxHeight,
 
         noTitle: false,                     // -- 是否无标题栏窗口 --

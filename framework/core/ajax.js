@@ -24,26 +24,8 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
             axios.defaults.withCredentials = true;
             axios(axiosCfg).then((response) => {
                 if (window.win) win.setDisabled();
-                let keys, type, value;
-                for (var key in response.data) {
-                    keys = key.split(g.c.CHAR1);
-                    if (keys.length > 1) {
-                        value = response.data[key];
-                        delete response.data[key];
-                        type = keys[1];
-                        key = keys[0];
-                        if (type.equals("datatable")) {
-                            var dtb = new datatable();
-                            var arr = value.split(g.c.CHAR7);
-                            dtb.readFromData(arr[0], arr[1]);
-                            value = dtb;
-                        }
-                        else {
-                            throw new Error("unsupport datatype: " + type + ", please check.");
-                        }
-                        response.data[key] = value;
-                    }
-                }
+
+                response.data = ajax.parseResponseData(response.data);
                 if (!response.data.ok) {
                     if (response.data.error.indexOf("session timeout") >= 0) {
                         topWin.sessionTimeout();
@@ -132,4 +114,30 @@ ajax.getFetchPostPara = function (postData) {
     }
 
     return json
+}
+
+ajax.parseResponseData = function (responseData) {
+    let keys, type, value;
+
+    for (var key in responseData) {
+        keys = key.split(g.c.CHAR1);
+        if (keys.length > 1) {
+            value = responseData[key];
+            delete responseData[key];
+            type = keys[1];
+            key = keys[0];
+            if (type.equals("datatable")) {
+                var dtb = new datatable();
+                var arr = value.split(g.c.CHAR7);
+                dtb.readFromData(arr[0], arr[1]);
+                value = dtb;
+            }
+            else {
+                throw new Error("unsupport datatype: " + type + ", please check.");
+            }
+            responseData[key] = value;
+        }
+    }
+
+    return responseData;
 }

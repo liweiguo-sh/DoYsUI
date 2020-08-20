@@ -1,0 +1,276 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Excel导入打印</title>
+    <script src="../../../../framework/core/doys.js?v=20200702"></script>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="8" style="padding-right:20px;">
+                <el-row>
+                    <el-button @click="deleteTask" :disabled="!taskId">删除数据</el-button>
+                    <el-button @click="preview" :disabled="!labelId">预览</el-button>
+                    <el-button @click="print" type="danger" :disabled="!taskId">打印</el-button>
+                </el-row>
+                <el-row style="margin-top:10px;">
+                    <el-col :span="11">
+                        <el-input v-model="taskPk" placeholder="任务单号" :disabled="true">
+                            <template slot="prepend">
+                                任务单号
+                            </template>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="1">&nbsp;</el-col>
+                    <el-col :span="7">
+                        <el-input v-model="rowNoFrom">
+                            <template slot="prepend">
+                                起始行号
+                            </template>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="5">
+                        <el-input v-model="rowNoTo">
+                            <template slot="prepend">
+                                到
+                            </template>
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col>
+                        <hr />
+                    </el-col>
+                </el-row>
+                <el-form label-width="140px" label-position="left" size1="medium">
+                    <el-row>
+                        <el-col>
+                            <el-form-item label="标签" required>
+                                <el-select v-model="labelId" @change="onLabelChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                    <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                                        <span style="float: left">{{ item.code }}</span>
+                                        <span style="float: right;">{{ item.name }}</span>
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row> 
+                    <el-row>
+                        <el-col style="text-align:right;">                            
+                            <el-upload class="upload-demo"
+                                       :action="actionUpload"
+                                       :before-upload="beforeUpload"
+                                       :on-success="afterUpload"
+                                       accept=".xls,.xlsx"
+                                       :with-credentials="true"
+                                       :show-file-list="false">
+                                <el-button v-show="labelId" type="primary">导入Excel数据 (.xls; .xlsx)</el-button>
+                            </el-upload>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-col>
+            <el-col :span="16">
+                <sub-view id="grid" ref="grid"></sub-view>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            dtbLabel: null,
+            dtbTask: null,
+
+            labels: [],
+
+            labelId: null,
+            actionUpload: "",
+
+            taskId: null,
+            taskPk: null,
+            rowNoFrom: null,
+            rowNoTo: null
+        },
+        mounted() {
+            let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
+            ajax.send("/aprint/quick_print/getInitData", postData).then(res => {
+                if (res.ok) {
+                    let labels = [];
+                    let dtbLabel = res.dtbLabel;
+                    for (let i = 0; i < dtbLabel.rowCount; i++) {
+                        let dataRow = dtbLabel.rows[i];
+                        labels.push({ id: "" + dataRow["id"].value, code: dataRow["code"].value, name: dataRow["name"].value, dataRow: dataRow });
+                    }
+                    this.labels = labels;                    
+                }
+                else {
+                }
+            });
+        },
+        methods: {
+            reset() {
+                this.taskId = 0;
+                this.taskPk = "";
+                this.variables = [];
+                this.rowNoFrom = 0;
+                this.rowNoTo = 0;
+                this.copies = 1;
+            },
+            onLabelChange() {
+                this.reset();
+
+                this.actionUpload = g.prefix + "/aprint/print/ExcelPrint/uploadExcel?labelId=" + this.labelId;
+                ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.labelId }).then(res => {
+                    this.dtbLabel = res.dtbLabel;
+
+                    this.initLabel({});
+                    this.initGrid();
+                });
+            },  
+
+            beforeUpload(a,b,c) {
+                if (!this.labelId) {
+                    topWin.alert("请先选择标签。", "error");
+                }
+            },
+            afterUpload(res, b, c) {
+                res = ajax.parseResponseData(res);
+                if (res.ok) {
+                    this.dtbTask = res.dtbTask;
+                    this.taskId = this.dtbTask.rows[0]["id"].value;
+                    this.taskPk = this.dtbTask.rows[0]["pk"].value; 
+                     
+                    this.initGrid();
+
+                    this.rowNoFrom = 1;
+                    this.rowNoTo = res.qty;
+                }
+                else {
+                    debugger;
+                    console.log(res);
+                }
+            },
+
+            initLabel(para) {
+                let variables = [];
+
+                // ----------------------------------------
+                let paraInvoke = {
+                    action: "initLabel",
+                    labelId: this.labelId,
+                    labelContent: this.dtbLabel.rows[0]["content"].value,
+                    labelType: this.dtbLabel.rows[0]["type"].value,
+                    labelSummary: this.getLabelSummary(),
+                    variables: variables,
+                    quickPrint: (para.quickPrint ? "1" : "0"),
+                    taskId: this.taskId,
+                    taskData: para.taskData
+                }
+                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
+                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
+                        return;
+                    }
+                    paraInvoke.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+
+                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
+                        return;
+                    }
+                    paraInvoke.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                }
+
+                top.initLabel(paraInvoke);
+            },
+            getLabelSummary() {
+                let dataRow = this.dtbLabel.rows[0];
+                let arr = new Array();
+
+                arr.push("标签代码：" + dataRow["code"].value);
+                arr.push("名称：" + dataRow["name"].value);
+                arr.push("宽高：" + dataRow["width"].value + "×" + dataRow["height"].value);
+                arr.push("备注：" + dataRow["remark"].value);
+
+                return arr.join("    ");
+            },
+
+            deleteTask() {
+                topWin.confirm("确定要删除当前已生成的打印数据吗？", "", () => {
+                    let postData = {
+                        taskId: this.taskId
+                    };
+                    ajax.send("/aprint/quick_print/deleteTask", postData).then(res => {
+                        this.taskId = null;
+                        this.taskPk = null;
+                        this.rowNoFrom = null;
+                        this.rowNoTo = null;
+
+                        this.initGrid();
+                    });
+                });
+            },
+            print() {
+                let postData = {
+                    labelId: this.labelId,
+                    taskId: this.taskId,
+                    rowNoFrom: this.rowNoFrom,
+                    rowNoTo: this.rowNoTo
+                };
+                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
+                    if (res.ok) {
+                        let DATA = [];
+                        let dtbTaskData = res.dtbTaskData;
+
+                        let rowCount = dtbTaskData.rowCount;
+                        let columnCount = dtbTaskData.columnCount;
+
+                        let arr = [];
+                        for (let i = 0; i < columnCount; i++) {
+                            arr.push(dtbTaskData.columns[i].name);
+                        }
+                        DATA.push(arr.join(g.c.CHAR2));
+
+                        for (let i = 0; i < rowCount; i++) {
+                            let arr = [];
+                            for (let j = 0; j < columnCount; j++) {
+                                arr.push(dtbTaskData.rows[i][j].value);
+                            }
+                            DATA.push(arr.join(g.c.CHAR2));
+                        }
+
+                        this.initLabel({ quickPrint: false, taskData: DATA.join(g.c.CHAR1) });
+                    }
+                    else {
+                    }
+                });
+            },
+            preview() {
+                this.initLabel({});
+            },
+
+            initGrid() {
+                var para = {
+                    viewPk: "x_label",
+                    controller: "/aprint/print/x_label_view",
+                    filter: "task_id = " + this.taskId,
+                    extUserDef: {
+                        labelId: this.labelId
+                    }
+                }
+                this.$refs.grid.init(para);
+            }
+        }
+    });
+
+    // ------------------------------------------------------------------------
+    function winLoad() {
+        gId("grid").style.height = (win.p.maxHeight - 0) + "px";
+
+        app.initGrid();
+    }
+</script>

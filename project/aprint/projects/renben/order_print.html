@@ -7,7 +7,7 @@
 <body>
     <div id="app">
         <el-row>
-            <el-col :span="8">
+            <el-col :span="8" style="padding-right:20px;">
                 <el-row>
                     <el-button @click="createTask" type="primary">生成数据</el-button>
                     <el-button @click="deleteTask" v-show="taskId">删除数据</el-button>
@@ -86,9 +86,8 @@
                         </el-col>
                     </el-row>
                 </el-form>
-            </el-col>
-            <el-col :span="1">&nbsp;</el-col>
-            <el-col :span="15">
+            </el-col> 
+            <el-col :span="16">
                 <sub-view id="grid" ref="grid"></sub-view>
             </el-col>
         </el-row>
