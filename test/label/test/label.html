@@ -1,93 +1,37 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>空白模板窗口</title>
+    <title>标签窗口</title>
+    <link href="../../../framework/control/label/label.css" rel="stylesheet" />
+
     <script src="../../../framework/core/prototype.js"></script>
     <script src="../../../framework/core/core.js"></script>
 
     <script src="../../../framework/control/label/label.js"></script>
+    <script src="../../../framework/control/label/element.js"></script>
 
     <style type="text/css">
         body {
             font-family: 微软雅黑;
         }
-
-        #divButtons {
-            background-color: #f0f0f0;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-        }
-
-            #divButtons input[type='button'] {
-                color: green;
-                height: 36px;
-                line-height: 36px;
-                padding-left: 15px;
-                padding-right: 15px;
-                --min-width: 80px;
-            }
-
-        #divCanvas {
-            height: 500px;
-            width: 1000px;
-            --border: dotted 1px green;
-            background-color: lightblue;
-            overflow: hidden;
-            position: absolute;
-            margin:15px;
-            padding: 15px;
-        }
-
-        #divE1 {
-            height: 100px;
-            width: 200px;
-            position: absolute;
-            z-index: 10;
-        }
-
-        #divE2 {
-            height: 200px;
-            width: 300px;
-            position: absolute;
-            z-index: 5;
-        }
-
-
-        .canDrag {
-            --z-index: 200;
-            border: solid 1px red;
-        }
-
-        .cantDrag {
-            border: solid 1px black;
-            --z-index: 100;
-        }
     </style>
 </head>
 <body onload="winLoad();">
     <div id="divButtons">
-        <input type="button" id="btnSetDraggable1" onclick="btnSetDraggable1_click();" value="setDraggable1" />
-        <input type="button" id="btnSetDraggable2" onclick="btnSetDraggable2_click();" value="setDraggable2" /> 
-
-        <input type="button" id="btnPaint1" onclick="btnPaint1_click();" value="绘图1小" />
-        <input type="button" id="btnPaint2" onclick="btnPaint2_click();" value="绘图2" />
+        <input type="button" id="btnPaint3" onclick="btnPaint3_click();" value="测试1" />
+        <input type="button" id="btnSave" onclick="btnSave_click();" value="保存标签" />
     </div>
-    <div id="divCanvas">
-        <canvas id="divE1" class="cantDrag" onmousedown="btnSetDraggable1_click()"></canvas>
-        <canvas id="divE2" class="cantDrag" onmousedown="btnSetDraggable2_click()"></canvas>
-    </div>
-    <canvas id="draw" style="width:200px;height:100px;border:solid 1px blue;"></canvas>
+    <div id="cvsLabel" style="width:900px;height:600px;border:solid 2px gray;margin:15px;padding:15px;position:relative"></div>
+    <textarea id="txtJson" rows="10" style="width:800px;"></textarea>
 </body>
 </html>
 
 <!-- winLoad -->
-<script>
-    let divCanvas = gId("divCanvas");
-    let divE1 = gId("divE1");
-    let divE2 = gId("divE2");
+<script> 
+    let cvsLabel = gId("cvsLabel"); 
     // ------------------------------------------------------------------------
     function winLoad() { 
+        btnPaint3_click();
     }
 </script>
 <!-- controls event -->
@@ -162,5 +106,47 @@
 
         context.fillStyle = "#F588A0";
         context.fillRect(60, 20, 130, 95);
+    }
+</script>
+
+<script>
+    let lbl;
+    function btnPaint3_click() {
+        let content = getLabelString();
+        let para = {
+            container: cvsLabel,
+            content: content
+        }
+
+        lbl = new Label(para);
+    }
+    function btnSave_click() {
+        gId("txtJson").value = lbl.toJson();
+    }
+    function getLabelString() {
+        return `
+            {
+              "width": 100,
+              "height": 80,
+              "elements": [
+                {
+                  "width": 80,
+                  "height": 40,
+                  "left": 242,
+                  "top": 21,
+                  "type": "text",
+                  "text": "hello1"
+                },
+                {
+                  "width": 70,
+                  "height": 50,
+                  "left": 40,
+                  "top": 40,
+                  "type": "text",
+                  "text": "hello2"
+                }
+              ]
+            }
+        `;
     }
 </script>

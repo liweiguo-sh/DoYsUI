@@ -1,0 +1,30 @@
+﻿/* -- 窗口容器 -- */
+.doys_label_element {
+    position: absolute; 
+    padding: 5px;
+}
+    .doys_label_element:hover {
+        cursor: move;
+        padding: 3px;
+        border: dashed 2px green;
+    }
+
+
+.doys_label_activeElement {
+    padding: 3px;
+    border: dashed 2px green;
+}
+
+/** resize */
+.doys_label_resizeLR {
+    position: absolute;
+    width: 8px;
+    background-color: Blue;
+    cursor: ew-resize;
+}
+.doys_label_resizeTB {
+    position: absolute;
+    height: 10px;
+    background-color: red;
+    cursor: ns-resize;
+}

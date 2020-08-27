@@ -5,9 +5,9 @@
     <script src="../../../../res/jscript/xwf.js"></script>
     <script src="../../../../res/jscript/xwf.ajax.js"></script>
     <script src="../../../../res/jscript/xwf.const.js"></script>
-    <script src="../../../../res/jscript/xwf.datatable.js"></script>    
+    <script src="../../../../res/jscript/xwf.datatable.js"></script>
 
-    <script src="../../../../res/control/toolbar/xwf.toolbar.js"></script>    
+    <script src="../../../../res/control/toolbar/xwf.toolbar.js"></script>
     <script src="../../../../res/control/tree/xwf.tree.js"></script>
 
     <script src="../../../../res/jscript/excel.js"></script>
@@ -26,6 +26,7 @@
             margin-top: 5px;
             border-collapse: collapse;
         }
+
         .tdLayout {
             padding: 0px;
             vertical-align: top;
@@ -37,6 +38,7 @@
             border-left: 1px solid #c0c0c0;
             border-bottom: 1px solid #c0c0c0;
         }
+
         #divGrid {
             overflow: auto;
             border: 1px solid #c0c0c0;
@@ -128,7 +130,7 @@
         toolbar.Bars["xls"].setVisible(false);
 
         if (arrRG.length == 0) {
-            divGrid.innerHTML = "<div class='noData'>报表至少需要配置一列行分组字段。</div>";          
+            divGrid.innerHTML = "<div class='noData'>报表至少需要配置一列行分组字段。</div>";
             return;
         }
         else if (arrRG.length == 1) {
@@ -334,7 +336,8 @@
             else {
                 if (treeNav) {
                     if (i > treeNav.selectedNode.level - 1) {
-                        arr[3] = "0";
+                        // -- TODO：此处有待进一步测试 --
+                        //arr[3] = "0";
                     }
                 }
             }
