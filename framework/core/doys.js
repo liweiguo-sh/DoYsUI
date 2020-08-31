@@ -14,7 +14,8 @@
             framework: "/framework",            // -- 框架根目录 --
             plugin: "/plugin",                  // -- 插件根路径 --
             project: "/project",                // -- 项目根目录 --
-            resRun: "/resRun",                  // -- 资源目录(后台运行时)
+            resRun: "/resRun",                  // -- 资源目录(后台运行时) --
+            resTemp: "/resTemp"                 // -- 资源目录(后台运行时，临时) --
         },
         cfg: {
             jsVer: top.jsVer,                   // -- js版本号，解决js文件缓存问题 --
@@ -48,7 +49,7 @@
 })()
 function initGolbal() {
     g.debug = document.documentURI.indexOf("//127.0.0.1") > 0;
-    
+
     let src = document.currentScript.src;
     let idx = src.indexOf("//");
 

@@ -1,5 +1,6 @@
-﻿class Element {
-    constructor() {
+﻿class ElementBase {
+    constructor(element) {
+        this.element = element;
         this.segments = [];
     }
 

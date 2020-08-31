@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>GS1样例页面</title>
+    <script src="../../../../framework/core/doys.js?v=20200827"></script>
+</head>
+<body>
+    <div id="app" style="width:600px;margin:20px;">
+        <el-form label-width="90px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="GTIN">
+                        <el-input v-model="gtin" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="MFG_DATE">
+                        <el-input v-model="mfgDate" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="EXP_DATE">
+                        <el-input v-model="expDate" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]" style="text-align:center">
+                    <el-button @click="getBarcode">生成条码</el-button>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-input v-model="code2D" />
+                </el-col>
+            </el-row>
+            <el-row>
+                &nbsp;
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]" style="text-align:center">
+                    <el-image style="width:200px; height:200px" :src="url2D">
+                        <div slot="error">
+                            二维码
+                        </div>
+                    </el-image>
+                </el-col>
+                <el-col :span="span[2]" style="text-align:center">
+                    <el-link v-if="urlFile" type="primary" :href="urlFile" target="_blank" style="margin-top:150px;">文件下载</el-link>
+                </el-col>
+            </el-row>
+            <el-row>
+                &nbsp;
+            </el-row>
+            <el-row style="display:none;">
+                <el-col :span="span[0]" style="text-align:center">
+                    <el-image style="width:600px; height:100px" :src="url2D">
+                        <div slot="error">
+                            一维码
+                        </div>
+                    </el-image>
+                </el-col>
+            </el-row>
+            <el-card style="width:800px;margin-top:15px;">
+                <div slot="header">
+                    <span>JAVA 代码</span>
+                </div>
+                code = (char)29 + "01" + gtin + (char)29 + "11" + MFG_DATE + (char)29 + "17" + EXP_DATE;
+            </el-card>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+
+            gtin: "0880050200007",
+            mfgDate: "180808",
+            expDate: "210807",
+
+            code1D: "",
+            code2D: "",
+            url1D: "",
+            url2D: "",
+            urlFile: ""
+        },
+        methods: {
+            getBarcode() {
+                let post = {
+                    gtin: this.gtin,
+                    mfgDate: this.mfgDate,
+                    expDate: this.expDate
+                }
+                ajax.send("/example/barcode/getBarcode", post).then((res) => {
+                    let path = g.prefix + g.path.resTemp + "/0/";
+
+                    this.code1D = res.code1D;
+                    this.code2D = res.code2D;
+                    this.url1D = path + res.file1D;
+                    this.url2D = path + res.file2D;
+                    this.urlFile = path + res.codeFile;
+                })
+            }
+        }
+    });
+</script>

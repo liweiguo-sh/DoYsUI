@@ -1,30 +1,44 @@
-﻿/* -- 窗口容器 -- */
+﻿/* -- element -- */
 .doys_label_element {
-    position: absolute; 
-    padding: 5px;
+    position: absolute;
+    --padding: 5px;
+    background-color: #E0e0E0;
+    overflow: hidden;
 }
-    .doys_label_element:hover {
-        cursor: move;
-        padding: 3px;
-        border: dashed 2px green;
-    }
-
 
 .doys_label_activeElement {
-    padding: 3px;
-    border: dashed 2px green;
+}
+
+/** hover */
+.doys_label_hoverLR {
+    position: absolute;
+    opacity: 0.25;
+    width: 8px;
+    background-color: black;
+    cursor: ew-resize;
+}
+
+.doys_label_hoverTB {
+    position: absolute;
+    opacity: 0.25;
+    height: 10px;
+    background-color: black;
+    cursor: ns-resize;
 }
 
 /** resize */
 .doys_label_resizeLR {
     position: absolute;
+    opacity: 0.8;
     width: 8px;
-    background-color: Blue;
+    background-color: lightgreen;
     cursor: ew-resize;
 }
+
 .doys_label_resizeTB {
     position: absolute;
+    opacity: 0.8;
     height: 10px;
-    background-color: red;
+    background-color: lightgreen;
     cursor: ns-resize;
 }

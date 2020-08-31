@@ -7,20 +7,27 @@
     <script src="../../../framework/core/prototype.js"></script>
     <script src="../../../framework/core/core.js"></script>
 
+    <script src="../../../framework/control/label/element_base.js"></script>
+    <script src="../../../framework/control/label/barcode.js"></script>
     <script src="../../../framework/control/label/label.js"></script>
-    <script src="../../../framework/control/label/element.js"></script>
 
     <style type="text/css">
         body {
             font-family: 微软雅黑;
         }
+
+        #divButtons input[type=button] {
+            height: 36px;
+            line-height: 36px;
+            min-width: 100px;
+        }
     </style>
 </head>
 <body onload="winLoad();">
     <div id="divButtons">
-        <input type="button" id="btnPaint3" onclick="btnPaint3_click();" value="测试1" />
-        <input type="button" id="btnSave" onclick="btnSave_click();" value="保存标签" />
-    </div>
+        <input type="button" id="btnLoadLabel" onclick="btnLoadLabel_click();" value="加载标签" />
+        <input type="button" id="btnSaveLabel" onclick="btnSaveLabel_click();" value="保存标签" />
+    </div>   
     <div id="cvsLabel" style="width:900px;height:600px;border:solid 2px gray;margin:15px;padding:15px;position:relative"></div>
     <textarea id="txtJson" rows="10" style="width:800px;"></textarea>
 </body>
@@ -29,9 +36,10 @@
 <!-- winLoad -->
 <script> 
     let cvsLabel = gId("cvsLabel"); 
+    let txtJson = gId("txtJson");
     // ------------------------------------------------------------------------
     function winLoad() { 
-        btnPaint3_click();
+        btnLoadLabel_click();
     }
 </script>
 <!-- controls event -->
@@ -111,20 +119,29 @@
 
 <script>
     let lbl;
-    function btnPaint3_click() {
+    function btnLoadLabel_click() {
         let content = getLabelString();
-        let para = {
-            container: cvsLabel,
-            content: content
-        }
 
-        lbl = new Label(para);
+        if (lbl == null) {
+            let para = {
+                container: cvsLabel,
+                content: content
+            }
+
+            lbl = new Label(para);
+        }
+        else {
+            lbl.loadLabel(content);
+        }
     }
-    function btnSave_click() {
-        gId("txtJson").value = lbl.toJson();
+    function btnSaveLabel_click() {
+        txtJson.value = lbl.toJson();
     }
     function getLabelString() {
-        return `
+        let jsonString = txtJson.value.trim();
+
+        if (jsonString.equals("")) {
+            jsonString = `
             {
               "width": 100,
               "height": 80,
@@ -144,9 +161,20 @@
                   "top": 40,
                   "type": "text",
                   "text": "hello2"
+                },
+                {
+                  "width": 170,
+                  "height": 50,
+                  "left": 40,
+                  "top": 140,
+                  "type": "barcode",
+                  "value": "12345678",
+                  "format": ""
                 }
               ]
             }
         `;
+        }
+        return jsonString;
     }
 </script>
