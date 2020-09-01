@@ -16,22 +16,21 @@
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
-                        <el-input v-model="taskPk" placeholder="任务单号" :disabled="true">
+                        <el-input v-model="taskPk" placeholder="任务单号" :disabled="true" size="mini">
                             <template slot="prepend">
-                                任务单号
+                                单号
                             </template>
                         </el-input>
                     </el-col>
-                    <el-col :span="1">&nbsp;</el-col>
                     <el-col :span="7">
-                        <el-input v-model="rowNoFrom">
+                        <el-input v-model="rowNoFrom" size="mini">
                             <template slot="prepend">
-                                起始行号
+                                起始行
                             </template>
                         </el-input>
                     </el-col>
-                    <el-col :span="5">
-                        <el-input v-model="rowNoTo">
+                    <el-col :span="6">
+                        <el-input v-model="rowNoTo" size="mini">
                             <template slot="prepend">
                                 到
                             </template>
@@ -86,10 +85,10 @@
                         <el-col :span="12">
                             &nbsp;
                             <!--
-                <el-form-item label="份数" required>
-                    <el-input v-model="copies" />
-                </el-form-item>
-                -->
+                            <el-form-item label="份数" required>
+                                <el-input v-model="copies" />
+                            </el-form-item>
+                            -->
                         </el-col>
                     </el-row>
                     <el-row>
@@ -108,7 +107,7 @@
                         </el-col>
                     </el-row>
                 </el-form>
-            </el-col> 
+            </el-col>
             <el-col :span="16">
                 <sub-view id="grid" ref="grid" @ondetailclick="onDetailClick"></sub-view>
             </el-col>
@@ -275,7 +274,7 @@
                         && !variables[i].disabled) {
                         variables[i].value = this.variables[i].value;
                     }
-                }                
+                }
                 this.variables = variables;
 
                 this.initLabel({});

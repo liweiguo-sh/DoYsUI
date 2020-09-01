@@ -171,3 +171,7 @@ Date.prototype.diffSecond = function (dateEarly) {
     ///<param name="date2">日期对象</param>
     return (this.getTime() - dateEarly.getTime()) / 1000;
 };
+
+Number.prototype.toInt = function () {
+    return this;
+}

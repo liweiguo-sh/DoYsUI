@@ -20,13 +20,18 @@
             <el-form :model="form" ref="form" label-width="145px" label-position="left">
                 <el-row>
                     <el-col :span="span[1]">
-                        <el-form-item label="任务单号" required>
-                            <el-input v-model="form.task_pk" />
+                        <el-form-item label="任务单号">
+                            <el-input v-model="form.task_pk" :disabled="true" />
                         </el-form-item>
                     </el-col>
                     <el-col :span="span[2]">
-                        <el-form-item label="xx">
-                            xxx
+                        <el-form-item label="起始行号" required>
+                            <el-input v-model="rowNoFrom" />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="span[3]">
+                        <el-form-item label="到" required>
+                            <el-input v-model="rowNoTo" />
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -42,7 +47,7 @@
     var app = new Vue({
         el: '#app',
         data: {
-            span: [24, 12, 12],
+            span: [24, 10, 7, 7],
             form: {},
 
             dtbLabel: null,
@@ -64,6 +69,8 @@
                 ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.form.label_id }).then(res => {
                     this.dtbLabel = res.dtbLabel;
                 });
+
+                this.rowNoTo = this.form.qty ? this.form.qty : 0;
             },
             onClick: function (button) {
                 if (button.name.equals("task_print")) {
@@ -118,6 +125,11 @@
                 this.initLabel({});
             },
             print() {
+                if (this.rowNoFrom.toInt() < 1 || this.rowNoTo.toInt() < 1 || this.rowNoTo.toInt() < this.rowNoFrom.toInt()) {
+                    topWin.alert("请输入正确的起始行号。");
+                    return;
+                }
+
                 let postData = {
                     labelId: this.form.label_id,
                     taskId: this.form.id,
