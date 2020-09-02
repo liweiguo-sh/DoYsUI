@@ -43,6 +43,8 @@
                 })
             },
             test3() {
+                g.x.jsCacheTest();
+                return;
                 ajax.send("/test/dds/test3", {}).then((res) => {
                     topWin.message("测试 3 完成", "success");
                 })

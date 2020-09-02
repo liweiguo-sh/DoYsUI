@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>EMS 能源管理系统 1.0</title>
+    <script>var jsVer = "2020_0902";</script>
+
     <link href="../../../../framework/control/menu/top-menu/menu.css" rel="stylesheet" />
     <link href="../../../../framework/control/taskbar/eltabs/taskbar.css" rel="stylesheet" />
     <link href="../../../../framework/control/window/xwf.window.css" rel="stylesheet" />
@@ -174,7 +176,7 @@
                 this.$message("当前用户没有指定登录的子系统权限，请检查。");
             })
 
-            gId("ifrHome").src = "home.html?v=" + g.cfg.jsVer;
+            gId("ifrHome").src = "home.html?rnd=" + g.cfg.jsVer;
         },
         methods: {
             fullScreen() {

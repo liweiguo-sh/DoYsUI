@@ -5,7 +5,7 @@
  * Modify Date: 2020-05-23
  * Copyright 2020, doys-next.com
  */
-(function () {
+(function () {    
     window.g = {
         debug: false,                           // -- 调试模式 --
         prefix: "http://{domain}:9988/DoYsSV",  // -- 后台服务入口，实例：http://192.168.169.1:9988，{domain}表示和前端相同 --
@@ -124,6 +124,12 @@ function importFrameworkRes(fileRes) {
     }
     else if (fileRes.equals("main-menu")) {
         arrJS.push(g.path.framework + "/control/menu/top-menu/menu.js");
+    }
+    else if (fileRes.equals("main-view-bar")) {
+        arrJS.push(g.path.framework + "/control/main-view/main-view-bar.js");
+    }
+    else if (fileRes.equals("main-view")) {
+        arrJS.push(g.path.framework + "/control/main-view/main-view.js");
     }
     else {
         alert("importFrameworkRes found unknown resource: " + fileRes);

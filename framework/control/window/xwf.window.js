@@ -115,7 +115,7 @@ window.xwf_window.prototype.openWindow = function (_jsonProp, _jsonPara) {
     if (win.p.noTitle) win.tbWin.style.display = "none";
     if (win.p.windowState.equals("maximized")) win.maxWindow();
 
-    win.iframe.src = _jsonProp.url + (_jsonProp.url.indexOf("?") > 0 ? "&" : "?") + "rnd=" + Math.random();
+    win.iframe.src = _jsonProp.url + (_jsonProp.url.indexOf("?") > 0 ? "&" : "?") + "rnd=" + g.cfg.jsVer;
     win.show();
     // ----------------------------------------------------
     if (win.p.menu) win.p.menu.win = win;

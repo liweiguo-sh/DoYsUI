@@ -3,19 +3,19 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
+    <script>var jsVer = "2020_0902";</script>
+
     <link href="../../../../framework/control/menu/top-menu/menu.css" rel="stylesheet" />
     <link href="../../../../framework/control/taskbar/eltabs/taskbar.css" rel="stylesheet" />
     <link href="../../../../framework/control/window/xwf.window.css" rel="stylesheet" />
 
-    <script src="../../../../framework/core/doys.js?v=20200623"></script>
+    <script src="../../../../framework/core/doys.js?v=20200903"></script>
     <script src="../../../../framework/core/topwin.js"></script>
     <script src="../../../../framework/control/taskbar/eltabs/taskbar.js"></script>
     <script src="../../../../framework/control/window/xwf.window.js"></script>
     <script src="../../../../framework/system/main.js"></script>
 
     <script>
-        var jsVer = "20200811";
-
         importFrameworkRes("main-menu");
     </script>
 
@@ -66,12 +66,12 @@
             }
 
         #tdTopLeft {
-            width: 270px;
+            width: 210px;
             text-align: left;
-            background-image: url('../../image/main/always.png');
-            background-position: left center;
+            background-image: url('../../image/main/logo_always.png');
+            background-position: 6px center;
             background-repeat: no-repeat;
-            background-size: auto 100%;
+            background-size: auto 60%;
         }
 
         #tdTopCenter {
@@ -176,7 +176,7 @@
                 this.$message("当前用户没有指定登录的子系统权限，请检查。");
             })
 
-            gId("ifrHome").src = "home.html?v=" + g.cfg.jsVer;
+            gId("ifrHome").src = "home.html?rnd=" + g.cfg.jsVer;
         },
         methods: {
             fullScreen() {
@@ -243,18 +243,21 @@
 <!-- js invoke shell -->
 <script>
     function jsInvokeCommonShell(para) {
+        debugger
         if (!chrome.webview) {
             if (!g.debug) {
                 topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "error");
             }
             return;
         }
-
         try {
             if (para.action.equals("designLabel")) {
                 return chrome.webview.postMessage(para);
             }
             else if (para.action.equals("initLabel")) {
+                return chrome.webview.postMessage(para);
+            }
+            else if (para.action.equals("downloadLabelContent_callback")) {
                 return chrome.webview.postMessage(para);
             }
             else {
@@ -298,6 +301,9 @@
             if (para.action.equals("saveLabelContent")) {
                 saveMasoLabel(para);
             }
+            else if (para.action.equals("downloadLabelContent")) {
+                downloadLabelContent(para);
+            }
             else {
                 topWin.alert("尚未实现的 action：" + para.action + "，请检查。", "error");
             }
@@ -315,6 +321,22 @@
         };
         ajax.send("/aprint/labels/maso/MasoFile/saveLabelContent", postData).then(res => {
             topWin.message("标签保存成功。", "success");
+        });
+    }
+    function downloadLabelContent(para) {
+        let post = {
+            code: para.labelCode,
+            version: para.labelVersion
+        };
+        ajax.send("/aprint/labels/maso/MasoFile/getLabelContent", post).then(res => {
+            let dtbLabel = res.dtbLabel;
+            if (dtbLabel.rowCount == 1) {
+                para.action = "downloadLabelContent_callback";
+                para.labelContent = dtbLabel.rows[0]["content"].value;
+                para.labelMVersion = dtbLabel.rows[0]["mdate"].value;
+
+                jsInvokeCommonShell(para);
+            }
         });
     }
 </script>
