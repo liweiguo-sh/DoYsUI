@@ -74,6 +74,13 @@
                 </el-col>
             </el-row>
             <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="">
+                        <el-checkbox v-model="form.flag_disabled">禁用</el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
                         <el-input v-model="form.remark" type="textarea" :rows="2" />

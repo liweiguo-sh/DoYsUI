@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>生产单选择</title>
+    <script src="../../../../framework/core/doys.js"></script>
+</head>
+<body>
+    <div id="app" style="width:1000px;">
+        <el-row>
+            <el-date-picker v-model="orderDate" @change="onOrderDateChange" type="date" value-format="yyyy-MM-dd" placeholder="选择生产单日期"></el-date-picker>
+            <el-button @click="queryOrder">查询</el-button>
+            <el-button onclick="win.close();">关闭</el-button>
+        </el-row>
+        <el-row style="margin-top:10px;">
+            <sub-view id="grid" ref="grid" style="height:480px;" @onsingle="onsingle"></sub-view>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            orderDate: "2020-08-01"
+        },
+        methods: {
+            queryOrder() {
+                let post = { orderDate: this.orderDate };
+                ajax.send("/aprint/projects/huisu/OrderPrint/pullOrderFromUdiSystem", post).then((res) => {
+                    let newRecordCount = res.newRecordCount;
+
+                    if (newRecordCount == 0) {
+                        topWin.message("当前生产单列表已经是最新数据。");
+                        return;
+                    }
+                    topWin.message("本次查询共拉取 " + newRecordCount + " 条新生产单数据。", "success");
+
+                    this.refreshGrid();
+                })
+            },
+            onOrderDateChange() {
+                this.refreshGrid();
+            },
+            refreshGrid() {
+                let filter = "udate >= '" + this.orderDate + "'";
+                if (this.$refs.grid.initialized) {
+                    this.$refs.grid.setFilter(filter);
+                }
+                else {
+                    var para = {
+                        viewPk: "huisu_udi_order",
+                        showSearch: true,
+                        flowPks: "",
+                        filter: filter
+                    }
+                    this.$refs.grid.init(para);
+                }
+            },
+
+            onsingle(rowData) {
+                win.para.callback(rowData);
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        if (app.orderDate.equals("")) {
+            app.orderDate = (new Date()).toStr();
+        }
+        app.refreshGrid();
+    }
+</script>

@@ -60,6 +60,8 @@
                     // -- 1. 流程按钮、视图按钮 --
                     if (res.dtbFlowButton) this.dtbFlowButton = res.dtbFlowButton;
                     if (res.dtbViewButton) this.dtbViewButton = res.dtbViewButton;
+                    this.dtbViewField = res.dtbViewField;
+                    this.dtbViewField.sort("name");
 
                     // -- 2. 初始化 form --
                     let form = {}, columnName;
@@ -301,9 +303,23 @@
             }
         },
         save() {
+            let nFind, datatype;
             for (let key in this.$parent.form) {
-                if (g.x.isString(this.$parent.form[key])) {
-                    this.$parent.form[key] = this.$parent.form[key].trim();
+                nFind = this.dtbViewField.find([key]);
+                if (nFind >= 0) {
+                    datatype = this.dtbViewField.rows[nFind]["datatype"].value;
+
+                    if (datatype.equals("tinyint")) {
+                        this.$parent.form[key] = this.$parent.form[key] ? true : false;
+                    }
+                    else {
+                        if (g.x.isString(this.$parent.form[key])) {
+                            this.$parent.form[key] = this.$parent.form[key].trim();
+                        }
+                    }
+                }
+                else {
+                    // -- 非视图字段 --
                 }
             }
 

@@ -33,6 +33,7 @@
             viewData: [],
             showSelectColumn: false,
             showDetailColumn: false,
+            showSingleColumn: false,
             totalRows: 0,                   // -- 总记录数 --
             pageNum: 0,                     // -- 当前页号 --
             currentRowIdx: 0,               // -- 当前行下标 --
@@ -56,6 +57,8 @@
             this.flowPks = para.flowPks || this.flowPks;
             this.filterExternal = para.filter || this.filterExternal;
             this.extUserDef = para.extUserDef || this.extUserDef;
+            this.viewBarProps.showSearch = para.showSearch || false;
+
             this.vfUrl = para.vfUrl;
             this.vfWindowState = para.vfWindowState || this.vfWindowState;
 
@@ -100,11 +103,11 @@
                 { name: "config", text: "配置", type: "danger", icon: "el-icon-share" },
                 { name: "export", text: "数据导出", type: "success", icon: "el-icon-download" }
             ]
-            this.showViewBar = (leftButtons.length > 0);
+            this.showViewBar = this.viewBarProps.showSearch || (leftButtons.length > 0);
             this.viewBarProps = {
                 leftButtons: leftButtons,
                 rightButtons: [],
-                showSearch: false,
+                showSearch: this.viewBarProps.showSearch,
                 searchPlaceholder: this.searchPlaceholder
             }
         },
@@ -136,6 +139,7 @@
             let columnsL = [], columns = [];
             this.showSelectColumn = (this.dtbView.rows[0]["show_select"].value == 1);
             this.showDetailColumn = (this.dtbView.rows[0]["show_detail"].value == 1);
+            this.showSingleColumn = (this.dtbView.rows[0]["show_single"].value == 1);
 
             for (let i = 0; i < this.dtbViewField.rowCount; i++) {
                 let dataRow = this.dtbViewField.rows[i];
@@ -298,11 +302,24 @@
             this.getViewData(pageNum);
         },
 
-        onViewClick(scope) {
-            this.setCurrentRow(scope.$index);
-            this.openEditForm("view");
+        onViewClick(scope, columnType) {
+            if (columnType.equals("edit")) {
+                this.setCurrentRow(scope.$index);
+                this.openEditForm("view");
+            }
+            if (columnType.equals("single")) {
+                let rowData = this.viewData[scope.$index];
+                this.$emit('onsingle', rowData);
+            }
+            else {
+            }
         },
         openEditForm(firstAction) {
+            if (!this.vfUrl) {
+                topWin.message("缺少窗口url参数，请检查。");
+                return;
+            }
+
             if (this.winViewForm) {
                 let para = {
                     dataRowView: this.dtbViewData.rows[this.currentRowIdx]
@@ -431,7 +448,7 @@
 
     props: ['viewHeight'],
     template: `<el-container>
-        <el-header v-show="showViewBar" style="padding:0px;height:35px">
+        <el-header v-show="showViewBar" style="height:45px;padding-left:0px;">
             <sub-view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></sub-view-bar>
         </el-header>
         <el-container>
@@ -445,7 +462,12 @@
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
                             <template slot-scope="scope">
-                                <el-button @click="onViewClick(scope)" type="text" size="small">查看</el-button>
+                                <el-button @click="onViewClick(scope, 'edit')" type="text" size="small">查看</el-button>
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="showSingleColumn" width="60" align="center" label="单选" fixed="left">
+                            <template slot-scope="scope" >
+                                <el-button @click="onViewClick(scope, 'single')" type="text" size="small">选择</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>

@@ -258,10 +258,10 @@ window.datatable.prototype._sortCompare = function (value1, value2, objColumn) {
         }
     }
     else if (objColumn.columnType.equals("datetime")) {
-        nCompare = value1.compare(value2);
+        nCompare = value1.localeCompare(value2);
     }
     else if (objColumn.columnType.equals("string")) {
-        nCompare = value1.toUpperCase().compare(value2.toUpperCase());
+        nCompare = value1.toUpperCase().localeCompare(value2.toUpperCase());
     }
     else {
         alert("不支持排序的字段类型[" + datatype + ", " + objColumn.datatypeDB + "]，请检查。");

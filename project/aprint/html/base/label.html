@@ -280,8 +280,6 @@
             },
             onClick: function (button) {
                 if (button.name.equals("label_design")) {
-                    alert((new Date()).toString("HH:mm:ss") + ": " + "6");
-                    return;
                     if (this.form.type.equals("MASO")) {
                         top.openMasoDesigner({ labelId: this.form.id });
                     }

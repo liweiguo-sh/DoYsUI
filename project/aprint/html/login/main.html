@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "2020_0902";</script>
+    <script>var jsVer = "2020_0907";</script>
 
     <link href="../../../../framework/control/menu/top-menu/menu.css" rel="stylesheet" />
     <link href="../../../../framework/control/taskbar/eltabs/taskbar.css" rel="stylesheet" />
@@ -243,8 +243,7 @@
 <!-- js invoke shell -->
 <script>
     function jsInvokeCommonShell(para) {
-        debugger
-        if (!chrome.webview) {
+        if (!chrome || !chrome.webview) {
             if (!g.debug) {
                 topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "error");
             }
@@ -279,15 +278,7 @@
                 labelName: res.name,
                 labelType: res.type
             }
-            let returnString = jsInvokeCommonShell(para);
-
-            let jsonReturn = JSON.parse(returnString);
-            if (jsonReturn.success) {
-                topWin.message("success");
-            }
-            else {
-                topWin.alert(jsonReturn.message, "warning");
-            }
+            jsInvokeCommonShell(para);
         });
     }
     function initLabel(para) {
