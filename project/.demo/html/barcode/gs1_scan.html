@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>GS1 扫码样例</title>
+    <style type="text/css">
+        input {
+            padding-left: 6px;
+            height: 42px;
+            line-height: 42px;
+        }
+
+        .txtMaxInterval {
+            width: 100px;
+            height: 24px;
+            line-height: 24px;
+        }
+
+        .txtScan {
+            width: 200px;
+        }
+
+        .txtResult {
+            color: red;
+            width: 600px;
+        }
+    </style>
+</head>
+<body onload="formLoad();">
+    <div>
+        <input type="text" class="txtMaxInterval" id="txtMaxInterval" value="5000" placeholder="毫秒" />
+        <br /><br />
+        <input type="text" class="txtScan" id="txtScan" onkeydown="onScan(event)" placeholder="扫码区..." />
+        <br /><br />
+        <input type="text" class="txtResult" id="txtResult" />
+    </div>
+</body>
+</html>
+
+<script>
+    let handel = 0, lastTime = 0;
+    let arrBarcode;
+
+    let txtMaxInterval = window.document.getElementById("txtMaxInterval");
+    let txtScan = window.document.getElementById("txtScan");
+    let txtResult = window.document.getElementById("txtResult");
+    // ------------------------------------------------------------------------
+    function formLoad() {
+        txtScan.focus();
+    }
+
+    function onScan(evt) {
+        if (evt.keyCode == 13) {
+            if (handel == 0) {
+                handel = setInterval("doScan()", 100);
+                arrBarcode = new Array();
+                txtResult.value = "";
+            }
+
+            lastTime = new Date().getTime();
+            arrBarcode.push(txtScan.value);
+            txtScan.value = "";
+        }
+    }
+
+    function doScan() {
+        let maxInterval = parseInt(txtMaxInterval.value);
+        let interval = (new Date().getTime()) - lastTime;
+        if (interval > maxInterval) {
+            txtResult.value = arrBarcode.join("    ");
+
+            clearInterval(handel);
+            handel = 0;
+            txtScan.value = "";
+            txtScan.focus();
+        }
+        else {
+            txtResult.value = interval / 1000 + " 扫码监控定时器执行中 ... "
+        }
+    }
+</script>
