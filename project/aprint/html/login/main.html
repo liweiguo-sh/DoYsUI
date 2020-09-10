@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "2020_0907";</script>
+    <script>var jsVer = "2020_0909";</script>
 
     <link href="../../../../framework/control/menu/top-menu/menu.css" rel="stylesheet" />
     <link href="../../../../framework/control/taskbar/eltabs/taskbar.css" rel="stylesheet" />
@@ -256,6 +256,9 @@
             else if (para.action.equals("initLabel")) {
                 return chrome.webview.postMessage(para);
             }
+            else if (para.action.equals("previewLabel") || para.action.equals("printLabel")) {
+                return chrome.webview.postMessage(para);
+            }
             else if (para.action.equals("downloadLabelContent_callback")) {
                 return chrome.webview.postMessage(para);
             }
@@ -281,6 +284,10 @@
             jsInvokeCommonShell(para);
         });
     }
+    function printLabel(para) {
+        jsInvokeCommonShell(para);
+    }
+
     function initLabel(para) {
         jsInvokeCommonShell(para);
     }

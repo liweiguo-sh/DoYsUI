@@ -73,6 +73,7 @@
                 this.rowNoTo = this.form.qty ? this.form.qty : 0;
             },
             onClick: function (button) {
+                debugger;
                 if (button.name.equals("task_print")) {
                     this.print();
                 }
@@ -81,17 +82,16 @@
                 }
             },
 
-            initLabel(para) {
+            printLabel(para) {
                 let paraInvoke = {
-                    action: "initLabel",
+                    action: para.action,
                     labelId: this.form.label_id,
                     labelContent: this.dtbLabel.rows[0]["content"].value,
                     labelType: this.dtbLabel.rows[0]["type"].value,
                     labelSummary: this.getLabelSummary(),
-                    variables: [],
                     quickPrint: (para.quickPrint ? "1" : "0"),
                     taskId: this.form.id,
-                    taskData: para.taskData
+                    dataString: para.dataString
                 }
                 if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
                     if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
@@ -107,7 +107,7 @@
                     paraInvoke.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
                 }
 
-                top.initLabel(paraInvoke);
+                top.printLabel(paraInvoke);
             },
             getLabelSummary() {
                 let dataRow = this.dtbLabel.rows[0];
@@ -122,7 +122,7 @@
             },
 
             preview() {
-                this.initLabel({});
+                this.printLabel({ action: "preivewLabel" });
             },
             print() {
                 if (this.rowNoFrom.toInt() < 1 || this.rowNoTo.toInt() < 1 || this.rowNoTo.toInt() < this.rowNoFrom.toInt()) {
@@ -137,31 +137,27 @@
                     rowNoTo: this.rowNoTo
                 };
                 ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
-                    if (res.ok) {
-                        let DATA = [];
-                        let dtbTaskData = res.dtbTaskData;
+                    let DATA = [];
+                    let dtbTaskData = res.dtbTaskData;
 
-                        let rowCount = dtbTaskData.rowCount;
-                        let columnCount = dtbTaskData.columnCount;
+                    let rowCount = dtbTaskData.rowCount;
+                    let columnCount = dtbTaskData.columnCount;
 
+                    let arr = [];
+                    for (let i = 0; i < columnCount; i++) {
+                        arr.push(dtbTaskData.columns[i].name);
+                    }
+                    DATA.push(arr.join(g.c.CHAR2));
+
+                    for (let i = 0; i < rowCount; i++) {
                         let arr = [];
-                        for (let i = 0; i < columnCount; i++) {
-                            arr.push(dtbTaskData.columns[i].name);
+                        for (let j = 0; j < columnCount; j++) {
+                            arr.push(dtbTaskData.rows[i][j].value);
                         }
                         DATA.push(arr.join(g.c.CHAR2));
-
-                        for (let i = 0; i < rowCount; i++) {
-                            let arr = [];
-                            for (let j = 0; j < columnCount; j++) {
-                                arr.push(dtbTaskData.rows[i][j].value);
-                            }
-                            DATA.push(arr.join(g.c.CHAR2));
-                        }
-
-                        this.initLabel({ quickPrint: false, taskData: DATA.join(g.c.CHAR1) });
                     }
-                    else {
-                    }
+
+                    this.printLabel({ action: "printLabel", quickPrint: false, dataString: DATA.join(g.c.CHAR1) });
                 });
             }
         }
