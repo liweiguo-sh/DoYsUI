@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "2020_0909";</script>
+    <script>var jsVer = "2020_0911";</script>
 
     <link href="../../../../framework/control/menu/top-menu/menu.css" rel="stylesheet" />
     <link href="../../../../framework/control/taskbar/eltabs/taskbar.css" rel="stylesheet" />
@@ -243,6 +243,7 @@
 <!-- js invoke shell -->
 <script>
     function jsInvokeCommonShell(para) {
+        debugger
         if (!chrome || !chrome.webview) {
             if (!g.debug) {
                 topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "error");

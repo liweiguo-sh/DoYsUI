@@ -11,7 +11,7 @@
                 <el-row>
                     <el-button @click="createTask" type="primary">生成数据</el-button>
                     <el-button @click="deleteTask" v-show="taskId">删除数据</el-button>
-                    <el-button @click="preview" v-show="labelId">预览</el-button>
+                    <el-button @click="preview({restorePreviewWindow: 'restore'})" v-show="labelId">预览</el-button>
                     <el-button @click="print" type="danger" v-show="taskId">打印</el-button>
                 </el-row>
                 <el-row style="margin-top:10px;">
@@ -86,7 +86,7 @@
                         </el-col>
                     </el-row>
                 </el-form>
-            </el-col> 
+            </el-col>
             <el-col :span="16">
                 <sub-view id="grid" ref="grid"></sub-view>
             </el-col>
@@ -149,12 +149,12 @@
                 }
                 else {
                     this.customerCode = "";
-                }                    
+                }
 
                 this.loadLabels();
                 this.setVariables();
             },
-            loadLabels() {                
+            loadLabels() {
                 let post = { customerCode: this.customerCode };
                 ajax.send("/aprint/projects/renben/order_print/getLabelByCustomer", post).then(res => {
                     let labels = [];
@@ -165,6 +165,17 @@
                     }
                     this.labels = labels;
                 });
+            },
+            getLabelSummary() {
+                let dataRow = this.dtbLabel.rows[0];
+                let arr = new Array();
+
+                arr.push("标签代码：" + dataRow["code"].value);
+                arr.push("名称：" + dataRow["name"].value);
+                arr.push("宽高：" + dataRow["width"].value + "×" + dataRow["height"].value);
+                arr.push("备注：" + dataRow["remark"].value);
+
+                return arr.join("    ");
             },
 
             onLabelChange() {
@@ -178,9 +189,8 @@
                 });
             },
             onVarChange() {
-                this.initLabel({});
+                this.preview();
             },
-
             setVariables() {
                 let variables = [];
                 // -- 加载标签变量 --
@@ -222,49 +232,8 @@
                 }
                 this.variables = variables;
 
-                this.initLabel({});
+                this.preview({});
                 this.initGrid();
-            },
-            initLabel(para) {
-                if (!this.labelId) return;
-
-                let para1 = {
-                    action: "initLabel",
-                    labelId: this.labelId,
-                    labelContent: this.dtbLabel.rows[0]["content"].value,
-                    labelType: this.dtbLabel.rows[0]["type"].value,
-                    labelSummary: this.getLabelSummary(),
-                    variables: this.variables,
-                    quickPrint: (para.quickPrint ? "1" : "0"),
-                    taskId: this.taskId,
-                    taskData: para.taskData
-                }
-                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
-                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
-                        return;
-                    }
-                    para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
-
-                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
-                        return;
-                    }
-                    para.urlDataFile = g.path.resRun + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
-                }
-
-                top.initLabel(para1);
-            },
-            getLabelSummary() {
-                let dataRow = this.dtbLabel.rows[0];
-                let arr = new Array();
-
-                arr.push("标签代码：" + dataRow["code"].value);
-                arr.push("名称：" + dataRow["name"].value);
-                arr.push("宽高：" + dataRow["width"].value + "×" + dataRow["height"].value);
-                arr.push("备注：" + dataRow["remark"].value);
-
-                return arr.join("    ");
             },
 
             createTask() {
@@ -333,6 +302,31 @@
                 this.$refs.grid.init(para);
             },
 
+            preview(para = {}) {
+                let dataString;
+                let heards = [], records = [];
+
+                for (let i = 0; i < this.variables.length; i++) {
+                    let type = this.variables[i].type;
+                    let varValue = this.variables[i].value;
+                    let dateFormat = this.variables[i].dateFormat;
+
+                    if (type.equals("date") && dateFormat) {
+                        this.variables[i].valueFormat = varValue.toDate().toString(dateFormat);
+                    }
+                    else {
+                        this.variables[i].valueFormat = varValue;
+                    }
+
+                    heards.push(this.variables[i].name);
+                    records.push(this.variables[i].valueFormat)
+                }
+                dataString = heards.join(g.c.CHAR2) + g.c.CHAR1 + records.join(g.c.CHAR2)
+
+                para.action = "previewLabel";
+                para.dataString = dataString;
+                this.printLabel(para);
+            },
             print() {
                 let postData = {
                     labelId: this.labelId,
@@ -341,36 +335,59 @@
                     rowNoTo: this.rowNoTo
                 };
                 ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
-                    if (res.ok) {
-                        let DATA = [];
-                        let dtbTaskData = res.dtbTaskData;
+                    let DATA = [];
+                    let dtbTaskData = res.dtbTaskData;
 
-                        let rowCount = dtbTaskData.rowCount;
-                        let columnCount = dtbTaskData.columnCount;
+                    let rowCount = dtbTaskData.rowCount;
+                    let columnCount = dtbTaskData.columnCount;
 
+                    let arr = [];
+                    for (let i = 0; i < columnCount; i++) {
+                        arr.push(dtbTaskData.columns[i].name);
+                    }
+                    DATA.push(arr.join(g.c.CHAR2));
+
+                    for (let i = 0; i < rowCount; i++) {
                         let arr = [];
-                        for (let i = 0; i < columnCount; i++) {
-                            arr.push(dtbTaskData.columns[i].name);
+                        for (let j = 0; j < columnCount; j++) {
+                            arr.push(dtbTaskData.rows[i][j].value);
                         }
                         DATA.push(arr.join(g.c.CHAR2));
-
-                        for (let i = 0; i < rowCount; i++) {
-                            let arr = [];
-                            for (let j = 0; j < columnCount; j++) {
-                                arr.push(dtbTaskData.rows[i][j].value);
-                            }
-                            DATA.push(arr.join(g.c.CHAR2));
-                        }
-
-                        this.initLabel({ quickPrint: false, taskData: DATA.join(g.c.CHAR1) });
                     }
-                    else {
-                    }
+
+                    this.printLabel({ action: "printLabel", quickPrint: false, dataString: DATA.join(g.c.CHAR1) });
                 });
             },
-            preview() {
-                this.initLabel({});
-            }
+            printLabel(para) {
+                if (!this.labelId) return;
+
+                // ----------------------------------------
+                let paraInvoke = {
+                    action: para.action || "previewLabel",
+                    labelId: this.labelId,
+                    labelContent: this.dtbLabel.rows[0]["content"].value,
+                    labelType: this.dtbLabel.rows[0]["type"].value,
+                    labelSummary: this.getLabelSummary(),
+                    taskId: this.taskId,
+                    dataString: para.dataString
+                }
+                paraInvoke = g.x.extendJSON(paraInvoke, para);
+
+                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
+                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
+                        return;
+                    }
+                    paraInvoke.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+
+                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
+                        return;
+                    }
+                    paraInvoke.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                }
+                top.printLabel(paraInvoke);
+            },
         }
     });
 

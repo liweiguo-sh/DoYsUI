@@ -81,34 +81,7 @@
                     topWin.alert("name = " + button.name + ", text = " + button.text);
                 }
             },
-
-            printLabel(para) {
-                let paraInvoke = {
-                    action: para.action,
-                    labelId: this.form.label_id,
-                    labelContent: this.dtbLabel.rows[0]["content"].value,
-                    labelType: this.dtbLabel.rows[0]["type"].value,
-                    labelSummary: this.getLabelSummary(),
-                    quickPrint: (para.quickPrint ? "1" : "0"),
-                    taskId: this.form.id,
-                    dataString: para.dataString
-                }
-                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
-                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
-                        return;
-                    }
-                    paraInvoke.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
-
-                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
-                        return;
-                    }
-                    paraInvoke.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
-                }
-
-                top.printLabel(paraInvoke);
-            },
+            
             getLabelSummary() {
                 let dataRow = this.dtbLabel.rows[0];
                 let arr = new Array();
@@ -121,9 +94,6 @@
                 return arr.join("    ");
             },
 
-            preview() {
-                this.printLabel({ action: "preivewLabel" });
-            },
             print() {
                 if (this.rowNoFrom.toInt() < 1 || this.rowNoTo.toInt() < 1 || this.rowNoTo.toInt() < this.rowNoFrom.toInt()) {
                     topWin.alert("请输入正确的起始行号。");
@@ -159,7 +129,34 @@
 
                     this.printLabel({ action: "printLabel", quickPrint: false, dataString: DATA.join(g.c.CHAR1) });
                 });
-            }
+            },
+            printLabel(para) {
+                let paraInvoke = {
+                    action: para.action,
+                    labelId: this.form.label_id,
+                    labelContent: this.dtbLabel.rows[0]["content"].value,
+                    labelType: this.dtbLabel.rows[0]["type"].value,
+                    labelSummary: this.getLabelSummary(),
+                    quickPrint: (para.quickPrint ? "1" : "0"),
+                    taskId: this.form.id,
+                    dataString: para.dataString
+                }
+                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
+                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
+                        return;
+                    }
+                    paraInvoke.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+
+                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
+                        return;
+                    }
+                    paraInvoke.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                }
+
+                top.printLabel(paraInvoke);
+            },
         }
     });
 
