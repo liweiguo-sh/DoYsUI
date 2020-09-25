@@ -251,6 +251,13 @@
 
                             if (offset && offset_unit) {
                                 value = (new Date()).add(offset, offset_unit).toStr();
+                                if (offset_unit.equals("YEAR") || offset_unit.equals("MONTH")) {
+                                    // -- 少一天，一般用于到期日期。将来改为是否要扣减一天的选项 --
+                                    value = (new Date()).add(offset, offset_unit).add(-1, "DAY").toStr();
+                                }
+                                else {
+                                    value = (new Date()).add(offset, offset_unit).toStr();
+                                }
                             }
                             else {
                                 value = (new Date()).toStr();
