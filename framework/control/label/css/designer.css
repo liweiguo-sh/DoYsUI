@@ -1,4 +1,14 @@
-﻿/* -- element -- */
+﻿/* -- main layout -- */
+.tbMain {
+    --table-layout: fixed;
+    border-collapse: collapse;
+}
+.tdMain {
+    padding: 0px;
+    border: dotted 1px green;
+}
+
+/* -- element -- */
 .doys_label_element {
     position: absolute;
     --padding: 5px;

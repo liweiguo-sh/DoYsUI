@@ -2,14 +2,13 @@
 <html>
 <head>
     <title>标签窗口</title>
-    <link href="../../../framework/control/label/label.css" rel="stylesheet" />
+    <link href="../css/designer.css" rel="stylesheet" />
 
-    <script src="../../../framework/core/prototype.js"></script>
-    <script src="../../../framework/core/core.js"></script>
+    <script src="../../../core/doys.js"></script>
 
-    <script src="../../../framework/control/label/element_base.js"></script>
-    <script src="../../../framework/control/label/barcode.js"></script>
-    <script src="../../../framework/control/label/label.js"></script>
+    <script src="../js/element_base.js"></script>
+    <script src="../js/barcode.js"></script>
+    <script src="../js/label.js"></script>
 
     <style type="text/css">
         body {
@@ -24,22 +23,47 @@
     </style>
 </head>
 <body onload="winLoad();">
+    <div>menu</div>
+    <div>toolbar</div>
     <div id="divButtons">
         <input type="button" id="btnLoadLabel" onclick="btnLoadLabel_click();" value="加载标签" />
         <input type="button" id="btnSaveLabel" onclick="btnSaveLabel_click();" value="保存标签" />
-    </div>   
-    <div id="cvsLabel" style="width:900px;height:600px;border:solid 2px gray;margin:15px;padding:15px;position:relative"></div>
-    <textarea id="txtJson" rows="10" style="width:800px;"></textarea>
+    </div>
+    <table id="tbMain" class="tbMain">
+        <tr>
+            <td id="tdMainLeft" class="tdMain" style="width:300px;">属性区</td>
+            <td id="tdMainRight" class="tdMain">
+                <div id="divCanvas" style="border:solid 2px gray;margin:15px;padding:15px;position:relative"></div>
+            </td>
+        </tr>
+    </table>
+    <hr />
+    <div>以下测试区</div>
+    <textarea id="txtJson" rows="50" style="width:800px;"></textarea>
 </body>
 </html>
 
 <!-- winLoad -->
-<script> 
-    let cvsLabel = gId("cvsLabel"); 
+<script>
+    let tbMain = gId("tbMain");
+    let tdMainLeft = gId("tdMainLeft");
+    let tdMainRight = gId("tdMainRight");
+
+    let divCanvas = gId("divCanvas");
     let txtJson = gId("txtJson");
     // ------------------------------------------------------------------------
-    function winLoad() { 
+    function winLoad() {
+        winResize();
+
         btnLoadLabel_click();
+    }
+
+    function winResize() {
+        let width = document.documentElement.clientWidth;
+        let heigth = document.documentElement.clientHeight;
+
+        tdMainRight.style.width = (width - tdMainLeft.offsetWidth) + "px";
+        divCanvas.style.height = (heigth - tbMain.offsetTop - 300) + "px";
     }
 </script>
 <!-- controls event -->
@@ -124,7 +148,7 @@
 
         if (lbl == null) {
             let para = {
-                container: cvsLabel,
+                container: divCanvas,
                 content: content
             }
 

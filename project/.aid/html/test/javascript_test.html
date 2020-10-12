@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript 脚本测试</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <style type="text/css">
+        
+    </style>
+</head>
+<body>
+    <div id="app" style="width:1000px;">
+        <el-row>
+            <el-col :span="4">
+                <el-button onclick="win.close();">关闭</el-button>
+            </el-col>
+        </el-row>
+        <hr />
+        <el-form :model="form" label-width="120px" label-position="left">
+            <el-row :gutter="20">
+                <el-col :span="span[1]">
+                    <el-form-item label="原始变量值">
+                        <el-input v-model="form.variable_value" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="新变量值">
+                        <el-input v-model="form.variable_value_new" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[3]">
+                    <el-button @click="afterInput_test();" type="primary">afterInput</el-button>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 10, 10, 4],
+            form: {
+                variable_value: "123",
+                variable_value_new: ""
+            }
+        },
+        methods: {
+            afterInput_test() {
+                try {
+                    let value = this.form.variable_value;
+                    let valueNew = afterInput(value);
+                    this.form.variable_value_new = valueNew;
+                }
+                catch (e) {
+                    topWin.alert(e.toString(), "error");
+                }
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+
+    }
+</script>
+
+<!-- -->
+<script>
+    function afterInput(value, options) {
+        let valueNew;
+
+        valueNew = "$" + value;
+
+        if (options) {
+            options.print = true;
+        }
+        return valueNew;
+    }
+</script>

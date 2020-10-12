@@ -99,10 +99,10 @@
                     <el-row v-for="item in variables" :key="item.name">
                         <el-col>
                             <el-form-item :label="item.name" v-if="item.type.equals('date')">
-                                <el-date-picker v-model="item.value" @change="onVarChange" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
+                                <el-date-picker v-model="item.value" @change="onVarChange(item)" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
                             </el-form-item>
                             <el-form-item :label="item.name" v-else>
-                                <el-input v-model="item.value" @change="onVarChange" :disabled="item.disabled" placeholder="打印前请赋值..." />
+                                <el-input v-model="item.value" @change="onVarChange(item)" :disabled="item.disabled" placeholder="打印前请赋值..." />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -206,7 +206,25 @@
                     this.setVariables();
                 });
             },
-            onVarChange() {
+            onVarChange(variable) {
+                if (variable.js) {
+                    try {
+                        eval(variable.js);
+                        let options = {
+                            print: false
+                        };
+                        let newValue = afterInput(variable.value, options);
+
+                        variable.value = newValue;
+                        if (options.print) {
+                            this.preview({printNow: true});
+                            return;
+                        }
+                    }
+                    catch (e) {
+                        topWin.alert(e.toString(), "error");
+                    }
+                }
                 this.preview();
             },
 
@@ -220,6 +238,7 @@
                         let type = this.dtbLabelVariable.rows[i]["type"].value;
                         let dateFormat = this.dtbLabelVariable.rows[i]["rule_date_format"].value;
                         let disabled = (this.dtbLabelVariable.rows[i]["flag_manual_modify"].value == 0);
+                        let js = this.dtbLabelVariable.rows[i]["js_after_input"].value;
 
                         // -- 代入客户变量或产品变量(如果有) --
                         if (type.equals("quote")) {
@@ -270,7 +289,8 @@
                             value: value,
                             type: type,
                             dateFormat: dateFormat,
-                            disabled: disabled
+                            disabled: disabled,
+                            js: js
                         });
                     }
                 }

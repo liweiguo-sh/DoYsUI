@@ -115,7 +115,8 @@
             _this.hideHover();
         }
 
-        divEl.onclick = this.onclick;
+        divEl.onclick = this.onElementClick;
+        divEl.ondblclick = this.onElementDblClick;
 
         // -- element --
         if (element.type.equals("text")) {
@@ -171,13 +172,26 @@
         this.dragOffsetY = dragOffsetY;
     }
 
-    onclick(evt) {
+    onElementClick(evt) {
         let _dom = evt.srcElement;
         let _this = _dom._this;
         let element = _dom._element;
 
         evt.stopPropagation();
         _this.activeElement(element);
+    }
+    onElementDblClick(evt) {
+        var prop = {
+            url: g.path.framework + "/control/label/form/element.html",
+            text: "text",
+            title: "title",
+            parent: win,
+            modal: true            
+        };
+        var para = {
+            callback: null
+        };
+        topWin.openWindow(prop, para);
     }
 
     showHover(evt) {
