@@ -102,6 +102,7 @@
         data: {
             orderNumber: "",
             customerCode: "",
+            fieldCustomerCode: "",      // -- 客户代码在订单表中的字段名称 --
 
             dtbOrder: null,
             dtbLabel: null,
@@ -137,6 +138,8 @@
                 let res = await ajax.send("/aprint/projects/renben/order_print/getOrderByOrderNumber", { orderNumber: this.orderNumber });
 
                 this.dtbOrder = res.dtbOrder;
+                this.fieldCustomerCode = res.fieldCustomerCode;
+
                 if (this.dtbOrder.rowCount == 0) {
                     topWin.alert("订单不存在，请检查。");
                     return;
@@ -144,8 +147,10 @@
 
                 this.labelId = "";
                 this.dtbLabelVariable = null;
-                if (this.dtbOrder.rows[0]["customer_code"]) {
-                    this.customerCode = this.dtbOrder.rows[0]["customer_code"].value;
+
+                if (this.fieldCustomerCode && this.dtbOrder.rows[0][this.fieldCustomerCode]) {
+                    topWin.message("customer_code = " + this.dtbOrder.rows[0][this.fieldCustomerCode].value + "  " + this.dtbOrder.rows[0]["consignee_name"].value);
+                    this.customerCode = this.dtbOrder.rows[0][this.fieldCustomerCode].value;
                 }
                 else {
                     this.customerCode = "";

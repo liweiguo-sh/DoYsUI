@@ -3,25 +3,30 @@
 <head>
     <title>标签元素定义</title>
     <script src="../../../core/doys.js"></script>
+    <style type="text/css">
+        .el-col-base {
+            padding-right: 20px;
+        }
+    </style>
 </head>
 <body>
     <div id="app" style="width:900px;height:500px;">
         <el-tabs v-model="activeTabName" type="card">
             <el-tab-pane label="基本信息" name="base">
-                <el-form label-width="145px" label-position="left">
-                    <el-row :gutter="8">
-                        <el-col :span="8">
+                <el-form label-width="135px" label-position="right">
+                    <el-row>
+                        <el-col :span="12" class="el-col-base">
                             <el-form-item label="元素类型" required>
-                                <el-select v-model="elementType">
+                                <el-select v-model="EL.elementType" style="width:100%;">
                                     <el-option value="barcode" label="条形码"></el-option>
                                     <el-option value="text" label="文本"></el-option>
                                     <el-option value="image" label="图片"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8">
+                        <el-col :span="12" class="el-col-base">
                             <el-form-item label="符号体系" required>
-                                <el-select v-model="barcodeType" :disabled="elementType!='barcode'" filterable>
+                                <el-select v-model="EL.barcodeType" :disabled="EL.elementType!='barcode'" filterable style="width:100%;">
                                     <el-option-group label="一维码">
                                         <el-option value="Code128" label="Code 128"></el-option>
                                         <el-option value="GS1_128" label="GS1-128" :disabled="true"></el-option>
@@ -36,13 +41,13 @@
                     </el-row>
                 </el-form>
             </el-tab-pane>
-            <el-tab-pane label="条码内容(机器识读)" name="segments" v-if="elementType=='barcode'">
+            <el-tab-pane label="条码内容(机器识读)" name="EL.segments" v-if="EL.elementType=='barcode'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
                     <el-col :span="19">
-                        <el-tag>{{segmentsText}}</el-tag>
+                        <el-tag>{{EL.segmentsText}}</el-tag>
                     </el-col>
                 </el-row>
-                <el-row v-for="segment in segments" :key="segment.pos" :gutter="8" style="margin-bottom:5px;">
+                <el-row v-for="segment in EL.segments" :key="segment.pos" :gutter="8" style="margin-bottom:5px;">
                     <el-col :span="5">
                         <el-select v-model="segment.type" @change="segmentTypeChange(segment.pos)">
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :segment="segment"></el-option>
@@ -63,19 +68,19 @@
                     <el-col :span="5">
                         <el-button-group>
                             <el-button type="danger" v-if="segment.type!=''" @click="segmentDelete(segment.pos)" :segment="segment" title="删除" icon="el-icon-delete"></el-button>
-                            <el-button type="primary" v-if="segment.pos<segments.length-1 && segment.pos>0" @click="segmentMoveUp(segment.pos)" :segment="segment" title="上移" icon="el-icon-arrow-up"></el-button>
-                            <el-button type="primary" v-if="segment.pos<segments.length-2" @click="segmentMoveUp(segment.pos+1)" :segment="segment" title="下移" icon="el-icon-arrow-down"></el-button>
+                            <el-button type="primary" v-if="segment.pos<EL.segments.length-1 && segment.pos>0" @click="segmentMoveUp(segment.pos)" :segment="segment" title="上移" icon="el-icon-arrow-up"></el-button>
+                            <el-button type="primary" v-if="segment.pos<EL.segments.length-2" @click="segmentMoveUp(segment.pos+1)" :segment="segment" title="下移" icon="el-icon-arrow-down"></el-button>
                         </el-button-group>
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="文本内容" name="sections" v-if="elementType=='barcode' || elementType=='text'">
+            <el-tab-pane label="文本内容" name="EL.sections" v-if="EL.elementType=='barcode' || EL.elementType=='text'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
                     <el-col :span="19">
-                        <el-tag>{{sectionsText}}</el-tag>
+                        <el-tag>{{EL.sectionsText}}</el-tag>
                     </el-col>
                 </el-row>
-                <el-row v-for="section in sections" :key="section.pos" :gutter="8" style="margin-bottom:5px;">
+                <el-row v-for="section in EL.sections" :key="section.pos" :gutter="8" style="margin-bottom:5px;">
                     <el-col :span="5">
                         <el-select v-model="section.type" @change="sectionTypeChange(section.pos)">
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :section="section"></el-option>
@@ -96,11 +101,17 @@
                     <el-col :span="5">
                         <el-button-group>
                             <el-button type="danger" v-if="section.type!=''" @click="sectionDelete(section.pos)" :section="section" title="删除" icon="el-icon-delete"></el-button>
-                            <el-button type="primary" v-if="section.pos<sections.length-1 && section.pos>0" @click="sectionMoveUp(section.pos)" :section="section" title="上移" icon="el-icon-arrow-up"></el-button>
-                            <el-button type="primary" v-if="section.pos<sections.length-2" @click="sectionMoveUp(section.pos+1)" :section="section" title="下移" icon="el-icon-arrow-down"></el-button>
+                            <el-button type="primary" v-if="section.pos<EL.sections.length-1 && section.pos>0" @click="sectionMoveUp(section.pos)" :section="section" title="上移" icon="el-icon-arrow-up"></el-button>
+                            <el-button type="primary" v-if="section.pos<EL.sections.length-2" @click="sectionMoveUp(section.pos+1)" :section="section" title="下移" icon="el-icon-arrow-down"></el-button>
                         </el-button-group>
                     </el-col>
                 </el-row>
+            </el-tab-pane>
+            <el-tab-pane label="字体" name="font" v-if="EL.elementType=='barcode' || EL.elementType=='text'">
+                字体
+            </el-tab-pane>
+            <el-tab-pane label="位置" name="position">
+                位置
             </el-tab-pane>
         </el-tabs>
         <hr />
@@ -118,11 +129,6 @@
             form: {},
             activeTabName: "base",
 
-            elementType: "",                // -- 元素类型 --
-            barcodeType: "",                // -- 条码符号体系 --
-            sectionsText: "",               // -- sections组内容(人工识读部分) --
-            segmentsText: "",               // -- segments组内容(机器识读部分) --       
-
             fields: [
                 { k: "客户代码", v: "C001001" },
                 { k: "客户名称", v: "上海样例科技有限公司" },
@@ -136,26 +142,16 @@
                 { k: "field", v: "变量字段" },
                 { k: "symbol", v: "特殊字符" }
             ],
-            sections: [
-                { pos: 0, type: "fixed", value: "固定值B", format: "" },
-                { pos: 1, type: "field", value: "客户名称", format: "" },
-                { pos: 2, type: "symbol", value: "GS", format: "" },
-                { pos: 3, type: "" }
-            ],
-            segments: [
-                { pos: 0, type: "fixed", value: "固定值1", format: "" },
-                { pos: 1, type: "field", value: "客户代码", format: "" },
-                { pos: 2, type: "symbol", value: "GS", format: "" },
-                { pos: 3, type: "" }
-            ],
+
+            EL: {},                         // -- element --
 
             remark: ""
         },
         methods: {
             sectionTypeChange(pos) {
-                let section = this.sections[pos];
-                if (section.type != "" && pos == this.sections.length - 1) {
-                    this.sections.push({
+                let section = this.EL.sections[pos];
+                if (section.type != "" && pos == this.EL.sections.length - 1) {
+                    this.EL.sections.push({
                         pos: pos + 1,
                         type: ""
                     });
@@ -167,28 +163,28 @@
                 this.sectionPreview();
             },
             sectionDelete(pos) {
-                this.sections.splice(pos, 1);
-                for (let i = 0; i < this.sections.length; i++) {
-                    this.sections[i].pos = i;
+                this.EL.sections.splice(pos, 1);
+                for (let i = 0; i < this.EL.sections.length; i++) {
+                    this.EL.sections[i].pos = i;
                 }
 
                 this.sectionPreview();
             },
             sectionMoveUp(pos) {
-                let section0 = this.sections.slice(pos - 1, pos)[0];
-                let section1 = this.sections.slice(pos, pos + 1)[0];
+                let section0 = this.EL.sections.slice(pos - 1, pos)[0];
+                let section1 = this.EL.sections.slice(pos, pos + 1)[0];
 
                 section0.pos = pos;
                 section1.pos = pos - 1;
 
-                this.sections.splice(pos - 1, 2, section1, section0);
+                this.EL.sections.splice(pos - 1, 2, section1, section0);
 
                 this.sectionPreview();
             },
             sectionPreview() {
                 let values = new Array();
-                for (let i = 0; i < this.sections.length - 1; i++) {
-                    let section = this.sections[i];
+                for (let i = 0; i < this.EL.sections.length - 1; i++) {
+                    let section = this.EL.sections[i];
                     let value = section.value;
                     let type = section.type;
 
@@ -212,13 +208,13 @@
                         }
                     }
                 }
-                this.sectionsText = values.join("");
+                this.EL.sectionsText = values.join("");
             },
 
             segmentTypeChange(pos) {
-                let segment = this.segments[pos];
-                if (segment.type != "" && pos == this.segments.length - 1) {
-                    this.segments.push({
+                let segment = this.EL.segments[pos];
+                if (segment.type != "" && pos == this.EL.segments.length - 1) {
+                    this.EL.segments.push({
                         pos: pos + 1,
                         type: ""
                     });
@@ -250,8 +246,8 @@
             },
             segmentPreview() {
                 let values = new Array();
-                for (let i = 0; i < this.segments.length - 1; i++) {
-                    let segment = this.segments[i];
+                for (let i = 0; i < this.EL.segments.length - 1; i++) {
+                    let segment = this.EL.segments[i];
                     let value = segment.value;
                     let type = segment.type;
 
@@ -275,7 +271,7 @@
                         }
                     }
                 }
-                this.segmentsText = values.join("");
+                this.EL.segmentsText = values.join("");
             },
 
             toString() {
@@ -288,6 +284,10 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
+        let element = win.para.element;
+
+        app.EL = element;
+
         app.segmentPreview();
         app.sectionPreview();
     }

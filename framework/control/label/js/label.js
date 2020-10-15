@@ -56,7 +56,7 @@
     clearLabel() {
         this.activatedElement = null;
         this.hideResize();
-        this.hideHover();        
+        this.hideHover();
 
         for (let i = 0; i < this.elements.length; i++) {
             this.container.removeChild(this.elements[i].dom);
@@ -126,7 +126,7 @@
             element.instance = new Barcode(element);
         }
         else {
-            
+
         }
     }
     activeElement(element) {
@@ -147,7 +147,7 @@
         dom.innerHTML = element.text;
     }
 
-    // -- element event: click and hover --------------------------------------
+    // -- element event: drag -------------------------------------------------
     ondragstart(evt, domContainer) {
         let domDrag = evt.srcElement;
         let dragOffsetX = 0, dragOffsetY = 0;
@@ -171,7 +171,22 @@
         this.dragOffsetX = dragOffsetX;
         this.dragOffsetY = dragOffsetY;
     }
+    onElementDrag(evt) {
+        let domDrag = evt.srcElement;
+        let _this = domDrag._this;
 
+        domDrag._element.left = evt.clientX - _this.dragOffsetX;
+        domDrag._element.top = evt.clientY - _this.dragOffsetY;
+
+        domDrag.style.left = domDrag._element.left + "px";
+        domDrag.style.top = domDrag._element.top + "px";
+
+        if (_this.activatedElement) {
+            _this.showResize();
+        }
+    }
+
+    // -- element event: click and hover --------------------------------------
     onElementClick(evt) {
         let _dom = evt.srcElement;
         let _this = _dom._this;
@@ -181,14 +196,19 @@
         _this.activeElement(element);
     }
     onElementDblClick(evt) {
-        var prop = {
+        let domElement = evt.srcElement;
+        let element = domElement._element;
+        let _this = element.this;
+
+        let prop = {
             url: g.path.framework + "/control/label/form/element.html",
             text: "text",
             title: "title",
             parent: win,
-            modal: true            
+            modal: true
         };
-        var para = {
+        let para = {
+            element: element,
             callback: null
         };
         topWin.openWindow(prop, para);
@@ -254,25 +274,9 @@
             _this.divHoverL.style.display = "none";
             _this.divHoverR.style.display = "none";
         }
-    }
+    }    
 
-    // -- element event: drag -------------------------------------------------
-    onElementDrag(evt) {
-        let domDrag = evt.srcElement;
-        let _this = domDrag._this;
-
-        domDrag._element.left = evt.clientX - _this.dragOffsetX;
-        domDrag._element.top = evt.clientY - _this.dragOffsetY;
-
-        domDrag.style.left = domDrag._element.left + "px";
-        domDrag.style.top = domDrag._element.top + "px";
-
-        if (_this.activatedElement) {
-            _this.showResize();
-        }
-    }
-
-    // -- element event: resize ------------------------------------------------
+    // -- element event: resize -----------------------------------------------
     showResize() {
         let _this = this;
         let domEl, divT, divB, divL, divR;

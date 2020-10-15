@@ -10,7 +10,7 @@ Vue.component('main-menu', {
     props: ['menus'],
     template: `
         <el-menu class="top-menu-L1" mode="horizontal" background-color="white" active-text-color1="blue" text-color1="#fff">
-            <sub-menu v-on:menuclick="onMenuClick" class="top-menu-L1" style="float:left;" v-for="menu in menus" :index="menu.key" :key="menu.key" :menu="menu">{{menu.value}}</sub-menu>
+            <sub-menu v-on:menuclick="onMenuClick" class="top-menu-L1" v-for="menu in menus" :index="menu.key" :key="menu.key" :menu="menu" style="float:left;z-index:90000">{{menu.value}}</sub-menu>
         </el-menu>`
 })
 
@@ -30,7 +30,7 @@ Vue.component('sub-menu', {
             <el-menu-item v-else-if="menu.isLeaf" @click="onMenuClick(menu)" :index="menu.key" :key="menu.key">{{menu.text}}</el-menu-item>
             <el-submenu v-else :index="menu.key">
                 <template slot="title">{{menu.text}}</template>
-                <sub-menu v-for="menu in menu.menus" v-on:menuclick="onMenuClick" :index="menu.key" :key="menu.key" :menu="menu">{{menu.text}}</sub-menu>
+                <sub-menu v-for="menu in menu.menus" v-on:menuclick="onMenuClick" :index="menu.key" :key="menu.key" :menu="menu" style="z-index:90001">{{menu.text}}</sub-menu>
             </el-submenu>
         </div>`
 })

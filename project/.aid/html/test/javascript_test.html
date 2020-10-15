@@ -4,7 +4,6 @@
     <title>JavaScript 脚本测试</title>
     <script src="../../../../framework/core/doys.js"></script>
     <style type="text/css">
-        
     </style>
 </head>
 <body>
@@ -31,6 +30,19 @@
                     <el-button @click="afterInput_test();" type="primary">afterInput</el-button>
                 </el-col>
             </el-row>
+            <el-row>
+                <el-col>
+                    <el-input v-model="jsonString" type="textarea" :rows="jsonStringRows" placeholder="序列化的JSON字符串"></el-input>
+                </el-col>
+            </el-row>
+            <el-row style="margin-top:12px;">
+                <el-col>
+                    <el-button @click="initJsonString();">初始化</el-button>
+                    <el-button @click="JSON_parse();" type="primary">JSONparse(string to object)</el-button>
+                    <el-button @click="addMethod();" type="warning">addMethod to JsonObject</el-button>
+                    <el-button @click="JSON_stringify();" type="primary">JSONstringify(object to string)</el-button>
+                </el-col>
+            </el-row>
         </el-form>
     </div>
 </body>
@@ -43,9 +55,13 @@
         data: {
             span: [24, 10, 10, 4],
             form: {
-                variable_value: "123",
+                variable_value: "SN:AOS-BX006D15",
                 variable_value_new: ""
-            }
+            },
+
+            objJSON: null,
+            jsonString: "",
+            jsonStringRows: 2
         },
         methods: {
             afterInput_test() {
@@ -57,6 +73,40 @@
                 catch (e) {
                     topWin.alert(e.toString(), "error");
                 }
+            },
+            initJsonString() {
+                this.jsonString = getDefaultJsonString();
+                this.jsonStringRows = 20;
+            },
+
+            JSON_parse() {
+                this.objJSON = JSON.parse(this.jsonString);
+            },
+
+            addMethod() {
+                debugger;
+                this.objJSON.method1 = abc;
+            },
+
+            JSON_stringify() {
+                this.jsonString = this.JsonObjectToJsonString(this.objJSON);
+                debugger;
+            },
+            JsonObjectToJsonString(objectJSON) {
+                return JSON.stringify(objectJSON,
+                    (k, v) => {
+                        if (k.equals("") || k.equals("method1")) {
+                            debugger;
+                        }
+                        if (k.equals("dom") || k.equals("doc")) {
+                            return undefined;
+                        }
+                        else if (k.equals("instance")) {
+                            return undefined;
+                        }
+                        return v;
+                    }, "  "
+                );
             }
         }
     });
@@ -69,16 +119,55 @@
     }
 </script>
 
-<!-- -->
+<!-- afterInput -->
 <script>
     function afterInput(value, options) {
-        let valueNew;
-
-        valueNew = "$" + value;
-
+        let valueNew = value.substring(3).replace("-", "");
         if (options) {
             options.print = true;
         }
         return valueNew;
+    }
+</script>
+
+<!-- 序列化 -->
+<script>
+    function abc() {
+        console.log("abc haha");
+    }
+    function getDefaultJsonString() {
+        return `
+            {
+              "width": 100,
+              "height": 80,
+              "elements": [
+                {
+                  "width": 80,
+                  "height": 40,
+                  "left": 242,
+                  "top": 21,
+                  "type": "text",
+                  "text": "hello1"
+                },
+                {
+                  "width": 70,
+                  "height": 50,
+                  "left": 40,
+                  "top": 40,
+                  "type": "text",
+                  "text": "hello2"
+                },
+                {
+                  "width": 170,
+                  "height": 50,
+                  "left": 40,
+                  "top": 140,
+                  "type": "barcode",
+                  "value": "12345678",
+                  "format": ""
+                }
+              ]
+            }
+        `;
     }
 </script>

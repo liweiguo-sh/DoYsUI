@@ -165,40 +165,94 @@
         let jsonString = txtJson.value.trim();
 
         if (jsonString.equals("")) {
-            jsonString = `
-            {
-              "width": 100,
-              "height": 80,
-              "elements": [
-                {
-                  "width": 80,
-                  "height": 40,
-                  "left": 242,
-                  "top": 21,
-                  "type": "text",
-                  "text": "hello1"
-                },
-                {
-                  "width": 70,
-                  "height": 50,
-                  "left": 40,
-                  "top": 40,
-                  "type": "text",
-                  "text": "hello2"
-                },
-                {
-                  "width": 170,
-                  "height": 50,
-                  "left": 40,
-                  "top": 140,
-                  "type": "barcode",
-                  "value": "12345678",
-                  "format": ""
-                }
-              ]
-            }
-        `;
+            jsonString = getMock1();
         }
         return jsonString;
+    }
+    function getMock1() {
+        return `
+{
+    "width": 100,
+    "height": 80,
+    "elements": [
+        {
+            "width": 80,
+            "height": 40,
+            "left": 242,
+            "top": 21,
+            "type": "text",
+            "text": "hello1"
+        },
+        {
+            "width": 70,
+            "height": 50,
+            "left": 40,
+            "top": 40,
+            "type": "text",
+            "text": "hello2"
+        },
+        {
+            "width": 170,
+            "height": 80,
+            "left": 140,
+            "top": 140,
+            "type": "text",
+            "text": "barcode123",
+            "elementType": "barcode",
+            "barcodeType": "Code128",
+            "sectionsText": "",
+            "segmentsText": "",
+            "sections": [
+                {
+                    "pos": 0,
+                    "type": "fixed",
+                    "value": "固定值B",
+                    "format": ""
+                },
+                {
+                    "pos": 1,
+                    "type": "field",
+                    "value": "客户名称",
+                    "format": ""
+                },
+                {
+                    "pos": 2,
+                    "type": "symbol",
+                    "value": "GS",
+                    "format": ""
+                },
+                {
+                    "pos": 3,
+                    "type": ""
+                }
+            ],
+            "segments": [
+                {
+                    "pos": 0,
+                    "type": "fixed",
+                    "value": "固定值1",
+                    "format": ""
+                },
+                {
+                    "pos": 1,
+                    "type": "field",
+                    "value": "客户代码",
+                    "format": ""
+                },
+                {
+                    "pos": 2,
+                    "type": "symbol",
+                    "value": "GS",
+                    "format": ""
+                },
+                {
+                    "pos": 3,
+                    "type": ""
+                }
+            ]
+        }
+    ]
+}
+        `;
     }
 </script>

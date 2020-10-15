@@ -5,7 +5,7 @@
  * Modify Date: 2020-05-23
  * Copyright 2020, doys-next.com
  */
-(function () {    
+(function () {
     window.g = {
         debug: false,                           // -- 调试模式 --
         prefix: "http://{domain}:9988/DoYsSV",  // -- 后台服务入口，实例：http://192.168.169.1:9988，{domain}表示和前端相同 --
