@@ -3,6 +3,9 @@
 <head>
     <title>标签元素定义</title>
     <script src="../../../core/doys.js"></script>
+
+    <script src="../js/element.js"></script>
+
     <style type="text/css">
         .el-col-base {
             padding-right: 20px;
@@ -17,7 +20,7 @@
                     <el-row>
                         <el-col :span="12" class="el-col-base">
                             <el-form-item label="元素类型" required>
-                                <el-select v-model="EL.elementType" style="width:100%;">
+                                <el-select v-model="element.elementType" style="width:100%;">
                                     <el-option value="barcode" label="条形码"></el-option>
                                     <el-option value="text" label="文本"></el-option>
                                     <el-option value="image" label="图片"></el-option>
@@ -26,7 +29,7 @@
                         </el-col>
                         <el-col :span="12" class="el-col-base">
                             <el-form-item label="符号体系" required>
-                                <el-select v-model="EL.barcodeType" :disabled="EL.elementType!='barcode'" filterable style="width:100%;">
+                                <el-select v-model="element.barcodeType" :disabled="element.elementType!='barcode'" filterable style="width:100%;">
                                     <el-option-group label="一维码">
                                         <el-option value="Code128" label="Code 128"></el-option>
                                         <el-option value="GS1_128" label="GS1-128" :disabled="true"></el-option>
@@ -41,13 +44,13 @@
                     </el-row>
                 </el-form>
             </el-tab-pane>
-            <el-tab-pane label="条码内容(机器识读)" name="EL.segments" v-if="EL.elementType=='barcode'">
+            <el-tab-pane label="条码内容(机器识读)" name="element.segments" v-if="element.elementType=='barcode'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
                     <el-col :span="19">
-                        <el-tag>{{EL.segmentsText}}</el-tag>
+                        <el-tag>{{element.segmentsText}}</el-tag>
                     </el-col>
                 </el-row>
-                <el-row v-for="segment in EL.segments" :key="segment.pos" :gutter="8" style="margin-bottom:5px;">
+                <el-row v-for="segment in element.segments" :key="segment.pos" :gutter="8" style="margin-bottom:5px;">
                     <el-col :span="5">
                         <el-select v-model="segment.type" @change="segmentTypeChange(segment.pos)">
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :segment="segment"></el-option>
@@ -68,19 +71,19 @@
                     <el-col :span="5">
                         <el-button-group>
                             <el-button type="danger" v-if="segment.type!=''" @click="segmentDelete(segment.pos)" :segment="segment" title="删除" icon="el-icon-delete"></el-button>
-                            <el-button type="primary" v-if="segment.pos<EL.segments.length-1 && segment.pos>0" @click="segmentMoveUp(segment.pos)" :segment="segment" title="上移" icon="el-icon-arrow-up"></el-button>
-                            <el-button type="primary" v-if="segment.pos<EL.segments.length-2" @click="segmentMoveUp(segment.pos+1)" :segment="segment" title="下移" icon="el-icon-arrow-down"></el-button>
+                            <el-button type="primary" v-if="segment.pos<element.segments.length-1 && segment.pos>0" @click="segmentMoveUp(segment.pos)" :segment="segment" title="上移" icon="el-icon-arrow-up"></el-button>
+                            <el-button type="primary" v-if="segment.pos<element.segments.length-2" @click="segmentMoveUp(segment.pos+1)" :segment="segment" title="下移" icon="el-icon-arrow-down"></el-button>
                         </el-button-group>
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="文本内容" name="EL.sections" v-if="EL.elementType=='barcode' || EL.elementType=='text'">
+            <el-tab-pane label="文本内容" name="element.sections" v-if="element.elementType=='barcode' || element.elementType=='text'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
                     <el-col :span="19">
-                        <el-tag>{{EL.sectionsText}}</el-tag>
+                        <el-tag>{{element.sectionsText}}</el-tag>
                     </el-col>
                 </el-row>
-                <el-row v-for="section in EL.sections" :key="section.pos" :gutter="8" style="margin-bottom:5px;">
+                <el-row v-for="section in element.sections" :key="section.pos" :gutter="8" style="margin-bottom:5px;">
                     <el-col :span="5">
                         <el-select v-model="section.type" @change="sectionTypeChange(section.pos)">
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :section="section"></el-option>
@@ -101,13 +104,13 @@
                     <el-col :span="5">
                         <el-button-group>
                             <el-button type="danger" v-if="section.type!=''" @click="sectionDelete(section.pos)" :section="section" title="删除" icon="el-icon-delete"></el-button>
-                            <el-button type="primary" v-if="section.pos<EL.sections.length-1 && section.pos>0" @click="sectionMoveUp(section.pos)" :section="section" title="上移" icon="el-icon-arrow-up"></el-button>
-                            <el-button type="primary" v-if="section.pos<EL.sections.length-2" @click="sectionMoveUp(section.pos+1)" :section="section" title="下移" icon="el-icon-arrow-down"></el-button>
+                            <el-button type="primary" v-if="section.pos<element.sections.length-1 && section.pos>0" @click="sectionMoveUp(section.pos)" :section="section" title="上移" icon="el-icon-arrow-up"></el-button>
+                            <el-button type="primary" v-if="section.pos<element.sections.length-2" @click="sectionMoveUp(section.pos+1)" :section="section" title="下移" icon="el-icon-arrow-down"></el-button>
                         </el-button-group>
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="字体" name="font" v-if="EL.elementType=='barcode' || EL.elementType=='text'">
+            <el-tab-pane label="字体" name="font" v-if="element.elementType=='barcode' || element.elementType=='text'">
                 字体
             </el-tab-pane>
             <el-tab-pane label="位置" name="position">
@@ -126,152 +129,78 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {},
             activeTabName: "base",
 
-            fields: [
-                { k: "客户代码", v: "C001001" },
-                { k: "客户名称", v: "上海样例科技有限公司" },
-                { k: "地址", v: "上海样例路1234号" }
-            ],
-            symbols: [
-                { k: "GS", v: "GS1分组符" }
-            ],
-            sectionTypes: [
-                { k: "fixed", v: "固定值" },
-                { k: "field", v: "变量字段" },
-                { k: "symbol", v: "特殊字符" }
-            ],
-
-            EL: {},                         // -- element --
+            fields: [],
+            element: {},
+            symbols: UtilElement.getAI(),
+            sectionTypes: UtilElement.getSectionTypes(),
 
             remark: ""
         },
         methods: {
             sectionTypeChange(pos) {
-                let section = this.EL.sections[pos];
-                if (section.type != "" && pos == this.EL.sections.length - 1) {
-                    this.EL.sections.push({
-                        pos: pos + 1,
-                        type: ""
-                    });
+                let section = this.element.sections[pos];
+                if (section.type != "" && pos == this.element.sections.length - 1) {
+                    let sectionBlank = UtilElement.getNewSection({ pos: pos + 1 });
+                    this.element.sections.push(sectionBlank);
                 }
 
-                this.sectionPreview();
+                UtilElement.compute({ element: this.element, fields: this.fields });
             },
             sectionValueChange(pos) {
-                this.sectionPreview();
+                UtilElement.compute({ element: this.element, fields: this.fields });
             },
             sectionDelete(pos) {
-                this.EL.sections.splice(pos, 1);
-                for (let i = 0; i < this.EL.sections.length; i++) {
-                    this.EL.sections[i].pos = i;
+                this.element.sections.splice(pos, 1);
+                for (let i = 0; i < this.element.sections.length; i++) {
+                    this.element.sections[i].pos = i;
                 }
 
-                this.sectionPreview();
+                UtilElement.compute({ element: this.element, fields: this.fields });
             },
             sectionMoveUp(pos) {
-                let section0 = this.EL.sections.slice(pos - 1, pos)[0];
-                let section1 = this.EL.sections.slice(pos, pos + 1)[0];
+                let section0 = this.element.sections.slice(pos - 1, pos)[0];
+                let section1 = this.element.sections.slice(pos, pos + 1)[0];
 
                 section0.pos = pos;
                 section1.pos = pos - 1;
 
-                this.EL.sections.splice(pos - 1, 2, section1, section0);
+                this.element.sections.splice(pos - 1, 2, section1, section0);
 
-                this.sectionPreview();
-            },
-            sectionPreview() {
-                let values = new Array();
-                for (let i = 0; i < this.EL.sections.length - 1; i++) {
-                    let section = this.EL.sections[i];
-                    let value = section.value;
-                    let type = section.type;
-
-                    if (type.equals("fixed")) {
-                        values.push(value);
-                    }
-                    else if (type.equals("field")) {
-                        for (let j = 0; j < this.fields.length; j++) {
-                            if (value.equals(this.fields[j].k)) {
-                                values.push(this.fields[j].v);
-                                break;
-                            }
-                        }
-                    }
-                    else if (type.equals("symbol")) {
-                        if (value.equals("GS")) {
-                            values.push("<GS>");
-                        }
-                        else {
-                            values.push(value);
-                        }
-                    }
-                }
-                this.EL.sectionsText = values.join("");
+                UtilElement.compute({ element: this.element, fields: this.fields });
             },
 
             segmentTypeChange(pos) {
-                let segment = this.EL.segments[pos];
-                if (segment.type != "" && pos == this.EL.segments.length - 1) {
-                    this.EL.segments.push({
-                        pos: pos + 1,
-                        type: ""
-                    });
+                let segment = this.element.segments[pos];
+                if (segment.type != "" && pos == this.element.segments.length - 1) {
+                    let segmentBlank = UtilElement.getNewSegment({ pos: pos + 1 });
+                    this.element.segments.push(segmentBlank);
                 }
 
-                this.segmentPreview();
+                UtilElement.compute({ element: this.element, fields: this.fields });
             },
             segmentValueChange(pos) {
-                this.segmentPreview();
+                UtilElement.compute({ element: this.element, fields: this.fields });
             },
             segmentDelete(pos) {
-                this.segments.splice(pos, 1);
-                for (let i = 0; i < this.segments.length; i++) {
-                    this.segments[i].pos = i;
+                this.element.segments.splice(pos, 1);
+                for (let i = 0; i < this.element.segments.length; i++) {
+                    this.element.segments[i].pos = i;
                 }
 
-                this.segmentPreview();
+                UtilElement.compute({ element: this.element, fields: this.fields });
             },
             segmentMoveUp(pos) {
-                let segment0 = this.segments.slice(pos - 1, pos)[0];
-                let segment1 = this.segments.slice(pos, pos + 1)[0];
+                let segment0 = this.element.segments.slice(pos - 1, pos)[0];
+                let segment1 = this.element.segments.slice(pos, pos + 1)[0];
 
                 segment0.pos = pos;
                 segment1.pos = pos - 1;
 
-                this.segments.splice(pos - 1, 2, segment1, segment0);
+                this.element.segments.splice(pos - 1, 2, segment1, segment0);
 
-                this.segmentPreview();
-            },
-            segmentPreview() {
-                let values = new Array();
-                for (let i = 0; i < this.EL.segments.length - 1; i++) {
-                    let segment = this.EL.segments[i];
-                    let value = segment.value;
-                    let type = segment.type;
-
-                    if (type.equals("fixed")) {
-                        values.push(value);
-                    }
-                    else if (type.equals("field")) {
-                        for (let j = 0; j < this.fields.length; j++) {
-                            if (value.equals(this.fields[j].k)) {
-                                values.push(this.fields[j].v);
-                                break;
-                            }
-                        }
-                    }
-                    else if (type.equals("symbol")) {
-                        if (value.equals("GS")) {
-                            values.push("<GS>");
-                        }
-                        else {
-                            values.push(value);
-                        }
-                    }
-                }
-                this.EL.segmentsText = values.join("");
+                UtilElement.compute({ element: this.element, fields: this.fields });
             },
 
             toString() {
@@ -284,11 +213,12 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
-        let element = win.para.element;
+        app.fields = win.para.fields;
+        app.element = win.para.element;
+        UtilElement.compute({ element: app.element, fields: app.fields });
 
-        app.EL = element;
-
-        app.segmentPreview();
-        app.sectionPreview();
+        win.addEventListener("afterClose", () => {
+            win.para.callback({ element: app.element });
+        });
     }
 </script>

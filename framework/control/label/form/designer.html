@@ -6,9 +6,8 @@
 
     <script src="../../../core/doys.js"></script>
 
-    <script src="../js/element_base.js"></script>
-    <script src="../js/barcode.js"></script>
     <script src="../js/label.js"></script>
+    <script src="../js/element.js"></script>
 
     <style type="text/css">
         body {
@@ -22,7 +21,7 @@
         }
     </style>
 </head>
-<body onload="winLoad();">
+<body>
     <div>menu</div>
     <div>toolbar</div>
     <div id="divButtons">
@@ -39,7 +38,7 @@
     </table>
     <hr />
     <div>以下测试区</div>
-    <textarea id="txtJson" rows="50" style="width:800px;"></textarea>
+    <textarea id="txtJson" rows="8" style="width:800px;" spellcheck="false"></textarea>
 </body>
 </html>
 
@@ -162,11 +161,13 @@
         txtJson.value = lbl.toJson();
     }
     function getLabelString() {
-        let jsonString = txtJson.value.trim();
+        let jsonString = txtJson.value;
 
         if (jsonString.equals("")) {
-            jsonString = getMock1();
+            txtJson.value = getMock1();
+            jsonString = txtJson.value;
         }
+        
         return jsonString;
     }
     function getMock1() {
@@ -181,7 +182,9 @@
             "left": 242,
             "top": 21,
             "type": "text",
-            "text": "hello1"
+            "text": "hello1",
+            "sections": [],
+            "segments": []
         },
         {
             "width": 70,
@@ -189,10 +192,12 @@
             "left": 40,
             "top": 40,
             "type": "text",
-            "text": "hello2"
+            "text": "hello2",
+            "sections": [],
+            "segments": []
         },
         {
-            "width": 170,
+            "width": 270,
             "height": 80,
             "left": 140,
             "top": 140,

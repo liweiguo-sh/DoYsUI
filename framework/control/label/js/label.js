@@ -40,17 +40,27 @@
         }
     }
     loadLabel(labelString) {
+
+        this.fields = [
+            { k: "客户代码", v: "C001001" },
+            { k: "客户名称", v: "上海样例科技有限公司" },
+            { k: "地址", v: "上海样例路1234号" }
+        ]
+
+
+
         if (this.elements) this.clearLabel();
 
         this.label = JSON.parse(labelString);
         this.elements = this.label.elements;
 
-        let elements = this.label.elements;
-        for (let i = 0; i < elements.length; i++) {
-            let element = elements[i];
-            let type = element.type;
+        for (let i = 0; i < this.elements.length; i++) {
+            let element = this.elements[i];
 
             this.createElement(element);
+
+            UtilElement.compute({ element: element, fields: this.fields });
+            UtilElement.draw({ element: element });
         }
     }
     clearLabel() {
@@ -117,16 +127,8 @@
 
         divEl.onclick = this.onElementClick;
         divEl.ondblclick = this.onElementDblClick;
-
-        // -- element --
-        if (element.type.equals("text")) {
-            this.drawText(element);
-        }
-        if (element.type.equals("barcode")) {
-            element.instance = new Barcode(element);
-        }
-        else {
-
+        divEl.ondblclick = function (evt) {
+            _this.onElementDblClick(_this, evt);
         }
     }
     activeElement(element) {
@@ -195,10 +197,9 @@
         evt.stopPropagation();
         _this.activeElement(element);
     }
-    onElementDblClick(evt) {
+    onElementDblClick(_this, evt) {
         let domElement = evt.srcElement;
         let element = domElement._element;
-        let _this = element.this;
 
         let prop = {
             url: g.path.framework + "/control/label/form/element.html",
@@ -207,11 +208,17 @@
             parent: win,
             modal: true
         };
-        let para = {
+        let para = {            
             element: element,
-            callback: null
+            fields: _this.fields,
+            callback: _this.onElementDblClickReturn
         };
         topWin.openWindow(prop, para);
+    }
+    onElementDblClickReturn(jsp) {
+        let element = jsp.element;
+
+        UtilElement.draw({ element: element });
     }
 
     showHover(evt) {
@@ -274,7 +281,7 @@
             _this.divHoverL.style.display = "none";
             _this.divHoverR.style.display = "none";
         }
-    }    
+    }
 
     // -- element event: resize -----------------------------------------------
     showResize() {
