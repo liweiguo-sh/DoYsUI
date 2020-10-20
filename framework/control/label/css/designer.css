@@ -3,6 +3,7 @@
     --table-layout: fixed;
     border-collapse: collapse;
 }
+
 .tdMain {
     padding: 0px;
     border: dotted 1px green;
@@ -11,12 +12,9 @@
 /* -- element -- */
 .doys_label_element {
     position: absolute;
-    --padding: 5px;
-    background-color: #E0e0E0;
-    overflow: hidden;
-}
-
-.doys_label_activeElement {
+    --overflow: hidden;
+    --background-color: #E0e0E0;
+    --border: solid 1px red;
 }
 
 /** hover */

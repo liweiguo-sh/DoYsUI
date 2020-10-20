@@ -90,7 +90,7 @@
     // ------------------------------------------------------------------------
     createElement(element) {
         let _this = this;
-        let divEl = _this.doc.createElement("DIV");
+        let divEl = _this.doc.createElement("canvas");
         _this.container.appendChild(divEl);
 
         element.dom = divEl;
@@ -102,8 +102,10 @@
         divEl.className = _this.prefix + "element";
         divEl.style.top = element.top + "px";
         divEl.style.left = element.left + "px";
-        divEl.style.width = element.width + "px";
-        divEl.style.height = element.height + "px";
+        //divEl.style.width = element.width + "px";
+        //divEl.style.height = element.height + "px";
+        divEl.width = element.width;
+        divEl.height = element.height;
 
         divEl.draggable = true;
         divEl.ondragstart = function (evt) {
@@ -135,11 +137,11 @@
         let _this = this;
 
         if (_this.activatedElement) {
-            _this.activatedElement.dom.className = _this.prefix + "element";
+            //_this.activatedElement.dom.className = _this.prefix + "element";
         }
 
         _this.activatedElement = element;
-        _this.activatedElement.dom.className = _this.prefix + "element " + _this.prefix + "activeElement";
+        //_this.activatedElement.dom.className = _this.prefix + "element " + _this.prefix + "activeElement";
 
         _this.hideHover();
         _this.showResize();
@@ -208,7 +210,7 @@
             parent: win,
             modal: true
         };
-        let para = {            
+        let para = {
             element: element,
             fields: _this.fields,
             callback: _this.onElementDblClickReturn
@@ -311,6 +313,7 @@
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
             };
             divT.ondrag = _this.onResizeDrag;
+            divT.ondragend = _this.onResizeDragEnd;
             divT._this = _this;
             _this.container.appendChild(divT);
             _this.divT = divT;
@@ -325,6 +328,7 @@
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
             };
             divB.ondrag = _this.onResizeDrag;
+            divB.ondragend = _this.onResizeDragEnd;
             divB._this = _this;
             _this.container.appendChild(divB);
             _this.divB = divB;
@@ -339,6 +343,7 @@
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
             };
             divR.ondrag = _this.onResizeDrag;
+            divR.ondragend = _this.onResizeDragEnd;
             divR._this = _this;
             _this.container.appendChild(divR);
             _this.divR = divR;
@@ -353,6 +358,7 @@
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
             };
             divL.ondrag = _this.onResizeDrag;
+            divL.ondragend = _this.onResizeDragEnd;
             divL._this = _this;
             _this.container.appendChild(divL);
             _this.divL = divL;
@@ -449,5 +455,14 @@
             _this.divR.style.top = _this.divL.offsetTop + "px";
             _this.divR.style.height = _this.divL.offsetHeight + "px";
         }
+
+        UtilElement.draw({ element: _this.activatedElement });
+    }
+    onResizeDragEnd(evt) {
+        let domDrag = evt.srcElement;
+        let _this = domDrag._this;
+        let element = _this.activatedElement;
+         
+        UtilElement.draw({ element: element });
     }
 }

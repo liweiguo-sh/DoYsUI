@@ -126,8 +126,8 @@ g.x.extendJSON = function (json1, json2) {
     if (json2) {
         for (var key in json2) {
             if (json2[key]) {
-                json1[key] = json2[key];
             }
+            json1[key] = json2[key];
         }
     }
     return json1;
