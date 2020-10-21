@@ -40,18 +40,11 @@
         }
     }
     loadLabel(labelString) {
-
-        this.fields = [
-            { k: "客户代码", v: "C001001" },
-            { k: "客户名称", v: "上海样例科技有限公司" },
-            { k: "地址", v: "上海样例路1234号" }
-        ]
-
-
-
         if (this.elements) this.clearLabel();
 
         this.label = JSON.parse(labelString);
+        this.fields = this.label.fields;
+        this.images = this.label.images;
         this.elements = this.label.elements;
 
         for (let i = 0; i < this.elements.length; i++) {
@@ -59,7 +52,7 @@
 
             this.createElement(element);
 
-            UtilElement.compute({ element: element, fields: this.fields });
+            UtilElement.compute({ element: element, fields: this.label.fields, images: this.label.images });
             UtilElement.draw({ element: element });
         }
     }
@@ -213,6 +206,7 @@
         let para = {
             element: element,
             fields: _this.fields,
+            images: _this.images,
             callback: _this.onElementDblClickReturn
         };
         topWin.openWindow(prop, para);
@@ -401,29 +395,30 @@
         }
     }
     onResizeDrag(evt) {
-        let domDrag = evt.srcElement;
-        let _this = domDrag._this;
-        let _domEl = _this.activatedElement.dom;
+        let domResize = evt.srcElement;
+        let _this = domResize._this;
+        let element = _this.activatedElement;
+        let domCanvas = element.dom;
         let width, height;
 
-        if (domDrag.resizeType.equals("L") || domDrag.resizeType.equals("R")) {
-            domDrag.style.left = (evt.clientX - _this.dragOffsetX) + "px";
-            if (domDrag.offsetLeft - domDrag.offsetWidth < 0) domDrag.style.left = -domDrag.offsetWidth + "px";
+        if (domResize.resizeType.equals("L") || domResize.resizeType.equals("R")) {
+            domResize.style.left = (evt.clientX - _this.dragOffsetX) + "px";
+            if (domResize.offsetLeft - domResize.offsetWidth < 0) domResize.style.left = -domResize.offsetWidth + "px";
             width = _this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth;
 
-            if (domDrag.resizeType.equals("L")) {
+            if (domResize.resizeType.equals("L")) {
                 if (width < _this.minElementWidth) _this.divL.style.left = (_this.divR.offsetLeft - _this.divL.offsetWidth - _this.minElementWidth) + "px";
-                domDrag.style.top = _this.divR.offsetTop + "px";
+                domResize.style.top = _this.divR.offsetTop + "px";
             }
             else {
                 if (width < _this.minElementWidth) _this.divR.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth + _this.minElementWidth) + "px";
-                domDrag.style.top = _this.divL.offsetTop + "px";
+                domResize.style.top = _this.divL.offsetTop + "px";
             }
 
-            _domEl.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
-            _domEl.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
-            _domEl._element.left = _domEl.offsetLeft;
-            _domEl._element.width = _domEl.offsetWidth;
+            domCanvas.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
+            domCanvas.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
+            domCanvas._element.left = domCanvas.offsetLeft;
+            domCanvas._element.width = domCanvas.offsetWidth;
 
             _this.divT.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
             _this.divT.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
@@ -432,22 +427,22 @@
             _this.divB.style.width = _this.divT.offsetWidth + "px";
         }
         else {
-            domDrag.style.top = (evt.clientY - _this.dragOffsetY) + "px";
-            if (domDrag.offsetTop - domDrag.offsetHeight < 0) domDrag.style.top = - domDrag.offsetHeight + "px";
+            domResize.style.top = (evt.clientY - _this.dragOffsetY) + "px";
+            if (domResize.offsetTop - domResize.offsetHeight < 0) domResize.style.top = - domResize.offsetHeight + "px";
             height = _this.divB.offsetTop - _this.divT.offsetTop - _this.divT.offsetHeight;
-            if (domDrag.resizeType.equals("T")) {
+            if (domResize.resizeType.equals("T")) {
                 if (height < _this.minElementHeight) _this.divT.style.top = (_this.divB.offsetTop - _this.divT.offsetHeight - _this.minElementHeight) + "px";
-                domDrag.style.left = _this.divB.offsetLeft + "px";
+                domResize.style.left = _this.divB.offsetLeft + "px";
             }
             else {
                 if (height < _this.minElementHeight) _this.divB.style.top = (_this.divT.offsetTop + _this.divT.offsetHeight + _this.minElementHeight) + "px";
-                domDrag.style.left = _this.divT.offsetLeft + "px";
+                domResize.style.left = _this.divT.offsetLeft + "px";
             }
 
-            _domEl.style.top = (_this.divT.offsetTop + _this.divT.offsetHeight) + "px";
-            _domEl.style.height = (_this.divB.offsetTop - _this.divT.offsetTop - _this.divT.offsetHeight) + "px";
-            _domEl._element.top = _domEl.offsetTop;
-            _domEl._element.height = _domEl.offsetHeight;
+            domCanvas.style.top = (_this.divT.offsetTop + _this.divT.offsetHeight) + "px";
+            domCanvas.style.height = (_this.divB.offsetTop - _this.divT.offsetTop - _this.divT.offsetHeight) + "px";
+            domCanvas._element.top = domCanvas.offsetTop;
+            domCanvas._element.height = domCanvas.offsetHeight;
 
             _this.divL.style.top = _this.divT.offsetTop + "px";
             _this.divL.style.height = (_this.divB.offsetTop - _this.divT.offsetTop + _this.divB.offsetHeight) + "px";
@@ -456,7 +451,12 @@
             _this.divR.style.height = _this.divL.offsetHeight + "px";
         }
 
-        UtilElement.draw({ element: _this.activatedElement });
+        if (element.elementType.equals("image")) {
+            domCanvas.width = element.width;
+        }
+        else {
+            UtilElement.draw({ element: element });
+        }
     }
     onResizeDragEnd(evt) {
         let domDrag = evt.srcElement;
