@@ -38,7 +38,7 @@
     </table>
     <hr />
     <div>以下测试区</div>
-    <textarea id="txtJson" rows="8" style="width:800px;" spellcheck="false"></textarea>
+    <textarea id="txtJson" rows="12" style="width:800px;" spellcheck="false"></textarea>
 </body>
 </html>
 
@@ -176,43 +176,74 @@
     "width": 100,
     "height": 80,
     "fields": [
-        { "k": "客户代码", "v": "C001001" },
-        { "k": "客户名称", "v": "上海样例科技有限公司" },
-        { "k": "地址", "v": "上海样例路1234号" }
+        {
+            "k": "客户代码",
+            "v": "C001001"
+        },
+        {
+            "k": "客户名称",
+            "v": "上海样例科技有限公司"
+        },
+        {
+            "k": "地址",
+            "v": "上海样例路1234号"
+        }
     ],
     "images": [
-        { "k": "img1", "v": "https://cn.vuejs.org/images/imooc-sponsor2.png"},
-        { "k": "img2", "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png"},
-        { "k": "img3", "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png"}
-     ],
+        {
+            "k": "img1",
+            "v": "https://cn.vuejs.org/images/imooc-sponsor2.png"
+        },
+        {
+            "k": "img2",
+            "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png"
+        },
+        {
+            "k": "img3",
+            "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png"
+        }
+    ],
     "elements": [
         {
-            "width": 120,
-            "height": 70,
-            "left": 542,
-            "top": 21,
+            "name": "元素1 - 空",
             "elementType": "text",
+            "position": {
+                "width": 120,
+                "height": 70,
+                "left": 542,
+                "top": 21
+            },
+            "font": {
+                "name": "楷体",
+                "size": 14
+            },
             "sections": [],
             "segments": []
         },
         {
-            "width": 240,
-            "height": 90,
-            "left": 30,
-            "top": 270,
-            "elementType": "image",           
-            "imgDeformation" : "zoom",
-            "img": "img3"
+            "name": "元素2 - 图片",
+            "position": {
+                "width": 240,
+                "height": 90,
+                "left": 30,
+                "top": 270
+            },
+            "elementType": "image",
+            "image": {
+                "img": "img3",
+                "deformation": "zoom"
+            }
         },
         {
-            "width": 190,
-            "height": 60,
-            "left": 40,
-            "top": 40,
+            "name": "元素3 - 文本",
             "elementType": "text",
             "barcodeType": "",
-            "sectionsText": "",
-            "segmentsText": "",            
+            "position": {
+                "width": 190,
+                "height": 60,
+                "left": 40,
+                "top": 40
+            },
             "sections": [
                 {
                     "pos": 0,
@@ -237,27 +268,36 @@
                     "type": ""
                 }
             ],
+            "sectionsText": "",
             "segments": [
                 {
                     "pos": 0,
                     "type": ""
                 }
-            ]
+            ],
+            "segmentsText": "",
+            "font": {
+                "name": "微软雅黑",
+                "size": 10
+            }
         },
         {
-            "width": 300,
-            "height": 100,
-            "left": 300,
-            "top": 130,
+            "name": "元素4 - 条码",
             "elementType": "barcode",
             "barcodeType": "Code128",
-            "sectionsText": "",
-            "segmentsText": "",
+            "position": {
+                "width": 350,
+                "height": 100,
+                "left": 300,
+                "top": 130,
+                "textAlign": "right",
+                "verticalAlign": "middle"
+            },
             "sections": [
                 {
                     "pos": 0,
                     "type": "fixed",
-                    "value": "固定值B",
+                    "value": "元素4的固定值",
                     "format": ""
                 },
                 {
@@ -277,6 +317,7 @@
                     "type": ""
                 }
             ],
+            "sectionsText": "",
             "segments": [
                 {
                     "pos": 0,
@@ -300,7 +341,13 @@
                     "pos": 3,
                     "type": ""
                 }
-            ]
+            ],
+            "segmentsText": "",
+            "font": {
+                "name": "宋体",
+                "size": 12,
+                "bold": true
+            }
         }
     ]
 }

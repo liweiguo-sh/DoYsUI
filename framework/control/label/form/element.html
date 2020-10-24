@@ -5,6 +5,7 @@
     <script src="../../../core/doys.js"></script>
 
     <script src="../js/element.js"></script>
+    <script src="../js/font.js"></script>
 
     <style type="text/css">
         body {
@@ -118,7 +119,7 @@
                     <el-row>
                         <el-col :span="12" class="el-col-base">
                             <el-form-item label="图片" required>
-                                <el-select v-model="element.img" @change="imgChange();" style="width:100%;">
+                                <el-select v-model="element.image.img" @change="imgChange();" style="width:100%;">
                                     <el-option v-for="item in images" :value="item.k" :label="item.k" :key="item.k" :title="item.k + '  (' + item.v + ')'" style="height:52px;padding-top:2px;">
                                         <slot>
                                             <image :src="item.v" style="height:48px;" />
@@ -129,7 +130,7 @@
                         </el-col>
                         <el-col :span="12" class="el-col-base">
                             <el-form-item label="尺寸选项">
-                                <el-select v-model="element.imgDeformation" style="width:100%;">
+                                <el-select v-model="element.image.deformation" style="width:100%;">
                                     <el-option value="stretch" label="拉伸填充"></el-option>
                                     <el-option value="zoom" label="同比缩放"></el-option>
                                     <el-option value="none" label="图片原始大小"></el-option>
@@ -140,10 +141,75 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane label="字体" name="font" v-if="element.elementType=='barcode' || element.elementType=='text'">
-                字体
+                <el-row>
+                    <el-col :span="12" class="el-col-base">
+                        <el-select v-model="element.font.name" @change="fontChange();" style="width:100%;" filterable>
+                            <el-option v-for="name in fontNames" :value="name" :label="name" :key="name">
+                                <slot>
+                                    <span style="float:left">{{name}}</span>
+                                    <span :style="'float:right;font-family:' + name">简体中文AaBbCc123</span>
+                                </slot>
+                            </el-option>
+                        </el-select>
+                    </el-col>
+                    <el-col :span="6" class="el-col-base">
+                        <el-select v-model="element.font.size" @change="fontChange();" style="width:100%;" placeholder="字体大小" filterable>
+                            <el-option v-for="size in fontSizes" :value="size" :label="size" :key="size"></el-option>
+                        </el-select>
+                    </el-col>
+                </el-row>
+                <el-row style="margin-top:10px;">
+                    <el-col :span="12" class="el-col-base" style="text-align:center;">
+                        <el-checkbox v-model="element.font.bold">粗体</el-checkbox>
+                        <el-checkbox v-model="element.font.italic">斜体</el-checkbox>
+                    </el-col>
+                </el-row>
             </el-tab-pane>
             <el-tab-pane label="位置" name="position">
-                位置
+                <el-form label-width="135px" label-position="right">
+                    <el-row>
+                        <el-col :span="8" class="el-col-base">
+                            <el-form-item label="位置X" required>
+                                <el-input v-model="element.position.left"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8" class="el-col-base">
+                            <el-form-item label="宽度" required>
+                                <el-input v-model="element.position.width"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8" class="el-col-base">
+                            <el-form-item label="水平位置">
+                                <el-select v-model="element.position.textAlign" @change="fontChange();" style="width:100%;" filterable>
+                                    <el-option value="left" label="居左"></el-option>
+                                    <el-option value="center" label="居中"></el-option>
+                                    <el-option value="right" label="居右"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="8" class="el-col-base">
+                            <el-form-item label="位置Y" required>
+                                <el-input v-model="element.position.top"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8" class="el-col-base">
+                            <el-form-item label="高度" required>
+                                <el-input v-model="element.position.height"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8" class="el-col-base">
+                            <el-form-item label="垂直位置">
+                                <el-select v-model="element.position.verticalAlign" @change="fontChange();" style="width:100%;" filterable>
+                                    <el-option value="top" label="居上"></el-option>
+                                    <el-option value="middle" label="居中"></el-option>
+                                    <el-option value="bottom" label="居下"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
             </el-tab-pane>
         </el-tabs>
         <hr />
@@ -162,9 +228,15 @@
 
             fields: [],
             images: [],
-            element: {},
+            element: {
+                position: {},
+                image: {}
+            },
             symbols: UtilElement.getAI(),
             sectionTypes: UtilElement.getSectionTypes(),
+
+            fontNames: UtilFont.getNames(),
+            fontSizes: UtilFont.getSizes(),
 
             remark: ""
         },
@@ -204,8 +276,7 @@
                 }
                 else {
                     if (this.element.img) delete this.element.img;
-                    if (this.element.image) delete this.element.image;
-                    if (this.element.imgDeformation) delete this.element.imgDeformation;                    
+                    if (this.element.image) delete this.element.image;                
                 }
 
                 UtilElement.compute({ element: this.element, fields: this.fields, images: this.images });
@@ -278,6 +349,9 @@
             imgChange() {
                 UtilElement.compute({ element: this.element, fields: this.fields, images: this.images });
             },
+            fontChange() {
+
+            },
 
             test1() {
                 UtilElement.compute({ element: this.element, fields: this.fields, images: this.images });
@@ -311,6 +385,10 @@
 
         win.addEventListener("afterClose", () => {
             win.para.callback({ element: app.element });
+
+            app.fields = null;
+            app.images = null;
+            app.element = null;
         });
     }
 </script>

@@ -40,8 +40,13 @@ function openMenu(menu) {
         win = topWin.openFullWindow(prop, para);
     }
     else if (menu.type.equals("win")) {
+        let url = g.path.project + menu.url;
+        if (menu.url.indexOf("/framework/") == 0) {
+            url = g.path.base + menu.url;
+        }
+
         let prop = {
-            url: g.path.project + menu.url,
+            url: url,
             text: menu.text
         };
         let para = {};

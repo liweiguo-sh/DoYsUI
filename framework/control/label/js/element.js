@@ -88,10 +88,10 @@ UtilElement.compute = function (jsp) {
     }
     // ----------------------------------------------------
     if (element.elementType.equals("image")) {
-        let img = element.img || "";
+        let img = element.image.img || "";
         for (let i = 0; i < images.length; i++) {
             if (img.equals(images[i].k)) {
-                element.image = images[i].v;
+                element.image.url = images[i].v;
                 break;
             }
         }
@@ -100,9 +100,14 @@ UtilElement.compute = function (jsp) {
 UtilElement.draw = function (jsp) {
     let element = jsp.element;
     let elementType = element.elementType;
-    let dom = element.dom;
+    let dom = element._dom;
+    // -- position ----------------------------------------    
+    dom.style.top = element.position.top + "px";
+    dom.style.left = element.position.left + "px";
+    dom.width = element.position.width;
+    dom.height = element.position.height;
 
-
+    // -- repaint -----------------------------------------
     if (elementType.equals("text")) {
         UtilElement.draw_text(dom, element);
     }
@@ -166,8 +171,8 @@ UtilElement.getBlankSection = function (jsp) {
 
 // -- draw text ---------------------------------------------------------------
 UtilElement.draw_text = function (domCanvas, element) {
-    let width = element.width;
-    let height = element.height;
+    let width = element.position.width;
+    let height = element.position.height;
     let context = domCanvas.getContext("2d");
 
     domCanvas.width = width;
@@ -231,25 +236,25 @@ UtilElement._drawError = function (context, jsp) {
         txtString: jsp.message,
         font: "normal 12pt '微软雅黑'",
         fillStyle: "red",
-        top: 0.5 * element.height,
+        top: 0.5 * element.position.height,
         left: 0,
-        width: element.width
+        width: element.position.width
     });
 }
 
 // -- draw image --------------------------------------------------------------
 UtilElement.draw_image = function (domCanvas, element) {
-    let width = element.width, widthImg;
-    let height = element.height, heightImg;
+    let width = element.position.width, widthImg;
+    let height = element.position.height, heightImg;
     let context = domCanvas.getContext("2d");
-    let deformation = element.imgDeformation || "";
+    let deformation = element.image.deformation || "";
 
     let img = new Image();
     // ----------------------------------------------------
     domCanvas.width = width;
     domCanvas.height = height;
 
-    img.src = element.image;
+    img.src = element.image.url;
     img.onload = function () {
         if (deformation.equals("stretch")) {    // -- 拉伸(变形) --
             widthImg = width;
@@ -279,8 +284,8 @@ UtilElement.draw_image = function (domCanvas, element) {
 
 // -- draw barcode-1D ---------------------------------------------------------
 UtilElement.draw_Code128 = function (domCanvas, element) {
-    let width = element.width;
-    let height = element.height;
+    let width = element.position.width;
+    let height = element.position.height;
     let context = domCanvas.getContext("2d");
 
     domCanvas.width = width;

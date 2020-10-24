@@ -5,8 +5,8 @@
         this.doc = window.document;
         this.id = 1;
 
-        this.minElementWidth = 10;              // -- 元素最小宽度 --
-        this.minElementHeight = 10;             // -- 元素最小高度 --
+        this.minElementWidth = 1;               // -- 元素最小宽度 --
+        this.minElementHeight = 1;              // -- 元素最小高度 --
 
         // -- 1.1 element resize, hover and drag drop --
         this.dragOffsetX = 0;
@@ -27,7 +27,6 @@
         }
         this.container._this = this;
         this.container.onclick = function (evt) {
-            return;
             let _this = evt.srcElement._this;
 
             _this.activatedElement = null;
@@ -62,46 +61,50 @@
         this.hideHover();
 
         for (let i = 0; i < this.elements.length; i++) {
-            this.container.removeChild(this.elements[i].dom);
-            delete this.elements[i].dom;
+            this.container.removeChild(this.elements[i]._dom);
+            delete this.elements[i]._dom;
         }
     }
     toJson() {
-        return JSON.stringify(this.label,
-            (k, v) => {
-                if (k.equals("dom") || k.equals("doc")) {
-                    return undefined;
-                }
-                else if (k.equals("instance")) {
-                    return undefined;
-                }
-                return v;
-            }, "  "
-        );
+        try {
+            return JSON.stringify(this.label,
+                (k, v) => {
+                    if (k.startsWith("_")) {    // -- _this, _dom --                        
+                        return undefined;
+                    }
+                    else {
+                        // -- console.log(k); --
+                    }
+                    return v;
+                }, "  "
+            );
+        }
+        catch (e) {
+            topWin.alert(e, "error");
+        }
     }
 
     // ------------------------------------------------------------------------
     createElement(element) {
         let _this = this;
-        let divEl = _this.doc.createElement("canvas");
-        _this.container.appendChild(divEl);
+        let divCanvas = _this.doc.createElement("canvas");
+        _this.container.appendChild(divCanvas);
 
-        element.dom = divEl;
-        element.doc = _this.doc;
-        divEl._this = _this;
-        divEl._element = element;
+        element._this = _this;
+        element._dom = divCanvas;
 
-        divEl.id = _this.prefix + "el_" + _this.id++;
-        divEl.className = _this.prefix + "element";
-        divEl.style.top = element.top + "px";
-        divEl.style.left = element.left + "px";
-        //divEl.style.width = element.width + "px";
-        //divEl.style.height = element.height + "px";
-        divEl.width = element.width;
-        divEl.height = element.height;
+        divCanvas._this = _this;
+        divCanvas._element = element;
+        divCanvas.id = _this.prefix + "el_" + _this.id++;
+        divCanvas.className = _this.prefix + "element";
 
-        divEl.draggable = true;
-        divEl.ondragstart = function (evt) {
+        //divCanvas.style.top = element.position.top + "px";
+        //divCanvas.style.left = element.position.left + "px";
+        //divCanvas.width = element.position.width;
+        //divCanvas.height = element.position.height;
+
+        divCanvas.draggable = true;
+        divCanvas.ondragstart = function (evt) {
             let _dom = evt.srcElement;
             let _this = _dom._this;
 
@@ -110,19 +113,19 @@
             evt.dataTransfer.setDragImage(new Image(), 0, 0);
             _this.ondragstart(evt, _this.container);
         };
-        divEl.ondrag = _this.onElementDrag;
+        divCanvas.ondrag = _this.onCanvasDrag;
 
-        divEl.onmouseenter = this.showHover;
-        divEl.onmouseleave = function (evt) {
+        divCanvas.onmouseenter = this.showHover;
+        divCanvas.onmouseleave = function (evt) {
             let _dom = evt.srcElement;
             let _this = _dom._this;
 
             _this.hideHover();
         }
 
-        divEl.onclick = this.onElementClick;
-        divEl.ondblclick = this.onElementDblClick;
-        divEl.ondblclick = function (evt) {
+        divCanvas.onclick = this.onElementClick;
+        divCanvas.ondblclick = this.onElementDblClick;
+        divCanvas.ondblclick = function (evt) {
             _this.onElementDblClick(_this, evt);
         }
     }
@@ -130,17 +133,17 @@
         let _this = this;
 
         if (_this.activatedElement) {
-            //_this.activatedElement.dom.className = _this.prefix + "element";
+            //_this.activatedElement._dom.className = _this.prefix + "element";
         }
 
         _this.activatedElement = element;
-        //_this.activatedElement.dom.className = _this.prefix + "element " + _this.prefix + "activeElement";
+        //_this.activatedElement._dom.className = _this.prefix + "element " + _this.prefix + "activeElement";
 
         _this.hideHover();
         _this.showResize();
     }
     drawText(element) {
-        let dom = element.dom;
+        let dom = element._dom;
         dom.innerHTML = element.text;
     }
 
@@ -168,15 +171,16 @@
         this.dragOffsetX = dragOffsetX;
         this.dragOffsetY = dragOffsetY;
     }
-    onElementDrag(evt) {
+    onCanvasDrag(evt) {
         let domDrag = evt.srcElement;
         let _this = domDrag._this;
+        let element = _this.activatedElement;
 
-        domDrag._element.left = evt.clientX - _this.dragOffsetX;
-        domDrag._element.top = evt.clientY - _this.dragOffsetY;
+        element.position.left = evt.clientX - _this.dragOffsetX;
+        element.position.top = evt.clientY - _this.dragOffsetY;
 
-        domDrag.style.left = domDrag._element.left + "px";
-        domDrag.style.top = domDrag._element.top + "px";
+        domDrag.style.left = element.position.left + "px";
+        domDrag.style.top = element.position.top + "px";
 
         if (_this.activatedElement) {
             _this.showResize();
@@ -213,8 +217,10 @@
     }
     onElementDblClickReturn(jsp) {
         let element = jsp.element;
+        let _this = element._this;
 
         UtilElement.draw({ element: element });
+        _this.showResize();
     }
 
     showHover(evt) {
@@ -223,7 +229,7 @@
 
         // ------------------------------------------------
         if (_this.activatedElement) {
-            if (_this.activatedElement.dom.id.equals(_dom.id)) {
+            if (_this.activatedElement._dom.id.equals(_dom.id)) {
                 return;
             }
         }
@@ -285,7 +291,7 @@
         let domEl, divT, divB, divL, divR;
         // ------------------------------------------------
         if (_this.activatedElement) {
-            domEl = _this.activatedElement.dom;
+            domEl = _this.activatedElement._dom;
         }
         else {
             if (_this.divT) {
@@ -398,7 +404,7 @@
         let domResize = evt.srcElement;
         let _this = domResize._this;
         let element = _this.activatedElement;
-        let domCanvas = element.dom;
+        let domCanvas = element._dom;
         let width, height;
 
         if (domResize.resizeType.equals("L") || domResize.resizeType.equals("R")) {
@@ -417,8 +423,8 @@
 
             domCanvas.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
             domCanvas.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
-            domCanvas._element.left = domCanvas.offsetLeft;
-            domCanvas._element.width = domCanvas.offsetWidth;
+            domCanvas._element.position.left = domCanvas.offsetLeft;
+            domCanvas._element.position.width = domCanvas.offsetWidth;
 
             _this.divT.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
             _this.divT.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
@@ -441,8 +447,8 @@
 
             domCanvas.style.top = (_this.divT.offsetTop + _this.divT.offsetHeight) + "px";
             domCanvas.style.height = (_this.divB.offsetTop - _this.divT.offsetTop - _this.divT.offsetHeight) + "px";
-            domCanvas._element.top = domCanvas.offsetTop;
-            domCanvas._element.height = domCanvas.offsetHeight;
+            domCanvas._element.position.top = domCanvas.offsetTop;
+            domCanvas._element.position.height = domCanvas.offsetHeight;
 
             _this.divL.style.top = _this.divT.offsetTop + "px";
             _this.divL.style.height = (_this.divB.offsetTop - _this.divT.offsetTop + _this.divB.offsetHeight) + "px";
@@ -452,7 +458,7 @@
         }
 
         if (element.elementType.equals("image")) {
-            domCanvas.width = element.width;
+            domCanvas.width = element.position.width;
         }
         else {
             UtilElement.draw({ element: element });
@@ -462,7 +468,7 @@
         let domDrag = evt.srcElement;
         let _this = domDrag._this;
         let element = _this.activatedElement;
-         
+
         UtilElement.draw({ element: element });
     }
 }
