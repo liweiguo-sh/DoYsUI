@@ -51,7 +51,8 @@
 
             this.createElement(element);
 
-            UtilElement.compute({ element: element, fields: this.label.fields, images: this.label.images });
+            UtilElement.computeProp({ element: element });
+            UtilElement.computeValue({ element: element, fields: this.label.fields, images: this.label.images });
             UtilElement.draw({ element: element });
         }
     }
@@ -219,6 +220,8 @@
         let element = jsp.element;
         let _this = element._this;
 
+        UtilElement.computeProp({ element: element });
+        UtilElement.computeValue({ element: element, fields: _this.label.fields, images: _this.label.images });
         UtilElement.draw({ element: element });
         _this.showResize();
     }
@@ -461,6 +464,7 @@
             domCanvas.width = element.position.width;
         }
         else {
+            UtilElement.computeProp({ element: element });
             UtilElement.draw({ element: element });
         }
     }
@@ -469,6 +473,7 @@
         let _this = domDrag._this;
         let element = _this.activatedElement;
 
+        UtilElement.computeProp({ element: element });
         UtilElement.draw({ element: element });
     }
 }

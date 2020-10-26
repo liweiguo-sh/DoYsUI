@@ -19,7 +19,45 @@ UtilElement.getAI = function () {
     return UtilElement.__ai;
 }
 
-UtilElement.compute = function (jsp) {
+UtilElement.computeProp = function (jsp) {
+    let element = jsp.element;
+    // ----------------------------------------------------
+    if (element.elementType.equals("barcode") || element.elementType.equals("text")) {
+        element.font._fontDraw = UtilElement._getContextFont(element.font);
+        element.font._fillStyleDraw = UtilElement._getContextFillStyle({ color: element.font.color });
+        element.font._lineHeightDraw = element.font.lineHeight || UtilElement._getContextLineHeight(element.font);
+
+        element.position._topDraw = 0;
+        element.position._leftDraw = 0;
+        if (element.position.textAlign) {
+            if (element.position.textAlign.equals("center")) {
+                element.position._leftDraw = element.position.width / 2;
+            }
+            else if (element.position.textAlign.equals("right")) {
+                element.position._leftDraw = element.position.width;
+            }
+        }
+        if (element.position.verticalAlign) {
+            if (element.position.verticalAlign.equals("middle")) {
+                element.position._topDraw = element.position.height / 2;
+            }
+            else if (element.position.verticalAlign.equals("bottom")) {
+                element.position._topDraw = element.position.height;
+            }
+        }
+    }
+    if (element.elementType.equals("barcode")) {
+        element.position._topDraw = element.position.height - element.font._lineHeightDraw;
+        if (element.position._topDraw < element.font._lineHeightDraw) {
+            element.position._topDraw = element.font._lineHeightDraw;
+        }
+    }
+
+    // -- 补全默认值 -------------------------------------------
+    element.position.textAlign = element.position.textAlign || "left";
+    element.position.verticalAlign = element.position.verticalAlign || "top";
+}
+UtilElement.computeValue = function (jsp) {
     let element = jsp.element;
     let fields = jsp.fields;
     let images = jsp.images;
@@ -54,7 +92,7 @@ UtilElement.compute = function (jsp) {
                 }
             }
         }
-        element.segmentsText = values.join("");
+        element._segmentsText = values.join("");
     }
     // ----------------------------------------------------
     if (element.elementType.equals("barcode") || element.elementType.equals("text")) {
@@ -84,7 +122,7 @@ UtilElement.compute = function (jsp) {
                 }
             }
         }
-        element.sectionsText = values.join("");
+        element._sectionsText = values.join("");
     }
     // ----------------------------------------------------
     if (element.elementType.equals("image")) {
@@ -178,33 +216,47 @@ UtilElement.draw_text = function (domCanvas, element) {
     domCanvas.width = width;
     domCanvas.height = height;
 
-    if (!element.sectionsText) element.sectionsText = "Empty String Empty String";
-    UtilElement._drawString(context, {
-        txtString: element.sectionsText,
-        font: "normal 12pt '微软雅黑'",
-        fillStyle: "Green",
-        top: 20,
-        left: 0,
-        width: width
-    });
+    if (!element._sectionsText) element._sectionsText = "Empty String Empty String";
+    if (element.font.wordWrap) {
+        UtilElement._drawMultiLine(context, element);
+    }
+    else {
+        UtilElement._drawSingleLine(context, element);
+    }
+
 }
-UtilElement._drawString = function (context, jsp) {
+
+UtilElement._drawSingleLine = function (context, element) {
+    context.font = element.font._fontDraw;
+    context.fillStyle = element.font._fillStyleDraw;
+    context.textAlign = element.position.textAlign || "left";
+    context.textBaseline = element.position.verticalAlign || "top";
+
+    context.fillText(element._sectionsText, element.position._leftDraw, element.position._topDraw);
+}
+UtilElement._drawMultiLine = function (context, element) {
+    let font = element.font;
+    let position = element.position;
+
     let txts = new Array();
-    let txtString = jsp.txtString;
+    let txtString = element._sectionsText;
     let chars = txtString.split("");
-
     let length = chars.length, pos = 0;
-    let lineHeight = 22;
-    // -- 1. font -----------------------------------------
-    context.font = jsp.font;
-    context.fillStyle = jsp.fillStyle;
 
-    // -- 先做简单拆分，将来优化为考虑中文，完整英文单词，标点符号以及空格等因素 --
+    let lineHeight = font._lineHeightDraw;
+    let width = position.width;
+    let top = 0, left;
+
+    // -- 1. style ----------------------------------------
+    context.font = font._fontDraw;
+    context.fillStyle = font._fillStyleDraw;
+
+    // -- 2. 先做简单拆分，将来优化为考虑中文，完整英文单词，标点符号以及空格等因素 --
     while (pos < length) {
         let txt = "";
         for (let i = pos; i < length; i++) {
             txt += chars[i];
-            if (context.measureText(txt).width > jsp.width) {
+            if (context.measureText(txt).width > width) {
                 if (i > pos) {
                     txt = txt.substring(0, txt.length - 1);
                 }
@@ -223,23 +275,72 @@ UtilElement._drawString = function (context, jsp) {
         }
     }
 
-    // -- 3. draw -----------------------------------------    
+    // -- 3. 垂直位置计算 -----------------------------------
+    context.textAlign = position.textAlign;
+    left = element.position._leftDraw;
+
+    context.textBaseline = "top";   // -- 固定设置为top，通过计算实现垂直居中 --
+    if (position.verticalAlign.equals("top")) {
+    }
+    else {
+        if (position.height / txts.length > font._lineHeightDraw) {
+            if (position.verticalAlign.equals("middle")) {
+                top = (position.height - (txts.length * font._lineHeightDraw)) / 2;
+            }
+            else if (position.verticalAlign.equals("bottom")) {
+                top = position.height - (txts.length * font._lineHeightDraw);
+            }
+        }
+    }
+
+    // -- 4. draw -----------------------------------------
     for (let i = 0; i < txts.length; i++) {
-        let line = txts[i];
-        context.fillText(line, jsp.left, jsp.top + i * lineHeight);
+        let txt = txts[i];
+        context.fillText(txt, left, top + i * lineHeight);
     }
 }
-UtilElement._drawError = function (context, jsp) {
-    let element = jsp.element;
+UtilElement._drawError = function (context, element, message) {
+    context.font = "12px sans-serif";
+    context.fillStyle = "red";
+    context.textAlign = "left";
+    context.textBaseline = "top";
 
-    UtilElement._drawString(context, {
-        txtString: jsp.message,
-        font: "normal 12pt '微软雅黑'",
-        fillStyle: "red",
-        top: 0.5 * element.position.height,
-        left: 0,
-        width: element.position.width
-    });
+    if (element.position.height > 12) {
+        context.fillText(message, 0, (element.position.height - 12) / 2);
+    }
+    else {
+        context.fillText(message, 0, 0);
+    }
+}
+
+UtilElement._getContextFont = function (elementFont) {
+    // -- 示例: font: "normal 12px '微软雅黑'" --
+    // -- 必须是这个顺序，顺序错误无效，比较奇葩，具体顺序参考：https://blog.csdn.net/HuoYiHengYuan/article/details/101677114 --
+    let arr = new Array();
+
+    if (elementFont.bold) arr.push("bold");
+    if (elementFont.italic) arr.push("italic");
+
+    arr.push(elementFont.size + "px");
+    arr.push("'" + elementFont.name + "'");
+
+    return arr.join(" ");
+}
+UtilElement._getContextFillStyle = function (jsp) {
+    let arr = new Array();
+
+    if (jsp.color) {
+        arr.push(jsp.color);
+    }
+    else {
+        arr.push("black");
+    }
+
+    return arr.join(" ");
+}
+UtilElement._getContextLineHeight = function (font) {
+
+    return font.size * 1;
 }
 
 // -- draw image --------------------------------------------------------------
@@ -278,7 +379,7 @@ UtilElement.draw_image = function (domCanvas, element) {
         context.drawImage(img, 0, 0, widthImg, heightImg);
     }
     img.onerror = function () {
-        UtilElement._drawError(context, { element: element, message: "picture failed to load" });
+        UtilElement._drawError(context, element, "picture failed to load");
     }
 }
 
@@ -290,20 +391,14 @@ UtilElement.draw_Code128 = function (domCanvas, element) {
 
     domCanvas.width = width;
     domCanvas.height = height;
-    //context.clearRect(0, 0, width, height);
 
-    context.font = "normal 10pt 'Arial'";
+    context.font = "normal 20px '微软雅黑'";
     context.fillStyle = "orange";
-    context.fillText("    | ||    " + element.segmentsText + "    || |", 0, 0.4 * height);
+    context.textAlign = "center";
+    context.textBaseline = "top";
+    context.fillText("| ||    " + element._segmentsText + "    || |", element.position.width / 2, 0.1 * element.position.height);
 
-    if (element.sectionsText) {
-        UtilElement._drawString(context, {
-            txtString: element.sectionsText,
-            font: "normal 14pt '微软雅黑'",
-            fillStyle: "Blue",
-            top: 0.8 * height,
-            left: 0,
-            width: width
-        });
+    if (element._sectionsText) {
+        UtilElement._drawSingleLine(context, element);
     }
 }

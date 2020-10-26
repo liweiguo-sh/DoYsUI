@@ -11,6 +11,7 @@
         body {
             overflow-x: hidden;
         }
+
         .el-col-base {
             padding-right: 20px;
         }
@@ -141,29 +142,54 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane label="字体" name="font" v-if="element.elementType=='barcode' || element.elementType=='text'">
-                <el-row>
-                    <el-col :span="12" class="el-col-base">
-                        <el-select v-model="element.font.name" @change="fontChange();" style="width:100%;" filterable>
-                            <el-option v-for="name in fontNames" :value="name" :label="name" :key="name">
-                                <slot>
-                                    <span style="float:left">{{name}}</span>
-                                    <span :style="'float:right;font-family:' + name">简体中文AaBbCc123</span>
-                                </slot>
-                            </el-option>
-                        </el-select>
-                    </el-col>
-                    <el-col :span="6" class="el-col-base">
-                        <el-select v-model="element.font.size" @change="fontChange();" style="width:100%;" placeholder="字体大小" filterable>
-                            <el-option v-for="size in fontSizes" :value="size" :label="size" :key="size"></el-option>
-                        </el-select>
-                    </el-col>
-                </el-row>
-                <el-row style="margin-top:10px;">
-                    <el-col :span="12" class="el-col-base" style="text-align:center;">
-                        <el-checkbox v-model="element.font.bold">粗体</el-checkbox>
-                        <el-checkbox v-model="element.font.italic">斜体</el-checkbox>
-                    </el-col>
-                </el-row>
+                <el-form label-width="120px" label-position="right">
+                    <el-row>
+                        <el-col :span="10" class="el-col-base">
+                            <el-form-item label="字体">
+                                <el-select v-model="element.font.name" @change="reComputer();" style="width:100%;" filterable>
+                                    <el-option v-for="name in fontNames" :value="name" :label="name" :key="name">
+                                        <slot>
+                                            <div style="width:350px;">
+                                                <span style="float:left">{{name}}</span>
+                                                <span :style="'float:right;font-family:' + name">简体中文AaBbCc123</span>
+                                            </div>
+                                        </slot>
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7" class="el-col-base">
+                            <el-form-item label="字号">
+                                <el-select v-model="element.font.size" @change="reComputer();" style="width:100%;" filterable>
+                                    <el-option v-for="size in fontSizes" :value="size" :label="size" :key="size"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7" class="el-col-base">
+                            <el-form-item label="颜色">
+                                <el-color-picker v-model="element.font.color" @change="reComputer();"></el-color-picker>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="10" class="el-col-base">
+                            <el-form-item label="样式">
+                                <el-checkbox v-model="element.font.bold">粗体</el-checkbox>
+                                <el-checkbox v-model="element.font.italic">斜体</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7" class="el-col-base">
+                            <el-form-item label="换行">
+                                <el-checkbox v-model="element.font.wordWrap">自动换行</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7" class="el-col-base">
+                            <el-form-item label="行高">
+                                <el-input v-model="element.font.lineHeight"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
             </el-tab-pane>
             <el-tab-pane label="位置" name="position">
                 <el-form label-width="135px" label-position="right">
@@ -180,7 +206,7 @@
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="水平位置">
-                                <el-select v-model="element.position.textAlign" @change="fontChange();" style="width:100%;" filterable>
+                                <el-select v-model="element.position.textAlign" style="width:100%;" filterable>
                                     <el-option value="left" label="居左"></el-option>
                                     <el-option value="center" label="居中"></el-option>
                                     <el-option value="right" label="居右"></el-option>
@@ -201,7 +227,7 @@
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="垂直位置">
-                                <el-select v-model="element.position.verticalAlign" @change="fontChange();" style="width:100%;" filterable>
+                                <el-select v-model="element.position.verticalAlign" style="width:100%;" filterable>
                                     <el-option value="top" label="居上"></el-option>
                                     <el-option value="middle" label="居中"></el-option>
                                     <el-option value="bottom" label="居下"></el-option>
@@ -276,10 +302,10 @@
                 }
                 else {
                     if (this.element.img) delete this.element.img;
-                    if (this.element.image) delete this.element.image;                
+                    if (this.element.image) delete this.element.image;
                 }
 
-                UtilElement.compute({ element: this.element, fields: this.fields, images: this.images });
+                this.reComputer();
             },
 
             sectionTypeChange(pos) {
@@ -289,10 +315,10 @@
                     this.element.sections.push(sectionBlank);
                 }
 
-                UtilElement.compute({ element: this.element, fields: this.fields });
+                this.reComputer();
             },
             sectionValueChange(pos) {
-                UtilElement.compute({ element: this.element, fields: this.fields });
+                this.reComputer();
             },
             sectionDelete(pos) {
                 this.element.sections.splice(pos, 1);
@@ -300,7 +326,7 @@
                     this.element.sections[i].pos = i;
                 }
 
-                UtilElement.compute({ element: this.element, fields: this.fields });
+                this.reComputer();
             },
             sectionMoveUp(pos) {
                 let section0 = this.element.sections.slice(pos - 1, pos)[0];
@@ -311,7 +337,7 @@
 
                 this.element.sections.splice(pos - 1, 2, section1, section0);
 
-                UtilElement.compute({ element: this.element, fields: this.fields });
+                this.reComputer();
             },
 
             segmentTypeChange(pos) {
@@ -321,10 +347,10 @@
                     this.element.segments.push(segmentBlank);
                 }
 
-                UtilElement.compute({ element: this.element, fields: this.fields });
+                this.reComputer();
             },
             segmentValueChange(pos) {
-                UtilElement.compute({ element: this.element, fields: this.fields });
+                this.reComputer();
             },
             segmentDelete(pos) {
                 this.element.segments.splice(pos, 1);
@@ -332,7 +358,7 @@
                     this.element.segments[i].pos = i;
                 }
 
-                UtilElement.compute({ element: this.element, fields: this.fields });
+                this.reComputer();
             },
             segmentMoveUp(pos) {
                 let segment0 = this.element.segments.slice(pos - 1, pos)[0];
@@ -343,18 +369,18 @@
 
                 this.element.segments.splice(pos - 1, 2, segment1, segment0);
 
-                UtilElement.compute({ element: this.element, fields: this.fields });
+                this.reComputer();
             },
 
             imgChange() {
-                UtilElement.compute({ element: this.element, fields: this.fields, images: this.images });
+                this.reComputer();
             },
-            fontChange() {
-
+            reComputer() {
+                UtilElement.computeValue({ element: this.element, fields: this.fields, images: this.images });
             },
 
             test1() {
-                UtilElement.compute({ element: this.element, fields: this.fields, images: this.images });
+                this.reComputer();
                 topWin.message("test1 执行完毕");
             },
             toString() {
@@ -380,8 +406,6 @@
         else if (app.element.elementType.equals("text")) {
             app.activeTabName = "sections";
         }
-
-        UtilElement.compute({ element: app.element, fields: app.fields, images: app.images });
 
         win.addEventListener("afterClose", () => {
             win.para.callback({ element: app.element });
