@@ -46,6 +46,10 @@
         this.images = this.label.images;
         this.elements = this.label.elements;
 
+        this.zIndexCanvas = 100;
+        this.zIndexResize = 200;
+        this.zIndexHover = 210;        
+
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
@@ -98,11 +102,6 @@
         divCanvas._element = element;
         divCanvas.id = _this.prefix + "el_" + _this.id++;
         divCanvas.className = _this.prefix + "element";
-
-        //divCanvas.style.top = element.position.top + "px";
-        //divCanvas.style.left = element.position.left + "px";
-        //divCanvas.width = element.position.width;
-        //divCanvas.height = element.position.height;
 
         divCanvas.draggable = true;
         divCanvas.ondragstart = function (evt) {
@@ -240,18 +239,22 @@
         if (!_this.divHoverT) {
             _this.divHoverT = _this.doc.createElement("DIV");
             _this.divHoverT.className = _this.prefix + "hoverTB";
+            _this.divHoverT.style.zIndex = _this.zIndexHover;
             _this.container.appendChild(_this.divHoverT);
 
             _this.divHoverB = _this.doc.createElement("DIV");
             _this.divHoverB.className = _this.prefix + "hoverTB";
+            _this.divHoverB.style.zIndex = _this.zIndexHover;
             _this.container.appendChild(_this.divHoverB);
 
             _this.divHoverL = _this.doc.createElement("DIV");
             _this.divHoverL.className = _this.prefix + "hoverLR";
+            _this.divHoverL.style.zIndex = _this.zIndexHover;
             _this.container.appendChild(_this.divHoverL);
 
             _this.divHoverR = _this.doc.createElement("DIV");
             _this.divHoverR.className = _this.prefix + "hoverLR";
+            _this.divHoverR.style.zIndex = _this.zIndexHover;
             _this.container.appendChild(_this.divHoverR);
         }
         else {
@@ -309,6 +312,7 @@
             divT = _this.doc.createElement("DIV");
             divT.resizeType = "T";
             divT.className = _this.prefix + "resizeTB";
+            divT.style.zIndex = _this.zIndexResize;
             divT.draggable = true;
             divT.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;
@@ -324,6 +328,7 @@
             divB = _this.doc.createElement("DIV");
             divB.resizeType = "B";
             divB.className = _this.prefix + "resizeTB";
+            divB.style.zIndex = _this.zIndexResize;
             divB.draggable = true;
             divB.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;
@@ -339,6 +344,7 @@
             divR = _this.doc.createElement("DIV");
             divR.resizeType = "R";
             divR.className = _this.prefix + "resizeLR";
+            divR.style.zIndex = _this.zIndexResize;
             divR.draggable = true;
             divR.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;
@@ -354,6 +360,7 @@
             divL = _this.doc.createElement("DIV");
             divL.resizeType = "L";
             divL.className = _this.prefix + "resizeLR";
+            divT.style.zIndex = _this.zIndexResize;
             divL.draggable = true;
             divL.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;

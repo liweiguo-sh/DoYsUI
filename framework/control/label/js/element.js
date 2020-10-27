@@ -21,41 +21,56 @@ UtilElement.getAI = function () {
 
 UtilElement.computeProp = function (jsp) {
     let element = jsp.element;
+    let position = element.position;
+
+    // -- 补全默认值 -------------------------------------------
+    element.font = element.font || {};
+    element.font.lineHeight = parseInt(element.font.lineHeight || 0);
+
+    element.frame.type = element.frame.type || "";
+    element.frame.width = parseInt(element.frame.width || 0);
+
+    position.textAlign = position.textAlign || "left";
+    position.verticalAlign = position.verticalAlign || "top";
+
+    position.marginLeft = parseInt(position.marginLeft || 0);
+    position.marginRight = parseInt(position.marginRight || 0);
+    position.marginTop = parseInt(position.marginTop || 0);
+    position.marginBottom = parseInt(position.marginBottom || 0);
+
     // ----------------------------------------------------
     if (element.elementType.equals("barcode") || element.elementType.equals("text")) {
         element.font._fontDraw = UtilElement._getContextFont(element.font);
         element.font._fillStyleDraw = UtilElement._getContextFillStyle({ color: element.font.color });
         element.font._lineHeightDraw = element.font.lineHeight || UtilElement._getContextLineHeight(element.font);
 
-        element.position._topDraw = 0;
-        element.position._leftDraw = 0;
-        if (element.position.textAlign) {
-            if (element.position.textAlign.equals("center")) {
-                element.position._leftDraw = element.position.width / 2;
+        position._topDraw = position.marginTop;
+        position._leftDraw = position.marginLeft;
+        if (position.textAlign) {
+            if (position.textAlign.equals("center")) {
+                position._leftDraw = position.width / 2;
             }
-            else if (element.position.textAlign.equals("right")) {
-                element.position._leftDraw = element.position.width;
+            else if (position.textAlign.equals("right")) {
+                position._leftDraw = position.width - position.marginRight;
             }
         }
-        if (element.position.verticalAlign) {
-            if (element.position.verticalAlign.equals("middle")) {
-                element.position._topDraw = element.position.height / 2;
+        if (position.verticalAlign) {
+            if (position.verticalAlign.equals("middle")) {
+                position._topDraw = (position.height - element.font._lineHeightDraw) / 2;
             }
-            else if (element.position.verticalAlign.equals("bottom")) {
-                element.position._topDraw = element.position.height;
+            else if (position.verticalAlign.equals("bottom")) {
+                position._topDraw = position.height - element.font._lineHeightDraw- position.marginBottom;
             }
+            position._topDraw = Math.max(position._topDraw, 0);
         }
     }
     if (element.elementType.equals("barcode")) {
-        element.position._topDraw = element.position.height - element.font._lineHeightDraw;
-        if (element.position._topDraw < element.font._lineHeightDraw) {
-            element.position._topDraw = element.font._lineHeightDraw;
-        }
-    }
+        position._topDraw = position.height - element.font._lineHeightDraw - position.marginBottom;
+        position._topDraw = Math.max(position._topDraw, 0);
 
-    // -- 补全默认值 -------------------------------------------
-    element.position.textAlign = element.position.textAlign || "left";
-    element.position.verticalAlign = element.position.verticalAlign || "top";
+        position._barcodeHeight = position._topDraw - 2 * position.marginTop;
+        position._barcodeHeight = Math.max(position._barcodeHeight, 10);
+    }
 }
 UtilElement.computeValue = function (jsp) {
     let element = jsp.element;
@@ -139,13 +154,20 @@ UtilElement.draw = function (jsp) {
     let element = jsp.element;
     let elementType = element.elementType;
     let dom = element._dom;
+
+    //if (element.position.hidden) return;
     // -- position ----------------------------------------    
+    dom.style.zIndex = element.position.layer;
     dom.style.top = element.position.top + "px";
     dom.style.left = element.position.left + "px";
     dom.width = element.position.width;
     dom.height = element.position.height;
 
-    // -- repaint -----------------------------------------
+    // -- repaint -----------------------------------------    
+    if (element.frame.type) {
+        UtilElement.drawFrame(dom, element);
+    }
+
     if (elementType.equals("text")) {
         UtilElement.draw_text(dom, element);
     }
@@ -207,14 +229,42 @@ UtilElement.getBlankSection = function (jsp) {
     return section;
 }
 
-// -- draw text ---------------------------------------------------------------
-UtilElement.draw_text = function (domCanvas, element) {
+// -- draw frame --------------------------------------------------------------
+UtilElement.drawFrame = function (domCanvas, element) {
+    let context = domCanvas.getContext("2d");
+    let frame = element.frame;
     let width = element.position.width;
     let height = element.position.height;
-    let context = domCanvas.getContext("2d");
+    let x, y, w, h;
+    // ----------------------------------------------------
+    if (frame.width > 0) {
+        x = frame.width / 2; y = x;
+        w = width - frame.width;
+        h = height - frame.width;
 
-    domCanvas.width = width;
-    domCanvas.height = height;
+        // -- context.lineJoin = "round"; --
+        context.strokeStyle = frame.color;
+        context.lineWidth = frame.width;
+        if (frame.type.equals("ellipse")) {
+            // context.strokeRect(x, y, w, h);
+        }
+        else {
+            context.strokeRect(x, y, w, h);
+        }
+    }
+    if (frame.fillColor) {
+        x = frame.width; y = x;
+        w = width - 2 * frame.width;
+        h = height - 2 * frame.width;
+
+        context.fillStyle = frame.fillColor;
+        context.fillRect(x, y, w, h);
+    }
+}
+
+// -- draw text ---------------------------------------------------------------
+UtilElement.draw_text = function (domCanvas, element) {
+    let context = domCanvas.getContext("2d");
 
     if (!element._sectionsText) element._sectionsText = "Empty String Empty String";
     if (element.font.wordWrap) {
@@ -223,14 +273,13 @@ UtilElement.draw_text = function (domCanvas, element) {
     else {
         UtilElement._drawSingleLine(context, element);
     }
-
 }
 
 UtilElement._drawSingleLine = function (context, element) {
     context.font = element.font._fontDraw;
     context.fillStyle = element.font._fillStyleDraw;
     context.textAlign = element.position.textAlign || "left";
-    context.textBaseline = element.position.verticalAlign || "top";
+    context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
 
     context.fillText(element._sectionsText, element.position._leftDraw, element.position._topDraw);
 }
@@ -245,7 +294,7 @@ UtilElement._drawMultiLine = function (context, element) {
 
     let lineHeight = font._lineHeightDraw;
     let width = position.width;
-    let top = 0, left;
+    let top = position.marginTop, left;
 
     // -- 1. style ----------------------------------------
     context.font = font._fontDraw;
@@ -256,7 +305,7 @@ UtilElement._drawMultiLine = function (context, element) {
         let txt = "";
         for (let i = pos; i < length; i++) {
             txt += chars[i];
-            if (context.measureText(txt).width > width) {
+            if (context.measureText(txt).width > (width - position.marginLeft - position.marginRight)) {
                 if (i > pos) {
                     txt = txt.substring(0, txt.length - 1);
                 }
@@ -279,7 +328,7 @@ UtilElement._drawMultiLine = function (context, element) {
     context.textAlign = position.textAlign;
     left = element.position._leftDraw;
 
-    context.textBaseline = "top";   // -- 固定设置为top，通过计算实现垂直居中 --
+    context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
     if (position.verticalAlign.equals("top")) {
     }
     else {
@@ -288,9 +337,10 @@ UtilElement._drawMultiLine = function (context, element) {
                 top = (position.height - (txts.length * font._lineHeightDraw)) / 2;
             }
             else if (position.verticalAlign.equals("bottom")) {
-                top = position.height - (txts.length * font._lineHeightDraw);
+                top = position.height - (txts.length * font._lineHeightDraw) - position.marginBottom;
             }
         }
+        top = Math.max(top, 0);
     }
 
     // -- 4. draw -----------------------------------------
@@ -352,9 +402,6 @@ UtilElement.draw_image = function (domCanvas, element) {
 
     let img = new Image();
     // ----------------------------------------------------
-    domCanvas.width = width;
-    domCanvas.height = height;
-
     img.src = element.image.url;
     img.onload = function () {
         if (deformation.equals("stretch")) {    // -- 拉伸(变形) --
@@ -385,18 +432,14 @@ UtilElement.draw_image = function (domCanvas, element) {
 
 // -- draw barcode-1D ---------------------------------------------------------
 UtilElement.draw_Code128 = function (domCanvas, element) {
-    let width = element.position.width;
-    let height = element.position.height;
     let context = domCanvas.getContext("2d");
+    let barcodeHeight = element.position._barcodeHeight;
 
-    domCanvas.width = width;
-    domCanvas.height = height;
-
-    context.font = "normal 20px '微软雅黑'";
+    context.font = "normal " + barcodeHeight + "px '微软雅黑'";
     context.fillStyle = "orange";
     context.textAlign = "center";
     context.textBaseline = "top";
-    context.fillText("| ||    " + element._segmentsText + "    || |", element.position.width / 2, 0.1 * element.position.height);
+    context.fillText("| ||    " + element._segmentsText + "    || |", element.position.width / 2, element.position.marginTop);
 
     if (element._sectionsText) {
         UtilElement._drawSingleLine(context, element);

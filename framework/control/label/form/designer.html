@@ -206,19 +206,31 @@
     "elements": [
         {
             "name": "元素1 - 空",
-            "elementType": "text",
+            "elementType": "text",            
             "position": {
+                "layer": 5,
+                "hidden": true,
                 "width": 380,
                 "height": 70,
                 "left": 542,
                 "top": 21,
                 "textAlign": "center",
-                "verticalAlign": "middle"
+                "verticalAlign": "middle",
+                "marginLeft": 6,
+                "marginRight": 5,
+                "marginTop": 4,
+                "marginBottom": 3
             },
             "font": {
                 "name": "Consolas",
                 "size": 16,
                 "color": "#9400D3"
+            },
+            "frame": {
+                "type": "rectangle",
+                "width": 5,
+                "color": "#DC982B",
+                "fillColor": "#D4DAAD"
             },
             "sections": [],
             "segments": []
@@ -226,22 +238,25 @@
         {
             "name": "元素2 - 图片",
             "position": {
+                "layer": 1,
                 "width": 270,
                 "height": 80,
                 "left": 30,
-                "top": 270
+                "top": 300
             },
             "elementType": "image",
             "image": {
                 "img": "img3",
                 "deformation": "zoom"
-            }
+            },
+            "frame": {}
         },
         {
             "name": "元素3 - 文本",
             "elementType": "text",
             "barcodeType": "",
             "position": {
+                "layer": 1,
                 "width": 150,
                 "height": 100,
                 "left": 40,
@@ -283,19 +298,22 @@
                 "italic": true,
                 "wordWrap": true,
                 "lineHeight": 30
-            }
+            },
+            "frame": {}
         },
         {
             "name": "元素4 - 条码",
             "elementType": "barcode",
             "barcodeType": "Code128",
             "position": {
+                "layer": 1,
                 "width": 350,
                 "height": 100,
                 "left": 300,
-                "top": 130,
-                "textAlign": "right",
-                "verticalAlign": "middle"
+                "top": 160,
+                "textAlign": "center",
+                "verticalAlign": "middle",
+                "marginTop": 10
             },
             "sections": [
                 {
@@ -350,7 +368,8 @@
                 "size": 14,
                 "bold": true,                
                 "color": "#006400"
-            }
+            },
+            "frame": {}
         }
     ]
 }
