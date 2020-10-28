@@ -18,22 +18,21 @@
         // -- 2. load para --
         this.container = para.container;
         this.container.ondragenter = function (evt) {
-            //evt.stopPropagation();
             evt.preventDefault();
         }
         this.container.ondragover = function (evt) {
-            ///evt.stopPropagation();
             evt.preventDefault();
         }
         this.container._this = this;
         this.container.onclick = function (evt) {
-            let _this = evt.srcElement._this;
+            let _domContainer = evt.srcElement;
+            let _this = _domContainer._this;
 
             _this.activatedElement = null;
             _this.hideResize();
         }
 
-        // -- 9. load label --
+        // -- 8. load label --
         if (para.content) {
             this.loadLabel(para.content);
         }
@@ -48,7 +47,7 @@
 
         this.zIndexCanvas = 100;
         this.zIndexResize = 200;
-        this.zIndexHover = 210;        
+        this.zIndexHover = 210;
 
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
@@ -66,15 +65,15 @@
         this.hideHover();
 
         for (let i = 0; i < this.elements.length; i++) {
-            this.container.removeChild(this.elements[i]._dom);
-            delete this.elements[i]._dom;
+            let _canvas = this.elements[i]._canvas;
+            this.container.removeChild(_canvas);
         }
     }
     toJson() {
         try {
             return JSON.stringify(this.label,
                 (k, v) => {
-                    if (k.startsWith("_")) {    // -- _this, _dom --                        
+                    if (k.startsWith("_")) {    // -- _this, _canvas --                        
                         return undefined;
                     }
                     else {
@@ -90,21 +89,54 @@
     }
 
     // ------------------------------------------------------------------------
+    addBlankTextElement() {
+        let element = {
+            head: {
+                name: this.prefix + "element_" + this.id,
+                elementType: "text"
+            },
+            sections: [
+                { pos: 0, type: "fixed", value: "新元素" },
+                { pos: 1, type: "" }
+            ],
+            font: {},
+            frame: {},
+            position: {
+                "layer": 1,
+                top: 100,
+                left: 100,
+                width: 100,
+                height: 100
+            }
+        }
+
+        this.elements.push(element);
+        UtilElement.computeProp({ element: element });
+
+        this.createElement(element);
+
+        UtilElement.computeProp({ element: element });
+        UtilElement.computeValue({ element: element, fields: this.label.fields, images: this.label.images });
+        UtilElement.draw({ element: element });
+    }
+
     createElement(element) {
         let _this = this;
-        let divCanvas = _this.doc.createElement("canvas");
-        _this.container.appendChild(divCanvas);
+        let canvasId = _this.prefix + "cvs_" + _this.id++;
+        let cvsElement = _this.doc.createElement("canvas");
 
+        cvsElement._this = _this;
+        cvsElement._element = element;
+        cvsElement.id = canvasId;
+        cvsElement.className = _this.prefix + "element";
+
+        _this.container.appendChild(cvsElement);
         element._this = _this;
-        element._dom = divCanvas;
+        element._canvas = cvsElement;
+        element._canvasId = canvasId;
 
-        divCanvas._this = _this;
-        divCanvas._element = element;
-        divCanvas.id = _this.prefix + "el_" + _this.id++;
-        divCanvas.className = _this.prefix + "element";
-
-        divCanvas.draggable = true;
-        divCanvas.ondragstart = function (evt) {
+        cvsElement.draggable = true;
+        cvsElement.ondragstart = function (evt) {
             let _dom = evt.srcElement;
             let _this = _dom._this;
 
@@ -113,38 +145,28 @@
             evt.dataTransfer.setDragImage(new Image(), 0, 0);
             _this.ondragstart(evt, _this.container);
         };
-        divCanvas.ondrag = _this.onCanvasDrag;
+        cvsElement.ondrag = _this.onCanvasDrag;
 
-        divCanvas.onmouseenter = this.showHover;
-        divCanvas.onmouseleave = function (evt) {
+        cvsElement.onmouseenter = this.showHover;
+        cvsElement.onmouseleave = function (evt) {
             let _dom = evt.srcElement;
             let _this = _dom._this;
 
             _this.hideHover();
         }
 
-        divCanvas.onclick = this.onElementClick;
-        divCanvas.ondblclick = this.onElementDblClick;
-        divCanvas.ondblclick = function (evt) {
+        cvsElement.onclick = this.onElementClick;
+        cvsElement.ondblclick = this.onElementDblClick;
+        cvsElement.ondblclick = function (evt) {
             _this.onElementDblClick(_this, evt);
         }
     }
     activeElement(element) {
         let _this = this;
 
-        if (_this.activatedElement) {
-            //_this.activatedElement._dom.className = _this.prefix + "element";
-        }
-
         _this.activatedElement = element;
-        //_this.activatedElement._dom.className = _this.prefix + "element " + _this.prefix + "activeElement";
-
         _this.hideHover();
         _this.showResize();
-    }
-    drawText(element) {
-        let dom = element._dom;
-        dom.innerHTML = element.text;
     }
 
     // -- element event: drag -------------------------------------------------
@@ -207,17 +229,37 @@
             parent: win,
             modal: true
         };
+
         let para = {
-            element: element,
             fields: _this.fields,
             images: _this.images,
-            callback: _this.onElementDblClickReturn
+
+            canvasId: element._canvasId,
+            head: element.head,
+            segments: element.segments,
+            sections: element.sections,
+            font: element.font,
+            frame: element.frame,
+            position: element.position,
+            image: element.image,
+
+            callback: _this.onElementDblClickCallback
         };
         topWin.openWindow(prop, para);
     }
-    onElementDblClickReturn(jsp) {
-        let element = jsp.element;
-        let _this = element._this;
+    onElementDblClickCallback(jsp) {
+        let domCanvas = gId(jsp.canvasId);
+        let _this = domCanvas._this;
+        let element = _this.activatedElement;
+
+        element.head = jsp.head;
+        element.segments = jsp.segments;
+        element.sections = jsp.sections;
+        element.font = jsp.font;
+        element.frame = jsp.frame;
+        element.position = jsp.position;
+        element.image = jsp.image;
+        UtilElement.reduce({ element: element });
 
         UtilElement.computeProp({ element: element });
         UtilElement.computeValue({ element: element, fields: _this.label.fields, images: _this.label.images });
@@ -231,7 +273,7 @@
 
         // ------------------------------------------------
         if (_this.activatedElement) {
-            if (_this.activatedElement._dom.id.equals(_dom.id)) {
+            if (_this.activatedElement._canvas.id.equals(_dom.id)) {
                 return;
             }
         }
@@ -294,10 +336,10 @@
     // -- element event: resize -----------------------------------------------
     showResize() {
         let _this = this;
-        let domEl, divT, divB, divL, divR;
+        let domCanvas, divT, divB, divL, divR;
         // ------------------------------------------------
         if (_this.activatedElement) {
-            domEl = _this.activatedElement._dom;
+            domCanvas = _this.activatedElement._canvas;
         }
         else {
             if (_this.divT) {
@@ -381,22 +423,22 @@
         }
         // ------------------------------------------------
         divT.style.display = "";
-        divT.style.top = (domEl.offsetTop - divT.offsetHeight) + "px";
-        divT.style.left = (domEl.offsetLeft) + "px";
-        divT.style.width = (domEl.offsetWidth) + "px";
+        divT.style.top = (domCanvas.offsetTop - divT.offsetHeight) + "px";
+        divT.style.left = (domCanvas.offsetLeft) + "px";
+        divT.style.width = (domCanvas.offsetWidth) + "px";
 
         divB.style.display = "";
-        divB.style.top = (domEl.offsetTop + domEl.offsetHeight) + "px";
+        divB.style.top = (domCanvas.offsetTop + domCanvas.offsetHeight) + "px";
         divB.style.left = divT.style.left;
         divB.style.width = divT.style.width;
 
         divL.style.display = "";
-        divL.style.top = (domEl.offsetTop - divT.offsetHeight) + "px";
-        divL.style.left = (domEl.offsetLeft - divL.offsetWidth) + "px";
-        divL.style.height = (domEl.offsetHeight + 2 * divT.offsetHeight) + "px";
+        divL.style.top = (domCanvas.offsetTop - divT.offsetHeight) + "px";
+        divL.style.left = (domCanvas.offsetLeft - divL.offsetWidth) + "px";
+        divL.style.height = (domCanvas.offsetHeight + 2 * divT.offsetHeight) + "px";
 
         divR.style.display = "";
-        divR.style.left = (domEl.offsetLeft + domEl.offsetWidth) + "px";
+        divR.style.left = (domCanvas.offsetLeft + domCanvas.offsetWidth) + "px";
         divR.style.top = divL.style.top;
         divR.style.height = divL.style.height;
     }
@@ -414,7 +456,7 @@
         let domResize = evt.srcElement;
         let _this = domResize._this;
         let element = _this.activatedElement;
-        let domCanvas = element._dom;
+        let domCanvas = element._canvas;
         let width, height;
 
         if (domResize.resizeType.equals("L") || domResize.resizeType.equals("R")) {
@@ -467,7 +509,7 @@
             _this.divR.style.height = _this.divL.offsetHeight + "px";
         }
 
-        if (element.elementType.equals("image")) {
+        if (element.head.elementType.equals("image")) {
             domCanvas.width = element.position.width;
         }
         else {

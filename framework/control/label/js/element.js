@@ -21,14 +21,18 @@ UtilElement.getAI = function () {
 
 UtilElement.computeProp = function (jsp) {
     let element = jsp.element;
+
+    let head = element.head;
+    let font = element.font;
+    let frame = element.frame;
     let position = element.position;
 
     // -- 补全默认值 -------------------------------------------
-    element.font = element.font || {};
-    element.font.lineHeight = parseInt(element.font.lineHeight || 0);
+    font = element.font || {};
+    font.lineHeight = parseInt(font.lineHeight || 0);
 
-    element.frame.type = element.frame.type || "";
-    element.frame.width = parseInt(element.frame.width || 0);
+    frame.type = element.frame.type || "";
+    frame.width = parseInt(frame.width || 0);
 
     position.textAlign = position.textAlign || "left";
     position.verticalAlign = position.verticalAlign || "top";
@@ -39,10 +43,10 @@ UtilElement.computeProp = function (jsp) {
     position.marginBottom = parseInt(position.marginBottom || 0);
 
     // ----------------------------------------------------
-    if (element.elementType.equals("barcode") || element.elementType.equals("text")) {
-        element.font._fontDraw = UtilElement._getContextFont(element.font);
-        element.font._fillStyleDraw = UtilElement._getContextFillStyle({ color: element.font.color });
-        element.font._lineHeightDraw = element.font.lineHeight || UtilElement._getContextLineHeight(element.font);
+    if (head.elementType.equals("barcode") || head.elementType.equals("text")) {
+        font._fontDraw = UtilElement._getContextFont(font);
+        font._fillStyleDraw = UtilElement._getContextFillStyle({ color: font.color });
+        font._lineHeightDraw = element.font.lineHeight || UtilElement._getContextLineHeight(font);
 
         position._topDraw = position.marginTop;
         position._leftDraw = position.marginLeft;
@@ -59,13 +63,13 @@ UtilElement.computeProp = function (jsp) {
                 position._topDraw = (position.height - element.font._lineHeightDraw) / 2;
             }
             else if (position.verticalAlign.equals("bottom")) {
-                position._topDraw = position.height - element.font._lineHeightDraw- position.marginBottom;
+                position._topDraw = position.height - element.font._lineHeightDraw - position.marginBottom;
             }
             position._topDraw = Math.max(position._topDraw, 0);
         }
     }
-    if (element.elementType.equals("barcode")) {
-        position._topDraw = position.height - element.font._lineHeightDraw - position.marginBottom;
+    if (head.elementType.equals("barcode")) {
+        position._topDraw = position.height - font._lineHeightDraw - position.marginBottom;
         position._topDraw = Math.max(position._topDraw, 0);
 
         position._barcodeHeight = position._topDraw - 2 * position.marginTop;
@@ -76,11 +80,14 @@ UtilElement.computeValue = function (jsp) {
     let element = jsp.element;
     let fields = jsp.fields;
     let images = jsp.images;
+
+    let head = element.head;
     let segments = element.segments;
     let sections = element.sections;
+    let image = element.image;
     let values;
     // ----------------------------------------------------
-    if (element.elementType.equals("barcode")) {
+    if (head.elementType.equals("barcode")) {
         values = new Array();
         for (let i = 0; i < segments.length - 1; i++) {
             let segment = segments[i];
@@ -107,10 +114,10 @@ UtilElement.computeValue = function (jsp) {
                 }
             }
         }
-        element._segmentsText = values.join("");
+        head._segmentsText = values.join("");
     }
     // ----------------------------------------------------
-    if (element.elementType.equals("barcode") || element.elementType.equals("text")) {
+    if (head.elementType.equals("barcode") || head.elementType.equals("text")) {
         values = new Array();
         for (let i = 0; i < sections.length - 1; i++) {
             let section = sections[i];
@@ -137,14 +144,14 @@ UtilElement.computeValue = function (jsp) {
                 }
             }
         }
-        element._sectionsText = values.join("");
+        head._sectionsText = values.join("");
     }
     // ----------------------------------------------------
-    if (element.elementType.equals("image")) {
-        let img = element.image.img || "";
+    if (head.elementType.equals("image")) {
+        let img = image.img || "";
         for (let i = 0; i < images.length; i++) {
             if (img.equals(images[i].k)) {
-                element.image.url = images[i].v;
+                image.url = images[i].v;
                 break;
             }
         }
@@ -152,39 +159,37 @@ UtilElement.computeValue = function (jsp) {
 }
 UtilElement.draw = function (jsp) {
     let element = jsp.element;
-    let elementType = element.elementType;
-    let dom = element._dom;
+    let head = element.head;
+    let position = element.position;
+    let domCanvas = element._canvas;
 
     //if (element.position.hidden) return;
     // -- position ----------------------------------------    
-    dom.style.zIndex = element.position.layer;
-    dom.style.top = element.position.top + "px";
-    dom.style.left = element.position.left + "px";
-    dom.width = element.position.width;
-    dom.height = element.position.height;
+    domCanvas.style.zIndex = position.layer;
+    domCanvas.style.top = position.top + "px";
+    domCanvas.style.left = position.left + "px";
+    domCanvas.width = position.width;
+    domCanvas.height = position.height;
 
     // -- repaint -----------------------------------------    
     if (element.frame.type) {
-        UtilElement.drawFrame(dom, element);
+        UtilElement.drawFrame(domCanvas, element);
     }
 
-    if (elementType.equals("text")) {
-        UtilElement.draw_text(dom, element);
+    if (head.elementType.equals("text")) {
+        UtilElement.draw_text(domCanvas, element);
     }
-    else if (elementType.equals("image")) {
-        UtilElement.draw_image(dom, element);
+    else if (head.elementType.equals("image")) {
+        UtilElement.draw_image(domCanvas, element);
     }
-    else if (elementType.equals("barcode")) {
-        let barcodeType = element.barcodeType;
+    else if (head.elementType.equals("barcode")) {
+        let barcodeType = head.barcodeType;
         if (barcodeType.equals("Code128")) {
-            UtilElement.draw_Code128(dom, element);
+            UtilElement.draw_Code128(domCanvas, element);
         }
         else {
-            dom.innerHTML = "不支持的条码类型：" + barcodeType;
+            domCanvas.innerHTML = "不支持的条码类型：" + barcodeType;
         }
-    }
-    else {
-        UtilElement.draw_text(dom, element);
     }
 }
 
@@ -229,6 +234,22 @@ UtilElement.getBlankSection = function (jsp) {
     return section;
 }
 
+UtilElement.reduce = function (jsp) {
+    let element = jsp.element;
+    let head = element.head;
+
+    if (!head.elementType.equals("barcode")) {
+        element.head.barcodeType = undefined;
+        element.segments = undefined;
+    }
+    if (!head.elementType.equals("barcode") && !head.elementType.equals("text")) {
+        element.sections = undefined;
+    }
+    if (!head.elementType.equals("image")) {
+        element.image = undefined;
+    }
+}
+
 // -- draw frame --------------------------------------------------------------
 UtilElement.drawFrame = function (domCanvas, element) {
     let context = domCanvas.getContext("2d");
@@ -266,7 +287,7 @@ UtilElement.drawFrame = function (domCanvas, element) {
 UtilElement.draw_text = function (domCanvas, element) {
     let context = domCanvas.getContext("2d");
 
-    if (!element._sectionsText) element._sectionsText = "Empty String Empty String";
+    if (!element.head._sectionsText) element.head._sectionsText = "Empty String Empty String";
     if (element.font.wordWrap) {
         UtilElement._drawMultiLine(context, element);
     }
@@ -281,14 +302,14 @@ UtilElement._drawSingleLine = function (context, element) {
     context.textAlign = element.position.textAlign || "left";
     context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
 
-    context.fillText(element._sectionsText, element.position._leftDraw, element.position._topDraw);
+    context.fillText(element.head._sectionsText, element.position._leftDraw, element.position._topDraw);
 }
 UtilElement._drawMultiLine = function (context, element) {
     let font = element.font;
     let position = element.position;
 
     let txts = new Array();
-    let txtString = element._sectionsText;
+    let txtString = element.head._sectionsText;
     let chars = txtString.split("");
     let length = chars.length, pos = 0;
 
@@ -439,9 +460,9 @@ UtilElement.draw_Code128 = function (domCanvas, element) {
     context.fillStyle = "orange";
     context.textAlign = "center";
     context.textBaseline = "top";
-    context.fillText("| ||    " + element._segmentsText + "    || |", element.position.width / 2, element.position.marginTop);
+    context.fillText("| ||    " + element.head._segmentsText + "    || |", element.position.width / 2, element.position.marginTop);
 
-    if (element._sectionsText) {
+    if (element.head._sectionsText) {
         UtilElement._drawSingleLine(context, element);
     }
 }

@@ -25,7 +25,7 @@
                     <el-row>
                         <el-col :span="12" class="el-col-base">
                             <el-form-item label="元素类型" required>
-                                <el-select v-model="element.elementType" @change="elementTypeChange()" style="width:100%;">
+                                <el-select v-model="head.elementType" @change="elementTypeChange()" style="width:100%;">
                                     <el-option value="barcode" label="条形码"></el-option>
                                     <el-option value="text" label="文本"></el-option>
                                     <el-option value="image" label="图片"></el-option>
@@ -34,8 +34,8 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="12" class="el-col-base">
-                            <el-form-item label="符号体系" v-show="element.elementType=='barcode'">
-                                <el-select v-model="element.barcodeType" filterable style="width:100%;">
+                            <el-form-item label="符号体系" v-show="head.elementType=='barcode'">
+                                <el-select v-model="head.barcodeType" filterable style="width:100%;">
                                     <el-option-group label="一维码">
                                         <el-option value="Code128" label="Code 128"></el-option>
                                         <el-option value="GS1_128" label="GS1-128" :disabled="true"></el-option>
@@ -45,19 +45,19 @@
                                         <el-option value="GS1_DataMatrix" label="GS1 DataMatrix" :disabled="true"></el-option>
                                     </el-option-group>
                                 </el-select>
-                            </el-form-item>                            
+                            </el-form-item>
                         </el-col>
                     </el-row>
                 </el-form>
             </el-tab-pane>
             <!-- 条码、文本、图片 -->
-            <el-tab-pane label="条码内容(机器识读)" name="segments" v-if="element.elementType=='barcode'">
+            <el-tab-pane label="条码内容(机器识读)" name="segments" v-if="head.elementType=='barcode'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
                     <el-col :span="19">
-                        <el-tag>{{element._segmentsText}}</el-tag>
+                        <el-tag>{{head._segmentsText}}</el-tag>
                     </el-col>
                 </el-row>
-                <el-row v-for="segment in element.segments" :key="segment.pos" :gutter="8" style="margin-bottom:5px;">
+                <el-row v-for="segment in segments" :key="segment.pos" :gutter="8" style="margin-bottom:5px;">
                     <el-col :span="5">
                         <el-select v-model="segment.type" @change="segmentTypeChange(segment.pos)">
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :segment="segment"></el-option>
@@ -78,19 +78,19 @@
                     <el-col :span="5">
                         <el-button-group>
                             <el-button type="danger" v-if="segment.type!=''" @click="segmentDelete(segment.pos)" :segment="segment" title="删除" icon="el-icon-delete"></el-button>
-                            <el-button type="primary" v-if="segment.pos<element.segments.length-1 && segment.pos>0" @click="segmentMoveUp(segment.pos)" :segment="segment" title="上移" icon="el-icon-arrow-up"></el-button>
-                            <el-button type="primary" v-if="segment.pos<element.segments.length-2" @click="segmentMoveUp(segment.pos+1)" :segment="segment" title="下移" icon="el-icon-arrow-down"></el-button>
+                            <el-button type="primary" v-if="segment.pos<segments.length-1 && segment.pos>0" @click="segmentMoveUp(segment.pos)" :segment="segment" title="上移" icon="el-icon-arrow-up"></el-button>
+                            <el-button type="primary" v-if="segment.pos<segments.length-2" @click="segmentMoveUp(segment.pos+1)" :segment="segment" title="下移" icon="el-icon-arrow-down"></el-button>
                         </el-button-group>
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="文本内容" name="sections" v-if="element.elementType=='barcode' || element.elementType=='text'">
+            <el-tab-pane label="文本内容" name="sections" v-if="head.elementType=='barcode' || head.elementType=='text'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
                     <el-col :span="19">
-                        <el-tag>{{element._sectionsText}}</el-tag>
+                        <el-tag>{{head._sectionsText}}</el-tag>
                     </el-col>
                 </el-row>
-                <el-row v-for="section in element.sections" :key="section.pos" :gutter="8" style="margin-bottom:5px;">
+                <el-row v-for="section in sections" :key="section.pos" :gutter="8" style="margin-bottom:5px;">
                     <el-col :span="5">
                         <el-select v-model="section.type" @change="sectionTypeChange(section.pos)">
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :section="section"></el-option>
@@ -111,18 +111,18 @@
                     <el-col :span="5">
                         <el-button-group>
                             <el-button type="danger" v-if="section.type!=''" @click="sectionDelete(section.pos)" :section="section" title="删除" icon="el-icon-delete"></el-button>
-                            <el-button type="primary" v-if="section.pos<element.sections.length-1 && section.pos>0" @click="sectionMoveUp(section.pos)" :section="section" title="上移" icon="el-icon-arrow-up"></el-button>
-                            <el-button type="primary" v-if="section.pos<element.sections.length-2" @click="sectionMoveUp(section.pos+1)" :section="section" title="下移" icon="el-icon-arrow-down"></el-button>
+                            <el-button type="primary" v-if="section.pos<sections.length-1 && section.pos>0" @click="sectionMoveUp(section.pos)" :section="section" title="上移" icon="el-icon-arrow-up"></el-button>
+                            <el-button type="primary" v-if="section.pos<sections.length-2" @click="sectionMoveUp(section.pos+1)" :section="section" title="下移" icon="el-icon-arrow-down"></el-button>
                         </el-button-group>
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="图片" name="image" v-if="element.elementType=='image'">
+            <el-tab-pane label="图片" name="image" v-if="head.elementType=='image'">
                 <el-form label-width="135px" label-position="right">
                     <el-row>
                         <el-col :span="12" class="el-col-base">
                             <el-form-item label="图片" required>
-                                <el-select v-model="element.image.img" @change="imgChange();" style="width:100%;">
+                                <el-select v-model="image.img" @change="imgChange();" style="width:100%;">
                                     <el-option v-for="item in images" :value="item.k" :label="item.k" :key="item.k" :title="item.k + '  (' + item.v + ')'" style="height:52px;padding-top:2px;">
                                         <slot>
                                             <image :src="item.v" style="height:48px;" />
@@ -133,7 +133,7 @@
                         </el-col>
                         <el-col :span="12" class="el-col-base">
                             <el-form-item label="尺寸选项">
-                                <el-select v-model="element.image.deformation" style="width:100%;">
+                                <el-select v-model="image.deformation" style="width:100%;">
                                     <el-option value="stretch" label="拉伸填充"></el-option>
                                     <el-option value="zoom" label="同比缩放"></el-option>
                                     <el-option value="none" label="图片原始大小"></el-option>
@@ -144,12 +144,12 @@
                 </el-form>
             </el-tab-pane>
             <!-- 字体、边框、位置 -->
-            <el-tab-pane label="字体" name="font" v-if="element.elementType=='barcode' || element.elementType=='text'">
+            <el-tab-pane label="字体" name="font" v-if="head.elementType=='barcode' || head.elementType=='text'">
                 <el-form label-width="120px" label-position="right">
                     <el-row>
                         <el-col :span="10" class="el-col-base">
                             <el-form-item label="字体">
-                                <el-select v-model="element.font.name" @change="reComputer();" style="width:100%;" filterable>
+                                <el-select v-model="font.name" @change="reComputer();" style="width:100%;" filterable>
                                     <el-option v-for="name in fontNames" :value="name" :label="name" :key="name">
                                         <slot>
                                             <div style="width:350px;">
@@ -163,32 +163,32 @@
                         </el-col>
                         <el-col :span="7" class="el-col-base">
                             <el-form-item label="字号">
-                                <el-select v-model="element.font.size" @change="reComputer();" style="width:100%;" filterable>
+                                <el-select v-model="font.size" @change="reComputer();" style="width:100%;" filterable>
                                     <el-option v-for="size in fontSizes" :value="size" :label="size" :key="size"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
                         <el-col :span="7" class="el-col-base">
                             <el-form-item label="颜色">
-                                <el-color-picker v-model="element.font.color" @change="reComputer();"></el-color-picker>
+                                <el-color-picker v-model="font.color" @change="reComputer();"></el-color-picker>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="10" class="el-col-base">
                             <el-form-item label="样式">
-                                <el-checkbox v-model="element.font.bold">粗体</el-checkbox>
-                                <el-checkbox v-model="element.font.italic">斜体</el-checkbox>
+                                <el-checkbox v-model="font.bold">粗体</el-checkbox>
+                                <el-checkbox v-model="font.italic">斜体</el-checkbox>
                             </el-form-item>
                         </el-col>
                         <el-col :span="7" class="el-col-base">
                             <el-form-item label="换行">
-                                <el-checkbox v-model="element.font.wordWrap">自动换行</el-checkbox>
+                                <el-checkbox v-model="font.wordWrap">自动换行</el-checkbox>
                             </el-form-item>
                         </el-col>
                         <el-col :span="7" class="el-col-base">
                             <el-form-item label="行高">
-                                <el-input v-model="element.font.lineHeight"></el-input>
+                                <el-input v-model="font.lineHeight"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -199,7 +199,7 @@
                     <el-row>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="类型">
-                                <el-select v-model="element.frame.type" style="width:100%;">
+                                <el-select v-model="frame.type" style="width:100%;">
                                     <el-option value="" label="无"></el-option>
                                     <el-option value="rectangle" label="矩形"></el-option>
                                     <el-option value="ellipse" label="椭圆" :disabled="true"></el-option>
@@ -208,12 +208,12 @@
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="粗细(mm)">
-                                <el-input v-model="element.frame.width"></el-input>
+                                <el-input v-model="frame.width"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="边框颜色">
-                                <el-color-picker v-model="element.frame.color"></el-color-picker>
+                                <el-color-picker v-model="frame.color"></el-color-picker>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -221,7 +221,7 @@
                         <el-col :span="16" class="el-col-base">&nbsp;</el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="填充色">
-                                <el-color-picker v-model="element.frame.fillColor"></el-color-picker>
+                                <el-color-picker v-model="frame.fillColor"></el-color-picker>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -232,7 +232,7 @@
                     <el-row>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="图层">
-                                <el-select v-model="element.position.layer" style="width:100%;">
+                                <el-select v-model="position.layer" style="width:100%;">
                                     <el-option value="0" label="底层"></el-option>
                                     <el-option value="1" label="1层"></el-option>
                                     <el-option value="2" label="2层"></el-option>
@@ -244,24 +244,24 @@
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="隐藏">
-                                <el-checkbox v-model="element.position.hidden"></el-checkbox>
+                                <el-checkbox v-model="position.hidden"></el-checkbox>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="位置X">
-                                <el-input v-model="element.position.left"></el-input>
+                                <el-input v-model="position.left"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="宽度">
-                                <el-input v-model="element.position.width"></el-input>
+                                <el-input v-model="position.width"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="水平位置">
-                                <el-select v-model="element.position.textAlign" style="width:100%;" filterable>
+                                <el-select v-model="position.textAlign" style="width:100%;" filterable>
                                     <el-option value="left" label="居左"></el-option>
                                     <el-option value="center" label="居中"></el-option>
                                     <el-option value="right" label="居右"></el-option>
@@ -272,17 +272,17 @@
                     <el-row>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="位置Y">
-                                <el-input v-model="element.position.top"></el-input>
+                                <el-input v-model="position.top"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="高度">
-                                <el-input v-model="element.position.height"></el-input>
+                                <el-input v-model="position.height"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="垂直位置">
-                                <el-select v-model="element.position.verticalAlign" style="width:100%;" filterable>
+                                <el-select v-model="position.verticalAlign" style="width:100%;" filterable>
                                     <el-option value="top" label="居上"></el-option>
                                     <el-option value="middle" label="居中"></el-option>
                                     <el-option value="bottom" label="居下"></el-option>
@@ -293,24 +293,24 @@
                     <el-row>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="左边距">
-                                <el-input v-model="element.position.marginLeft"></el-input>
+                                <el-input v-model="position.marginLeft"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="右边距">
-                                <el-input v-model="element.position.marginRight"></el-input>
+                                <el-input v-model="position.marginRight"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="上边距">
-                                <el-input v-model="element.position.marginTop"></el-input>
+                                <el-input v-model="position.marginTop"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" class="el-col-base">
                             <el-form-item label="下边距">
-                                <el-input v-model="element.position.marginBottom"></el-input>
+                                <el-input v-model="position.marginBottom"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -318,6 +318,7 @@
             </el-tab-pane>
         </el-tabs>
         <hr />
+        <el-button @click="reComputer();">preview</el-button>
         <el-button @click="test1();">测试一</el-button>
     </div>
 </body>
@@ -333,11 +334,15 @@
 
             fields: [],
             images: [],
-            element: {
-                position: {},
-                frame: {},
-                image: {}
-            },
+
+            head: {},
+            segments: [],
+            sections: [],
+            font: {},
+            frame: {},
+            position: {},
+            image: {},
+
             symbols: UtilElement.getAI(),
             sectionTypes: UtilElement.getSectionTypes(),
 
@@ -348,51 +353,43 @@
         },
         methods: {
             elementTypeChange() {
-                if (this.element.elementType.equals("barcode")) {
-                    if (!this.element.barcodeType || this.element.barcodeType.equals("")) {
-                        this.element.barcodeType = "Code128";
+                if (this.head.elementType.equals("barcode")) {
+                    if (!this.head.barcodeType) {
+                        this.head.barcodeType = "Code128";
                     }
 
-                    if (!this.element.segments || this.element.segments.length == 0) {
-                        this.element.segments = [
+                    if (!this.segments || this.segments.length == 0) {
+                        this.segments = [
                             UtilElement.getFixedSegment({ pos: 0 }),
                             UtilElement.getBlankSegment({ pos: 1 })
                         ];
                     }
                 }
-                else {
-                    if (this.element.barcodeType) delete this.element.barcodeType;
-                    if (this.element.segments) delete this.element.segments;
-                    if (this.element.segmentsText) delete this.element.segmentsText;
-                }
-                if (this.element.elementType.equals("barcode") || this.element.elementType.equals("text")) {
-                    if (!this.element.sections || this.element.sections.length == 0) {
-                        this.element.sections = [
+                if (this.head.elementType.equals("barcode") || this.head.elementType.equals("text")) {
+                    if (!this.sections || this.sections.length == 0) {
+                        this.sections = [
                             UtilElement.getFixedSection({ pos: 0 }),
                             UtilElement.getBlankSection({ pos: 1 })
                         ];
                     }
                 }
-                else {
-                    if (this.element.sections) delete this.element.sections;
-                    if (this.element.sectionsText) delete this.element.sectionsText;
-                }
-
-                if (this.element.elementType.equals("image")) {
-                }
-                else {
-                    if (this.element.img) delete this.element.img;
-                    if (this.element.image) delete this.element.image;
+                if (this.head.elementType.equals("image")) {
+                    if (!this.image) {
+                        this.image = {
+                            "img": this.images.length > 0 ? this.images[0].k : "",
+                            "deformation": "zoom"
+                        };  
+                    }
                 }
 
                 this.reComputer();
             },
 
             sectionTypeChange(pos) {
-                let section = this.element.sections[pos];
-                if (section.type != "" && pos == this.element.sections.length - 1) {
+                let section = this.sections[pos];
+                if (section.type != "" && pos == this.sections.length - 1) {
                     let sectionBlank = UtilElement.getBlankSection({ pos: pos + 1 });
-                    this.element.sections.push(sectionBlank);
+                    this.sections.push(sectionBlank);
                 }
 
                 this.reComputer();
@@ -401,30 +398,30 @@
                 this.reComputer();
             },
             sectionDelete(pos) {
-                this.element.sections.splice(pos, 1);
-                for (let i = 0; i < this.element.sections.length; i++) {
-                    this.element.sections[i].pos = i;
+                this.sections.splice(pos, 1);
+                for (let i = 0; i < this.sections.length; i++) {
+                    this.sections[i].pos = i;
                 }
 
                 this.reComputer();
             },
             sectionMoveUp(pos) {
-                let section0 = this.element.sections.slice(pos - 1, pos)[0];
-                let section1 = this.element.sections.slice(pos, pos + 1)[0];
+                let section0 = this.sections.slice(pos - 1, pos)[0];
+                let section1 = this.sections.slice(pos, pos + 1)[0];
 
                 section0.pos = pos;
                 section1.pos = pos - 1;
 
-                this.element.sections.splice(pos - 1, 2, section1, section0);
+                this.sections.splice(pos - 1, 2, section1, section0);
 
                 this.reComputer();
             },
 
             segmentTypeChange(pos) {
-                let segment = this.element.segments[pos];
-                if (segment.type != "" && pos == this.element.segments.length - 1) {
+                let segment = this.segments[pos];
+                if (segment.type != "" && pos == this.segments.length - 1) {
                     let segmentBlank = UtilElement.getBlankSegment({ pos: pos + 1 });
-                    this.element.segments.push(segmentBlank);
+                    this.segments.push(segmentBlank);
                 }
 
                 this.reComputer();
@@ -433,21 +430,21 @@
                 this.reComputer();
             },
             segmentDelete(pos) {
-                this.element.segments.splice(pos, 1);
-                for (let i = 0; i < this.element.segments.length; i++) {
-                    this.element.segments[i].pos = i;
+                this.segments.splice(pos, 1);
+                for (let i = 0; i < this.segments.length; i++) {
+                    this.segments[i].pos = i;
                 }
 
                 this.reComputer();
             },
             segmentMoveUp(pos) {
-                let segment0 = this.element.segments.slice(pos - 1, pos)[0];
-                let segment1 = this.element.segments.slice(pos, pos + 1)[0];
+                let segment0 = this.segments.slice(pos - 1, pos)[0];
+                let segment1 = this.segments.slice(pos, pos + 1)[0];
 
                 segment0.pos = pos;
                 segment1.pos = pos - 1;
 
-                this.element.segments.splice(pos - 1, 2, segment1, segment0);
+                this.segments.splice(pos - 1, 2, segment1, segment0);
 
                 this.reComputer();
             },
@@ -456,7 +453,16 @@
                 this.reComputer();
             },
             reComputer() {
-                UtilElement.computeValue({ element: this.element, fields: this.fields, images: this.images });
+                win.para.callback({
+                    canvasId: win.para.canvasId,
+                    head: app.head,
+                    segments: app.segments,
+                    sections: app.sections,
+                    font: app.font,
+                    frame: app.frame,
+                    position: app.position,
+                    image: app.image
+                });           
             },
 
             test1() {
@@ -475,24 +481,38 @@
     function winLoad() {
         app.fields = win.para.fields;
         app.images = win.para.images;
-        app.element = win.para.element;
 
-        if (app.element.elementType.equals("image")) {
-            app.activeTabName = "image";
-        }
-        else if (app.element.elementType.equals("barcode")) {
+        app.head = win.para.head;
+        app.segments = win.para.segments;
+        app.sections = win.para.sections;
+        app.font = win.para.font;
+        app.frame = win.para.frame;
+        app.position = win.para.position;
+        app.image = win.para.image;
+
+        if (app.head.elementType.equals("barcode")) {
             app.activeTabName = "segments";
         }
-        else if (app.element.elementType.equals("text")) {
+        else if (app.head.elementType.equals("text")) {
             app.activeTabName = "sections";
         }
+        else if (app.head.elementType.equals("image")) {
+            app.activeTabName = "image";
+        }
 
+        // ------------------------------------------------
         win.addEventListener("afterClose", () => {
-            win.para.callback({ element: app.element });
+            app.reComputer();
+            app.$destroy();
 
-            app.fields = null;
-            app.images = null;
-            app.element = null;
+            return;
+            for (key in app) {
+                if (!key.startsWith("_") && !key.startsWith("$")) {
+                    app[key] = null;
+                }
+            }
+            delete window.app;
+            window.app = null;
         });
     }
 </script>
