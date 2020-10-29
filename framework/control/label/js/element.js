@@ -30,6 +30,7 @@ UtilElement.computeProp = function (jsp) {
     // -- 补全默认值 -------------------------------------------
     font = element.font || {};
     font.lineHeight = parseInt(font.lineHeight || 0);
+    font.size = font.size || 12;
 
     frame.type = element.frame.type || "";
     frame.width = parseInt(frame.width || 0);
@@ -72,7 +73,12 @@ UtilElement.computeProp = function (jsp) {
         position._topDraw = position.height - font._lineHeightDraw - position.marginBottom;
         position._topDraw = Math.max(position._topDraw, 0);
 
-        position._barcodeHeight = position._topDraw - 2 * position.marginTop;
+        if (head.pureBarcode) {
+            position._barcodeHeight = position.height - position.marginTop - position.marginBottom;
+        }
+        else {
+            position._barcodeHeight = position._topDraw - 2 * position.marginTop;
+        }
         position._barcodeHeight = Math.max(position._barcodeHeight, 10);
     }
 }
@@ -197,7 +203,7 @@ UtilElement.getFixedSegment = function (jsp) {
     let segment = {
         pos: -1,
         type: "fixed",
-        value: "fixed string",
+        value: "12345678",
         format: ""
     }
     segment = g.x.extendJSON(segment, jsp);
@@ -217,7 +223,7 @@ UtilElement.getFixedSection = function (jsp) {
     let section = {
         pos: -1,
         type: "fixed",
-        value: "fixed string",
+        value: "12345678",
         format: ""
     }
     section = g.x.extendJSON(section, jsp);
@@ -462,7 +468,7 @@ UtilElement.draw_Code128 = function (domCanvas, element) {
     context.textBaseline = "top";
     context.fillText("| ||    " + element.head._segmentsText + "    || |", element.position.width / 2, element.position.marginTop);
 
-    if (element.head._sectionsText) {
+    if (!element.head.pureBarcode && element.head._sectionsText) {
         UtilElement._drawSingleLine(context, element);
     }
 }

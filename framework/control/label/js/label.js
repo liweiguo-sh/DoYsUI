@@ -37,10 +37,17 @@
             this.loadLabel(para.content);
         }
     }
+    // -- label methods -------------------------------------------------------
     loadLabel(labelString) {
         if (this.elements) this.clearLabel();
 
-        this.label = JSON.parse(labelString);
+        if (labelString.equals("")) {
+            this.label = this.newLabel();
+        }
+        else {
+            this.label = JSON.parse(labelString);
+        }
+
         this.fields = this.label.fields;
         this.images = this.label.images;
         this.elements = this.label.elements;
@@ -69,6 +76,17 @@
             this.container.removeChild(_canvas);
         }
     }
+    newLabel() {
+        return {
+            head: {
+                width: 100,
+                height: 80
+            },
+            fields: [],
+            images: [],
+            elements: []
+        }
+    }
     toJson() {
         try {
             return JSON.stringify(this.label,
@@ -88,7 +106,7 @@
         }
     }
 
-    // ------------------------------------------------------------------------
+    // -- element base --------------------------------------------------------
     addBlankTextElement() {
         let element = {
             head: {
@@ -96,16 +114,16 @@
                 elementType: "text"
             },
             sections: [
-                { pos: 0, type: "fixed", value: "新元素" },
-                { pos: 1, type: "" }
+                UtilElement.getFixedSection({ pos: 0 }),
+                UtilElement.getBlankSection({ pos: 1 })
             ],
             font: {},
             frame: {},
             position: {
                 "layer": 1,
-                top: 100,
-                left: 100,
-                width: 100,
+                top: 300,
+                left: 400,
+                width: 250,
                 height: 100
             }
         }
@@ -118,6 +136,26 @@
         UtilElement.computeProp({ element: element });
         UtilElement.computeValue({ element: element, fields: this.label.fields, images: this.label.images });
         UtilElement.draw({ element: element });
+
+        this.activatedElement = element;
+        this.showResize();
+    }
+    delElement() {
+        if (!this.activatedElement) return;
+
+        let domCanvas = this.activatedElement._canvas;
+
+        this.container.removeChild(domCanvas);
+
+        for (let i = 0; i < this.elements.length; i++) {
+            if (this.elements[i]._canvasId == this.activatedElement._canvasId) {
+                this.elements.splice(i, 1);
+                break;
+            }
+        }
+
+        this.activatedElement = null;
+        this.hideResize();
     }
 
     createElement(element) {
@@ -198,6 +236,8 @@
         let _this = domDrag._this;
         let element = _this.activatedElement;
 
+        if (element.head.locked) return;
+
         element.position.left = evt.clientX - _this.dragOffsetX;
         element.position.top = evt.clientY - _this.dragOffsetY;
 
@@ -270,8 +310,11 @@
     showHover(evt) {
         let _dom = evt.srcElement;
         let _this = _dom._this;
+        let element = _dom._element;
 
         // ------------------------------------------------
+        if (element.head.locked) return;
+
         if (_this.activatedElement) {
             if (_this.activatedElement._canvas.id.equals(_dom.id)) {
                 return;
@@ -339,6 +382,10 @@
         let domCanvas, divT, divB, divL, divR;
         // ------------------------------------------------
         if (_this.activatedElement) {
+            if (_this.activatedElement.head.locked) {
+                this.hideResize();
+                return;
+            }
             domCanvas = _this.activatedElement._canvas;
         }
         else {

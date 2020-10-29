@@ -26,8 +26,12 @@
     <div>toolbar</div>
     <div id="divButtons">
         <input type="button" id="btnLoadLabel" onclick="btnLoadLabel_click();" value="加载标签" />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="button" id="btnNewLabel" onclick="btnNewLabel_click();" value="新标签" />
         <input type="button" id="btnSaveLabel" onclick="btnSaveLabel_click();" value="保存标签" />
+        &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="button" id="btnAddElement" onclick="btnAddElement_click();" value="添加新元素" />
+        <input type="button" id="btnDelElement" onclick="btnDelElement_click();" value="删除元素" />
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
@@ -158,6 +162,21 @@
             lbl.loadLabel(content);
         }
     }
+    function btnNewLabel_click() {
+        let content = "";
+
+        if (lbl == null) {
+            let para = {
+                container: divCanvas,
+                content: content
+            }
+
+            lbl = new Label(para);
+        }
+        else {
+            lbl.loadLabel(content);
+        }
+    }
     function btnSaveLabel_click() {
         txtJson.value = lbl.toJson();
     }
@@ -167,12 +186,20 @@
             lbl.addBlankTextElement();
         }
     }
+    function btnDelElement_click() {
+        if (lbl) {
+            lbl.delElement();
+        }
+    }
 
     function getLabelString() {
         let jsonString = txtJson.value;
 
         if (jsonString.equals("")) {
-            txtJson.value = getMock1();
+            txtJson.value = getMock_LvKeMeng();
+
+            //txtJson.value = getMock1();
+            
             jsonString = txtJson.value;
         }
         
@@ -181,8 +208,10 @@
     function getMock1() {
         return `
 {
-    "width": 100,
-    "height": 80,
+    "head": {
+        "width": 100,
+        "height": 80
+    },
     "fields": [
         {
             "k": "客户代码",
@@ -385,6 +414,481 @@
             "frame": {}
         }
     ]
+}
+        `;
+    }
+    function getMock_LvKeMeng() {
+        return `
+{
+  "head": {
+    "width": 100,
+    "height": 80
+  },
+  "fields": [
+    {
+      "k": "产品英文名称",
+      "v": "Gardein Chipotle Lime Fingers"
+    },
+    {
+      "k": "产品中文名称",
+      "v": "柠香辣脆素鸡柳 9.5oz"
+    },
+    {
+      "k": "条码",
+      "v": "1234567890"
+    }
+  ],
+  "images": [
+    {
+      "k": "img1",
+      "v": "https://cn.vuejs.org/images/imooc-sponsor2.png"
+    },
+    {
+      "k": "img2",
+      "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png"
+    },
+    {
+      "k": "img3",
+      "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png"
+    },
+    {
+      "k": "img4",
+      "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png"
+    }
+  ],
+  "elements": [
+    {
+      "head": {
+        "name": "背景框",
+        "elementType": "shape",
+        "locked": true
+      },
+      "font": {
+        "lineHeight": 0,
+        "size": 12
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 5,
+        "color": "#0D0A0A"
+      },
+      "position": {
+        "layer": "0",
+        "top": "10",
+        "left": "10",
+        "width": "600",
+        "height": "350",
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    },
+    {
+      "head": {
+        "name": "顶端背景色",
+        "elementType": "shape",
+        "locked": true
+      },
+      "font": {
+        "lineHeight": 0,
+        "size": 12
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0,
+        "fillColor": "#B7DBE8"
+      },
+      "position": {
+        "layer": "0",
+        "top": "15",
+        "left": "15",
+        "width": "590",
+        "height": "80",
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    },
+    {
+      "head": {
+        "name": "单价",
+        "elementType": "text"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "$138.00",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "lineHeight": 0,
+        "size": "18",
+        "bold": true,
+        "name": "Arial"
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": 52,
+        "left": 40,
+        "width": 70,
+        "height": 19,
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    },
+    {
+      "head": {
+        "name": "会员价",
+        "elementType": "text"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "$128.00",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "lineHeight": 0,
+        "size": "36",
+        "bold": true,
+        "name": "Arial"
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": 46,
+        "left": 424,
+        "width": 145,
+        "height": 33,
+        "textAlign": "right",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    },
+    {
+      "head": {
+        "name": "C",
+        "elementType": "text"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "C",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "lineHeight": 0,
+        "size": "18"
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": 25,
+        "left": 565,
+        "width": 17,
+        "height": 18,
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    },
+    {
+      "head": {
+        "name": "doys_label_element_6",
+        "elementType": "text"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "field",
+          "value": "产品英文名称",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "lineHeight": 0,
+        "size": "20",
+        "name": "微软雅黑"
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": 131,
+        "left": 52,
+        "width": 509,
+        "height": 40,
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    },
+    {
+      "head": {
+        "name": "doys_label_element_7",
+        "elementType": "text"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "field",
+          "value": "产品中文名称",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "lineHeight": 0,
+        "size": "20",
+        "name": "微软雅黑"
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": 183,
+        "left": 54,
+        "width": 510,
+        "height": 54,
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    },
+    {
+      "head": {
+        "name": "doys_label_element_8",
+        "elementType": "barcode",
+        "barcodeType": "Code128"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "12345678",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "lineHeight": 0,
+        "size": 12
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": 302,
+        "left": 333,
+        "width": 250,
+        "height": 32,
+        "textAlign": "center",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      },
+      "segments": [
+        {
+          "pos": 0,
+          "type": "field",
+          "value": "条码",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ]
+    },
+    {
+      "head": {
+        "name": "doys_label_element_9",
+        "elementType": "image"
+      },
+      "font": {
+        "lineHeight": 0,
+        "size": 12
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": "250",
+        "left": 39,
+        "width": "50",
+        "height": "50",
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      },
+      "image": {
+        "img": "img2",
+        "deformation": "zoom",
+        "url": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png"
+      }
+    },
+    {
+      "head": {
+        "name": "doys_label_element_10",
+        "elementType": "image"
+      },
+      "font": {
+        "lineHeight": 0,
+        "size": 12
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": "250",
+        "left": 104,
+        "width": "50",
+        "height": "50",
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      },
+      "image": {
+        "img": "img3",
+        "deformation": "zoom",
+        "url": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png"
+      }
+    },
+    {
+      "head": {
+        "name": "doys_label_element_21",
+        "elementType": "text"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "Canada",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "lineHeight": 0,
+        "size": "14",
+        "name": "Arial"
+      },
+      "frame": {
+        "type": "",
+        "width": 0
+      },
+      "position": {
+        "layer": 1,
+        "top": 326,
+        "left": 25,
+        "width": 53,
+        "height": 21,
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    }
+  ]
 }
         `;
     }
