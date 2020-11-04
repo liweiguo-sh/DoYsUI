@@ -67,6 +67,7 @@
                             <el-form-item label="类型" required>
                                 <el-select v-model="form.type">
                                     <el-option value="MASO" label="MASO"></el-option>
+                                    <el-option value="ALabel" label="A-Label"></el-option>
                                     <el-option value="BarTender" label="BarTender"></el-option>
                                     <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
                                     <el-option value="PDF" label="PDF" :disabled="true"></el-option>
@@ -280,7 +281,10 @@
             },
             onClick: function (button) {
                 if (button.name.equals("label_design")) {
-                    if (this.form.type.equals("MASO")) {
+                    if (this.form.type.equals("ALabel")) {
+                        this.openALabelDesign();
+                    }
+                    else if (this.form.type.equals("MASO")) {
                         top.openMasoDesigner({ labelId: this.form.id });
                     }
                     else if (this.form.type.equals("BarTender")) {
@@ -328,6 +332,33 @@
                 else {
                     topWin.alert(res.error, "error");
                 }
+            },
+
+            openALabelDesign: function () {
+                ajax.send("/aprint/label/getLabelContentById", { labelId: this.form.id }).then(res => {
+                    let prop = {
+                        url: g.path.framework + "/control/label/form/designer.html",
+                        text: "text",
+                        title: "title",
+                        parent: win,
+                        modal: false
+                    };
+                    let para = {
+                        content: res.content,
+                        callback: this.saveALabelContent
+                    };
+                    topWin.openFullWindow(prop, para);
+                });
+            },
+            saveALabelContent: function (jsp) {
+                let postData = {
+                    id: this.form.id,
+                    content: jsp.content,
+                    vars: ""
+                };
+                ajax.send("/aprint/labels/maso/MasoFile/saveLabelContent", postData).then(res => {
+                    topWin.message("标签保存成功。", "success");
+                });
             }
         }
     });

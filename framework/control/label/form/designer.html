@@ -32,6 +32,9 @@
         &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="button" id="btnAddElement" onclick="btnAddElement_click();" value="添加新元素" />
         <input type="button" id="btnDelElement" onclick="btnDelElement_click();" value="删除元素" />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="button" id="btnPrint" onclick="btnPrint_click();" value="打印" />
+        <input type="button" id="btnClose" onclick="win.close();" value="关闭" />
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
@@ -59,6 +62,7 @@
     function winLoad() {
         winResize();
 
+        txtJson.value = win.para.content || "";
         btnLoadLabel_click();
     }
 
@@ -70,81 +74,8 @@
         divCanvas.style.height = (heigth - tbMain.offsetTop - 300) + "px";
     }
 </script>
-<!-- controls event -->
-<script>
-    function btnSetDraggable1_click() {
-        setUnDraggable();
-        setDraggable(divE1);
-    }
-    function btnSetDraggable2_click() {
-        setUnDraggable();
-        setDraggable(divE2);
-    }
 
-    function btnCancelDraggable_click() {
-        setUnDraggable();
-    }
-
-    function setDraggable(domDrag) {
-        domDrag.ondragstart = function (evt) {
-            ondragstart(evt, divCanvas, domDrag);
-        };
-        domDrag.ondragend = function (evt) {
-            ondragend(evt, domDrag);
-        };
-
-        domDrag.draggable = true;
-        domDrag.className = "canDrag";
-    }
-    function setUnDraggable() {
-        divE1.draggable = false;
-        divE1.className = "cantDrag";
-        divE2.draggable = false;
-        divE2.className = "cantDrag";
-    }
-</script>
-
-<!-- main-drag -->
-<script>
-    let dragOffsetX, dragOffsetY;
-    function ondragstart(evt, domContainer, domDrag) {
-        dragOffsetX = domContainer.offsetLeft;                          // -- 容器偏移量 --
-        dragOffsetX += domContainer.clientLeft;                         // -- 容器边框宽度 --
-        dragOffsetX += g.x.getStyleValue(domContainer, "paddingLeft");  // -- 容器padding --
-        dragOffsetX += g.x.getStyleValue(domDrag, "marginLeft");        // -- 拖动对象margin --
-        dragOffsetX += domDrag.clientLeft;                              // -- 拖动对象边框宽度 --
-        dragOffsetX += evt.offsetX;                                     // -- 拖动对象偏移量(鼠标坐标相对于拖动对象) --
-
-        dragOffsetY = domContainer.offsetTop;                           // -- 容器偏移量 --
-        dragOffsetY += domContainer.clientTop;                          // -- 容器边框宽度 --
-        dragOffsetY += g.x.getStyleValue(domContainer, "paddingTop");   // -- 容器padding --  19
-        dragOffsetY += g.x.getStyleValue(domDrag, "marginTop");         // -- 拖动对象margin --  15
-        dragOffsetY += domDrag.clientTop;                               // -- 拖动对象边框宽度 --
-        dragOffsetY += evt.offsetY;                                     // -- 拖动对象偏移量(鼠标坐标相对于拖动对象) --
-    }
-    function ondragend(evt, domDrag) {
-        domDrag.style.left = (evt.clientX - dragOffsetX) + "px";
-        domDrag.style.top = (evt.clientY - dragOffsetY) + "px";
-    }
-</script>
-<!-- main-paint -->
-<script>
-    function btnPaint1_click() {
-        var draw = gId("divE1");
-        var context = draw.getContext("2d");
-
-        context.fillStyle = "#A088F5";
-        context.fillRect(50, 30, 150, 75);
-    }
-    function btnPaint2_click() {
-        var draw = gId("divE2");
-        var context = draw.getContext("2d");
-
-        context.fillStyle = "#F588A0";
-        context.fillRect(60, 20, 130, 95);
-    }
-</script>
-
+<!-- buttons -->
 <script>
     let lbl;
     function btnLoadLabel_click() {
@@ -179,6 +110,12 @@
     }
     function btnSaveLabel_click() {
         txtJson.value = lbl.toJson();
+
+        if (win.para.callback) {
+            win.para.callback({
+                content: txtJson.value
+            });
+        }
     }
 
     function btnAddElement_click() {
@@ -190,6 +127,10 @@
         if (lbl) {
             lbl.delElement();
         }
+    }
+
+    function btnPrint_click() {
+
     }
 
     function getLabelString() {
