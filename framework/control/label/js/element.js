@@ -165,6 +165,7 @@ UtilElement.computeValue = function (jsp) {
 }
 UtilElement.draw = function (jsp) {
     let element = jsp.element;
+    let pxmm = element._this.pxmm;
     let head = element.head;
     let position = element.position;
     let domCanvas = element._canvas;
@@ -172,10 +173,10 @@ UtilElement.draw = function (jsp) {
     //if (element.position.hidden) return;
     // -- position ----------------------------------------    
     domCanvas.style.zIndex = position.layer;
-    domCanvas.style.top = position.top + "px";
-    domCanvas.style.left = position.left + "px";
-    domCanvas.width = position.width;
-    domCanvas.height = position.height;
+    domCanvas.style.top = (position.top * pxmm) + "px";
+    domCanvas.style.left = (position.left * pxmm) + "px";
+    domCanvas.width = (position.width * pxmm);
+    domCanvas.height = (position.height * pxmm);
 
     // -- repaint -----------------------------------------    
     if (element.frame.type) {
@@ -258,6 +259,8 @@ UtilElement.reduce = function (jsp) {
 
 // -- draw frame --------------------------------------------------------------
 UtilElement.drawFrame = function (domCanvas, element) {
+    let _this = element._this;
+    let pxmm = _this.pxmm;
     let context = domCanvas.getContext("2d");
     let frame = element.frame;
     let width = element.position.width;
@@ -271,12 +274,12 @@ UtilElement.drawFrame = function (domCanvas, element) {
 
         // -- context.lineJoin = "round"; --
         context.strokeStyle = frame.color;
-        context.lineWidth = frame.width;
+        context.lineWidth = frame.width * pxmm;
         if (frame.type.equals("ellipse")) {
-            // context.strokeRect(x, y, w, h);
+            // -- context.strokeRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm); --
         }
         else {
-            context.strokeRect(x, y, w, h);
+            context.strokeRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm);
         }
     }
     if (frame.fillColor) {
@@ -285,7 +288,7 @@ UtilElement.drawFrame = function (domCanvas, element) {
         h = height - 2 * frame.width;
 
         context.fillStyle = frame.fillColor;
-        context.fillRect(x, y, w, h);
+        context.fillRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm);
     }
 }
 
@@ -303,12 +306,16 @@ UtilElement.draw_text = function (domCanvas, element) {
 }
 
 UtilElement._drawSingleLine = function (context, element) {
+    let pxmm = element._this.pxmm;
+
     context.font = element.font._fontDraw;
     context.fillStyle = element.font._fillStyleDraw;
     context.textAlign = element.position.textAlign || "left";
     context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
-
-    context.fillText(element.head._sectionsText, element.position._leftDraw, element.position._topDraw);
+    if (element.head.name.equals("单价")) {
+        debugger
+    }    
+    context.fillText(element.head._sectionsText, element.position._leftDraw * pxmm, element.position._topDraw * pxmm);
 }
 UtilElement._drawMultiLine = function (context, element) {
     let font = element.font;

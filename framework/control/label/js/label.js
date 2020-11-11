@@ -56,6 +56,20 @@
         this.zIndexResize = 200;
         this.zIndexHover = 210;
 
+        // -- 计算标签换算系数(毫米|像素) --
+        let mmW = this.label.head.width, mmH = this.label.head.height, mmWH = mmW / mmH;
+        let pxW = this.container.clientWidth, pxH = this.container.clientHeight, pxWH = pxW / pxH;
+        if (mmWH >= pxWH) {
+            this.width = pxW;
+            this.height = pxW / mmWH;
+        }
+        else {
+            this.height = pxH;
+            this.width = pxH * mmWH;
+        }
+        this.pxmm = this.width / mmW;
+
+        // -- 加载标签元素 --
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 

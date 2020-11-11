@@ -144,12 +144,15 @@
                     topWin.alert("订单不存在，请检查。");
                     return;
                 }
+                else if (this.dtbOrder.rowCount > 1) {
+                    topWin.alert("查询到2条订单记录，请检查。");
+                }
 
                 this.labelId = "";
                 this.dtbLabelVariable = null;
 
                 if (this.fieldCustomerCode && this.dtbOrder.rows[0][this.fieldCustomerCode]) {
-                    topWin.message("customer_code = " + this.dtbOrder.rows[0][this.fieldCustomerCode].value + "  " + this.dtbOrder.rows[0]["consignee_name"].value);
+                    topWin.message("customer_code = " + this.dtbOrder.rows[0][this.fieldCustomerCode].value);
                     this.customerCode = this.dtbOrder.rows[0][this.fieldCustomerCode].value;
                 }
                 else {
@@ -207,7 +210,7 @@
                         let disabled = (this.dtbLabelVariable.rows[i]["flag_manual_modify"].value == 0);
 
                         // -- 已订单变量值为准(如果有) --
-                        if (this.dtbOrder.rowCount == 1) {
+                        if (this.dtbOrder.rowCount >= 1) {
                             for (let i = 0; i < this.dtbOrder.columnCount; i++) {
                                 let columnName = this.dtbOrder.columns[i].name;
                                 let columnValue = this.dtbOrder.rows[0][columnName].value;
