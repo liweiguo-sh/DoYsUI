@@ -71,7 +71,7 @@
         let heigth = document.documentElement.clientHeight;
 
         tdMainRight.style.width = (width - tdMainLeft.offsetWidth) + "px";
-        divCanvas.style.height = (heigth - tbMain.offsetTop - 300) + "px";
+        divCanvas.style.height = (heigth - tbMain.offsetTop - 100) + "px";
     }
 </script>
 
@@ -362,8 +362,8 @@
         return `
 {
   "head": {
-    "width": 100,
-    "height": 80
+    "width": 60,
+    "height": 40
   },
   "fields": [
     {
@@ -372,7 +372,7 @@
     },
     {
       "k": "产品中文名称",
-      "v": "柠香辣脆素鸡柳 9.5oz"
+      "v": "柠香辣脆素鸡柳 9.6oz"
     },
     {
       "k": "条码",
@@ -400,7 +400,7 @@
   "elements": [
     {
       "head": {
-        "name": "背景框",
+        "name": "1-背景边框",
         "elementType": "shape",
         "locked": true
       },
@@ -410,15 +410,15 @@
       },
       "frame": {
         "type": "rectangle",
-        "width": 5,
+        "width": 0.8,
         "color": "#0D0A0A"
       },
       "position": {
         "layer": "0",
-        "top": "10",
-        "left": "10",
-        "width": "600",
-        "height": "350",
+        "top": "1",
+        "left": "1",
+        "width": "58",
+        "height": "38",
         "textAlign": "left",
         "verticalAlign": "top",
         "marginLeft": 0,
@@ -429,7 +429,7 @@
     },
     {
       "head": {
-        "name": "顶端背景色",
+        "name": "2-顶端背景色",
         "elementType": "shape",
         "locked": true
       },
@@ -444,10 +444,10 @@
       },
       "position": {
         "layer": "0",
-        "top": "15",
-        "left": "15",
-        "width": "590",
-        "height": "80",
+        "top": "1.8",
+        "left": "1.8",
+        "width": "56.4",
+        "height": "10",
         "textAlign": "left",
         "verticalAlign": "top",
         "marginLeft": 0,
@@ -458,7 +458,7 @@
     },
     {
       "head": {
-        "name": "单价",
+        "name": "3-单价",
         "elementType": "text"
       },
       "sections": [
@@ -477,40 +477,39 @@
       ],
       "font": {
         "lineHeight": 0,
-        "size": "18",
+        "size": "12",
         "bold": true,
         "name": "Arial",
-        "color": "#EF2525"
+        "wordWrap": false
       },
       "frame": {
-        "type": "rectangle",
-        "width": 1,
-        "color": "#E65E5E"
+        "type": "",
+        "width": 0
       },
       "position": {
         "layer": 1,
-        "top": 31,
-        "left": 24,
-        "width": "200",
-        "height": "50",
+        "top": 3,
+        "left": 4,
+        "width": 20,
+        "height": 8,
         "textAlign": "center",
         "verticalAlign": "middle",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
+        "marginLeft": 2,
+        "marginRight": 2,
+        "marginTop": 1,
+        "marginBottom": 1
       }
     },
     {
       "head": {
-        "name": "会员价",
+        "name": "4-会员价",
         "elementType": "text"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "$128.00",
+          "value": "$110.40",
           "format": ""
         },
         {
@@ -522,9 +521,10 @@
       ],
       "font": {
         "lineHeight": 0,
-        "size": "36",
+        "size": "18",
         "bold": true,
-        "name": "Arial"
+        "name": "Arial",
+        "color": "#EF2525"
       },
       "frame": {
         "type": "",
@@ -532,10 +532,10 @@
       },
       "position": {
         "layer": 1,
-        "top": 46,
-        "left": 424,
-        "width": 145,
-        "height": 33,
+        "top": 4,
+        "left": 29,
+        "width": 25,
+        "height": 8,
         "textAlign": "right",
         "verticalAlign": "top",
         "marginLeft": 0,
@@ -546,7 +546,7 @@
     },
     {
       "head": {
-        "name": "C",
+        "name": "5-C",
         "elementType": "text"
       },
       "sections": [
@@ -564,8 +564,9 @@
         }
       ],
       "font": {
-        "lineHeight": 0,
-        "size": "18"
+        "name": "Arial",
+        "size": "7",
+        "lineHeight": 0
       },
       "frame": {
         "type": "",
@@ -573,11 +574,11 @@
       },
       "position": {
         "layer": 1,
-        "top": 25,
-        "left": 565,
-        "width": 17,
-        "height": 18,
-        "textAlign": "left",
+        "top": 2.5,
+        "left": 54,
+        "width": 3,
+        "height": 3,
+        "textAlign": "right",
         "verticalAlign": "top",
         "marginLeft": 0,
         "marginRight": 0,
@@ -587,7 +588,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_6",
+        "name": "6-英文名称",
         "elementType": "text"
       },
       "sections": [
@@ -605,10 +606,10 @@
         }
       ],
       "font": {
-        "lineHeight": 0,
-        "size": "20",
+        "size": "10",
         "name": "微软雅黑",
-        "wordWrap": true
+        "bold": true,
+        "lineHeight": 0
       },
       "frame": {
         "type": "",
@@ -616,12 +617,12 @@
       },
       "position": {
         "layer": 1,
-        "top": 131,
-        "left": 52,
-        "width": 509,
-        "height": 40,
+        "top": 13,
+        "left": 2,
+        "width": 56,
+        "height": 4,
         "textAlign": "center",
-        "verticalAlign": "middle",
+        "verticalAlign": "top",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
@@ -630,7 +631,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_7",
+        "name": "7-中文名称",
         "elementType": "text"
       },
       "sections": [
@@ -648,9 +649,10 @@
         }
       ],
       "font": {
-        "lineHeight": 0,
-        "size": "20",
-        "name": "微软雅黑"
+        "bold": true,
+        "size": "10.5",
+        "name": "微软雅黑",
+        "lineHeight": 0
       },
       "frame": {
         "type": "",
@@ -658,23 +660,24 @@
       },
       "position": {
         "layer": 1,
-        "top": 183,
-        "left": 54,
-        "width": 510,
-        "height": 54,
+        "top": 18,
+        "left": 2,
+        "width": 56,
+        "height": 4,
         "textAlign": "center",
-        "verticalAlign": "middle",
+        "verticalAlign": "top",
         "marginLeft": 0,
         "marginRight": 0,
-        "marginTop": 0,
+        "marginTop": 0.1,
         "marginBottom": 0
       }
     },
     {
       "head": {
-        "name": "doys_label_element_8",
+        "name": "8-条码-Code128",
         "elementType": "barcode",
-        "barcodeType": "Code128"
+        "barcodeType": "Code128",
+        "pureBarcode": false
       },
       "sections": [
         {
@@ -691,21 +694,24 @@
         }
       ],
       "font": {
-        "lineHeight": 0,
-        "size": 12
+        "lineHeight": 5,
+        "size": 6,
+        "name": "Arial",
+        "color": "#002FFF"
       },
       "frame": {
-        "type": "",
-        "width": 0
+        "type": "rectangle",
+        "width": 0.2,
+        "color": "#DFE1E6"
       },
       "position": {
         "layer": 1,
-        "top": 302,
-        "left": 333,
-        "width": 250,
-        "height": 32,
+        "top": 30,
+        "left": 25,
+        "width": 32,
+        "height": 7.5,
         "textAlign": "center",
-        "verticalAlign": "top",
+        "verticalAlign": "bottom",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
@@ -728,7 +734,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_9",
+        "name": "9-图片1",
         "elementType": "image"
       },
       "font": {
@@ -741,14 +747,14 @@
       },
       "position": {
         "layer": 1,
-        "top": "250",
-        "left": 39,
-        "width": "50",
-        "height": "50",
-        "textAlign": "left",
-        "verticalAlign": "top",
+        "top": 23,
+        "left": 3,
+        "width": 4.5,
+        "height": 4.5,
+        "textAlign": "center",
+        "verticalAlign": "middle",
         "marginLeft": 0,
-        "marginRight": 0,
+        "marginRight": 2,
         "marginTop": 0,
         "marginBottom": 0
       },
@@ -760,7 +766,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_10",
+        "name": "10-图片2",
         "elementType": "image"
       },
       "font": {
@@ -773,14 +779,14 @@
       },
       "position": {
         "layer": 1,
-        "top": "250",
-        "left": 104,
-        "width": "50",
-        "height": "50",
-        "textAlign": "left",
-        "verticalAlign": "top",
+        "top": 23,
+        "left": 8,
+        "width": 4.5,
+        "height": 4.5,
+        "textAlign": "center",
+        "verticalAlign": "middle",
         "marginLeft": 0,
-        "marginRight": 0,
+        "marginRight": 2,
         "marginTop": 0,
         "marginBottom": 0
       },
@@ -792,7 +798,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_21",
+        "name": "11-Canada",
         "elementType": "text"
       },
       "sections": [
@@ -810,9 +816,9 @@
         }
       ],
       "font": {
-        "lineHeight": 0,
-        "size": "14",
-        "name": "Arial"
+        "size": "8",
+        "name": "Arial",
+        "lineHeight": 0
       },
       "frame": {
         "type": "",
@@ -820,12 +826,12 @@
       },
       "position": {
         "layer": 1,
-        "top": 326,
-        "left": 25,
-        "width": 53,
-        "height": 21,
+        "top": 34,
+        "left": 2,
+        "width": 15,
+        "height": 4,
         "textAlign": "left",
-        "verticalAlign": "top",
+        "verticalAlign": "bottom",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
@@ -833,7 +839,6 @@
       }
     }
   ]
-}
-        `;
+}        `;
     }
 </script>

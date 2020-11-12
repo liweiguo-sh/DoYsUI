@@ -135,12 +135,13 @@
             frame: {},
             position: {
                 "layer": 1,
-                top: 300,
-                left: 400,
-                width: 250,
-                height: 100
+                top: 5,
+                left: 10,
+                width: 20,
+                height: 8
             }
         }
+        element._this = this;
 
         this.elements.push(element);
         UtilElement.computeProp({ element: element });
@@ -181,6 +182,7 @@
         cvsElement._element = element;
         cvsElement.id = canvasId;
         cvsElement.className = _this.prefix + "element";
+        cvsElement.title = element.head.name;
 
         _this.container.appendChild(cvsElement);
         element._this = _this;
@@ -249,14 +251,18 @@
         let domDrag = evt.srcElement;
         let _this = domDrag._this;
         let element = _this.activatedElement;
+        let x, y;
 
         if (element.head.locked) return;
 
-        element.position.left = evt.clientX - _this.dragOffsetX;
-        element.position.top = evt.clientY - _this.dragOffsetY;
+        x = evt.clientX - _this.dragOffsetX;
+        y = evt.clientY - _this.dragOffsetY;
 
-        domDrag.style.left = element.position.left + "px";
-        domDrag.style.top = element.position.top + "px";
+        domDrag.style.left = x + "px";
+        domDrag.style.top = y + "px";
+
+        element.position.left = x / _this.pxmm;
+        element.position.top = y / _this.pxmm;
 
         if (_this.activatedElement) {
             _this.showResize();
@@ -463,7 +469,7 @@
             divL = _this.doc.createElement("DIV");
             divL.resizeType = "L";
             divL.className = _this.prefix + "resizeLR";
-            divT.style.zIndex = _this.zIndexResize;
+            divL.style.zIndex = _this.zIndexResize;
             divL.draggable = true;
             divL.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;
@@ -516,6 +522,7 @@
     onResizeDrag(evt) {
         let domResize = evt.srcElement;
         let _this = domResize._this;
+        let pxmm = _this.pxmm;
         let element = _this.activatedElement;
         let domCanvas = element._canvas;
         let width, height;
@@ -536,8 +543,8 @@
 
             domCanvas.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
             domCanvas.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
-            domCanvas._element.position.left = domCanvas.offsetLeft;
-            domCanvas._element.position.width = domCanvas.offsetWidth;
+            domCanvas._element.position.left = domCanvas.offsetLeft / pxmm;
+            domCanvas._element.position.width = domCanvas.offsetWidth / pxmm;
 
             _this.divT.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
             _this.divT.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
@@ -560,8 +567,8 @@
 
             domCanvas.style.top = (_this.divT.offsetTop + _this.divT.offsetHeight) + "px";
             domCanvas.style.height = (_this.divB.offsetTop - _this.divT.offsetTop - _this.divT.offsetHeight) + "px";
-            domCanvas._element.position.top = domCanvas.offsetTop;
-            domCanvas._element.position.height = domCanvas.offsetHeight;
+            domCanvas._element.position.top = domCanvas.offsetTop / pxmm;
+            domCanvas._element.position.height = domCanvas.offsetHeight / pxmm;
 
             _this.divL.style.top = _this.divT.offsetTop + "px";
             _this.divL.style.height = (_this.divB.offsetTop - _this.divT.offsetTop + _this.divB.offsetHeight) + "px";
@@ -571,7 +578,7 @@
         }
 
         if (element.head.elementType.equals("image")) {
-            domCanvas.width = element.position.width;
+            domCanvas.width = element.position.width * pxmm;
         }
         else {
             UtilElement.computeProp({ element: element });

@@ -21,6 +21,7 @@ UtilElement.getAI = function () {
 
 UtilElement.computeProp = function (jsp) {
     let element = jsp.element;
+    let pxmm = element._this.pxmm;
 
     let head = element.head;
     let font = element.font;
@@ -29,57 +30,90 @@ UtilElement.computeProp = function (jsp) {
 
     // -- 补全默认值 -------------------------------------------
     font = element.font || {};
-    font.lineHeight = parseInt(font.lineHeight || 0);
+    font.lineHeight = parseFloat(font.lineHeight || 0);
     font.size = font.size || 12;
 
     frame.type = element.frame.type || "";
-    frame.width = parseInt(frame.width || 0);
+    frame.width = parseFloat(frame.width || 0);
 
     position.textAlign = position.textAlign || "left";
     position.verticalAlign = position.verticalAlign || "top";
 
-    position.marginLeft = parseInt(position.marginLeft || 0);
-    position.marginRight = parseInt(position.marginRight || 0);
-    position.marginTop = parseInt(position.marginTop || 0);
-    position.marginBottom = parseInt(position.marginBottom || 0);
+    position.marginLeft = parseFloat(position.marginLeft || 0);
+    position.marginRight = parseFloat(position.marginRight || 0);
+    position.marginTop = parseFloat(position.marginTop || 0);
+    position.marginBottom = parseFloat(position.marginBottom || 0);
 
     // ----------------------------------------------------
-    if (head.elementType.equals("barcode") || head.elementType.equals("text")) {
-        font._fontDraw = UtilElement._getContextFont(font);
+    if (head.elementType.equals("text")) {
+        font._fontDraw = UtilElement._getContextFont(font, pxmm);
         font._fillStyleDraw = UtilElement._getContextFillStyle({ color: font.color });
-        font._lineHeightDraw = element.font.lineHeight || UtilElement._getContextLineHeight(font);
+        font._fontHeight = UtilElement._getContextLineHeight(font);
+        font._lineHeightDraw = element.font.lineHeight || font._fontHeight;
 
-        position._topDraw = position.marginTop;
-        position._leftDraw = position.marginLeft;
-        if (position.textAlign) {
-            if (position.textAlign.equals("center")) {
-                position._leftDraw = position.width / 2;
-            }
-            else if (position.textAlign.equals("right")) {
-                position._leftDraw = position.width - position.marginRight;
-            }
+        position._topDraw = position.marginTop + frame.width;
+        position._leftDraw = position.marginLeft + frame.width;
+        // -- 水平位置 --
+        if (position.textAlign.equals("center")) {
+            position._leftDraw = position.width / 2;
         }
-        if (position.verticalAlign) {
-            if (position.verticalAlign.equals("middle")) {
-                position._topDraw = (position.height - element.font._lineHeightDraw) / 2;
-            }
-            else if (position.verticalAlign.equals("bottom")) {
-                position._topDraw = position.height - element.font._lineHeightDraw - position.marginBottom;
-            }
-            position._topDraw = Math.max(position._topDraw, 0);
+        else if (position.textAlign.equals("right")) {
+            position._leftDraw = position.width - position.marginRight - frame.width;
         }
-    }
-    if (head.elementType.equals("barcode")) {
-        position._topDraw = position.height - font._lineHeightDraw - position.marginBottom;
+        // -- 垂直位置 --
+        if (position.verticalAlign.equals("middle")) {
+            position._topDraw = (position.height - element.font._lineHeightDraw) / 2;
+        }
+        else if (position.verticalAlign.equals("bottom")) {
+            position._topDraw = position.height - position.marginBottom - font._fontHeight - frame.width;
+        }
         position._topDraw = Math.max(position._topDraw, 0);
 
-        if (head.pureBarcode) {
-            position._barcodeHeight = position.height - position.marginTop - position.marginBottom;
+    }
+    if (head.elementType.equals("barcode")) {
+        font._fontDraw = UtilElement._getContextFont(font, pxmm);
+        font._fillStyleDraw = UtilElement._getContextFillStyle({ color: font.color });
+        font._fontHeight = UtilElement._getContextLineHeight(font);
+        font._lineHeightDraw = element.font.lineHeight || font._fontHeight;
+
+        // -- 文本水平位置 --
+        position._leftDraw = position.marginLeft;
+        if (position.textAlign.equals("center")) {
+            position._leftDraw = position.width / 2;
+        }
+        else if (position.textAlign.equals("right")) {
+            position._leftDraw = position.width - position.marginRight;
+        }
+        position._topDraw = Math.max(position._topDraw, 0);
+
+        // -- 文本垂直位置 --       
+        position._topDraw = position.marginTop;
+        if (position.verticalAlign.equals("middle")) {
+            position._topDraw = position.marginTop + (position.height - position.marginTop - position.marginBottom - element.font._fontHeight) / 2;
+        }
+        else if (position.verticalAlign.equals("bottom")) {
+            position._topDraw = position.height - position.marginBottom - font._fontHeight;
+        }
+        position._topDraw = Math.max(position._topDraw, 0);
+
+        // -- 条码位置 --
+        position._barcodeWidth = position.width - position.marginLeft - position.marginRight - 2 * frame.width;
+        position._barcodeLeft = position.marginLeft + frame.width;
+
+        if (head.pureBarcode || position.verticalAlign.equals("middle")) {
+            position._barcodeHeight = position.height - position.marginTop - position.marginBottom - 2 * frame.width;
+            position._barcodeTop = position.marginTop + frame.width;
         }
         else {
-            position._barcodeHeight = position._topDraw - 2 * position.marginTop;
+            position._barcodeHeight = position.height - position.marginTop - position.marginBottom - font._fontHeight - 2 * frame.width;
+            if (position.verticalAlign.equals("bottom")) {
+                position._barcodeTop = position.marginTop + frame.width;
+            }
+            else {
+                position._barcodeTop = position.marginTop + font._fontHeight - frame.width;
+            }
         }
-        position._barcodeHeight = Math.max(position._barcodeHeight, 10);
+        position._barcodeHeight = Math.max(position._barcodeHeight, 2);
     }
 }
 UtilElement.computeValue = function (jsp) {
@@ -195,7 +229,8 @@ UtilElement.draw = function (jsp) {
             UtilElement.draw_Code128(domCanvas, element);
         }
         else {
-            domCanvas.innerHTML = "不支持的条码类型：" + barcodeType;
+            UtilElement.draw_Code128(domCanvas, element);
+            //domCanvas.innerHTML = "不支持的条码类型：" + barcodeType;
         }
     }
 }
@@ -310,11 +345,9 @@ UtilElement._drawSingleLine = function (context, element) {
 
     context.font = element.font._fontDraw;
     context.fillStyle = element.font._fillStyleDraw;
-    context.textAlign = element.position.textAlign || "left";
+    context.textAlign = element.position.textAlign;
     context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
-    if (element.head.name.equals("单价")) {
-        debugger
-    }    
+
     context.fillText(element.head._sectionsText, element.position._leftDraw * pxmm, element.position._topDraw * pxmm);
 }
 UtilElement._drawMultiLine = function (context, element) {
@@ -397,15 +430,16 @@ UtilElement._drawError = function (context, element, message) {
     }
 }
 
-UtilElement._getContextFont = function (elementFont) {
+UtilElement._getContextFont = function (elementFont, pxmm) {
     // -- 示例: font: "normal 12px '微软雅黑'" --
     // -- 必须是这个顺序，顺序错误无效，比较奇葩，具体顺序参考：https://blog.csdn.net/HuoYiHengYuan/article/details/101677114 --
     let arr = new Array();
+    let pxFontSize = (elementFont.size / 72) * 25.4 * pxmm;
 
     if (elementFont.bold) arr.push("bold");
     if (elementFont.italic) arr.push("italic");
 
-    arr.push(elementFont.size + "px");
+    arr.push(pxFontSize + "px");
     arr.push("'" + elementFont.name + "'");
 
     return arr.join(" ");
@@ -423,14 +457,15 @@ UtilElement._getContextFillStyle = function (jsp) {
     return arr.join(" ");
 }
 UtilElement._getContextLineHeight = function (font) {
-
-    return font.size * 1;
+    return (font.size / 72) * 25.4;
 }
 
 // -- draw image --------------------------------------------------------------
 UtilElement.draw_image = function (domCanvas, element) {
-    let width = element.position.width, widthImg;
-    let height = element.position.height, heightImg;
+    let pxmm = element._this.pxmm;
+
+    let width = element.position.width * pxmm, widthImg;
+    let height = element.position.height * pxmm, heightImg;
     let context = domCanvas.getContext("2d");
     let deformation = element.image.deformation || "";
 
@@ -467,15 +502,33 @@ UtilElement.draw_image = function (domCanvas, element) {
 // -- draw barcode-1D ---------------------------------------------------------
 UtilElement.draw_Code128 = function (domCanvas, element) {
     let context = domCanvas.getContext("2d");
-    let barcodeHeight = element.position._barcodeHeight;
+    let _this = element._this;
+    let pxmm = _this.pxmm;
+    let position = element.position;
 
-    context.font = "normal " + barcodeHeight + "px '微软雅黑'";
-    context.fillStyle = "orange";
-    context.textAlign = "center";
-    context.textBaseline = "top";
-    context.fillText("| ||    " + element.head._segmentsText + "    || |", element.position.width / 2, element.position.marginTop);
-
-    if (!element.head.pureBarcode && element.head._sectionsText) {
+    // -- 输出文本 --
+    if (!element.head.pureBarcode) {
         UtilElement._drawSingleLine(context, element);
+    }
+
+    // -- 输出条码(样例条码) --
+    let x = position._barcodeLeft * pxmm;
+    let y = position._barcodeTop * pxmm;
+    let img = new Image();
+
+    img.src = "../image/" + element.head.barcodeType + ".png";
+    img.onload = function () {
+        let w = position._barcodeWidth * pxmm;
+        let h = position._barcodeHeight * pxmm;
+
+        context.drawImage(img, x, y, w, h);
+    }
+    img.onerror = function () {
+        context.font = position._barcodeHeight * pxmm / 2 + "px Arial";
+        context.fillStyle = element.font._fillStyleDraw;
+        context.textAlign = "left";
+        context.textBaseline = "top";
+
+        context.fillText("| ||    XXXXXXXX    || |", x, y);
     }
 }
