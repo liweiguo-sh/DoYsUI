@@ -140,16 +140,6 @@
                     value: "http://www.abc.com/?id=1234567890",
                     text: "1234567890"
                 }
-            },
-            {
-                "3-单价": "$138.00",
-                "4-会员价": "$110.40",
-                "6-英文名称": "Gardein Chipotle Lime Fingers",
-                "7-中文名称": "柠香辣脆素鸡柳 9.6oz",
-                "8-条码-Code128": {
-                    value: "http://www.abc.com/?id=1234567891",
-                    text: "1234567891"
-                }
             }
         ];
         let dataString = JSON.stringify(data, null, " ");
@@ -157,7 +147,8 @@
             protocol: "2.0",
             action: "printDLabel",
             labelString: lbl.toJson(),
-            dataString: dataString
+            dataString: dataString,
+            copies: 1
         }
 
         top.invokeEdge(para);
