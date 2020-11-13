@@ -2,7 +2,7 @@
  * DoYs.core.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2020-04-19
+ * Modify Date: 2020-11-13
  * Copyright 2020, doys-next.com
  */
 
@@ -150,4 +150,18 @@ g.x.getStyleValue = function getCurrentStyle(oElement, sProperty) {
 g.x.isString = function (obj) {
     let result = Object.prototype.toString.call(obj);
     return result == "[object String]";
+}
+g.x.isImageUrl = function (url) {
+    let suffixString = ".png;.ico;.jpg;.jpeg;.bmp;.gif";
+    let suffixes = suffixString.split(";");
+    let len = suffixes.length;
+
+    if (url.indexOf("/") < 0) return false;
+
+    for (let i = 0; i < len; i++) {
+        if (url.endWith(suffixes[i])) {
+            return true;
+        }
+    }
+    return false;
 }

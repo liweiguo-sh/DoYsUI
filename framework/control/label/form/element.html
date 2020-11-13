@@ -37,7 +37,7 @@
                             <el-form-item label="名称">
                                 <el-input v-model="head.name"></el-input>
                             </el-form-item>
-                        </el-col>                        
+                        </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="10" class="el-col-base">
@@ -65,7 +65,7 @@
                                 </el-select>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="7" class="el-col-base">                            
+                        <el-col :span="7" class="el-col-base">
                             <el-form-item label="条码文本">
                                 <el-checkbox v-model="head.pureBarcode">隐藏</el-checkbox>
                             </el-form-item>
@@ -147,8 +147,8 @@
                 <el-form label-width="135px" label-position="right">
                     <el-row>
                         <el-col :span="12" class="el-col-base">
-                            <el-form-item label="图片" required>
-                                <el-select v-model="image.img" @change="imgChange();" style="width:100%;">
+                            <el-form-item label="图片">
+                                <el-select v-model="image.value" @change="imgChange();" clearable style="width:100%;">
                                     <el-option v-for="item in images" :value="item.k" :label="item.k" :key="item.k" :title="item.k + '  (' + item.v + ')'" style="height:52px;padding-top:2px;">
                                         <slot>
                                             <image :src="item.v" style="height:48px;" />
@@ -164,6 +164,13 @@
                                     <el-option value="zoom" label="同比缩放"></el-option>
                                     <el-option value="none" label="图片原始大小"></el-option>
                                 </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="24" class="el-col-base">
+                            <el-form-item label="url">
+                                <el-input v-model="image.url" @change="imgChange();" :disabled="image.value!=''"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -383,7 +390,7 @@
                     if (!this.head.barcodeType) {
                         this.head.barcodeType = "Code128";
                         this.position.textAlign = "center";
-                    }                    
+                    }
 
                     if (!this.segments || this.segments.length == 0) {
                         this.segments = [
@@ -403,9 +410,9 @@
                 if (this.head.elementType.equals("image")) {
                     if (!this.image) {
                         this.image = {
-                            "img": this.images.length > 0 ? this.images[0].k : "",
+                            "value": this.images.length > 0 ? this.images[0].k : "",
                             "deformation": "zoom"
-                        };  
+                        };
                     }
                 }
 
@@ -489,7 +496,7 @@
                     frame: app.frame,
                     position: app.position,
                     image: app.image
-                });           
+                });
             },
 
             test1() {
@@ -506,8 +513,17 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
-        app.fields = win.para.fields;
-        app.images = win.para.images;
+        let fields = [], k, v, images = [];
+        for (k in win.para.fields) {
+            v = win.para.fields[k];
+            fields.push({ k: k, v: v });
+
+            if (g.x.isImageUrl(v)) {
+                images.push({ k: k, v: v });
+            }
+        }
+        app.fields = fields;
+        app.images = images;
 
         app.head = win.para.head;
         app.segments = win.para.segments;
@@ -531,15 +547,6 @@
         win.addEventListener("afterClose", () => {
             app.reComputer();
             app.$destroy();
-
-            return;
-            for (key in app) {
-                if (!key.startsWith("_") && !key.startsWith("$")) {
-                    app[key] = null;
-                }
-            }
-            delete window.app;
-            window.app = null;
         });
     }
 </script>

@@ -119,7 +119,6 @@ UtilElement.computeProp = function (jsp) {
 UtilElement.computeValue = function (jsp) {
     let element = jsp.element;
     let fields = jsp.fields;
-    let images = jsp.images;
 
     let head = element.head;
     let segments = element.segments;
@@ -138,12 +137,7 @@ UtilElement.computeValue = function (jsp) {
                 values.push(value);
             }
             else if (type.equals("field")) {
-                for (let j = 0; j < fields.length; j++) {
-                    if (value.equals(fields[j].k)) {
-                        values.push(fields[j].v);
-                        break;
-                    }
-                }
+                values.push(fields[value]);
             }
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
@@ -168,12 +162,7 @@ UtilElement.computeValue = function (jsp) {
                 values.push(value);
             }
             else if (type.equals("field")) {
-                for (let j = 0; j < fields.length; j++) {
-                    if (value.equals(fields[j].k)) {
-                        values.push(fields[j].v);
-                        break;
-                    }
-                }
+                values.push(fields[value]);
             }
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
@@ -188,12 +177,8 @@ UtilElement.computeValue = function (jsp) {
     }
     // ----------------------------------------------------
     if (head.elementType.equals("image")) {
-        let img = image.img || "";
-        for (let i = 0; i < images.length; i++) {
-            if (img.equals(images[i].k)) {
-                image.url = images[i].v;
-                break;
-            }
+        if (image.value) {
+            image.url = fields[image.value];
         }
     }
 }

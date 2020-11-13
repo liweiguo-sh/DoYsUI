@@ -47,9 +47,8 @@
         else {
             this.label = JSON.parse(labelString);
         }
-
+        
         this.fields = this.label.fields;
-        this.images = this.label.images;
         this.elements = this.label.elements;
 
         this.zIndexCanvas = 100;
@@ -76,7 +75,7 @@
             this.createElement(element);
 
             UtilElement.computeProp({ element: element });
-            UtilElement.computeValue({ element: element, fields: this.label.fields, images: this.label.images });
+            UtilElement.computeValue({ element: element, fields: this.label.fields });
             UtilElement.draw({ element: element });
         }
     }
@@ -96,8 +95,7 @@
                 width: 100,
                 height: 80
             },
-            fields: [],
-            images: [],
+            fields: [], 
             elements: []
         }
     }
@@ -149,7 +147,7 @@
         this.createElement(element);
 
         UtilElement.computeProp({ element: element });
-        UtilElement.computeValue({ element: element, fields: this.label.fields, images: this.label.images });
+        UtilElement.computeValue({ element: element, fields: this.label.fields});
         UtilElement.draw({ element: element });
 
         this.activatedElement = element;
@@ -292,7 +290,6 @@
 
         let para = {
             fields: _this.fields,
-            images: _this.images,
 
             canvasId: element._canvasId,
             head: element.head,
@@ -322,7 +319,7 @@
         UtilElement.reduce({ element: element });
 
         UtilElement.computeProp({ element: element });
-        UtilElement.computeValue({ element: element, fields: _this.label.fields, images: _this.label.images });
+        UtilElement.computeValue({ element: element, fields: _this.label.fields});
         UtilElement.draw({ element: element });
         _this.showResize();
     }

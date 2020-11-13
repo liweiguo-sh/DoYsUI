@@ -130,7 +130,37 @@
     }
 
     function btnPrint_click() {
+        let data = [
+            {
+                "3-单价": "$138.00",
+                "4-会员价": "$110.40",
+                "6-英文名称": "Gardein Chipotle Lime Fingers",
+                "7-中文名称": "柠香辣脆素鸡柳 9.6oz",
+                "8-条码-Code128": {
+                    value: "http://www.abc.com/?id=1234567890",
+                    text: "1234567890"
+                }
+            },
+            {
+                "3-单价": "$138.00",
+                "4-会员价": "$110.40",
+                "6-英文名称": "Gardein Chipotle Lime Fingers",
+                "7-中文名称": "柠香辣脆素鸡柳 9.6oz",
+                "8-条码-Code128": {
+                    value: "http://www.abc.com/?id=1234567891",
+                    text: "1234567891"
+                }
+            }
+        ];
+        let dataString = JSON.stringify(data, null, " ");
+        let para = {
+            protocol: "2.0",
+            action: "printDLabel",
+            labelString: lbl.toJson(),
+            dataString: dataString
+        }
 
+        top.invokeEdge(para);
     }
 
     function getLabelString() {
@@ -165,9 +195,7 @@
         {
             "k": "地址",
             "v": "上海样例路1234号"
-        }
-    ],
-    "images": [
+        },
         {
             "k": "img1",
             "v": "https://cn.vuejs.org/images/imooc-sponsor2.png"
@@ -365,38 +393,15 @@
     "width": 60,
     "height": 40
   },
-  "fields": [
-    {
-      "k": "产品英文名称",
-      "v": "Gardein Chipotle Lime Fingers"
-    },
-    {
-      "k": "产品中文名称",
-      "v": "柠香辣脆素鸡柳 9.6oz"
-    },
-    {
-      "k": "条码",
-      "v": "1234567890"
-    }
-  ],
-  "images": [
-    {
-      "k": "img1",
-      "v": "https://cn.vuejs.org/images/imooc-sponsor2.png"
-    },
-    {
-      "k": "img2",
-      "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png"
-    },
-    {
-      "k": "img3",
-      "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png"
-    },
-    {
-      "k": "img4",
-      "v": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png"
-    }
-  ],
+  "fields": {
+    "产品英文名称": "Gardein Chipotle Lime Fingers",
+    "产品中文名称": "柠香辣脆素鸡柳 9.6oz",
+    "条码": "1234567890",
+    "img1": "https://cn.vuejs.org/images/imooc-sponsor2.png",
+    "img2": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
+    "img3": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png",
+    "img4": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png"
+  },
   "elements": [
     {
       "head": {
@@ -483,21 +488,22 @@
         "wordWrap": false
       },
       "frame": {
-        "type": "",
-        "width": 0
+        "type": "rectangle",
+        "width": 0.2,
+        "color": "#F0F253"
       },
       "position": {
         "layer": 1,
-        "top": 3,
-        "left": 4,
-        "width": 20,
-        "height": 8,
+        "top": 3.762662807525326,
+        "left": 5.846599131693199,
+        "width": 17.076700434153402,
+        "height": 5.383502170767005,
         "textAlign": "center",
         "verticalAlign": "middle",
-        "marginLeft": 2,
-        "marginRight": 2,
-        "marginTop": 1,
-        "marginBottom": 1
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0
       }
     },
     {
@@ -622,7 +628,7 @@
         "width": 56,
         "height": 4,
         "textAlign": "center",
-        "verticalAlign": "top",
+        "verticalAlign": "middle",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
@@ -676,14 +682,14 @@
       "head": {
         "name": "8-条码-Code128",
         "elementType": "barcode",
-        "barcodeType": "Code128",
-        "pureBarcode": false
+        "barcodeType": "QrCode",
+        "pureBarcode": true
       },
       "sections": [
         {
           "pos": 0,
-          "type": "fixed",
-          "value": "12345678",
+          "type": "field",
+          "value": "条码",
           "format": ""
         },
         {
@@ -706,10 +712,10 @@
       },
       "position": {
         "layer": 1,
-        "top": 30,
-        "left": 25,
-        "width": 32,
-        "height": 7.5,
+        "top": 27.496382054992765,
+        "left": 47.64109985528221,
+        "width": "10",
+        "height": "10",
         "textAlign": "center",
         "verticalAlign": "bottom",
         "marginLeft": 0,
@@ -720,12 +726,18 @@
       "segments": [
         {
           "pos": 0,
+          "type": "fixed",
+          "value": "http://www.abc.com/?id=",
+          "format": ""
+        },
+        {
+          "pos": 1,
           "type": "field",
           "value": "条码",
           "format": ""
         },
         {
-          "pos": 1,
+          "pos": 2,
           "type": "",
           "value": "",
           "format": ""
@@ -759,9 +771,8 @@
         "marginBottom": 0
       },
       "image": {
-        "img": "img2",
-        "deformation": "zoom",
-        "url": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png"
+        "url": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
+        "deformation": "zoom"
       }
     },
     {
@@ -791,7 +802,7 @@
         "marginBottom": 0
       },
       "image": {
-        "img": "img3",
+        "value": "img3",
         "deformation": "zoom",
         "url": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png"
       }
@@ -839,6 +850,7 @@
       }
     }
   ]
-}        `;
+}
+        `;
     }
 </script>
