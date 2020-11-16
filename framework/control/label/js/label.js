@@ -625,9 +625,12 @@
     }
 
     setValue(name, value) {
+        if (this.fields[name] == undefined) {
+            throw new Error("The label variable (" + name + ") was not found, please check.");
+        }
         this.fields[name] = value;
     }
-    refreshValues(redraw = false) {
+    computeElements(redraw = false) {
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
@@ -640,6 +643,4 @@
             }
         }
     }
-
-
 }

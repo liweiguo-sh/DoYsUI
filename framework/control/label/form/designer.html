@@ -122,28 +122,45 @@
     }
 
     function btnPrint_click() {   
-        let datas = [], data, dataString;
-         // ------------------------------------------------
-        lbl.setValue("零售价", "$138.00");
-        lbl.setValue("会员价", "$110.40");
-        lbl.setValue("img3", "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png");
-        lbl.setValue("条码", "554455");
-
-        lbl.refreshValues(true);     
-
-        data = lbl.getData();
-        datas.push(data);
-        dataString = JSON.stringify(datas, null, " ");
+        let page = 0, pages = 2;
+        let datas = [], dataString;
         // ------------------------------------------------
-        let para = {
-            protocol: "2.0",
-            action: "printDLabel",
-            labelString: lbl.toJson(),
-            dataString: dataString,
-            copies: 1
-        }
+        try {
+            if (page++ < pages) {
+                lbl.setValue("零售价", "$138.00");
+                lbl.setValue("会员价", "$110.40");
+                lbl.setValue("img3", "https://cn.vuejs.org/images/imooc-sponsor2.png");
+                lbl.setValue("条码", "888-" + page);
 
-        top.invokeEdge(para);
+                lbl.computeElements();
+                datas.push(lbl.getData());
+            }
+            if (page++ < pages) {
+                lbl.setValue("零售价", "$138.00");
+                lbl.setValue("会员价", "$110.40");
+                lbl.setValue("img3", "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png");
+                lbl.setValue("条码", "888-" + page);
+
+                lbl.computeElements();
+                datas.push(lbl.getData());
+            }
+            lbl.computeElements(true);
+
+            dataString = JSON.stringify(datas, null, " ");
+            // --------------------------------------------
+            let para = {
+                protocol: "2.0",
+                action: "printDLabel",
+                labelString: lbl.toJson(),
+                dataString: dataString,
+                copies: 1
+            }
+
+            top.invokeEdge(para);
+        }
+        catch (e) {
+            topWin.alert(e, "error");
+        }
     }
     function btnDebug_click() {
         if (gId("divDebug").style.display.equals("")) {
