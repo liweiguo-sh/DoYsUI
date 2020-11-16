@@ -71,9 +71,9 @@
         // -- 加载标签元素 --
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
+            //if (!element.head.name.equals("7-中文名称")) continue;
 
             this.createElement(element);
-
             UtilElement.computeProp({ element: element });
             UtilElement.computeValue({ element: element, fields: this.label.fields });
             UtilElement.draw({ element: element });
@@ -259,8 +259,8 @@
         domDrag.style.left = x + "px";
         domDrag.style.top = y + "px";
 
-        element.position.left = x / _this.pxmm;
-        element.position.top = y / _this.pxmm;
+        element.position.left = (x / _this.pxmm).toFixed(2);
+        element.position.top = (y / _this.pxmm).toFixed(2);
 
         if (_this.activatedElement) {
             _this.showResize();
@@ -540,8 +540,8 @@
 
             domCanvas.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
             domCanvas.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
-            domCanvas._element.position.left = domCanvas.offsetLeft / pxmm;
-            domCanvas._element.position.width = domCanvas.offsetWidth / pxmm;
+            domCanvas._element.position.left = (domCanvas.offsetLeft / pxmm).toFixed(2);
+            domCanvas._element.position.width = (domCanvas.offsetWidth / pxmm).toFixed(2);
 
             _this.divT.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
             _this.divT.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
@@ -564,8 +564,8 @@
 
             domCanvas.style.top = (_this.divT.offsetTop + _this.divT.offsetHeight) + "px";
             domCanvas.style.height = (_this.divB.offsetTop - _this.divT.offsetTop - _this.divT.offsetHeight) + "px";
-            domCanvas._element.position.top = domCanvas.offsetTop / pxmm;
-            domCanvas._element.position.height = domCanvas.offsetHeight / pxmm;
+            domCanvas._element.position.top = (domCanvas.offsetTop / pxmm).toFixed(2);
+            domCanvas._element.position.height = (domCanvas.offsetHeight / pxmm).toFixed(2);
 
             _this.divL.style.top = _this.divT.offsetTop + "px";
             _this.divL.style.height = (_this.divB.offsetTop - _this.divT.offsetTop + _this.divB.offsetHeight) + "px";
@@ -575,7 +575,7 @@
         }
 
         if (element.head.elementType.equals("image")) {
-            domCanvas.width = element.position.width * pxmm;
+            domCanvas.width = (element.position.width * pxmm).toFixed(2);
         }
         else {
             UtilElement.computeProp({ element: element });

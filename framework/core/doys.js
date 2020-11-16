@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2020-05-23
+ * Modify Date: 2020-11-16
  * Copyright 2020, doys-next.com
  */
 (function () {
@@ -117,29 +117,41 @@ function importFrameworkRes(fileRes) {
     ///<summary>按需导入框架资源文件，js或css等</summary>
     ///<param name="fileRes">框架资源文件名称，不包含路径</param>
 
-    var arrJS = new Array();
+    var arrRes = new Array();
     if (fileRes.equals("echarts")) {
-        arrJS.push(g.path.plugin + "/echarts/echarts.min.js");
-        arrJS.push(g.path.plugin + "/echarts/echarts.ext.js");
+        arrRes.push(g.path.plugin + "/echarts/echarts.min.js");
+        arrRes.push(g.path.plugin + "/echarts/echarts.ext.js");
     }
     else if (fileRes.equals("view-form-bar")) {
-        arrJS.push(g.path.framework + "/control/view-form-bar/view-form-bar.js");
+        arrRes.push(g.path.framework + "/control/view-form-bar/view-form-bar.js");
     }
     else if (fileRes.equals("main-menu")) {
-        arrJS.push(g.path.framework + "/control/menu/top-menu/menu.js");
+        arrRes.push(g.path.framework + "/control/menu/top-menu/menu.js");
     }
     else if (fileRes.equals("main-view-bar")) {
-        arrJS.push(g.path.framework + "/control/main-view/main-view-bar.js");
+        arrRes.push(g.path.framework + "/control/main-view/main-view-bar.js");
     }
     else if (fileRes.equals("main-view")) {
-        arrJS.push(g.path.framework + "/control/main-view/main-view.js");
+        arrRes.push(g.path.framework + "/control/main-view/main-view.js");
+    }
+    else if (fileRes.equals("d-label")) {
+        arrRes.push(g.path.framework + "/control/label/css/designer.css");
+
+        arrRes.push(g.path.framework + "/control/label/js/font.js");
+        arrRes.push(g.path.framework + "/control/label/js/element.js");
+        arrRes.push(g.path.framework + "/control/label/js/label.js");
     }
     else {
         alert("importFrameworkRes found unknown resource: " + fileRes);
     }
 
     // -- output javascript --
-    for (let js of arrJS) {
-        document.write("<script src='" + js + "?v=" + g.cfg.jsVer + "'></script>");
+    for (let res of arrRes) {
+        if (res.endWith(".css")) {
+            document.write("<link href='" + res + "?v=" + g.cfg.jsVer + "' rel='stylesheet' />");
+        }
+        else {
+            document.write("<script src='" + res + "?v=" + g.cfg.jsVer + "'></script>");
+        }
     }
 }

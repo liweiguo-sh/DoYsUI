@@ -2,13 +2,10 @@
 <html>
 <head>
     <title>标签窗口</title>
-    <link href="../css/designer.css" rel="stylesheet" />
-
-    <script src="../../../core/doys.js"></script>
-
-    <script src="../js/label.js"></script>
-    <script src="../js/element.js?v=1"></script>
-
+    <script src="../../../core/doys.js?v=1"></script>
+    <script>
+        importFrameworkRes("d-label");
+    </script>
     <style type="text/css">
         body {
             font-family: 微软雅黑;
@@ -130,6 +127,9 @@
     }
 
     function btnPrint_click() {
+        debugger;
+        let gs1 = String.fromCharCode(29);
+
         let data = [
             {
                 "3-单价": "$138.00",
@@ -137,11 +137,11 @@
                 "5-C": "C",
                 "6-英文名称": "Gardein Chipotle Lime Fingers",
                 "7-中文名称": "柠香辣脆素鸡柳 9.6oz",
-                "8-条码-Code128": {
-                    value0: "1234567890",
-                    value: "http://www.abc.com/?id=1234567890",
-                    text0: "1234567890",
-                    text: "887788"
+                "8-条码-CODE_128": {
+                    value: "1012345" + gs1 + "21009" + gs1 + "11200203",
+                    value1: "http://www.abc.com/?id=1234567890",
+                    text: "10123452100911200203",
+                    text1: "887788"
                 },
                 "11-Canada": "Canada"
             }
@@ -165,10 +165,10 @@
             txtJson.value = getMock_LvKeMeng();
 
             //txtJson.value = getMock1();
-            
+
             jsonString = txtJson.value;
         }
-        
+
         return jsonString;
     }
     function getMock1() {
@@ -206,7 +206,7 @@
     ],
     "elements": [
         {
-            "head": {            
+            "head": {
                 "name": "元素1 - 文本",
                 "elementType": "text"
             },
@@ -298,18 +298,18 @@
                 "height": 80,
                 "left": 30,
                 "top": 300
-            },            
+            },
             "image": {
                 "img": "img3",
                 "deformation": "zoom"
             },
             "frame": {}
-        },        
+        },
         {
             "head": {
                 "name": "元素4 - 条码",
                 "elementType": "barcode",
-                "barcodeType": "Code128"
+                "barcodeType": "CODE_128"
             },
             "position": {
                 "layer": 1,
@@ -372,7 +372,7 @@
             "font": {
                 "name": "宋体",
                 "size": 14,
-                "bold": true,                
+                "bold": true,
                 "color": "#006400"
             },
             "frame": {}
@@ -391,7 +391,7 @@
   "fields": {
     "产品英文名称": "Gardein Chipotle Lime Fingers",
     "产品中文名称": "柠香辣脆素鸡柳 9.6oz",
-    "条码": "1234567890",
+    "条码": "887788",
     "img1": "https://cn.vuejs.org/images/imooc-sponsor2.png",
     "img2": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
     "img3": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png",
@@ -459,7 +459,8 @@
     {
       "head": {
         "name": "3-单价",
-        "elementType": "text"
+        "elementType": "text",
+        "locked": true
       },
       "sections": [
         {
@@ -489,8 +490,8 @@
       },
       "position": {
         "layer": 1,
-        "top": 2,
-        "left": 5.846599131693199,
+        "top": "2.66",
+        "left": "10.25",
         "width": 20,
         "height": 10,
         "textAlign": "center",
@@ -675,16 +676,18 @@
     },
     {
       "head": {
-        "name": "8-条码-Code128",
+        "name": "8-条码-CODE_128",
         "elementType": "barcode",
-        "barcodeType": "QrCode",
-        "pureBarcode": false
+        "barcodeType": "CODE_128",
+        "pureBarcode": false,
+        "locked": false,
+        "gs1": true
       },
       "sections": [
         {
           "pos": 0,
-          "type": "field",
-          "value": "条码",
+          "type": "fixed",
+          "value": "101234511200203",
           "format": ""
         },
         {
@@ -707,10 +710,10 @@
       },
       "position": {
         "layer": 1,
-        "top": 24.032476319350472,
-        "left": 44.49255751014885,
-        "width": "12",
-        "height": "13.5",
+        "top": 23.791606367583213,
+        "left": "18.06",
+        "width": "39.54",
+        "height": 13.719247467438496,
         "textAlign": "center",
         "verticalAlign": "bottom",
         "marginLeft": 0,
@@ -722,7 +725,7 @@
         {
           "pos": 0,
           "type": "fixed",
-          "value": "http://www.abc.com/?id=",
+          "value": "101234511200203",
           "format": ""
         },
         {

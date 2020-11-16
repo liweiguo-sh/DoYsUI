@@ -2,11 +2,10 @@
 <html>
 <head>
     <title>标签元素定义</title>
-    <script src="../../../core/doys.js"></script>
-
-    <script src="../js/element.js"></script>
-    <script src="../js/font.js"></script>
-
+    <script src="../../../core/doys.js?v=1"></script>
+    <script>
+        importFrameworkRes("d-label");
+    </script>
     <style type="text/css">
         body {
             overflow-x: hidden;
@@ -39,28 +38,18 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row>
-                        <el-col :span="10" class="el-col-base">
-                            &nbsp;
-                        </el-col>
-                        <el-col :span="14" class="el-col-base">
-                            <el-form-item label="锁定状态">
-                                <el-checkbox v-model="head.locked">锁定</el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
                     <el-row v-show="head.elementType=='barcode'">
                         <el-col :span="10" class="el-col-base">
                             <el-form-item label="符号体系">
                                 <el-select v-model="head.barcodeType" filterable style="width:100%;">
                                     <el-option-group label="一维码">
-                                        <el-option value="Code128" label="Code 128"></el-option>
-                                        <el-option value="GS1_128" label="GS1-128" :disabled="true"></el-option>
+                                        <el-option value="CODE_128" label="Code 128"></el-option>
+                                        <el-option value="CODE_39" label="Code 39"></el-option>
                                     </el-option-group>
                                     <el-option-group label="二维码">
-                                        <el-option value="QrCode" label="QR Code"></el-option>
-                                        <el-option value="GS1_QrCode" label="GS1 QR Code" :disabled="true"></el-option>
-                                        <el-option value="GS1_DataMatrix" label="GS1 DataMatrix" :disabled="true"></el-option>
+                                        <el-option value="QR_CODE" label="QR Code"></el-option>
+                                        <el-option value="DATA_MATRIX" label="DataMatrix"></el-option>
+                                        <el-option value="PDF_417" label="PDF_417" :disabled="true"></el-option>
                                     </el-option-group>
                                 </el-select>
                             </el-form-item>
@@ -71,7 +60,19 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="7" class="el-col-base">
+                            <el-form-item label="GS1">
+                                <el-checkbox v-model="head.gs1">GS1条码</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="10" class="el-col-base">
                             &nbsp;
+                        </el-col>
+                        <el-col :span="14" class="el-col-base">
+                            <el-form-item label="锁定状态">
+                                <el-checkbox v-model="head.locked">锁定</el-checkbox>
+                            </el-form-item>
                         </el-col>
                     </el-row>
                 </el-form>
@@ -388,7 +389,7 @@
             elementTypeChange() {
                 if (this.head.elementType.equals("barcode")) {
                     if (!this.head.barcodeType) {
-                        this.head.barcodeType = "Code128";
+                        this.head.barcodeType = "CODE_128";
                         this.position.textAlign = "center";
                     }
 
