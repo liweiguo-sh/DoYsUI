@@ -16,7 +16,8 @@
         this.divT = null; this.divR = null; this.divB = null; this.divT = null;                         // -- element resize border --        
 
         // -- 2. load para --
-        this.container = para.container;
+        this.parentContainer = para.parentContainer;        // -- 标签容器的父对象 --
+        this.container = para.container;                    // -- 标签容器 --
         this.container.ondragenter = function (evt) {
             evt.preventDefault();
         }
@@ -33,9 +34,7 @@
         }
 
         // -- 8. load label --
-        if (para.content) {
-            this.loadLabel(para.content);
-        }
+        this.loadLabel(para.content);
     }
     // -- label methods -------------------------------------------------------
     loadLabel(labelString) {
@@ -47,7 +46,8 @@
         else {
             this.label = JSON.parse(labelString);
         }
-        
+
+        this.head = this.label.head;
         this.fields = this.label.fields;
         this.elements = this.label.elements;
 
@@ -56,8 +56,11 @@
         this.zIndexHover = 210;
 
         // -- 计算标签换算系数(毫米|像素) --
-        let mmW = this.label.head.width, mmH = this.label.head.height, mmWH = mmW / mmH;
-        let pxW = this.container.clientWidth, pxH = this.container.clientHeight, pxWH = pxW / pxH;
+        let mmW = this.head.width, mmH = this.head.height, mmWH = mmW / mmH;
+        let pxW = this.parentContainer.clientWidth - g.x.getStyleValue(this.parentContainer, "padding-left") - g.x.getStyleValue(this.parentContainer, "padding-right")
+        let pxH = this.parentContainer.clientHeight - g.x.getStyleValue(this.parentContainer, "padding-top") - g.x.getStyleValue(this.parentContainer, "padding-bottom")
+        let pxWH = pxW / pxH;
+
         if (mmWH >= pxWH) {
             this.width = pxW;
             this.height = pxW / mmWH;
@@ -68,6 +71,9 @@
         }
         this.pxmm = this.width / mmW;
 
+        this.container.style.width = this.width + "px";
+        this.container.style.height = this.height + "px";
+
         // -- 加载标签元素 --
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
@@ -75,7 +81,7 @@
 
             this.createElement(element);
             UtilElement.computeProp({ element: element });
-            UtilElement.computeValue({ element: element, fields: this.label.fields });
+            UtilElement.computeValue({ element: element, fields: this.fields });
             UtilElement.draw({ element: element });
         }
     }
@@ -84,37 +90,19 @@
         this.hideResize();
         this.hideHover();
 
-        for (let i = 0; i < this.elements.length; i++) {
-            let _canvas = this.elements[i]._canvas;
-            this.container.removeChild(_canvas);
-        }
+        this.container.innerHTML = "";
+        this.elements = [];
+        this.fields = [];
+        this.label = null;
     }
     newLabel() {
         return {
             head: {
-                width: 100,
-                height: 80
+                width: 80,
+                height: 60
             },
-            fields: [], 
+            fields: [],
             elements: []
-        }
-    }
-    toJson() {
-        try {
-            return JSON.stringify(this.label,
-                (k, v) => {
-                    if (k.startsWith("_")) {    // -- _this, _canvas --                        
-                        return undefined;
-                    }
-                    else {
-                        // -- console.log(k); --
-                    }
-                    return v;
-                }, "  "
-            );
-        }
-        catch (e) {
-            topWin.alert(e, "error");
         }
     }
 
@@ -147,7 +135,7 @@
         this.createElement(element);
 
         UtilElement.computeProp({ element: element });
-        UtilElement.computeValue({ element: element, fields: this.label.fields});
+        UtilElement.computeValue({ element: element, fields: this.fields });
         UtilElement.draw({ element: element });
 
         this.activatedElement = element;
@@ -319,7 +307,7 @@
         UtilElement.reduce({ element: element });
 
         UtilElement.computeProp({ element: element });
-        UtilElement.computeValue({ element: element, fields: _this.label.fields});
+        UtilElement.computeValue({ element: element, fields: _this.fields });
         UtilElement.draw({ element: element });
         _this.showResize();
     }
@@ -590,4 +578,68 @@
         UtilElement.computeProp({ element: element });
         UtilElement.draw({ element: element });
     }
+
+    // -- toJson, getData, setValue, etc. -------------------------------------
+    toJson() {
+        try {
+            return JSON.stringify(this.label,
+                (k, v) => {
+                    if (k.startsWith("_")) {    // -- _this, _canvas --                        
+                        return undefined;
+                    }
+                    else {
+                        // -- console.log(k); --
+                    }
+                    return v;
+                }, "  "
+            );
+        }
+        catch (e) {
+            topWin.alert(e, "error");
+        }
+    }
+    getData() {
+        let data = {};
+        let element, head;
+
+        // ------------------------------------------------
+        for (let i = 0; i < this.elements.length; i++) {
+            element = this.elements[i];
+            head = element.head;
+
+            if (head.elementType.equals("text")) {
+                data[head.name] = head._sectionsText;
+            }
+            else if (head.elementType.equals("barcode")) {
+                data[head.name] = {
+                    text: head._sectionsText,
+                    value: head._segmentsText
+                }
+            }
+            else if (head.elementType.equals("image")) {
+                data[head.name] = element.image.url;
+            }
+        }
+
+        return data;
+    }
+
+    setValue(name, value) {
+        this.fields[name] = value;
+    }
+    refreshValues(redraw = false) {
+        for (let i = 0; i < this.elements.length; i++) {
+            let element = this.elements[i];
+
+            UtilElement.computeValue({ element: element, fields: this.fields });
+            if (redraw) {
+                UtilElement.draw({ element: element });
+            }
+            else {
+                // -- 循环赋值过程中，可以不重绘，最后一张标签重绘即可 --
+            }
+        }
+    }
+
+
 }

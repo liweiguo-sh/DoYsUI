@@ -7,23 +7,16 @@
         importFrameworkRes("d-label");
     </script>
     <style type="text/css">
-        body {
-            font-family: 微软雅黑;
-        }
-
         #divButtons input[type=button] {
             height: 36px;
             line-height: 36px;
             min-width: 100px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <div>menu</div>
-    <div>toolbar</div>
     <div id="divButtons">
-        <input type="button" id="btnLoadLabel" onclick="btnLoadLabel_click();" value="加载标签" />
-        &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="button" id="btnNewLabel" onclick="btnNewLabel_click();" value="新标签" />
         <input type="button" id="btnSaveLabel" onclick="btnSaveLabel_click();" value="保存标签" />
         &nbsp;&nbsp;&nbsp;&nbsp;
@@ -31,19 +24,24 @@
         <input type="button" id="btnDelElement" onclick="btnDelElement_click();" value="删除元素" />
         &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="button" id="btnPrint" onclick="btnPrint_click();" value="打印" />
-        <input type="button" id="btnClose" onclick="win.close();" value="关闭" />
+        <input type="button" id="btnClose" onclick="win.close();" value="关闭" style="color:red;font-weight:bold;" />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="button" id="btnLoadLabel" onclick="btnLoadLabel_click();" value="加载标签" />
+        <input type="button" id="btnDebug" onclick="btnDebug_click();" value="调试区" />
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
-            <td id="tdMainLeft" class="tdMain" style="width:300px;">属性区</td>
-            <td id="tdMainRight" class="tdMain">
-                <div id="divCanvas" style="border:solid 2px gray;margin:15px;padding:15px;position:relative"></div>
+            <td id="tdMainLeft" class="tdMain">属性区</td>
+            <td id="tdCanvas" class="tdMain" style="padding:15px;">
+                <div id="divCanvas" class="doys_label_continer"></div>
             </td>
         </tr>
     </table>
-    <hr />
-    <div>以下测试区</div>
-    <textarea id="txtJson" rows="12" style="width:800px;" spellcheck="false"></textarea>
+
+    <div id="divDebug" style="margin-top:30px;display:none;">
+        <div>以下测试区：</div>
+        <textarea id="txtJson" rows="50" style="width:1000px;" spellcheck="false"></textarea>
+    </div>
 </body>
 </html>
 
@@ -51,60 +49,57 @@
 <script>
     let tbMain = gId("tbMain");
     let tdMainLeft = gId("tdMainLeft");
-    let tdMainRight = gId("tdMainRight");
+    let tdCanvas = gId("tdCanvas");
 
     let divCanvas = gId("divCanvas");
     let txtJson = gId("txtJson");
+
+    let labelContent;
     // ------------------------------------------------------------------------
     function winLoad() {
         winResize();
 
-        txtJson.value = win.para.content || "";
-        btnLoadLabel_click();
+        labelContent = win.para.content || "";
+        if (labelContent) {
+            loadLabel(labelContent);
+        }
+        else {
+            //btnNewLabel_click();
+            btnLoadLabel_click();
+        }
+
+        txtJson.value = labelContent;
     }
 
     function winResize() {
         let width = document.documentElement.clientWidth;
         let heigth = document.documentElement.clientHeight;
 
-        tdMainRight.style.width = (width - tdMainLeft.offsetWidth) + "px";
-        divCanvas.style.height = (heigth - tbMain.offsetTop - 100) + "px";
+        tdCanvas.style.width = (width - 320) + "px";
+        tdCanvas.style.height = (heigth - tbMain.offsetTop - 40) + "px";
     }
 </script>
-
 <!-- buttons -->
 <script>
-    let lbl;
     function btnLoadLabel_click() {
         let content = getLabelString();
-
-        if (lbl == null) {
-            let para = {
-                container: divCanvas,
-                content: content
-            }
-
-            lbl = new Label(para);
-        }
-        else {
-            lbl.loadLabel(content);
-        }
+        loadLabel(content);
     }
     function btnNewLabel_click() {
         let content = "";
-
         if (lbl == null) {
             let para = {
+                parentContainer: tdCanvas,
                 container: divCanvas,
                 content: content
             }
-
             lbl = new Label(para);
         }
         else {
             lbl.loadLabel(content);
         }
     }
+
     function btnSaveLabel_click() {
         txtJson.value = lbl.toJson();
 
@@ -126,27 +121,20 @@
         }
     }
 
-    function btnPrint_click() {
-        debugger;
-        let gs1 = String.fromCharCode(29);
+    function btnPrint_click() {   
+        let datas = [], data, dataString;
+         // ------------------------------------------------
+        lbl.setValue("零售价", "$138.00");
+        lbl.setValue("会员价", "$110.40");
+        lbl.setValue("img3", "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png");
+        lbl.setValue("条码", "554455");
 
-        let data = [
-            {
-                "3-单价": "$138.00",
-                "4-会员价": "$110.40",
-                "5-C": "C",
-                "6-英文名称": "Gardein Chipotle Lime Fingers",
-                "7-中文名称": "柠香辣脆素鸡柳 9.6oz",
-                "8-条码-CODE_128": {
-                    value: "1012345" + gs1 + "21009" + gs1 + "11200203",
-                    value1: "http://www.abc.com/?id=1234567890",
-                    text: "10123452100911200203",
-                    text1: "887788"
-                },
-                "11-Canada": "Canada"
-            }
-        ];
-        let dataString = JSON.stringify(data, null, " ");
+        lbl.refreshValues(true);     
+
+        data = lbl.getData();
+        datas.push(data);
+        dataString = JSON.stringify(datas, null, " ");
+        // ------------------------------------------------
         let para = {
             protocol: "2.0",
             action: "printDLabel",
@@ -157,7 +145,37 @@
 
         top.invokeEdge(para);
     }
+    function btnDebug_click() {
+        if (gId("divDebug").style.display.equals("")) {
+            gId("divDebug").style.display = "none";
+        }
+        else {
+            gId("divDebug").style.display = "";
+        }
+    }
+</script>
 
+<!-- label -->
+<script>
+    let lbl;
+
+    function loadLabel(content) {
+        if (lbl == null) {
+            let para = {
+                parentContainer: tdCanvas,
+                container: divCanvas,
+                content: content
+            }
+            lbl = new Label(para);
+        }
+        else {
+            lbl.loadLabel(content);
+        }
+    }
+</script>
+
+<!-- mock data -->
+<script>
     function getLabelString() {
         let jsonString = txtJson.value;
 
@@ -389,6 +407,8 @@
     "height": 40
   },
   "fields": {
+    "零售价": "$999.99",
+    "会员价": "$888.88",
     "产品英文名称": "Gardein Chipotle Lime Fingers",
     "产品中文名称": "柠香辣脆素鸡柳 9.6oz",
     "条码": "887788",
@@ -460,13 +480,13 @@
       "head": {
         "name": "3-单价",
         "elementType": "text",
-        "locked": true
+        "locked": false
       },
       "sections": [
         {
           "pos": 0,
-          "type": "fixed",
-          "value": "$138.00",
+          "type": "field",
+          "value": "零售价",
           "format": ""
         },
         {
@@ -490,8 +510,8 @@
       },
       "position": {
         "layer": 1,
-        "top": "2.66",
-        "left": "10.25",
+        "top": "1.85",
+        "left": "4.69",
         "width": 20,
         "height": 10,
         "textAlign": "center",
@@ -510,8 +530,8 @@
       "sections": [
         {
           "pos": 0,
-          "type": "fixed",
-          "value": "$110.40",
+          "type": "field",
+          "value": "会员价",
           "format": ""
         },
         {
@@ -678,16 +698,16 @@
       "head": {
         "name": "8-条码-CODE_128",
         "elementType": "barcode",
-        "barcodeType": "CODE_128",
+        "barcodeType": "QR_CODE",
         "pureBarcode": false,
         "locked": false,
-        "gs1": true
+        "gs1": false
       },
       "sections": [
         {
           "pos": 0,
-          "type": "fixed",
-          "value": "101234511200203",
+          "type": "field",
+          "value": "条码",
           "format": ""
         },
         {
@@ -710,10 +730,10 @@
       },
       "position": {
         "layer": 1,
-        "top": 23.791606367583213,
-        "left": "18.06",
-        "width": "39.54",
-        "height": 13.719247467438496,
+        "top": "24.22",
+        "left": "45.96",
+        "width": "11.64",
+        "height": "13.23",
         "textAlign": "center",
         "verticalAlign": "bottom",
         "marginLeft": 0,
@@ -725,7 +745,7 @@
         {
           "pos": 0,
           "type": "fixed",
-          "value": "101234511200203",
+          "value": "http://www.abc.com/?id=",
           "format": ""
         },
         {
@@ -770,7 +790,8 @@
       },
       "image": {
         "url": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
-        "deformation": "zoom"
+        "deformation": "zoom",
+        "value": "img2"
       }
     },
     {

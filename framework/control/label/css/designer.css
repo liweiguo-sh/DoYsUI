@@ -1,5 +1,6 @@
 ﻿/* -- main layout -- */
 .tbMain {
+    width: 100%;
     --table-layout: fixed;
     border-collapse: collapse;
 }
@@ -7,6 +8,14 @@
 .tdMain {
     padding: 0px;
     border: dotted 1px green;
+}
+
+/* -- container -- */
+.doys_label_continer {
+    position: relative;
+    background-color: white;
+    box-shadow: 2px 2px 15px gray;
+    border-radius: 5px;
 }
 
 /* -- element -- */
