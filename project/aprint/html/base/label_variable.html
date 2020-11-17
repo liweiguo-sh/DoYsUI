@@ -20,11 +20,12 @@
                 <el-col :span="span[2]">
                     <el-form-item label="类型" required>
                         <el-select v-model="form.type">
-                            <el-option value="fixed" label="固定值"></el-option>
                             <el-option value="string" label="字符串"></el-option>
                             <el-option value="date" label="日期"></el-option>
+                            <el-option value="image" label="图片"></el-option>
                             <el-option value="seq" label="序列"></el-option>
                             <el-option value="quote" label="引用"></el-option>
+                            <el-option value="fixed" label="固定值" :disabled="true"></el-option>
                             <el-option value="ai" label="特殊字符" :disabled="true"></el-option>
                             <el-option value="js" label="JavaScript 脚本" :disabled="true"></el-option>
                         </el-select>
@@ -32,9 +33,26 @@
                 </el-col>
             </el-row>
             <el-row>
-                <el-col :span="span[1]">
+                <el-col :span="span[1]" v-if="!'image'.equals(form.type)">
                     <el-form-item label="变量值">
                         <el-input v-model="form.value" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[1]" v-if="'image'.equals(form.type)">
+                    <el-form-item label="图片">
+                        <el-collapse>
+                            <el-collapse-item title="变量图片" name="image">
+                                <el-upload class="upload-demo"
+                                           accept=".png,.jpg,.jpeg,.bmp"
+                                           :action="actionUploadVariableImage"
+                                           :on-success="afterUploadVariableImage"
+                                           :with-credentials="true"
+                                           :show-file-list="false">
+                                    <el-button type="primary">上传变量图片 (.png, .jpg, .jpeg, .bmp)</el-button>
+                                </el-upload>
+                                <el-image style="width:100px;height:100px" :src="imageUrl" :fit="fit"></el-image>
+                            </el-collapse-item>
+                        </el-collapse>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
@@ -142,12 +160,20 @@
         data: {
             span: [24, 13, 11],
             form: {},
+
+            imagePath: g.path.resRun + "/" + topWin.tenantId + "/aprint/label_variable_image/",
+            imageUrl: "",
+            actionUploadVariableImage: "",            
+
             checkedLabelVariables: [],
-            labelVariables: []
+            labelVariables: [],
         },
         methods: {
             afterAddnew: function () {
-                this.form.label_id = win.parentWindow.getLabelId();
+                this.form.label_id = labelId;
+                this.form.type = "string";
+                this.form.flag_manual_modify = true;
+                this.form.sequence = "999";
             },
             beforeSave: function () {
                 if (!this.form.value) this.form.value = "";
@@ -172,18 +198,38 @@
             },
 
             afterMove: function () {
+                let labelVariableId = this.$refs.vf.getId();
+
+                this.imageUrl = this.imagePath + this.form.value;
+                this.actionUploadVariableImage = g.prefix + "/aprint/dlabel/uploadLabelVariableImage?labelVariableId=" + labelVariableId;
+
                 this.checkedLabelVariables = this.form.seq_fields.split(",");
-            }
+            },
+
+            afterUploadVariableImage: function (res, b, c) {
+                if (res.ok) {                    
+                    this.form.value = res.filename;
+                    this.imageUrl = this.imagePath + this.form.value + "?rnd" + (new Date()).getTime();
+                    win.flashTitle("标签变量图片上传成功", "success");
+                }
+                else {
+                    topWin.alert(res.error, "error");
+                }
+            },
         }
     });
 </script>
 <!-- winLoad -->
 <script>
+    let labelId;
     let winParent;
+    // ------------------------------------------------------------------------
     function winLoad() {
+        labelId = win.parentWindow.getLabelId();
+
         let labelVariables = [];
-        let labelId = win.parentWindow.getLabelId();
         let post = { labelId: labelId };
+
         ajax.send("/aprint/label/getLabelVariable", post).then(res => {
             let dtbLabelVariable = res.dtbLabelVariable;
             for (let i = 0; i < dtbLabelVariable.rowCount; i++) {

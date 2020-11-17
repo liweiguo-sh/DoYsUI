@@ -34,10 +34,10 @@
         }
 
         // -- 8. load label --
-        this.loadLabel(para.content);
+        this.loadLabel(para.content, para.fields);
     }
     // -- label methods -------------------------------------------------------
-    loadLabel(labelString) {
+    loadLabel(labelString, fields) {
         if (this.elements) this.clearLabel();
 
         if (labelString.equals("")) {
@@ -45,6 +45,9 @@
         }
         else {
             this.label = JSON.parse(labelString);
+        }
+        if (fields) {
+            this.label.fields = fields;
         }
 
         this.head = this.label.head;
@@ -101,7 +104,7 @@
                 width: 80,
                 height: 60
             },
-            fields: [],
+            fields: {},
             elements: []
         }
     }

@@ -36,7 +36,7 @@
     </style>
 </head>
 <body>
-    <div id="app" style="width:900px;margin-bottom:10px;height:480px;">
+    <div id="app" style="width:900px;margin-bottom:10px;height:485px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-tabs ref="tab" v-model="activeTabName" @tab-click="onTabClick">
             <el-tab-pane name="baseInfo" :key="0" label="基本信息">
@@ -66,8 +66,8 @@
                         <el-col :span="span[2]">
                             <el-form-item label="类型" required>
                                 <el-select v-model="form.type">
-                                    <el-option value="MASO" label="MASO"></el-option>
-                                    <el-option value="ALabel" label="A-Label"></el-option>
+                                    <el-option value="DLabel" label="M-Label"></el-option>
+                                    <el-option value="MASO" label="MASO"></el-option>                                    
                                     <el-option value="BarTender" label="BarTender"></el-option>
                                     <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
                                     <el-option value="PDF" label="PDF" :disabled="true"></el-option>
@@ -180,6 +180,12 @@
                 this.showGrid();
             },
             onGridAddnew: function (callback) {
+                if (!this.form.type.equals("DLabel")) {
+                    callback(true);
+                    topWin.alert("当前标签的变量从标签文件中自动获取，无需手工定义。", "warning");
+                    return;
+                }
+
                 if (!this.$refs.vf.status.equals("view")) {
                     callback(true);
                     topWin.alert("请先保存主表。", (val) => {
@@ -281,8 +287,8 @@
             },
             onClick: function (button) {
                 if (button.name.equals("label_design")) {
-                    if (this.form.type.equals("ALabel")) {
-                        this.openALabelDesign();
+                    if (this.form.type.equals("DLabel")) {
+                        this.openDLabelDesign();
                     }
                     else if (this.form.type.equals("MASO")) {
                         top.openMasoDesigner({ labelId: this.form.id });
@@ -334,8 +340,27 @@
                 }
             },
 
-            openALabelDesign: function () {
-                ajax.send("/aprint/label/getLabelContentById", { labelId: this.form.id }).then(res => {
+            openDLabelDesign: function () {
+                let labelId = this.form.id;
+                ajax.send("/aprint/dlabel/getLabelForDesign", { labelId: labelId}).then(res => {
+                    let dtbLabel = res.dtbLabel;
+                    let dtbLabelVariable = res.dtbLabelVariable;
+
+                    let variables = {}, type, name, value;
+                    for (let i = 0; i < dtbLabelVariable.rowCount; i++) {
+                        type = dtbLabelVariable.rows[i]["type"].value;
+                        name = dtbLabelVariable.rows[i]["name"].value;
+                        value = dtbLabelVariable.rows[i]["value"].value;
+                        if (type.equals("image")) {
+                            if (value.indexOf("/") < 0) {
+                                variables[name] = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_variable_image/" + value;
+                            }
+                        }
+                        else {
+                            variables[name] = value;
+                        }
+                    }
+
                     let prop = {
                         url: g.path.framework + "/control/label/form/designer.html",
                         text: "text",
@@ -344,19 +369,22 @@
                         modal: false
                     };
                     let para = {
-                        content: res.content,
-                        callback: this.saveALabelContent
+                        labelId: labelId,
+                        content: dtbLabel.rows[0]["content"].value,
+                        fields: variables,
+                        callback: this.saveDLabelContent
                     };
+
                     topWin.openFullWindow(prop, para);
                 });
             },
-            saveALabelContent: function (jsp) {
+            saveDLabelContent: function (jsp) {
                 let postData = {
                     id: this.form.id,
-                    content: jsp.content,
-                    vars: ""
+                    content: jsp.content
                 };
-                ajax.send("/aprint/labels/maso/MasoFile/saveLabelContent", postData).then(res => {
+
+                ajax.send("/aprint/dlabel/saveLabelForDesign", postData).then(res => {
                     topWin.message("标签保存成功。", "success");
                 });
             }
