@@ -50,7 +50,7 @@
                                            :show-file-list="false">
                                     <el-button type="primary">上传变量图片 (.png, .jpg, .jpeg, .bmp)</el-button>
                                 </el-upload>
-                                <el-image style="width:100px;height:100px" :src="imageUrl" :fit="fit"></el-image>
+                                <el-image style="width:100px;height:100px;margin-top:15px;" :src="imageUrl" :fit="fit"></el-image>
                             </el-collapse-item>
                         </el-collapse>
                     </el-form-item>
@@ -161,7 +161,6 @@
             span: [24, 13, 11],
             form: {},
 
-            imagePath: g.path.resRun + "/" + topWin.tenantId + "/aprint/label_variable_image/",
             imageUrl: "",
             actionUploadVariableImage: "",            
 
@@ -200,7 +199,7 @@
             afterMove: function () {
                 let labelVariableId = this.$refs.vf.getId();
 
-                this.imageUrl = this.imagePath + this.form.value;
+                this.imageUrl = topWin.cfg.labelVariableImageBaseUrl + this.form.value;
                 this.actionUploadVariableImage = g.prefix + "/aprint/dlabel/uploadLabelVariableImage?labelVariableId=" + labelVariableId;
 
                 this.checkedLabelVariables = this.form.seq_fields.split(",");
@@ -209,7 +208,7 @@
             afterUploadVariableImage: function (res, b, c) {
                 if (res.ok) {                    
                     this.form.value = res.filename;
-                    this.imageUrl = this.imagePath + this.form.value + "?rnd" + (new Date()).getTime();
+                    this.imageUrl = topWin.cfg.labelVariableImageBaseUrl + this.form.value + "?rnd" + (new Date()).getTime();
                     win.flashTitle("标签变量图片上传成功", "success");
                 }
                 else {

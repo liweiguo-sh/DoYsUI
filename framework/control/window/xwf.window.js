@@ -468,8 +468,8 @@ window.xwf_window.prototype.autoSize = function (_this, win) {
     width = Math.min(width, _this.maxWidth);
     iframe.style.width = Math.min(width, _this.maxWidth) + "px";
 
-    if (_this.top0 == null) top = _this.top + 0.5 * (_this.maxHeight - height);
-    if (_this.left0 == null) left = _this.left + 0.5 * (_this.maxWidth - divWin.offsetWidth);
+    if (win.p.top0 == null) top = _this.top + 0.5 * (_this.maxHeight - height);
+    if (win.p.left0 == null) left = _this.left + 0.5 * (_this.maxWidth - divWin.offsetWidth);
     if (top < _this.top) top = _this.top;
     if (left < _this.left) left = _this.left;
 

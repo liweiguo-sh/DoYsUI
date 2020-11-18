@@ -152,7 +152,7 @@
                                 <el-select v-model="image.value" @change="imgChange();" clearable style="width:100%;">
                                     <el-option v-for="item in images" :value="item.k" :label="item.k" :key="item.k" :title="item.k + '  (' + item.v + ')'" style="height:52px;padding-top:2px;">
                                         <slot>
-                                            <image :src="item.v" style="height:48px;" />
+                                            <image :src="item.url" style="height:48px;" />
                                         </slot>
                                     </el-option>
                                 </el-select>
@@ -408,7 +408,7 @@
                         ];
                     }
                 }
-                if (this.head.elementType.equals("image")) {
+                if (this.head.elementType.equals("image")) {                    
                     if (!this.image) {
                         this.image = {
                             "value": this.images.length > 0 ? this.images[0].k : "",
@@ -484,7 +484,7 @@
                 this.reComputer();
             },
 
-            imgChange() {
+            imgChange() { 
                 this.reComputer();
             },
             reComputer() {
@@ -514,13 +514,17 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
-        let fields = [], k, v, images = [];
+        let fields = [], k, v, url, images = [];
         for (k in win.para.fields) {
             v = win.para.fields[k];
             fields.push({ k: k, v: v });
 
             if (g.x.isImageUrl(v)) {
-                images.push({ k: k, v: v });
+                url = v;
+                if (!url.startWith("http")) {
+                    url = topWin.cfg.labelVariableImageBaseUrl + v;
+                }
+                images.push({ k: k, v: v, url: url });
             }
         }
         app.fields = fields;

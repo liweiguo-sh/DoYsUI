@@ -345,22 +345,29 @@
                 ajax.send("/aprint/dlabel/getLabelForDesign", { labelId: labelId}).then(res => {
                     let dtbLabel = res.dtbLabel;
                     let dtbLabelVariable = res.dtbLabelVariable;
+                    let labelContent = dtbLabel.rows[0]["content"].value;
 
-                    let variables = {}, type, name, value;
-                    for (let i = 0; i < dtbLabelVariable.rowCount; i++) {
-                        type = dtbLabelVariable.rows[i]["type"].value;
+                    // ------------------------------------
+                    let variables = {}, name, value;
+                    for (let i = 0; i < dtbLabelVariable.rowCount; i++) { 
                         name = dtbLabelVariable.rows[i]["name"].value;
                         value = dtbLabelVariable.rows[i]["value"].value;
-                        if (type.equals("image")) {
-                            if (value.indexOf("/") < 0) {
-                                variables[name] = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_variable_image/" + value;
-                            }
-                        }
-                        else {
-                            variables[name] = value;
-                        }
+                        variables[name] = value;
                     }
 
+                    if (!labelContent) {
+                        let lbl = {
+                            "head": {
+                                "id": labelId,
+                                "width": dtbLabel.rows[0]["width"].value,
+                                "height": dtbLabel.rows[0]["height"].value
+                            },
+                            "fields": {},
+                            "elements": []
+                        }
+                        labelContent = JSON.stringify(lbl, null, " ");
+                    }
+                    // ------------------------------------
                     let prop = {
                         url: g.path.framework + "/control/label/form/designer.html",
                         text: "text",
@@ -370,7 +377,7 @@
                     };
                     let para = {
                         labelId: labelId,
-                        content: dtbLabel.rows[0]["content"].value,
+                        content: labelContent,
                         fields: variables,
                         callback: this.saveDLabelContent
                     };

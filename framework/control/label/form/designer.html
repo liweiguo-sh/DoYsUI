@@ -58,11 +58,11 @@
     // ------------------------------------------------------------------------
     function winLoad() {
         winResize();
-        
+
         labelId = win.para.labelId;
         labelContent = win.para.content || "";
         labelFields = win.para.fields || null;
-        if (labelContent) {
+        if (labelId) {
             loadLabel(labelContent, labelFields);
         }
         else {
@@ -84,7 +84,7 @@
 <!-- buttons -->
 <script>
     function btnLoadLabel_click() {
-        let content = getLabelString(); 
+        let content = getLabelString();
         loadLabel(content, labelFields);
     }
     function btnNewLabel_click() {
@@ -94,7 +94,8 @@
                 parentContainer: tdCanvas,
                 container: divCanvas,
                 content: content,
-                fields: labelFields
+                fields: labelFields,
+                imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl
             }
             lbl = new Label(para);
         }
@@ -124,7 +125,7 @@
         }
     }
 
-    function btnPrint_click() {   
+    function btnPrint_click() {
         let page = 0, pages = 2;
         let datas = [], dataString;
         // ------------------------------------------------
@@ -153,7 +154,7 @@
                     datas.push(lbl.getData());
                 }
                 lbl.computeElements(true);
-            } 
+            }
             dataString = JSON.stringify(datas, null, " ");
 
             // --------------------------------------------
@@ -191,7 +192,8 @@
                 parentContainer: tdCanvas,
                 container: divCanvas,
                 content: content,
-                fields: fields
+                fields: fields,
+                imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl
             }
             lbl = new Label(para);
         }

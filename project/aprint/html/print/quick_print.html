@@ -12,7 +12,7 @@
                     <el-button @click="createTask" type="primary">生成数据</el-button>
                     <el-button @click="deleteTask" v-show="taskId">删除数据</el-button>
                     <el-button @click="preview({restorePreviewWindow: 'restore'})" v-show="labelId">预览</el-button>
-                    <el-button @click="print" type="danger" v-show="taskId">打印</el-button>
+                    <el-button @click="print" type="danger" v-show="labelId">打印</el-button>
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
@@ -116,7 +116,7 @@
 </body>
 </html>
 
-<!-- winLoad -->
+<!-- vue.init -->
 <script>
     var app = new Vue({
         el: '#app',
@@ -132,7 +132,9 @@
             customers: [],
             productPns: [],
 
+            labelType: "",              // -- 标签类型(DLabel/MASO/BarTender/NiceLabel etc.) --
             labelId: null,
+            labelContent: "",           // -- 标签内容 --
             qty: null,
             copies: 1,
             taskId: null,
@@ -189,6 +191,8 @@
                     this.dtbLabel = res.dtbLabel;
                     this.dtbLabelVariable = res.dtbLabelVariable;
 
+                    this.labelType = this.dtbLabel.rows[0]["type"].value;
+                    this.labelContent = this.dtbLabel.rows[0]["content"].value;
                     this.setVariables();
                 });
             },
@@ -321,7 +325,7 @@
                 return arr.join("    ");
             },
 
-            createTask() {
+            createTask() {                
                 if (!this.labelId) {
                     topWin.alert("请先选择要打印的标签。");
                     return;
@@ -399,9 +403,20 @@
 
                 para.action = "previewLabel";
                 para.dataString = dataString;
-                this.printLabel(para);
+
+                if (this.labelType.equals("DLabel")) {
+                    this.DLabelPreview();
+                }
+                else {
+                    this.printLabel(para);
+                }
             },
             print() {
+                if (this.labelType.equals("DLabel")) {
+                    this.DLabelPrint();
+                    return;
+                }
+
                 let postData = {
                     labelId: this.labelId,
                     taskId: this.taskId,
@@ -439,15 +454,15 @@
                 let paraInvoke = {
                     action: para.action || "previewLabel",
                     labelId: this.labelId,
-                    labelContent: this.dtbLabel.rows[0]["content"].value,
-                    labelType: this.dtbLabel.rows[0]["type"].value,
+                    labelContent: this.labelContent,
+                    labelType: this.labelType,
                     labelSummary: this.getLabelSummary(),
                     taskId: this.taskId,
                     dataString: para.dataString
                 }
                 paraInvoke = g.x.extendJSON(paraInvoke, para);
 
-                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
+                if (this.labelType.equals("BarTender")) {
                     if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
                         topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
                         return;
@@ -462,6 +477,92 @@
                 }
                 top.printLabel(paraInvoke);
             },
+
+            DLabelPreview() {
+                let fields = {}, variable, name, value;
+                for (let i = 0; i < this.variables.length; i++) {
+                    variable = this.variables[i]; 
+                    name = variable.name;
+                    value = variable.valueFormat;
+
+                    fields[name] = value;
+                }
+                // ----------------------------------------
+                if (winPreview) {
+                    if (!this.labelId.equals(winPreview.window.labelId)) {
+                        winPreview.close({ callerIsParent: true });
+                        winPreview = null;
+                    }
+                }
+
+                if (winPreview == null) {
+                    let prop = {
+                        url: g.path.framework + "/control/label/form/preview.html",
+                        left: win.p.maxWidth / 2,
+                        parent: win,
+                        modal: false
+                    };
+                    let para = {
+                        labelId: this.labelId,
+                        labelContent: this.labelContent,
+                        labelFields: fields,
+                        labelWidth: this.dtbLabel.rows[0]["width"].value,
+                        labelHeight: this.dtbLabel.rows[0]["height"].value
+                    };
+                    winPreview = topWin.openWindow(prop, para);
+                }
+                else {
+                    winPreview.show();
+                    winPreview.window.loadLabel(this.labelContent, fields);
+                }
+            },
+            DLabelPrint() {
+                this.DLabelPreview();
+                
+                let postData = {
+                    labelId: this.labelId,
+                    taskId: this.taskId,
+                    rowNoFrom: this.rowNoFrom,
+                    rowNoTo: this.rowNoTo
+                };
+                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {                    
+                    let dtbTaskData = res.dtbTaskData;
+                    let rowCount = dtbTaskData.rowCount;
+                    let columnCount = dtbTaskData.columnCount;
+
+                    let lbl = winPreview.window.lbl;
+                    let datas = [], dataString, name, value;
+                    // ------------------------------------
+                    for (let i = 0; i < rowCount; i++) {
+                        for (let j = 0; j < columnCount; j++) {
+                            name = dtbTaskData.columns[j].name;
+                            if (name.equals("task_id") || name.equals("id")
+                                || name.equals("$row_no") || name.equals("$cdate")) {
+                                continue;
+                            }
+                            value = dtbTaskData.rows[i][j].value;
+
+                            lbl.setValue(name, value);
+                        }
+                        lbl.computeElements();
+                        datas.push(lbl.getData());
+                    }
+                    lbl.computeElements(true);
+                    dataString = JSON.stringify(datas, null, " ");
+
+                    // --------------------------------------------
+                    let para = {
+                        protocol: "2.0",
+                        action: "printDLabel",
+                        labelString: lbl.toJson(),
+                        dataString: dataString,
+                        copies: 1
+                    }
+
+                    top.invokeEdge(para);
+                });
+            },
+
 
             initGrid() {
                 var para = {
@@ -480,7 +581,11 @@
             }
         }
     });
+</script>
 
+<!-- winLoad -->
+<script>
+    var winPreview;
     // ------------------------------------------------------------------------
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";

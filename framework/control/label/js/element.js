@@ -480,9 +480,20 @@ UtilElement.draw_image = function (domCanvas, element) {
     let context = domCanvas.getContext("2d");
     let deformation = element.image.deformation || "";
 
+    let urlImg;
     let img = new Image();
     // ----------------------------------------------------
-    img.src = element.image.url;
+
+    urlImg = element.image.url || "";    
+    if (!urlImg.startWith("http:")) {
+        if (!element.imageBaseUrl) {
+            alert("配置标签参数 (imageBaseUrl) 未配置, 请检查。");
+            return;
+        }
+        urlImg = element.imageBaseUrl + urlImg;
+    }
+    // ----------------------------------------------------
+    img.src = urlImg;
     img.onload = function () {
         if (deformation.equals("stretch")) {    // -- 拉伸(变形) --
             widthImg = width;

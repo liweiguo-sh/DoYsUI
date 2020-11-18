@@ -5,8 +5,10 @@
         this.doc = window.document;
         this.id = 1;
 
-        this.minElementWidth = 1;               // -- 元素最小宽度 --
-        this.minElementHeight = 1;              // -- 元素最小高度 --
+        this.readonly = para.readonly;
+        this.imageBaseUrl = para.imageBaseUrl;      // -- 图片路径前缀 --
+        this.minElementWidth = 1;                   // -- 元素最小宽度 --
+        this.minElementHeight = 1;                  // -- 元素最小高度 --
 
         // -- 1.1 element resize, hover and drag drop --
         this.dragOffsetX = 0;
@@ -80,7 +82,8 @@
         // -- 加载标签元素 --
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
-            //if (!element.head.name.equals("7-中文名称")) continue;
+
+            element.imageBaseUrl = this.imageBaseUrl;
 
             this.createElement(element);
             UtilElement.computeProp({ element: element });
@@ -112,6 +115,7 @@
     // -- element base --------------------------------------------------------
     addBlankTextElement() {
         let element = {
+            imageBaseUrl: this.imageBaseUrl,
             head: {
                 name: this.prefix + "element_" + this.id,
                 elementType: "text"
@@ -178,30 +182,32 @@
         element._canvas = cvsElement;
         element._canvasId = canvasId;
 
-        cvsElement.draggable = true;
-        cvsElement.ondragstart = function (evt) {
-            let _dom = evt.srcElement;
-            let _this = _dom._this;
+        if (!this.readonly) {
+            cvsElement.draggable = true;
+            cvsElement.ondragstart = function (evt) {
+                let _dom = evt.srcElement;
+                let _this = _dom._this;
 
-            _this.activeElement(_dom._element);
+                _this.activeElement(_dom._element);
 
-            evt.dataTransfer.setDragImage(new Image(), 0, 0);
-            _this.ondragstart(evt, _this.container);
-        };
-        cvsElement.ondrag = _this.onCanvasDrag;
+                evt.dataTransfer.setDragImage(new Image(), 0, 0);
+                _this.ondragstart(evt, _this.container);
+            };
+            cvsElement.ondrag = _this.onCanvasDrag;
 
-        cvsElement.onmouseenter = this.showHover;
-        cvsElement.onmouseleave = function (evt) {
-            let _dom = evt.srcElement;
-            let _this = _dom._this;
+            cvsElement.onmouseenter = this.showHover;
+            cvsElement.onmouseleave = function (evt) {
+                let _dom = evt.srcElement;
+                let _this = _dom._this;
 
-            _this.hideHover();
-        }
+                _this.hideHover();
+            }
 
-        cvsElement.onclick = this.onElementClick;
-        cvsElement.ondblclick = this.onElementDblClick;
-        cvsElement.ondblclick = function (evt) {
-            _this.onElementDblClick(_this, evt);
+            cvsElement.onclick = this.onElementClick;
+            cvsElement.ondblclick = this.onElementDblClick;
+            cvsElement.ondblclick = function (evt) {
+                _this.onElementDblClick(_this, evt);
+            }
         }
     }
     activeElement(element) {
@@ -620,7 +626,12 @@
                 }
             }
             else if (head.elementType.equals("image")) {
-                data[head.name] = element.image.url;
+                if (element.image.url.startsWith("http")) {
+                    data[head.name] = element.image.url;
+                }
+                else {
+                    data[head.name] = element.imageBaseUrl + element.image.url;
+                }
             }
         }
 
