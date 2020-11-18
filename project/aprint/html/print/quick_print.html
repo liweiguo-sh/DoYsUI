@@ -325,7 +325,7 @@
                 return arr.join("    ");
             },
 
-            createTask() {                
+            createTask() {
                 if (!this.labelId) {
                     topWin.alert("请先选择要打印的标签。");
                     return;
@@ -416,6 +416,10 @@
                     this.DLabelPrint();
                     return;
                 }
+                if (!this.taskId) {
+                    this.preview({ printNow: true });
+                    return;
+                } 
 
                 let postData = {
                     labelId: this.labelId,
@@ -481,7 +485,7 @@
             DLabelPreview() {
                 let fields = {}, variable, name, value;
                 for (let i = 0; i < this.variables.length; i++) {
-                    variable = this.variables[i]; 
+                    variable = this.variables[i];
                     name = variable.name;
                     value = variable.valueFormat;
 
@@ -518,20 +522,36 @@
             },
             DLabelPrint() {
                 this.DLabelPreview();
-                
+
+                let lbl = winPreview.window.lbl;
+                let datas = [], dataString, name, value;
+                // -- 打印样张 --------------------------------
+                if (!this.taskId) {
+                    datas.push(lbl.getData());
+                    dataString = JSON.stringify(datas, null, " ");
+
+                    let para = {
+                        protocol: "2.0",
+                        action: "printDLabel",
+                        labelString: lbl.toJson(),
+                        dataString: dataString,
+                        copies: 1
+                    }
+                    top.invokeEdge(para);
+                    return;
+                }
+
+                // -- 打印任务单数据 -----------------------------
                 let postData = {
                     labelId: this.labelId,
                     taskId: this.taskId,
                     rowNoFrom: this.rowNoFrom,
                     rowNoTo: this.rowNoTo
                 };
-                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {                    
+                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
                     let dtbTaskData = res.dtbTaskData;
                     let rowCount = dtbTaskData.rowCount;
                     let columnCount = dtbTaskData.columnCount;
-
-                    let lbl = winPreview.window.lbl;
-                    let datas = [], dataString, name, value;
                     // ------------------------------------
                     for (let i = 0; i < rowCount; i++) {
                         for (let j = 0; j < columnCount; j++) {
