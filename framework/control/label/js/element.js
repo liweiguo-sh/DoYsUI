@@ -168,7 +168,7 @@ UtilElement.computeValue = function (jsp) {
             }
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
-                    values.push("{GS}");
+                    values.push(String.fromCharCode(29));
                 }
                 else {
                     values.push(value);
@@ -193,7 +193,7 @@ UtilElement.computeValue = function (jsp) {
             }
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
-                    values.push("{GS}");
+                    values.push(String.fromCharCode(29));
                 }
                 else {
                     values.push(value);
