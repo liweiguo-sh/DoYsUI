@@ -483,7 +483,6 @@ UtilElement.draw_image = function (domCanvas, element) {
     let urlImg;
     let img = new Image();
     // ----------------------------------------------------
-
     urlImg = element.image.url || "";    
     if (!urlImg.startWith("http:")) {
         if (!element.imageBaseUrl) {
@@ -517,7 +516,7 @@ UtilElement.draw_image = function (domCanvas, element) {
         context.drawImage(img, 0, 0, widthImg, heightImg);
     }
     img.onerror = function () {
-        UtilElement._drawError(context, element, "picture failed to load");
+        UtilElement._drawError(context, element, "404");
     }
 }
 

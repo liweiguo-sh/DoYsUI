@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>标签窗口</title>
-    <script src="../../../core/doys.js?v=1"></script>
+    <script src="../../../core/doys.js?v=2"></script>
     <script>
         importFrameworkRes("d-label");
     </script>
@@ -26,8 +26,11 @@
         <input type="button" id="btnPrint" onclick="btnPrint_click();" value="打印" />
         <input type="button" id="btnClose" onclick="win.close();" value="关闭" style="color:red;font-weight:bold;" />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="button" id="btnLoadLabel" onclick="btnLoadLabel_click();" value="加载标签" />
+
         <input type="button" id="btnDebug" onclick="btnDebug_click();" value="调试区" />
+        <input type="button" id="btnLoadLabel" onclick="btnLoadLabel_click();" value="加载标签" />
+        <input type="button" id="btnLabel1" onclick="btnLabel1_click();" value="标签1" />
+        <input type="button" id="btnLabel2" onclick="btnLabel2_click();" value="标签2" />
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
@@ -54,23 +57,24 @@
     let divCanvas = gId("divCanvas");
     let txtJson = gId("txtJson");
 
-    let labelId, labelContent, labelFields;
+    let labelId, labelContent;
+    let lbl;
     // ------------------------------------------------------------------------
     function winLoad() {
         winResize();
 
-        labelId = win.para.labelId;
+        labelId = win.para.labelId || 0;
         labelContent = win.para.content || "";
-        labelFields = win.para.fields || null;
-        if (labelId) {
-            loadLabel(labelContent, labelFields);
-        }
-        else {
-            //btnNewLabel_click();
-            btnLoadLabel_click();
-        }
 
-        txtJson.value = labelContent;
+        lbl = new Label({ container: divCanvas });
+        lbl.loadLabel(labelContent, {
+            labelId: labelId,
+            imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+            fields: win.para.fields || null,
+            width: win.para.width || null,
+            height: win.para.height || null
+        });
+        lbl.compute(true);
     }
 
     function winResize() {
@@ -83,27 +87,9 @@
 </script>
 <!-- buttons -->
 <script>
-    function btnLoadLabel_click() {
-        let content = getLabelString();
-        loadLabel(content, labelFields);
-    }
     function btnNewLabel_click() {
-        let content = "";
-        if (lbl == null) {
-            let para = {
-                parentContainer: tdCanvas,
-                container: divCanvas,
-                content: content,
-                fields: labelFields,
-                imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl
-            }
-            lbl = new Label(para);
-        }
-        else {
-            lbl.loadLabel(content, labelFields);
-        }
+        lbl.loadLabel("", { width: 60, height: 40 });
     }
-
     function btnSaveLabel_click() {
         txtJson.value = lbl.toJson();
 
@@ -172,144 +158,75 @@
             topWin.alert(e, "error");
         }
     }
+</script>
+
+<!-- debug and test -->
+<script>
     function btnDebug_click() {
         if (gId("divDebug").style.display.equals("")) {
             gId("divDebug").style.display = "none";
         }
         else {
             gId("divDebug").style.display = "";
+            if (!txtJson.value) {
+                txtJson.value = lbl.toJson();
+            }
+            gId("txtJson").focus();
         }
     }
-</script>
-
-<!-- label -->
-<script>
-    let lbl;
-
-    function loadLabel(content, fields) {
-        if (lbl == null) {
-            let para = {
-                parentContainer: tdCanvas,
-                container: divCanvas,
-                content: content,
-                fields: fields,
-                imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl
-            }
-            lbl = new Label(para);
+    function btnLoadLabel_click() {
+        labelContent = txtJson.value;
+        if (labelContent) {
+            lbl.loadLabel(labelContent);
+            lbl.compute(true);
         }
         else {
-            lbl.loadLabel(content, fields);
+            btnNewLabel_click();
         }
     }
-</script>
 
-<!-- mock data -->
-<script>
-    function getLabelString() {
-        let jsonString = txtJson.value;
+    function btnLabel1_click() {
+        labelContent = getLabel1();
+        lbl.loadLabel(labelContent);
 
-        if (jsonString.equals("")) {
-            txtJson.value = getMock_LvKeMeng();
-
-            //txtJson.value = getMock1();
-
-            jsonString = txtJson.value;
-        }
-
-        return jsonString;
+        lbl.setValue("单价", "$111.11");
+        lbl.compute(true);
     }
-    function getMock1() {
-        return `
-        `;
+    function btnLabel2_click() {
+        labelContent = getLabel2();
+        lbl.loadLabel(labelContent);
+
+        lbl.setValue("单价", "￥222.22");
+        lbl.compute();
+        lbl.draw();
     }
-    function getMock_LvKeMeng() {
+
+    function getLabel1() {
         return `
 {
   "head": {
-    "width": 60,
-    "height": 40
+    "width": 80,
+    "height": 40,
+    "imageBaseUrl": "http://127.0.0.1/DoYsUI/framework/control/label/image/"
   },
   "fields": {
-    "零售价": "$999.99",
-    "会员价": "$888.88",
-    "产品英文名称": "Gardein Chipotle Lime Fingers",
-    "产品中文名称": "柠香辣脆素鸡柳 9.6oz",
-    "条码": "887788",
-    "图片01": "https://cn.vuejs.org/images/imooc-sponsor2.png",
-    "图片02": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
-    "图片03": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png",
-    "图片04": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png"
+    "单价": "123.45",
+    "图片01": "01.png",
+    "图片02": "02.png",
+    "Img_user": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
+    "img_doys": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png"
   },
   "elements": [
     {
       "head": {
-        "name": "1-背景边框",
-        "elementType": "shape",
-        "locked": true
-      },
-      "font": {
-        "lineHeight": 0,
-        "size": 12
-      },
-      "frame": {
-        "type": "rectangle",
-        "width": 0.8,
-        "color": "#0D0A0A"
-      },
-      "position": {
-        "layer": "0",
-        "top": "1",
-        "left": "1",
-        "width": "58",
-        "height": "38",
-        "textAlign": "left",
-        "verticalAlign": "top",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      }
-    },
-    {
-      "head": {
-        "name": "2-顶端背景色",
-        "elementType": "shape",
-        "locked": true
-      },
-      "font": {
-        "lineHeight": 0,
-        "size": 12
-      },
-      "frame": {
-        "type": "rectangle",
-        "width": 0,
-        "fillColor": "#B7DBE8"
-      },
-      "position": {
-        "layer": "0",
-        "top": "1.8",
-        "left": "1.8",
-        "width": "56.4",
-        "height": "10",
-        "textAlign": "left",
-        "verticalAlign": "top",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      }
-    },
-    {
-      "head": {
-        "name": "3-单价",
-        "elementType": "text",
-        "locked": false
+        "name": "1-单价",
+        "elementType": "text"
       },
       "sections": [
         {
           "pos": 0,
           "type": "field",
-          "value": "零售价",
+          "value": "单价",
           "format": ""
         },
         {
@@ -344,17 +261,37 @@
         "marginTop": 0,
         "marginBottom": 0
       }
-    },
+    }
+  ]
+}
+        `;
+    }
+    function getLabel2() {
+        return `
+{
+  "head": {
+    "width": 40,
+    "height": 60,
+    "imageBaseUrl": "http://127.0.0.1/DoYsUI/framework/control/label/image/"
+  },
+  "fields": {
+    "单价": "123.45",
+    "图片01": "01.png",
+    "图片02": "02.png",
+    "Img_user": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
+    "img_doys": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png"
+  },
+  "elements": [
     {
       "head": {
-        "name": "4-会员价",
+        "name": "1-单价",
         "elementType": "text"
       },
       "sections": [
         {
           "pos": 0,
           "type": "field",
-          "value": "会员价",
+          "value": "单价",
           "format": ""
         },
         {
@@ -366,325 +303,24 @@
       ],
       "font": {
         "lineHeight": 0,
-        "size": "18",
+        "size": "12",
         "bold": true,
         "name": "Arial",
-        "color": "#EF2525"
-      },
-      "frame": {
-        "type": "",
-        "width": 0
-      },
-      "position": {
-        "layer": 1,
-        "top": 4,
-        "left": 29,
-        "width": 25,
-        "height": 8,
-        "textAlign": "right",
-        "verticalAlign": "top",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      }
-    },
-    {
-      "head": {
-        "name": "5-C",
-        "elementType": "text"
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "C",
-          "format": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": "",
-          "format": ""
-        }
-      ],
-      "font": {
-        "name": "Arial",
-        "size": "7",
-        "lineHeight": 0
-      },
-      "frame": {
-        "type": "",
-        "width": 0
-      },
-      "position": {
-        "layer": 1,
-        "top": 2.5,
-        "left": 54,
-        "width": 3,
-        "height": 3,
-        "textAlign": "right",
-        "verticalAlign": "top",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      }
-    },
-    {
-      "head": {
-        "name": "6-英文名称",
-        "elementType": "text"
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "field",
-          "value": "产品英文名称",
-          "format": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": "",
-          "format": ""
-        }
-      ],
-      "font": {
-        "size": "10",
-        "name": "微软雅黑",
-        "bold": true,
-        "lineHeight": 0
-      },
-      "frame": {
-        "type": "",
-        "width": 0
-      },
-      "position": {
-        "layer": 1,
-        "top": 13,
-        "left": 2,
-        "width": 56,
-        "height": 4,
-        "textAlign": "center",
-        "verticalAlign": "middle",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      }
-    },
-    {
-      "head": {
-        "name": "7-中文名称",
-        "elementType": "text"
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "field",
-          "value": "产品中文名称",
-          "format": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": "",
-          "format": ""
-        }
-      ],
-      "font": {
-        "bold": true,
-        "size": "10",
-        "name": "微软雅黑",
-        "lineHeight": 0
-      },
-      "frame": {
-        "type": "",
-        "width": 0
-      },
-      "position": {
-        "layer": 1,
-        "top": 18.024357239512852,
-        "left": 2,
-        "width": 56,
-        "height": 3.8971583220568333,
-        "textAlign": "center",
-        "verticalAlign": "top",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      }
-    },
-    {
-      "head": {
-        "name": "8-条码-CODE_128",
-        "elementType": "barcode",
-        "barcodeType": "QR_CODE",
-        "pureBarcode": false,
-        "locked": false,
-        "gs1": false
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "field",
-          "value": "条码",
-          "format": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": "",
-          "format": ""
-        }
-      ],
-      "font": {
-        "lineHeight": 5,
-        "size": 6,
-        "name": "Arial",
-        "color": "#002FFF"
+        "wordWrap": false
       },
       "frame": {
         "type": "rectangle",
         "width": 0.2,
-        "color": "#DFE1E6"
+        "color": "#F0F253"
       },
       "position": {
         "layer": 1,
-        "top": "24.22",
-        "left": "45.96",
-        "width": "11.64",
-        "height": "13.23",
-        "textAlign": "center",
-        "verticalAlign": "bottom",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      },
-      "segments": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "http://www.abc.com/?id=",
-          "format": ""
-        },
-        {
-          "pos": 1,
-          "type": "field",
-          "value": "条码",
-          "format": ""
-        },
-        {
-          "pos": 2,
-          "type": "",
-          "value": "",
-          "format": ""
-        }
-      ]
-    },
-    {
-      "head": {
-        "name": "9-图片1",
-        "elementType": "image"
-      },
-      "font": {
-        "lineHeight": 0,
-        "size": 12
-      },
-      "frame": {
-        "type": "",
-        "width": 0
-      },
-      "position": {
-        "layer": 1,
-        "top": 23,
-        "left": 3,
-        "width": 4.5,
-        "height": 4.5,
+        "top": "1.85",
+        "left": "4.69",
+        "width": 20,
+        "height": 10,
         "textAlign": "center",
         "verticalAlign": "middle",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      },
-      "image": {
-        "url": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
-        "deformation": "zoom",
-        "value": "图片02"
-      }
-    },
-    {
-      "head": {
-        "name": "10-图片2",
-        "elementType": "image"
-      },
-      "font": {
-        "lineHeight": 0,
-        "size": 12
-      },
-      "frame": {
-        "type": "",
-        "width": 0
-      },
-      "position": {
-        "layer": 1,
-        "top": 23,
-        "left": 8,
-        "width": 4.5,
-        "height": 4.5,
-        "textAlign": "center",
-        "verticalAlign": "middle",
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0
-      },
-      "image": {
-        "value": "图片03",
-        "deformation": "zoom",
-        "url": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/sub_system.png"
-      }
-    },
-    {
-      "head": {
-        "name": "11-Canada",
-        "elementType": "text"
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "Canada",
-          "format": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": "",
-          "format": ""
-        }
-      ],
-      "font": {
-        "size": "8",
-        "name": "Arial",
-        "lineHeight": 0
-      },
-      "frame": {
-        "type": "",
-        "width": 0
-      },
-      "position": {
-        "layer": 1,
-        "top": 34,
-        "left": 2,
-        "width": 15,
-        "height": 4,
-        "textAlign": "left",
-        "verticalAlign": "bottom",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,

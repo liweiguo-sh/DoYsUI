@@ -12,5 +12,5 @@
 
         // -- 标签变量图片基准URL --
         topWin.cfg.labelVariableImageBaseUrl = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_variable_image/";
-    });
+    });    
 })()

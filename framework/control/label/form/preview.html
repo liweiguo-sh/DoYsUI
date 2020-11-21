@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <div id="divCanvasParent">
+    <div id="divParent">
         <div id="divCanvas" class="doys_label_continer"></div>
     </div>
 </body>
@@ -22,16 +22,15 @@
 <!-- winLoad -->
 <script>
     var labelId, labelContent, labelFields, labelWidth, labelHeight;
-    var lbl;
 
-    let divCanvasParent = gId("divCanvasParent");
-    let divCanvas = gId("divCanvas");
+    var divParent = gId("divParent"), divCanvas = gId("divCanvas");
+    var lbl;
     // ------------------------------------------------------------------------
     function winLoad() {
         labelId = win.para.labelId;
         labelContent = win.para.labelContent;
         labelFields = win.para.labelFields;
-        labelWidth = win.para.labelWidth ;
+        labelWidth = win.para.labelWidth;
         labelHeight = win.para.labelHeight;
 
         winResize();
@@ -40,7 +39,14 @@
             return false;
         });
 
-        loadLabel(labelContent, labelFields);
+        lbl = new Label({ container: divCanvas });
+        lbl.loadLabel(labelContent, {
+            labelId: labelId,
+            imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+            fields: labelFields,
+            readonly: true
+        });
+        lbl.compute(true);
     }
 
     function winResize() {
@@ -48,32 +54,12 @@
         let whWin = win.p.maxWidth / win.p.maxHeight;
 
         if (whLabel < whWin) {
-            divCanvasParent.style.height = (0.6 * win.p.maxHeight) + "px";
-            divCanvasParent.style.width = (0.6 * win.p.maxHeight) * (labelWidth / labelHeight) + "px";
+            divParent.style.height = (0.6 * win.p.maxHeight) + "px";
+            divParent.style.width = (0.6 * win.p.maxHeight) * (labelWidth / labelHeight) + "px";
         }
         else {
-            divCanvasParent.style.width = (0.4 * win.p.maxWidth) + "px";
-            divCanvasParent.style.height = (0.4 * win.p.maxWidth) * (labelHeight / labelWidth) + "px";
-        }
-    }
-</script>
-
-<!-- label -->
-<script>
-    function loadLabel(content, fields) {
-        if (lbl == null) {
-            let para = {
-                parentContainer: divCanvasParent,
-                container: divCanvas,
-                content: content,
-                fields: fields,
-                imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
-                readonly: true
-            }
-            lbl = new Label(para);
-        }
-        else {
-            lbl.loadLabel(content, fields);
+            divParent.style.width = (0.4 * win.p.maxWidth) + "px";
+            divParent.style.height = (0.4 * win.p.maxWidth) * (labelHeight / labelWidth) + "px";
         }
     }
 </script>

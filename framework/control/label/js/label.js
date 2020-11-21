@@ -1,25 +1,32 @@
 ﻿class Label {
     constructor(para) {
-        // -- 1.0 init variables --
+        let _this = this;
+        // -- 1. init --
         this.prefix = "doys_label_";
         this.doc = window.document;
         this.id = 1;
 
-        this.readonly = para.readonly;
-        this.imageBaseUrl = para.imageBaseUrl;      // -- 图片路径前缀 --
-        this.minElementWidth = 1;                   // -- 元素最小宽度 --
-        this.minElementHeight = 1;                  // -- 元素最小高度 --
+        // -- 2. label container --
+        this.container = para.container;                            // -- 标签容器 --
+        this.parentContainer = this.container.parentElement;        // -- 标签容器的父对象 --
+        this.parentContainer.ondblclick = function (evt) {
+            let prop = {
+                url: g.path.framework + "/control/label/form/label.html",
+                parent: win,
+                modal: true
+            };
 
-        // -- 1.1 element resize, hover and drag drop --
-        this.dragOffsetX = 0;
-        this.dragOffsetY = 0;
+            let para = {
+                head: _this.head,
+                callback: function (jsp) {
+                    // let _this = jsp._this;
+                },
+                _this: _this
+            };
 
-        this.divHoverT = null; this.divHoverR = null; this.divHoverB = null; this.divHoverL = null;     // -- element hover border --
-        this.divT = null; this.divR = null; this.divB = null; this.divT = null;                         // -- element resize border --        
+            topWin.openWindow(prop, para);
+        }                               
 
-        // -- 2. load para --
-        this.parentContainer = para.parentContainer;        // -- 标签容器的父对象 --
-        this.container = para.container;                    // -- 标签容器 --
         this.container.ondragenter = function (evt) {
             evt.preventDefault();
         }
@@ -33,34 +40,44 @@
 
             _this.activatedElement = null;
             _this.hideResize();
-        }
+        }        
 
-        // -- 8. load label --
-        this.loadLabel(para.content, para.fields);
+        // -- 3. label element --
+        this.minElementWidth = 1;                                   // -- 元素最小宽度 --
+        this.minElementHeight = 1;                                  // -- 元素最小高度 --
+
+        this.dragOffsetX = 0;
+        this.dragOffsetY = 0;
+        this.divHoverT = null; this.divHoverR = null; this.divHoverB = null; this.divHoverL = null;     // -- element hover border --
+        this.divT = null; this.divR = null; this.divB = null; this.divT = null;                         // -- element resize border --
     }
     // -- label methods -------------------------------------------------------
-    loadLabel(labelString, fields) {
+    loadLabel(labelString, jsp = {}) {
         if (this.elements) this.clearLabel();
 
-        if (labelString.equals("")) {
-            this.label = this.newLabel();
-        }
-        else {
-            this.label = JSON.parse(labelString);
-        }
-        if (fields) {
-            this.label.fields = fields;
-        }
-
-        this.head = this.label.head;
-        this.fields = this.label.fields;
-        this.elements = this.label.elements;
-
+        // -- 1. 初始化参数 --
+        this.imageBaseUrl = jsp.imageBaseUrl;
+        this.readonly = jsp.readonly;
         this.zIndexCanvas = 100;
         this.zIndexResize = 200;
         this.zIndexHover = 210;
 
-        // -- 计算标签换算系数(毫米|像素) --
+        // -- 2. 解析labelString --
+        if (!labelString) {
+            this.label = this.newLabel(jsp);
+        }
+        else {
+            this.label = JSON.parse(labelString);
+        }
+        if (jsp.fields) this.label.fields = jsp.fields;
+        if (jsp.width) this.label.head.width = jsp.width;
+        if (jsp.height) this.label.head.height = jsp.height;
+        this.labelId = jsp.labelId || "";
+        this.head = this.label.head;
+        this.fields = this.label.fields;
+        this.elements = this.label.elements;
+
+        // -- 3. 计算标签换算系数(毫米|像素) --
         let mmW = this.head.width, mmH = this.head.height, mmWH = mmW / mmH;
         let pxW = this.parentContainer.clientWidth - g.x.getStyleValue(this.parentContainer, "padding-left") - g.x.getStyleValue(this.parentContainer, "padding-right")
         let pxH = this.parentContainer.clientHeight - g.x.getStyleValue(this.parentContainer, "padding-top") - g.x.getStyleValue(this.parentContainer, "padding-bottom")
@@ -79,7 +96,7 @@
         this.container.style.width = this.width + "px";
         this.container.style.height = this.height + "px";
 
-        // -- 加载标签元素 --
+        // -- 4. 加载标签元素 --
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
@@ -87,8 +104,16 @@
 
             this.createElement(element);
             UtilElement.computeProp({ element: element });
-            UtilElement.computeValue({ element: element, fields: this.fields });
-            UtilElement.draw({ element: element });
+        }
+
+        // -- 5. 加载脚本 --
+        if (this.head.scriptAfterCompute) {
+            try {
+                eval("this.jsAfterCompute = function() {\n" + this.head.scriptAfterCompute + "\n}");
+            }
+            catch (e) {
+                alert("Script eval error:\n" + e.toString());
+            }
         }
     }
     clearLabel() {
@@ -97,17 +122,17 @@
         this.hideHover();
 
         this.container.innerHTML = "";
-        this.elements = [];
-        this.fields = [];
+        this.elements = null;
+        this.fields = null;
         this.label = null;
     }
-    newLabel() {
+    newLabel(jsp = {}) {
         return {
             head: {
-                width: 80,
-                height: 60
+                width: jsp.width || 80,
+                height: jsp.height || 60
             },
-            fields: {},
+            fields: jsp.fields || {},
             elements: []
         }
     }
@@ -165,6 +190,14 @@
         this.activatedElement = null;
         this.hideResize();
     }
+    getElementByName(elementName) {
+        for (let i = 0; i < this.elements.length; i++) {
+            if (this.elements[i].head.name.equals(elementName)) {
+                return this.elements[i];
+            }
+        }
+        return null;
+    }
 
     createElement(element) {
         let _this = this;
@@ -204,7 +237,6 @@
             }
 
             cvsElement.onclick = this.onElementClick;
-            cvsElement.ondblclick = this.onElementDblClick;
             cvsElement.ondblclick = function (evt) {
                 _this.onElementDblClick(_this, evt);
             }
@@ -279,8 +311,6 @@
 
         let prop = {
             url: g.path.framework + "/control/label/form/element.html",
-            text: "text",
-            title: "title",
             parent: win,
             modal: true
         };
@@ -300,6 +330,8 @@
             callback: _this.onElementDblClickCallback
         };
         topWin.openWindow(prop, para);
+
+        event.stopPropagation();
     }
     onElementDblClickCallback(jsp) {
         let domCanvas = gId(jsp.canvasId);
@@ -610,7 +642,6 @@
     getData() {
         let data = {};
         let element, head;
-
         // ------------------------------------------------
         for (let i = 0; i < this.elements.length; i++) {
             element = this.elements[i];
@@ -634,7 +665,7 @@
                 }
             }
         }
-
+        // ------------------------------------------------
         return data;
     }
 
@@ -644,17 +675,92 @@
         }
         this.fields[name] = value;
     }
-    computeElements(redraw = false) {
-        for (let i = 0; i < this.elements.length; i++) {
-            let element = this.elements[i];
+    compute(redraw = false) {
+        // -- 1. before compute --
+        if (this.jsBeforeComputeDebug) {
+            this.jsBeforeComputeDebug();
+        }
+        else {
+            if (this.jsBeforeCompute) {
+                try {
+                    this.jsBeforeCompute();
+                }
+                catch (e) {
+                    alert("Script jsBeforeCompute execute error:\n" + e.toString());
+                }
+            }
+        }
 
-            UtilElement.computeValue({ element: element, fields: this.fields });
-            if (redraw) {
-                UtilElement.draw({ element: element });
+        // -- 2. compute elements --
+        for (let i = 0; i < this.elements.length; i++) {
+            UtilElement.computeValue({ element: this.elements[i], fields: this.fields });
+        }
+
+        // -- 3. after compute --
+        if (this.jsAfterComputeDebug) {
+            this.jsAfterComputeDebug();
+        }
+        else {
+            if (this.jsAfterCompute) {
+                try {
+                    this.jsAfterCompute();
+                }
+                catch (e) {
+                    alert("Script jsAfterComputeDebug execute error:\n" + e.toString());
+                }
             }
-            else {
-                // -- 循环赋值过程中，可以不重绘，最后一张标签重绘即可 --
-            }
+        }
+
+        // -- 4. redraw(循环赋值过程中，可以不重绘，最后一张标签重绘即可) --
+        if (redraw) {
+            this.draw();
+        }
+    }
+    draw() {
+        for (let i = 0; i < this.elements.length; i++) {
+            UtilElement.draw({ element: this.elements[i] });
+        }
+    }
+
+    // -- temporary script debug --
+    jsBeforeComputeDebug1() {
+        if (!this.labelId.equals("117")) return;
+
+        debugger
+        let imagePara = this.fields["图片参数"];
+        let arr = imagePara.split("");
+        for (let i = 1; i <= arr.length && i <= 6; i++) {
+            let element = this.getElementByName("图片0" + i);
+            let idxImg = parseInt(arr[i - 1]);
+            let imgUrl = this.imageBaseUrl + this.fields["image0" + idxImg];
+
+            element.image.url = imgUrl;
+        }
+        for (let i = arr.length + 1; i <= 6; i++) {
+            let element = this.getElementByName("图片0" + i);
+            let imgUrl = this.imageBaseUrl + this.fields["image00"];
+
+            element.image.url = imgUrl;
+        }
+    }
+    jsAfterComputeDebug1() {
+        if (!this.labelId.equals("117")) return;
+
+        debugger
+        let imagePara = this.fields["图片参数"];
+        let arr = imagePara.split("");
+        for (let i = 1; i <= arr.length && i <= 6; i++) {
+            let element = this.getElementByName("图片0" + i);
+            let idxImg = parseInt(arr[i - 1]);
+            let imgUrl = this.imageBaseUrl + this.fields["image0" + idxImg];
+
+            element.image.url = imgUrl;
+        }
+        for (let i = arr.length + 1; i <= 6; i++) {
+            let element = this.getElementByName("图片0" + i);
+            let imgUrl = this.imageBaseUrl + this.fields["image00"];
+
+            element.image.url = imgUrl;
         }
     }
 }

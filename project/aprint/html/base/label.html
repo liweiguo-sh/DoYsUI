@@ -354,24 +354,9 @@
                         value = dtbLabelVariable.rows[i]["value"].value;
                         variables[name] = value;
                     }
-
-                    if (!labelContent) {
-                        let lbl = {
-                            "head": {
-                                "id": labelId,
-                                "width": dtbLabel.rows[0]["width"].value,
-                                "height": dtbLabel.rows[0]["height"].value
-                            },
-                            "fields": {},
-                            "elements": []
-                        }
-                        labelContent = JSON.stringify(lbl, null, " ");
-                    }
                     // ------------------------------------
                     let prop = {
                         url: g.path.framework + "/control/label/form/designer.html",
-                        text: "text",
-                        title: "title",
                         parent: win,
                         modal: false
                     };
@@ -379,6 +364,8 @@
                         labelId: labelId,
                         content: labelContent,
                         fields: variables,
+                        width: dtbLabel.rows[0]["width"].value,
+                        height: dtbLabel.rows[0]["height"].value,
                         callback: this.saveDLabelContent
                     };
 

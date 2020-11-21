@@ -93,6 +93,16 @@
                     </el-row>
                     <el-row>
                         <el-col>
+                            <el-form-item label="打印机">
+                                <el-select v-model="printerName" filterable style="width:100%;">
+                                    <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <el-row>
+                        <el-col>
                             <hr />
                         </el-col>
                     </el-row>
@@ -140,7 +150,10 @@
             taskId: null,
             taskPk: null,
             rowNoFrom: null,
-            rowNoTo: null
+            rowNoTo: null,
+
+            printerName: "",
+            printers: []
         },
         mounted() {
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
@@ -517,7 +530,13 @@
                 }
                 else {
                     winPreview.show();
-                    winPreview.window.loadLabel(this.labelContent, fields);
+                    winPreview.window.lbl.loadLabel(this.labelContent, {
+                        labelId: this.labelId,
+                        imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+                        fields: fields,
+                        readonly: true
+                    });
+                    winPreview.window.lbl.compute(true);
                 }
             },
             DLabelPrint() {
@@ -564,10 +583,9 @@
 
                             lbl.setValue(name, value);
                         }
-                        lbl.computeElements();
+                        lbl.compute(i == rowCount - 1);
                         datas.push(lbl.getData());
                     }
-                    lbl.computeElements(true);
                     dataString = JSON.stringify(datas, null, " ");
 
                     // --------------------------------------------
@@ -609,7 +627,10 @@
     // ------------------------------------------------------------------------
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
-
+        
+        for (let i = 0; i < topWin.printers.length; i++) {
+            app.printers.push(topWin.printers[i]);
+        }
         app.initGrid();
     }
 </script>
