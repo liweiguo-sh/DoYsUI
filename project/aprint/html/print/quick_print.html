@@ -94,7 +94,7 @@
                     <el-row>
                         <el-col>
                             <el-form-item label="打印机">
-                                <el-select v-model="printerName" filterable style="width:100%;">
+                                <el-select v-model="printerName" @change="preview();onPrinterChange();" filterable style="width:100%;">
                                     <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -416,6 +416,7 @@
 
                 para.action = "previewLabel";
                 para.dataString = dataString;
+                para.printerName = this.printerName;
 
                 if (this.labelType.equals("DLabel")) {
                     this.DLabelPreview();
@@ -554,6 +555,7 @@
                         action: "printDLabel",
                         labelString: lbl.toJson(),
                         dataString: dataString,
+                        printerName: this.printerName,
                         copies: 1
                     }
                     top.invokeEdge(para);
@@ -594,13 +596,16 @@
                         action: "printDLabel",
                         labelString: lbl.toJson(),
                         dataString: dataString,
+                        printerName: this.printerName,
                         copies: 1
                     }
 
                     top.invokeEdge(para);
                 });
             },
-
+            onPrinterChange() {
+                setLocalItem(ckLatestPrinter, this.printerName);
+            },
 
             initGrid() {
                 var para = {
@@ -623,6 +628,8 @@
 
 <!-- winLoad -->
 <script>
+    var ckLatestPrinter = "quick_print_latest_printer";
+
     var winPreview;
     // ------------------------------------------------------------------------
     function winLoad() {
@@ -631,6 +638,8 @@
         for (let i = 0; i < topWin.printers.length; i++) {
             app.printers.push(topWin.printers[i]);
         }
+        app.printerName = getLocalItem(ckLatestPrinter);
+
         app.initGrid();
     }
 </script>

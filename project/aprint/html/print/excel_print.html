@@ -54,9 +54,18 @@
                                 </el-select>
                             </el-form-item>
                         </el-col>
-                    </el-row> 
+                    </el-row>
                     <el-row>
-                        <el-col style="text-align:right;">                            
+                        <el-col>
+                            <el-form-item label="打印机">
+                                <el-select v-model="printerName" @change="preview();onPrinterChange();" filterable style="width:100%;">
+                                    <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col style="text-align:right;">
                             <el-upload class="upload-demo"
                                        :action="actionUpload"
                                        :before-upload="beforeUpload"
@@ -94,7 +103,10 @@
             taskId: null,
             taskPk: null,
             rowNoFrom: null,
-            rowNoTo: null
+            rowNoTo: null,
+
+            printerName: "",
+            printers: []
         },
         mounted() {
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
@@ -106,7 +118,7 @@
                         let dataRow = dtbLabel.rows[i];
                         labels.push({ id: "" + dataRow["id"].value, code: dataRow["code"].value, name: dataRow["name"].value, dataRow: dataRow });
                     }
-                    this.labels = labels;                    
+                    this.labels = labels;
                 }
                 else {
                 }
@@ -131,7 +143,7 @@
                     this.preview();
                     this.initGrid();
                 });
-            },  
+            },
             getLabelSummary() {
                 let dataRow = this.dtbLabel.rows[0];
                 let arr = new Array();
@@ -144,7 +156,7 @@
                 return arr.join("    ");
             },
 
-            beforeUpload(a,b,c) {
+            beforeUpload(a, b, c) {
                 if (!this.labelId) {
                     topWin.alert("请先选择标签。", "error");
                 }
@@ -154,8 +166,8 @@
                 if (res.ok) {
                     this.dtbTask = res.dtbTask;
                     this.taskId = this.dtbTask.rows[0]["id"].value;
-                    this.taskPk = this.dtbTask.rows[0]["pk"].value; 
-                     
+                    this.taskPk = this.dtbTask.rows[0]["pk"].value;
+
                     this.initGrid();
 
                     this.rowNoFrom = 1;
@@ -181,8 +193,10 @@
                     });
                 });
             },
-            
+
             preview(para = {}) {
+                if (!this.labelId) return;
+
                 let dataString;
                 let heards = [], records = [];
 
@@ -205,6 +219,7 @@
 
                 para.action = "previewLabel";
                 para.dataString = dataString;
+                para.printerName = this.printerName;
                 this.printLabel(para);
             },
             print() {
@@ -249,7 +264,8 @@
                     labelType: this.dtbLabel.rows[0]["type"].value,
                     labelSummary: this.getLabelSummary(),
                     taskId: this.taskId,
-                    dataString: para.dataString
+                    dataString: para.dataString,
+                    printerName: this.printerName
                 }
                 paraInvoke = g.x.extendJSON(paraInvoke, para);
 
@@ -268,6 +284,9 @@
                 }
                 top.printLabel(paraInvoke);
             },
+            onPrinterChange() {
+                setLocalItem(ckLatestPrinter, this.printerName);
+            },
 
             initGrid() {
                 var para = {
@@ -282,10 +301,19 @@
             }
         }
     });
+</script>
+<!-- winLoad -->
+<script>
+    var ckLatestPrinter = "excel_print_latest_printer";
 
     // ------------------------------------------------------------------------
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
+
+        for (let i = 0; i < topWin.printers.length; i++) {
+            app.printers.push(topWin.printers[i]);
+        }
+        app.printerName = getLocalItem(ckLatestPrinter);
 
         app.initGrid();
     }

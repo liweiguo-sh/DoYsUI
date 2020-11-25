@@ -542,7 +542,7 @@ UtilElement.draw_barcode1D = function (domCanvas, element) {
     let y = position._barcodeTop * pxmm;
     let img = new Image();
 
-    img.src = "../image/" + element.head.barcodeType + ".png";
+    img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
     img.onload = function () {
         let w = position._barcodeWidth * pxmm;
         let h = position._barcodeHeight * pxmm;
@@ -574,7 +574,7 @@ UtilElement.draw_barcode2D = function (domCanvas, element) {
     let y = position._barcodeTop * pxmm;
     let img = new Image();
 
-    img.src = "../image/" + element.head.barcodeType + ".png";
+    img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
     img.onload = function () {
         let w = position._barcodeWidth * pxmm;
         let h = position._barcodeHeight * pxmm;

@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Hualala数据接口</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <style type="text/css">
+        .el-row {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div style="width:360px;">
+            <el-row>
+                <el-select v-model="shopId" style="width:100%;" placeholder="请选择门店...">
+                    <el-option v-for="shop in shops" :key="shop.shopId" :value="shop.shopId" :label="shop.shopName">
+                        <span style="float: left">{{ shop.shopName }}</span>
+                        <span style="float: right;">{{ shop.shopAddress }}</span>
+                    </el-option>
+                </el-select>
+            </el-row>
+        </div>
+        <el-row>
+            <el-button @click="getOpenFood" v-show="shopId">手动拉取店铺菜品列表</el-button>
+        </el-row>
+        <el-row>
+            <el-button onclick="win.close();">关闭</el-button>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            shopId: null,
+            shops: []
+        },
+        mounted() {
+            ajax.send("/aprint/lvkemen/getAllShop", {}).then((res) => {
+                if (res.ok) {
+                    this.shops = res.shops;
+                    if (this.shops.length > 0) {
+                        this.shopId = this.shops[0].shopId;
+                    }
+                }
+                else {
+                    topWin.alert("系统信息 ...", "error");
+                }
+            })
+        },
+        methods: {
+            getOpenFood() {
+                ajax.send("/aprint/lvkemen/getOpenFood", { shopId: this.shopId }).then((res) => {
+                    if (res.ok) {
+                        let foods = res.foods;
+                        topWin.message("手动拉取数据操作成功，一共 " + foods.length + " 条菜品数据。", "success");
+                    }
+                    else {
+                        topWin.alert("系统信息 ...", "error");
+                    }
+                })
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() { 
+    }
+</script>

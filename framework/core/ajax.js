@@ -132,6 +132,9 @@ ajax.parseResponseData = function (responseData) {
                 dtb.readFromData(arr[0], arr[1]);
                 value = dtb;
             }
+            else if (type.equals("json")) {
+                value = JSON.parse(value);
+            }
             else {
                 throw new Error("unsupport datatype: " + type + ", please check.");
             }

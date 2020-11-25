@@ -25,7 +25,7 @@
             };
 
             topWin.openWindow(prop, para);
-        }                               
+        }
 
         this.container.ondragenter = function (evt) {
             evt.preventDefault();
@@ -40,7 +40,7 @@
 
             _this.activatedElement = null;
             _this.hideResize();
-        }        
+        }
 
         // -- 3. label element --
         this.minElementWidth = 1;                                   // -- 元素最小宽度 --
@@ -114,6 +114,9 @@
             catch (e) {
                 alert("Script eval error:\n" + e.toString());
             }
+        }
+        else {
+            this.jsAfterCompute = null;
         }
     }
     clearLabel() {
@@ -706,7 +709,7 @@
                     this.jsAfterCompute();
                 }
                 catch (e) {
-                    alert("Script jsAfterComputeDebug execute error:\n" + e.toString());
+                    alert("Script jsAfterCompute execute error:\n" + e.toString());
                 }
             }
         }

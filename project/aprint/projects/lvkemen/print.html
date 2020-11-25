@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>绿客门标签打印窗口</title>
+    <script src="../../../../framework/core/doys.js"></script>
+    <script>
+        importFrameworkRes("d-label");
+    </script>
+
+    <style type="text/css">
+        .divPreview {
+            border: dotted 0px green;
+            width: 700px;
+            height: 500px;
+            padding-top: 48px;
+            padding-left: 100px;
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="8">
+                <el-row>
+                    <el-button @click="print()" type="primary" :disabled="!labelId">打印</el-button>
+                    <el-button @click="preview()" :disabled="!labelId">预览</el-button>
+                    <el-button onclick="win.close();">关闭</el-button>
+                </el-row>
+                <hr />
+                <el-form label-width="140px" label-position="left">
+                    <!-- 门店，标签，菜品 -->
+                    <el-row>
+                        <el-form-item label="门店">
+                            <el-select v-model="shopId" @change="onShopChange" filterable style="width:100%;">
+                                <el-option v-for="shop in shops" :key="shop.shopId" :value="shop.shopId" :label="shop.shopName">
+                                    <span style="float: left">{{ shop.shopName }}</span>
+                                    <span style="float: right;">{{ shop.shopAddress }}</span>
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="标签">
+                            <el-select v-model="labelId" @change="onLabelChange" filterable style="width:100%;">
+                                <el-option v-for="label in labels" :key="label.id" :value="label.id" :label="label.code + '    ' + label.name">
+                                    <span style="float: left">{{ label.code }}</span>
+                                    <span style="float: right;">{{ label.name }}</span>
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-col>
+                            <el-form-item label="菜品">
+                                <el-select v-model="food" value-key="unitKey" @change="preview" :filter-method-9="searchFood" filterable style="width:100%;">
+                                    <el-option v-for="food in foods" :key="food.unitKey" :value="food" :label="food.foodName + '    ' + food.unit">
+                                        <span style="float: left">{{ food.foodName }}</span>
+                                        <span style="float: right;">{{ food.unit }}</span>
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <!-- 打印数量，打印机 -->
+                    <el-row :gutter="20">
+                        <el-col :span="12" v-show="false">
+                            <el-form-item label="打印数量">
+                                <el-input v-model="qty" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="打印份数">
+                                <el-input v-model="copies" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col>
+                            <el-form-item label="打印机">
+                                <el-select v-model="printerName" @change="onPrinterChange" style="width:100%;">
+                                    <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <hr />
+                    <!-- 变量区（价格，图标组） -->
+                    <el-row>
+                        <el-form-item label="价格">
+                            <el-input v-model="food.price" @change="preview();"></el-input>
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="图标组">
+                            <el-input v-model="food.tagNames" @change="preview();"></el-input>
+                        </el-form-item>
+                    </el-row>
+                </el-form>
+            </el-col>
+            <el-col :span="16">
+                <div class="divPreview">
+                    <div id="divCanvas" class="doys_label_continer"></div>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            shopId: null,
+            shops: [],
+            foods: [],
+            food: {},
+
+            labels: [],
+            labelId: null,
+            labelContent: "",
+            variables: {},
+
+            qty: 1,
+            copies: 1,
+
+            printerName: "",
+            printers: []
+        },
+        mounted() {
+            let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
+            ajax.send("/aprint/lvkemen/getLabels", postData).then(res => {
+                if (res.ok) {
+                    let labels = [];
+                    let dtbLabel = res.dtbLabel;
+                    for (let i = 0; i < dtbLabel.rowCount; i++) {
+                        let dataRow = dtbLabel.rows[i];
+                        labels.push({ id: "" + dataRow["id"].value, code: dataRow["code"].value, name: dataRow["name"].value });
+                    }
+                    this.labels = labels;
+                    if (this.labels.length > 0) {
+                        this.labelId = this.labels[0].id;
+                        this.onLabelChange();
+                    }
+                }
+                else {
+                }
+            });
+
+            ajax.send("/aprint/lvkemen/getAllShop", {}).then((res) => {
+                if (res.ok) {
+                    this.shops = res.shops;
+                    if (this.shops.length > 0) {
+                        this.shopId = this.shops[0].shopId;
+                        this.onShopChange();
+                    }
+                }
+                else {
+                    topWin.alert("系统信息 ...", "error");
+                }
+            })
+        },
+        methods: {
+            onShopChange() {
+                ajax.send("/aprint/lvkemen/getFoodListForPrint", { shopId: this.shopId }).then(res => {
+                    let dtbFood = res.dtbFood;
+                    let foods = [];
+
+                    for (let i = 0; i < dtbFood.rowCount; i++) {
+                        foods.push({
+                            unitKey: dtbFood.rows[i]["unit_key"].value,
+                            foodCode: dtbFood.rows[i]["food_code"].value,
+                            foodName: dtbFood.rows[i]["food_name"].value,
+                            foodAliasName: dtbFood.rows[i]["food_alias_name"].value,
+                            unit: dtbFood.rows[i]["unit"].value,
+                            price: dtbFood.rows[i]["price"].value,
+                            tagNames: dtbFood.rows[i]["tag_names"].value,
+                            pinyin: dtbFood.rows[i]["food_mnemonic_code"].value
+                        });
+                    }
+                    this.foods = foods;
+                });
+            },
+            onLabelChange() {
+                ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.labelId }).then(res => {
+                    let dtbLabel = res.dtbLabel;
+                    let dtbLabelVariable = res.dtbLabelVariable;
+
+                    this.labelContent = dtbLabel.rows[0]["content"].value;
+
+                    let variables = {};
+                    for (let i = 0; i < dtbLabelVariable.rowCount; i++) {
+                        variables[dtbLabelVariable.rows[i]["name"].value] = dtbLabelVariable.rows[i]["value"].value;
+                    }
+                    this.variables = variables;
+
+                    this.preview();
+                });
+            },
+
+            searchFood(a, b, c) {
+                // TODO: 下拉框排序扩展 --
+                // 参考: https://www.cnblogs.com/jin-zhe/p/10402294.html --
+                //debugger
+            },
+
+            preview() {
+                if (!this.food.unitKey) return;
+                let fields = {
+                    food_code: this.food.foodCode,
+                    food_name: this.food.foodName,
+                    food_alias_name: this.food.foodAliasName,
+                    unit: this.food.unit,
+                    price: "￥" + parseFloat(this.food.price).toFixed(2),
+                    tag_names: this.food.tagNames
+                };
+                fields = g.x.extendJSON(this.variables, fields);
+
+                lbl.loadLabel(this.labelContent, {
+                    labelId: this.labelId,
+                    imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+                    fields: fields,
+                    readonly: true
+                });
+                lbl.compute(true);
+            },
+            print() {
+                if (!this.food.unitKey) return;
+                let datas = [], dataString;
+
+                datas.push(lbl.getData());
+                dataString = JSON.stringify(datas, null, " ");
+
+                let para = {
+                    protocol: "2.0",
+                    action: "printDLabel",
+                    labelString: lbl.toJson(),
+                    dataString: dataString,
+                    printerName: this.printerName,
+                    copies: this.copies
+                }
+                top.invokeEdge(para);
+            },
+
+            onPrinterChange() {
+                setLocalItem(ckLatestPrinter, this.printerName);
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    var ckLatestPrinter = "lvkemen_print_latest_printer";
+
+    var lbl;
+
+    var divCanvas = gId("divCanvas");
+    // ------------------------------------------------------------------------
+    function winLoad() {
+        for (let i = 0; i < topWin.printers.length; i++) {
+            app.printers.push(topWin.printers[i]);
+        }
+        app.printerName = getLocalItem(ckLatestPrinter);
+
+        lbl = new Label({ container: divCanvas });
+    }
+</script>
