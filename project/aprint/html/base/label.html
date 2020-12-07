@@ -67,7 +67,7 @@
                             <el-form-item label="类型" required>
                                 <el-select v-model="form.type">
                                     <el-option value="DLabel" label="M-Label"></el-option>
-                                    <el-option value="MASO" label="MASO"></el-option>                                    
+                                    <el-option value="MASO" label="MASO"></el-option>
                                     <el-option value="BarTender" label="BarTender"></el-option>
                                     <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
                                     <el-option value="PDF" label="PDF" :disabled="true"></el-option>
@@ -125,7 +125,7 @@
                                    :action="actionUploadLabelFile_BarTender"
                                    :before-upload="beforeUpload1"
                                    :on-success="afterUpload1"
-                                   :with-credentials="true"                                   
+                                   :with-credentials="true"
                                    :show-file-list="false">
                             <el-button type="primary">上传标签文件 (.btw)</el-button>
                         </el-upload>
@@ -153,6 +153,13 @@
                         <el-link type="primary" v-if="urlDataFile_BarTender" :href="urlDataFile_BarTender" icon="el-icon-notebook-2" target="_blank">数据模板文件</el-link>
                     </el-col>
                 </el-row>
+            </el-tab-pane>
+            <el-tab-pane name="js" :key="3" label="脚本">
+                <el-collapse>
+                    <el-collapse-item title="afterRefChange(jsp)，引用变量变化后事件" name="jsAfterRefChange">
+                        <el-input v-model="form.js_after_ref_change" type="textarea" :rows="10" spellcheck="false" />
+                    </el-collapse-item>
+                </el-collapse>
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -342,14 +349,14 @@
 
             openDLabelDesign: function () {
                 let labelId = this.form.id;
-                ajax.send("/aprint/dlabel/getLabelForDesign", { labelId: labelId}).then(res => {
+                ajax.send("/aprint/dlabel/getLabelForDesign", { labelId: labelId }).then(res => {
                     let dtbLabel = res.dtbLabel;
                     let dtbLabelVariable = res.dtbLabelVariable;
                     let labelContent = dtbLabel.rows[0]["content"].value;
 
                     // ------------------------------------
                     let variables = {}, name, value;
-                    for (let i = 0; i < dtbLabelVariable.rowCount; i++) { 
+                    for (let i = 0; i < dtbLabelVariable.rowCount; i++) {
                         name = dtbLabelVariable.rows[i]["name"].value;
                         value = dtbLabelVariable.rows[i]["value"].value;
                         variables[name] = value;
