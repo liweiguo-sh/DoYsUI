@@ -137,17 +137,6 @@
             <el-row v-show="false">
                 <el-input v-model="form.seq_fields" placeholder="form.seq_fields"></el-input>
             </el-row>
-            <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="脚本">
-                        <el-collapse>
-                            <el-collapse-item title="afterInput(value, options)，变量值输入后事件" name="jsAfterInput">
-                                <el-input v-model="form.js_after_input" type="textarea" :rows="6" spellcheck="false" />
-                            </el-collapse-item>
-                        </el-collapse>
-                    </el-form-item>
-                </el-col>
-            </el-row>
         </el-form>
     </div>
 </body>

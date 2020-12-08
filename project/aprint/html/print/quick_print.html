@@ -109,10 +109,10 @@
                     <el-row v-for="item in variables" :key="item.name">
                         <el-col>
                             <el-form-item :label="item.name" v-if="item.type.equals('date')">
-                                <el-date-picker v-model="item.value" @change="onVarChange(item, variables)" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
+                                <el-date-picker v-model="item.value" @change="onVarChange(item.name)" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
                             </el-form-item>
                             <el-form-item :label="item.name" v-else>
-                                <el-input v-model="item.value" @change="onVarChange(item, variables)" :disabled="item.disabled" placeholder="打印前请赋值..." />
+                                <el-input v-model="item.value" @change="onVarChange(item.name)" :disabled="item.disabled" placeholder="打印前请赋值..." />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -135,7 +135,7 @@
             dtbLabelVariable: null,
             dtbTask: null,
 
-            variables: [],              // -- 标签变量集合 --
+            variables: {},              // -- 标签变量集合 --
             customerId: null,
             productPnId: null,
             labels: [],
@@ -191,7 +191,7 @@
             reset() {
                 this.taskId = 0;
                 this.taskPk = "";
-                this.variables = [];
+                this.variables = {};
                 this.qty = 0;
                 this.rowNoFrom = 0;
                 this.rowNoTo = 0;
@@ -206,49 +206,62 @@
 
                     this.labelType = this.dtbLabel.rows[0]["type"].value;
                     this.labelContent = this.dtbLabel.rows[0]["content"].value;
-                    this.setVariables();
+
+                    // -- 加载标签脚本 --                    
+                    let jsAfterCompute = this.dtbLabel.rows[0]["js_after_compute"].value;
+                    if (jsAfterCompute) {
+                        try {
+                            jsAfterCompute = "this.afterCompute = function(jsp) {\n" + jsAfterCompute + "\n}";
+                            eval(jsAfterCompute);
+                        }
+                        catch (e) {
+                            this.afterCompute = null;
+                            alert("加载标签脚本时遇到意外错误：\n" + e.toString());
+                        }
+                    }
+                    else {
+                        this.afterCompute = null;
+                    }
+
+                    // --
+                    this.setVariables({ trigger: "labelChange" });
                 });
             },
             onCustomerChange() {
                 ajax.send("/aprint/label/getCustomerParaByCustomerId", { customerId: this.customerId }).then(res => {
                     this.dtbCustomerPara = res.dtbCustomerPara;
 
-                    this.setVariables();
+                    this.setVariables({ trigger: "refChange", ref: "customer" });
                 });
             },
             onProductPnChange() {
                 ajax.send("/aprint/label/getProductPnParaByProductPnId", { productPnId: this.productPnId }).then(res => {
                     this.dtbProductPnPara = res.dtbProductPnPara;
 
-                    this.setVariables({ trigger: "afterRefChange" });
+                    this.setVariables({ trigger: "refChange", ref: "product" });
                 });
             },
-            onVarChange(variable, variables) {
-                if (variable.js) {
+            onVarChange(varName) {
+                if (this.afterCompute) {
                     try {
-                        eval(variable.js);
-
-                        let options = {
-                            variables: variables,
-                            variable: variable,
-                            print: false
-                        };
-                        afterInput(variable.value, options);
-
-                        if (options.print) {
-                            this.preview({ printNow: true });
-                            return;
+                        let jspReturn = this.afterCompute({ trigger: "varChange", varName: varName });
+                        if (jspReturn) {
+                            if (jspReturn.printNow) {
+                                this.preview({ printNow: true });
+                                return;
+                            }
                         }
                     }
                     catch (e) {
-                        topWin.alert(e.toString(), "error");
+                        alert("改变变量后执行脚本遇到意外错误：\n" + e.toString());
                     }
                 }
+
                 this.preview();
             },
 
             setVariables(jsp) {
-                let variables = [];
+                let variables = {};
                 // -- 加载标签变量 --
                 if (this.dtbLabelVariable && this.dtbLabelVariable.rowCount > 0) {
                     for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
@@ -303,44 +316,47 @@
                         }
 
                         // -- 加入变量集合 --
-                        variables.push({
+                        variables[name] = {
                             name: name,
                             value: value,
                             type: type,
                             dateFormat: dateFormat,
                             disabled: disabled,
                             js: js
-                        });
+                        };
                     }
                 }
 
                 // -- 保留用户修改过的值(仅限字符类型的变量，并且允许手工修改) --
-                for (let i = 0; i < this.variables.length; i++) {
-                    if ((variables[i].type.equals("string") || variables[i].type.equals("date"))
-                        && !variables[i].disabled) {
-                        variables[i].value = this.variables[i].value;
-                    }
-                }
+                for (let key in this.variables) {
+                    let variable = variables[key];
+                    if ((variable.type.equals("string") || variable.type.equals("date"))
+                        && !variable.disabled) {
+                        variables[key].value = this.variables[key].value;
+                    } 
+                } 
 
-                // -- 执行脚本 --
-                if (jsp && jsp.trigger && jsp.trigger.equals("afterRefChange")) {
-                    let js = this.dtbLabel.rows[0]["js_after_ref_change"].value;
-                    if (js) {                        
-                        js = "function afterRefChange(jsp) {\n" + js + "\n}";                        
-                        eval(js);
-                        try {
-                            afterRefChange({});
-                        }
-                        catch (e) {
-                            alert(e.toString());
-                        }
-                    }
-                }
                 // -- 输出变量 --
                 this.variables = variables;
 
+                // -- 执行脚本 --
+                if (this.afterCompute) {
+                    try {
+                        let jspReturn = this.afterCompute({ trigger: jsp.trigger });
+                        if (jspReturn) {
+                            if (jspReturn.printNow) {
+                                this.preview({ printNow: true });
+                                return;
+                            }
+                        }
+                    }
+                    catch (e) {
+                        alert("改变变量后执行脚本遇到意外错误：\n" + e.toString());
+                    }
+                }
+
+                // -- 预览 --
                 this.preview({});
-                this.initGrid();
             },
             getLabelSummary() {
                 let dataRow = this.dtbLabel.rows[0];
@@ -354,7 +370,7 @@
                 return arr.join("    ");
             },
 
-            createTask() {
+            createTask() {                
                 if (!this.labelId) {
                     topWin.alert("请先选择要打印的标签。");
                     return;
@@ -364,11 +380,17 @@
                     return;
                 }
 
+                let variables = {}, variable;
+                for (var key in this.variables) {
+                    variable = this.variables[key];
+                    variables[variable.name] = variable.value;
+                }
+
                 let postData = {
                     labelId: this.labelId,
+                    variables: variables,
                     qty: this.qty,
-                    copies: this.copies,
-                    variables: this.variables
+                    copies: this.copies                    
                 };
                 ajax.send("/aprint/quick_print/createTask", postData).then(res => {
                     if (res.ok) {
@@ -377,7 +399,7 @@
                         this.taskPk = this.dtbTask.rows[0]["pk"].value;
                         this.dtbLabelVariable = res.dtbLabelVariable;
 
-                        this.setVariables();
+                        this.setVariables({ trigger: "taskDataChange" });
                         this.initGrid();
 
                         this.rowNoFrom = 1;
@@ -413,20 +435,20 @@
                 let dataString;
                 let heards = [], records = [];
 
-                for (let i = 0; i < this.variables.length; i++) {
-                    let type = this.variables[i].type;
-                    let varValue = this.variables[i].value;
-                    let dateFormat = this.variables[i].dateFormat;
+                for (let key in this.variables) {
+                    let type = this.variables[key].type;
+                    let varValue = this.variables[key].value;
+                    let dateFormat = this.variables[key].dateFormat;
 
                     if (type.equals("date") && dateFormat) {
-                        this.variables[i].valueFormat = varValue.toDate().toString(dateFormat);
+                        this.variables[key].valueFormat = varValue.toDate().toString(dateFormat);
                     }
                     else {
-                        this.variables[i].valueFormat = varValue;
+                        this.variables[key].valueFormat = varValue;
                     }
 
-                    heards.push(this.variables[i].name);
-                    records.push(this.variables[i].valueFormat)
+                    heards.push(key);
+                    records.push(this.variables[key].valueFormat)
                 }
                 dataString = heards.join(g.c.CHAR2) + g.c.CHAR1 + records.join(g.c.CHAR2)
 
@@ -514,9 +536,9 @@
 
             DLabelPreview() {
                 let fields = {}, variable, name, value;
-                for (let i = 0; i < this.variables.length; i++) {
-                    variable = this.variables[i];
-                    name = variable.name;
+                for (let key in this.variables ) {
+                    variable = this.variables[key];
+                    name = key;
                     value = variable.valueFormat;
 
                     fields[name] = value;

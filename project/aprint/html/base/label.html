@@ -154,12 +154,11 @@
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane name="js" :key="3" label="脚本">
-                <el-collapse>
-                    <el-collapse-item title="afterRefChange(jsp)，引用变量变化后事件" name="jsAfterRefChange">
-                        <el-input v-model="form.js_after_ref_change" type="textarea" :rows="10" spellcheck="false" />
-                    </el-collapse-item>
-                </el-collapse>
+            <el-tab-pane name="jsAfterCompute" :key="3" label="Script:AfterCompute">
+                <el-tag>function afterCompute(jsp) {...}</el-tag>
+                <el-tag>示例1: jsp = { trigger: "varChange", varName: varName }</el-tag>
+                <el-tag>示例2: jsp = { trigger: "refChange", ref: "customer" }</el-tag>
+                <el-input v-model="form.js_after_compute" type="textarea" :rows="15" spellcheck="false" style="margin-top:6px;" />
             </el-tab-pane>
         </el-tabs>
     </div>
