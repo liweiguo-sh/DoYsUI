@@ -327,7 +327,7 @@
                     }
                 }
 
-                // -- 保留用户修改过的值(仅限字符类型的变量，并且允许手工修改) --
+                // -- 保留用户修改过的值(仅限字符或日期类型的变量，并且允许手工修改) --
                 for (let key in this.variables) {
                     let variable = variables[key];
                     if ((variable.type.equals("string") || variable.type.equals("date"))
@@ -514,7 +514,8 @@
                     labelType: this.labelType,
                     labelSummary: this.getLabelSummary(),
                     taskId: this.taskId,
-                    dataString: para.dataString
+                    dataString: para.dataString,
+                    printerName: this.printerName
                 }
                 paraInvoke = g.x.extendJSON(paraInvoke, para);
 

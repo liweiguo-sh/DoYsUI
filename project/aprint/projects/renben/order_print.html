@@ -80,8 +80,11 @@
                     </el-row>
                     <el-row v-for="item in variables" :key="item.name">
                         <el-col>
-                            <el-form-item :label="item.name">
-                                <el-input v-model="item.value" @change="onVarChange" :disabled="item.disabled" placeholder="打印前请赋值..." />
+                            <el-form-item :label="item.name" v-if="item.type.equals('date')">
+                                <el-date-picker v-model="item.value" @change="onVarChange(item.name)" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
+                            </el-form-item>
+                            <el-form-item :label="item.name" v-else>
+                                <el-input v-model="item.value" @change="onVarChange(item.name)" :disabled="item.disabled" placeholder="打印前请赋值..." />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -160,7 +163,7 @@
                 }
 
                 this.loadLabels();
-                this.setVariables();
+                //this.setVariables();
             },
             loadLabels() {
                 let post = { customerCode: this.customerCode };
@@ -207,6 +210,7 @@
                         let name = this.dtbLabelVariable.rows[i]["name"].value;
                         let value = this.dtbLabelVariable.rows[i]["value"].value;
                         let type = this.dtbLabelVariable.rows[i]["type"].value;
+                        let dateFormat = this.dtbLabelVariable.rows[i]["rule_date_format"].value;
                         let disabled = (this.dtbLabelVariable.rows[i]["flag_manual_modify"].value == 0);
 
                         // -- 已订单变量值为准(如果有) --
@@ -227,14 +231,15 @@
                             name: name,
                             value: value,
                             type: type,
+                            dateFormat: dateFormat,
                             disabled: disabled
                         });
                     }
                 }
 
-                // -- 保留用户修改过的值(仅限字符类型的变量，并且允许手工修改) --
+                // -- 保留用户修改过的值(仅限字符或日期类型的变量，并且允许手工修改) --
                 for (let i = 0; i < this.variables.length; i++) {
-                    if (variables[i].type.equals("string") && !variables[i].disabled) {
+                    if ((variables[i].type.equals("string") || variables[i].type.equals("date")) && !variables[i].disabled) {
                         variables[i].value = this.variables[i].value;
                     }
                 }
@@ -254,11 +259,17 @@
                     return;
                 }
 
+                let variables = {}, variable;
+                for (var key in this.variables) {
+                    variable = this.variables[key];
+                    variables[variable.name] = variable.value;
+                }
+
                 let postData = {
                     labelId: this.labelId,
                     qty: this.qty,
                     copies: this.copies,
-                    variables: this.variables
+                    variables: variables
                 };
                 ajax.send("/aprint/quick_print/createTask", postData).then(res => {
                     if (res.ok) {
