@@ -66,7 +66,7 @@
         labelId = win.para.labelId || 0;
         labelContent = win.para.content || "";
 
-        lbl = new Label({ container: divCanvas });
+        lbl = new Label({ container: divCanvas, env: "design" });
         lbl.loadLabel(labelContent, {
             labelId: labelId,
             imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
@@ -121,25 +121,30 @@
             }
             else {
                 // -- 模拟数据 --
-                if (page++ < pages) {
-                    lbl.setValue("零售价", "$138.00");
-                    lbl.setValue("会员价", "$110.40");
-                    lbl.setValue("图片01", "https://cn.vuejs.org/images/imooc-sponsor2.png");
-                    lbl.setValue("条码", "888-" + page);
+                if (false) {
+                    if (page++ < pages) {
+                        lbl.setValue("零售价", "$138.00");
+                        lbl.setValue("会员价", "$110.40");
+                        lbl.setValue("图片01", "https://cn.vuejs.org/images/imooc-sponsor2.png");
+                        lbl.setValue("条码", "888-" + page);
 
-                    lbl.computeElements();
+                        lbl.computeElements();
+                        datas.push(lbl.getData());
+                    }
+                    if (page++ < pages) {
+                        lbl.setValue("零售价", "$138.00");
+                        lbl.setValue("会员价", "$110.40");
+                        lbl.setValue("图片01", "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png");
+                        lbl.setValue("条码", "888-" + page);
+
+                        lbl.computeElements();
+                        datas.push(lbl.getData());
+                    }
+                    lbl.computeElements(true);
+                }
+                else {
                     datas.push(lbl.getData());
                 }
-                if (page++ < pages) {
-                    lbl.setValue("零售价", "$138.00");
-                    lbl.setValue("会员价", "$110.40");
-                    lbl.setValue("图片01", "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png");
-                    lbl.setValue("条码", "888-" + page);
-
-                    lbl.computeElements();
-                    datas.push(lbl.getData());
-                }
-                lbl.computeElements(true);
             }
             dataString = JSON.stringify(datas, null, " ");
 

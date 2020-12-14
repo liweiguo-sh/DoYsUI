@@ -1,13 +1,14 @@
 ﻿class Label {
-    constructor(para) {
+    constructor(jsp) {
         let _this = this;
         // -- 1. init --
         this.prefix = "doys_label_";
         this.doc = window.document;
+        this.env = jsp.env || "preview";                            // -- design:设计环境;preview:预览环境 --
         this.id = 1;
 
         // -- 2. label container --
-        this.container = para.container;                            // -- 标签容器 --
+        this.container = jsp.container;                             // -- 标签容器 --
         this.parentContainer = this.container.parentElement;        // -- 标签容器的父对象 --
         this.parentContainer.ondblclick = function (evt) {
             let prop = {
@@ -55,7 +56,7 @@
     loadLabel(labelString, jsp = {}) {
         if (this.elements) this.clearLabel();
 
-        // -- 1. 初始化参数 --
+        // -- 1. 初始化参数 --        
         this.imageBaseUrl = jsp.imageBaseUrl;
         this.readonly = jsp.readonly;
         this.zIndexCanvas = 100;
@@ -100,6 +101,7 @@
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
+            element.env = this.env;
             element.imageBaseUrl = this.imageBaseUrl;
 
             this.createElement(element);

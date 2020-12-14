@@ -341,7 +341,6 @@ UtilElement.drawFrame = function (domCanvas, element) {
 UtilElement.draw_text = function (domCanvas, element) {
     let context = domCanvas.getContext("2d");
 
-    if (!element.head._sectionsText) element.head._sectionsText = "Empty String Empty String";
     if (element.font.wordWrap) {
         UtilElement._drawMultiLine(context, element);
     }
@@ -359,14 +358,15 @@ UtilElement._drawSingleLine = function (context, element) {
     context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
 
     let xxx = 4;    // -- 补4个像素，解决中文削顶问题，C#中没有这个问题 --
-    context.fillText(element.head._sectionsText, element.position._leftDraw * pxmm, element.position._topDraw * pxmm + xxx);
+    let text = element.head._sectionsText || (element.env.equals("design") ? "<空>" : "");
+    context.fillText(text, element.position._leftDraw * pxmm, element.position._topDraw * pxmm + xxx);
 }
 UtilElement._drawMultiLine = function (context, element) {
     let font = element.font;
     let position = element.position;
 
     let txts = new Array();
-    let txtString = element.head._sectionsText;
+    let txtString = element.head._sectionsText || (element.env.equals("design") ? "<空>" : "");
     let chars = txtString.split("");
     let length = chars.length, pos = 0;
 
@@ -483,7 +483,7 @@ UtilElement.draw_image = function (domCanvas, element) {
     let urlImg;
     let img = new Image();
     // ----------------------------------------------------
-    urlImg = element.image.url || "";    
+    urlImg = element.image.url || "";
     if (!urlImg.startWith("http:")) {
         if (!element.imageBaseUrl) {
             alert("配置标签参数 (imageBaseUrl) 未配置, 请检查。");
@@ -542,7 +542,14 @@ UtilElement.draw_barcode1D = function (domCanvas, element) {
     let y = position._barcodeTop * pxmm;
     let img = new Image();
 
-    img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+    if (element.head._segmentsText) {
+        img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+    }
+    else {
+        if (element.env.equals("design")) {
+            img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+        }
+    }
     img.onload = function () {
         let w = position._barcodeWidth * pxmm;
         let h = position._barcodeHeight * pxmm;
@@ -574,7 +581,14 @@ UtilElement.draw_barcode2D = function (domCanvas, element) {
     let y = position._barcodeTop * pxmm;
     let img = new Image();
 
-    img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+    if (element.head._segmentsText) {
+        img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+    }
+    else {
+        if (element.env.equals("design")) {
+            img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+        }
+    }
     img.onload = function () {
         let w = position._barcodeWidth * pxmm;
         let h = position._barcodeHeight * pxmm;
