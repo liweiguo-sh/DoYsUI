@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ajax test</title>
+    <script src="../../framework/core/doys.js"></script>
+
+    <style type="text/css">
+    </style>
+</head>
+<body>
+    <div>
+        <img id="img1" src="../../project/aprint/image/login/doys.png" /> <hr />
+        <img id="img2" src="file:///E:/Pictures/png/64%C3%9764/404.png" />       
+    </div>
+    <div>
+        <input type="button" onclick="test1();" value="测试一" />
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script> 
+    var img1 = gId("img1");
+    var img2 = gId("img2");
+
+    function winLoad() {
+
+    }
+    // ------------------------------------------------------------------------
+    function test1() {
+        debugger;
+
+        var base64 = getBase64Image(img1);
+        console.log(base64);  
+
+        img2.src = base64;
+    }
+
+    function getBase64Image(img) {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        var ext = img.src.substring(img.src.lastIndexOf(".") + 1).toLowerCase();
+        var dataURL = canvas.toDataURL("image/" + ext);
+        return dataURL;
+    }  
+</script> 

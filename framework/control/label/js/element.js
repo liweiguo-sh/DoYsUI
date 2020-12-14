@@ -531,25 +531,43 @@ UtilElement.Is2D = function (barcodeType) {
     return false;
 }
 
-UtilElement.draw_barcode1D = function (domCanvas, element) {
+UtilElement.draw_barcode1D = async function (domCanvas, element) {
     let context = domCanvas.getContext("2d");
     let _this = element._this;
     let pxmm = _this.pxmm;
     let position = element.position;
 
-    // -- 输出条码(样例条码) --
+    // -- 1. 输出文本部分 --
+    if (!element.head.pureBarcode) {
+        UtilElement._drawSingleLine(context, element);
+    }
+
+    // -- 2. 输出条码部分(样例条码) --
     let x = position._barcodeLeft * pxmm;
     let y = position._barcodeTop * pxmm;
     let img = new Image();
+    let srcImg;
 
     if (element.head._segmentsText) {
-        img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+        srcImg = await UtilElement._getBarcodeBase64({
+            barcodeType: element.head.barcodeType,
+            barcodeValue: element.head._segmentsText,
+            gs1: element.head.gs1
+        });
+        if (!srcImg) {
+            srcImg = g.path.framework + "/control/label/image/error.png";
+        }
     }
     else {
         if (element.env.equals("design")) {
-            img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+            srcImg = g.path.framework + "/control/label/image/empty.png";
+        }
+        else {
+            return;
         }
     }
+
+    img.src = srcImg;
     img.onload = function () {
         let w = position._barcodeWidth * pxmm;
         let h = position._barcodeHeight * pxmm;
@@ -564,31 +582,44 @@ UtilElement.draw_barcode1D = function (domCanvas, element) {
 
         context.fillText("| ||    XXXXXXXX    || |", x, y);
     }
-
-    // -- 输出文本 --
-    if (!element.head.pureBarcode) {
-        UtilElement._drawSingleLine(context, element);
-    }
 }
-UtilElement.draw_barcode2D = function (domCanvas, element) {
+UtilElement.draw_barcode2D = async function (domCanvas, element) {
     let context = domCanvas.getContext("2d");
     let _this = element._this;
     let pxmm = _this.pxmm;
     let position = element.position;
 
-    // -- 输出条码(样例条码) --
+    // -- 1. 输出文本 --
+    if (!element.head.pureBarcode) {
+        UtilElement._drawSingleLine(context, element);
+    }
+
+    // -- 2. 输出条码(样例条码) --
     let x = position._barcodeLeft * pxmm;
     let y = position._barcodeTop * pxmm;
     let img = new Image();
+    let srcImg;
 
     if (element.head._segmentsText) {
-        img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+        srcImg = await UtilElement._getBarcodeBase64({
+            barcodeType: element.head.barcodeType,
+            barcodeValue: element.head._segmentsText,
+            gs1: element.head.gs1
+        });
+        if (!srcImg) {
+            srcImg = g.path.framework + "/control/label/image/error.png";
+        }
     }
     else {
         if (element.env.equals("design")) {
-            img.src = g.path.framework + "/control/label/image/" + element.head.barcodeType + ".png";
+            srcImg = g.path.framework + "/control/label/image/empty.png";
+        }
+        else {
+            return;
         }
     }
+
+    img.src = srcImg;
     img.onload = function () {
         let w = position._barcodeWidth * pxmm;
         let h = position._barcodeHeight * pxmm;
@@ -603,9 +634,33 @@ UtilElement.draw_barcode2D = function (domCanvas, element) {
 
         context.fillText("| ||    XXXXXXXX    || |", x, y);
     }
+}
+UtilElement._getBarcodeBase64 = async function (jsp) {
+    let para = {
+        protocol: "2.0",
+        action: "getBarcodeBase64",
+        barcodeType: jsp.barcodeType,
+        barcodeValue: jsp.barcodeValue,
+        isGS1: jsp.gs1 ? true : false
+    }
+    let hashcode = JSON.getHashCode(para);
+    let base64Key = "base64_" + hashcode;
 
-    // -- 输出文本 --
-    if (!element.head.pureBarcode) {
-        UtilElement._drawSingleLine(context, element);
+    if (!top.EdgeJsSwapArea) top.EdgeJsSwapArea = {};
+    if (!top.EdgeJsSwapArea.DLabel) top.EdgeJsSwapArea.DLabel = {};
+    if (top.EdgeJsSwapArea.DLabel[base64Key]) {
+        return top.EdgeJsSwapArea.DLabel[base64Key];
+    }
+
+    // ----------------------------------------------------
+    para["base64Key"] = base64Key;
+    top.invokeEdge(para);
+
+    let count = 0, maxCount = 10;
+    while (count++ < maxCount) {
+        await sleep(10);    // -- 测试结果: 平均 <= 5ms --
+        if (top.EdgeJsSwapArea.DLabel[base64Key]) {
+            return top.EdgeJsSwapArea.DLabel[base64Key];
+        }
     }
 }

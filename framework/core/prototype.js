@@ -2,13 +2,16 @@
  * DoYs.prototype.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2020-04-10
+ * Modify Date: 2020-12-14
  * Copyright 2020, doys-next.com
  */
 
 // -- global function ---------------------------------------------------------
 window.gId = function (elementId) {
     return window.document.getElementById(elementId);
+}
+window.sleep = function (milliseconds) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 // -- String ------------------------------------------------------------------
@@ -172,6 +175,27 @@ Date.prototype.diffSecond = function (dateEarly) {
     return (this.getTime() - dateEarly.getTime()) / 1000;
 };
 
+// -- Number ------------------------------------------------------------------
 Number.prototype.toInt = function () {
     return this;
+}
+
+// -- JSON --------------------------------------------------------------------
+JSON.getHashCode = function (jsonObject) {
+    try {
+        let hash = 0;
+        let jsonString, chr;
+
+        jsonString = JSON.stringify(jsonObject);
+        for (let i = 0, len = jsonString.length; i < len; i++) {
+            chr = jsonString.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0;  // -- Convert to 32bit integer --
+        }
+        return hash;
+    }
+    catch (e) {
+        debugger;
+        return null;
+    }
 }

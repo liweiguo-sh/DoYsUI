@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "V2020_1125";</script>
+    <script>var jsVer = "V2020_1214";</script>
 
     <link href="../../../../framework/control/menu/top-menu/menu.css" rel="stylesheet" />
     <link href="../../../../framework/control/taskbar/eltabs/taskbar.css" rel="stylesheet" />
@@ -322,6 +322,9 @@
             if (para.action.equals("setPrinterList")) {
                 topWin.printers = para.printers;
             }
+            else if (para.action.equals("setBarcodeBase64")) {
+                setBarcodeBase64(para);
+            }
             else if (para.action.equals("saveLabelContent")) {
                 saveMasoLabel(para);
             }
@@ -362,5 +365,9 @@
                 jsInvokeCommonShell(para);
             }
         });
+    }
+
+    function setBarcodeBase64(para) {
+        top.EdgeJsSwapArea.DLabel[para.base64Key] = para.base64;
     }
 </script>

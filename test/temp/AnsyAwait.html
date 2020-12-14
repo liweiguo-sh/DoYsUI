@@ -5,37 +5,32 @@
     <title></title>
 </head>
 <body>
-    <input type="button" onclick="test(1)" value="foo" />
-    <input type="button" onclick="test(2)" value="bar" />
+    <input type="button" onclick="test1()" value="foo" />
+    <input type="button" onclick="test2()" value="bar" />
 </body>
 </html>
 
 <script>
-    function test(x) {
-        if (x == 1) {
-            foo();
+    let i = 0;
+
+    function test1() {
+        foo();
+
+        console.log("begin");
+    }
+
+    async function foo() { 
+        while(true) {
+            await sleep(3000);
+            console.log(i++);
+            if (i > 3) break;
         }
-        else if (x == 2) {
-            bar();
-        }
-
-        window.document.writeln("end.");
+    }
+    function sleep(time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
     }
 
-    async function foo() {
-        await sleep(3);
-        await sleep(3);
-
-        return 'done';
+    function test2() {
+        console.log((new Date()).toLocaleTimeString());
     }
-
-    async function bar() {
-        const s1 = sleep(3);
-        const s2 = sleep(3);
-        await s1;
-        await s2;
-        return 'done';
-    }
-
-
 </script>
