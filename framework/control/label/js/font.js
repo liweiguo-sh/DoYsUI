@@ -33,9 +33,14 @@ UtilFont.getSizes = function () {
 
     let sizes = [];
     // -- 数字字体大小 --------------------------------------
+    sizes.push("5");
+    sizes.push("5.5");
+    sizes.push("6.5");
+    sizes.push("7.5");
     sizes.push("8");
     sizes.push("9");
     sizes.push("10");
+    sizes.push("10.5");
     sizes.push("11");
     sizes.push("12");
     sizes.push("14");

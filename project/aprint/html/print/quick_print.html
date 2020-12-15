@@ -55,7 +55,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row>
+                    <el-row v-if="hasCustomerRef">
                         <el-col>
                             <el-form-item label="客户">
                                 <el-select v-model="customerId" @change="onCustomerChange" filterable :popper-append-to-body="false" style="width:100%;">
@@ -64,7 +64,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row>
+                    <el-row v-if="hasProductRef">
                         <el-col>
                             <el-form-item label="产品料号(PN)">
                                 <el-select v-model="productPnId" @change="onProductPnChange" filterable :popper-append-to-body="false" style="width:100%;">
@@ -76,6 +76,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
+                    <!-- 打印数量、份数、打印机 -->
                     <el-row :gutter="20">
                         <el-col :span="12">
                             <el-form-item label="打印数量" required>
@@ -83,12 +84,9 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
-                            &nbsp;
-                            <!--
                             <el-form-item label="份数" required>
                                 <el-input v-model="copies" />
                             </el-form-item>
-                            -->
                         </el-col>
                     </el-row>
                     <el-row>
@@ -100,7 +98,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-
+                    <!-- 变量输入区 -->
                     <el-row>
                         <el-col>
                             <hr />
@@ -108,14 +106,25 @@
                     </el-row>
                     <el-row v-for="item in variables" :key="item.name">
                         <el-col>
-                            <el-form-item :label="item.name" v-if="item.type.equals('date')">
+                            <el-form-item :label="item.name" v-if="item.type.equals('date') && !item.disabled">
                                 <el-date-picker v-model="item.value" @change="onVarChange(item.name)" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
                             </el-form-item>
-                            <el-form-item :label="item.name" v-else>
+                            <el-form-item :label="item.name" v-else-if="!item.disabled">
                                 <el-input v-model="item.value" @change="onVarChange(item.name)" :disabled="item.disabled" placeholder="打印前请赋值..." />
                             </el-form-item>
                         </el-col>
                     </el-row>
+                    <el-collapse>
+                        <el-collapse-item title="..." name="1">
+                            <el-row v-for="item in variables" :key="item.name">
+                                <el-col>
+                                    <el-form-item :label="item.name" v-if="item.disabled">
+                                        <el-input v-model="item.value" :disabled="item.disabled" />
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-collapse-item>
+                    </el-collapse>
                 </el-form>
             </el-col>
             <el-col :span="16">
@@ -141,6 +150,9 @@
             labels: [],
             customers: [],
             productPns: [],
+
+            hasCustomerRef: false,      // -- 有变量引用客户参数 --
+            hasProductRef: false,       // -- 有变量引用产品参数 --
 
             labelType: "",              // -- 标签类型(DLabel/MASO/BarTender/NiceLabel etc.) --
             labelId: null,
@@ -223,7 +235,21 @@
                         this.afterCompute = null;
                     }
 
-                    // --
+                    // -- 检查是否引用客户或产品参数 --               
+                    this.hasCustomerRef = false;
+                    this.hasProductRef = false;
+                    let quoteFrom;
+                    for (let i = 0; i < this.dtbLabelVariable.rowCount; i++) {
+                        quoteFrom = this.dtbLabelVariable.rows[i]["quote_from"].value;
+                        if (quoteFrom.equals("customer")) {
+                            this.hasCustomerRef = true;
+                        }
+                        else if (quoteFrom.equals("product")) {
+                            this.hasProductRef = true;
+                        }
+                    }
+
+                    // -- 更新变量集合 --
                     this.setVariables({ trigger: "labelChange" });
                 });
             },
@@ -515,7 +541,8 @@
                     labelSummary: this.getLabelSummary(),
                     taskId: this.taskId,
                     dataString: para.dataString,
-                    printerName: this.printerName
+                    printerName: this.printerName,
+                    copies: this.copies
                 }
                 paraInvoke = g.x.extendJSON(paraInvoke, para);
 
@@ -595,7 +622,7 @@
                         labelString: lbl.toJson(),
                         dataString: dataString,
                         printerName: this.printerName,
-                        copies: 1
+                        copies: this.copies
                     }
                     top.invokeEdge(para);
                     return;
@@ -636,7 +663,7 @@
                         labelString: lbl.toJson(),
                         dataString: dataString,
                         printerName: this.printerName,
-                        copies: 1
+                        copies: this.copies
                     }
 
                     top.invokeEdge(para);

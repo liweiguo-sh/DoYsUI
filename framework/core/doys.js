@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2020-11-16
+ * Modify Date: 2020-12-15
  * Copyright 2020, doys-next.com
  */
 (function () {
@@ -118,15 +118,28 @@ function importFrameworkRes(fileRes) {
     ///<param name="fileRes">框架资源文件名称，不包含路径</param>
 
     var arrRes = new Array();
-    if (fileRes.equals("echarts")) {
-        arrRes.push(g.path.plugin + "/echarts/echarts.min.js");
-        arrRes.push(g.path.plugin + "/echarts/echarts.ext.js");
+    // -- 1. 顶级框架类 --
+    if (fileRes.equals("topwin")) {
+        arrRes.push(g.path.framework + "/core/topwin.js");
+    }
+    else if (fileRes.equals("main")) {
+        arrRes.push(g.path.framework + "/system/main.js");
+    }
+    // -- 2. doys顶级组件 --
+    else if (fileRes.equals("window")) {
+        arrRes.push(g.path.framework + "/control/window/xwf.window.js");
+        arrRes.push(g.path.framework + "/control/window/xwf.window.css");
+    }
+    else if (fileRes.equals("taskbar")) {
+        arrRes.push(g.path.framework + "/control/taskbar/taskbar.js");
+        arrRes.push(g.path.framework + "/control/taskbar/taskbar.css");
     }
     else if (fileRes.equals("view-form-bar")) {
         arrRes.push(g.path.framework + "/control/view-form-bar/view-form-bar.js");
     }
     else if (fileRes.equals("main-menu")) {
         arrRes.push(g.path.framework + "/control/menu/top-menu/menu.js");
+        arrRes.push(g.path.framework + "/control/menu/top-menu/menu.css");
     }
     else if (fileRes.equals("main-view-bar")) {
         arrRes.push(g.path.framework + "/control/main-view/main-view-bar.js");
@@ -134,6 +147,7 @@ function importFrameworkRes(fileRes) {
     else if (fileRes.equals("main-view")) {
         arrRes.push(g.path.framework + "/control/main-view/main-view.js");
     }
+    // -- 3. doys组件 --
     else if (fileRes.equals("d-label")) {
         arrRes.push(g.path.framework + "/control/label/css/designer.css");
 
@@ -141,11 +155,16 @@ function importFrameworkRes(fileRes) {
         arrRes.push(g.path.framework + "/control/label/js/element.js");
         arrRes.push(g.path.framework + "/control/label/js/label.js");
     }
+    // -- 4. plugin组件 --
+    else if (fileRes.equals("echarts")) {
+        arrRes.push(g.path.plugin + "/echarts/echarts.min.js");
+        arrRes.push(g.path.plugin + "/echarts/echarts.ext.js");
+    }
     else {
         alert("importFrameworkRes found unknown resource: " + fileRes);
     }
 
-    // -- output javascript --
+    // -- 9. output javascript --
     for (let res of arrRes) {
         if (res.endWith(".css")) {
             document.write("<link href='" + res + "?v=" + g.cfg.jsVer + "' rel='stylesheet' />");
