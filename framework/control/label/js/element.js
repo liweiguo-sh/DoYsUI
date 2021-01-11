@@ -156,67 +156,67 @@ UtilElement.computePropAngle = function (element) {
     position.hC = h * Math.abs(Math.cos(angleR)) + w * Math.abs(Math.sin(angleR));
 
     // -- 2. 计算offsetX、offsetY --
-    position.E1 = {}; position.E2 = {}; position.E3 = {}; position.E4 = {};
-    position.E15 = {}; position.E25 = {}; position.E35 = {}; position.E45 = {};
+    position.P1 = {}; position.P2 = {}; position.P3 = {}; position.P4 = {};
+    position.P15 = {}; position.P25 = {}; position.P35 = {}; position.P45 = {};
 
     if (angle <= 90) {
-        position.E1.x = h * Math.abs(Math.sin(angleR));
-        position.E1.y = 0;
-        position.E2.x = h * Math.abs(Math.sin(angleR)) + w * Math.abs(Math.cos(angleR));
-        position.E2.y = w * Math.abs(Math.sin(angleR));
+        position.P1.x = h * Math.abs(Math.sin(angleR));
+        position.P1.y = 0;
+        position.P2.x = h * Math.abs(Math.sin(angleR)) + w * Math.abs(Math.cos(angleR));
+        position.P2.y = w * Math.abs(Math.sin(angleR));
 
-        position.E3.x = w * Math.abs(Math.cos(angleR));
-        position.E3.y = h * Math.abs(Math.cos(angleR)) + w * Math.abs(Math.sin(angleR));
-        position.E4.x = 0;
-        position.E4.y = h * Math.abs(Math.cos(angleR));
+        position.P3.x = w * Math.abs(Math.cos(angleR));
+        position.P3.y = h * Math.abs(Math.cos(angleR)) + w * Math.abs(Math.sin(angleR));
+        position.P4.x = 0;
+        position.P4.y = h * Math.abs(Math.cos(angleR));
     }
     else if (angle <= 180) {
-        position.E1.x = w * Math.abs(Math.cos(angleR)) + h * Math.abs(Math.sin(angleR));
-        position.E1.y = h * Math.abs(Math.cos(angleR));
-        position.E2.x = h * Math.abs(Math.sin(angleR));
-        position.E2.y = w * Math.abs(Math.sin(angleR)) + h * Math.abs(Math.cos(angleR));
+        position.P1.x = w * Math.abs(Math.cos(angleR)) + h * Math.abs(Math.sin(angleR));
+        position.P1.y = h * Math.abs(Math.cos(angleR));
+        position.P2.x = h * Math.abs(Math.sin(angleR));
+        position.P2.y = w * Math.abs(Math.sin(angleR)) + h * Math.abs(Math.cos(angleR));
 
-        position.E3.x = 0;
-        position.E3.y = w * Math.abs(Math.sin(angleR));
-        position.E4.x = w * Math.abs(Math.cos(angleR));
-        position.E4.y = 0;
+        position.P3.x = 0;
+        position.P3.y = w * Math.abs(Math.sin(angleR));
+        position.P4.x = w * Math.abs(Math.cos(angleR));
+        position.P4.y = 0;
     }
     else if (angle <= 270) {
-        position.E1.x = Math.abs(w * Math.cos(angleR));
-        position.E1.y = Math.abs(h * Math.cos(angleR)) + w * Math.abs(Math.sin(angleR));
-        position.E2.x = 0;
-        position.E2.y = h * Math.abs(Math.cos(angleR));
+        position.P1.x = Math.abs(w * Math.cos(angleR));
+        position.P1.y = Math.abs(h * Math.cos(angleR)) + w * Math.abs(Math.sin(angleR));
+        position.P2.x = 0;
+        position.P2.y = h * Math.abs(Math.cos(angleR));
 
-        position.E3.x = h * Math.abs(Math.sin(angleR));
-        position.E3.y = 0;
-        position.E4.x = h * Math.abs(Math.sin(angleR)) + w * Math.abs(Math.cos(angleR));
-        position.E4.y = w * Math.abs(Math.sin(angleR));
+        position.P3.x = h * Math.abs(Math.sin(angleR));
+        position.P3.y = 0;
+        position.P4.x = h * Math.abs(Math.sin(angleR)) + w * Math.abs(Math.cos(angleR));
+        position.P4.y = w * Math.abs(Math.sin(angleR));
     }
     else {
-        position.E1.x = 0;
-        position.E1.y = w * Math.abs(Math.sin(angleR));
-        position.E2.x = w * Math.abs(Math.cos(angleR));
-        position.E2.y = 0;
+        position.P1.x = 0;
+        position.P1.y = w * Math.abs(Math.sin(angleR));
+        position.P2.x = w * Math.abs(Math.cos(angleR));
+        position.P2.y = 0;
 
-        position.E3.x = w * Math.abs(Math.cos(angleR)) + h * Math.abs(Math.sin(angleR));
-        position.E3.y = h * Math.abs(Math.cos(angleR));
-        position.E4.x = h * Math.abs(Math.sin(angleR));
-        position.E4.y = w * Math.abs(Math.sin(angleR)) + h * Math.abs(Math.cos(angleR));
+        position.P3.x = w * Math.abs(Math.cos(angleR)) + h * Math.abs(Math.sin(angleR));
+        position.P3.y = h * Math.abs(Math.cos(angleR));
+        position.P4.x = h * Math.abs(Math.sin(angleR));
+        position.P4.y = w * Math.abs(Math.sin(angleR)) + h * Math.abs(Math.cos(angleR));
     }
 
-    position.offsetX = position.E1.x;
-    position.offsetY = position.E1.y;
+    position.offsetX = position.P1.x;
+    position.offsetY = position.P1.y;
 
     // -- 3. 计算E15/E25/E35/E45 --
-    position.E15.x = (position.E1.x + position.E2.x) / 2;
-    position.E15.y = (position.E1.y + position.E2.y) / 2;
-    position.E25.x = (position.E2.x + position.E3.x) / 2;
-    position.E25.y = (position.E2.y + position.E3.y) / 2;
+    position.P15.x = (position.P1.x + position.P2.x) / 2;
+    position.P15.y = (position.P1.y + position.P2.y) / 2;
+    position.P25.x = (position.P2.x + position.P3.x) / 2;
+    position.P25.y = (position.P2.y + position.P3.y) / 2;
 
-    position.E35.x = (position.E3.x + position.E4.x) / 2;
-    position.E35.y = (position.E3.y + position.E4.y) / 2;
-    position.E45.x = (position.E4.x + position.E1.x) / 2;
-    position.E45.y = (position.E4.y + position.E1.y) / 2;
+    position.P35.x = (position.P3.x + position.P4.x) / 2;
+    position.P35.y = (position.P3.y + position.P4.y) / 2;
+    position.P45.x = (position.P4.x + position.P1.x) / 2;
+    position.P45.y = (position.P4.y + position.P1.y) / 2;
 }
 UtilElement.computeValue = function (jsp) {
     let element = jsp.element;

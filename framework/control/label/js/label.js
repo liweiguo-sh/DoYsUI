@@ -330,7 +330,7 @@
         let element = _dom._element;
         let position = element.position;
 
-        let points = [position.E1, position.E2, position.E3, position.E4];
+        let points = [position.P1, position.P2, position.P3, position.P4];
         let blIn = Util.inPolygon(evt.layerX / _this.pxmm, evt.layerY / _this.pxmm, points);
         if (blIn) {
             _this.showHover(evt);
@@ -456,20 +456,20 @@
         divL.style.transform = "rotate(" + angle + "deg)"; divR.style.transform = "rotate(" + angle + "deg)";
 
         divT.style.width = (P.width * _this.pxmm) + "px";
-        divT.style.left = (domC.offsetLeft + P.E15.x * _this.pxmm + divT.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
-        divT.style.top = (domC.offsetTop + P.E15.y * _this.pxmm - divT.offsetHeight / 2 * Math.cos(angleR) - divT.offsetHeight / 2) + "px";
+        divT.style.left = (domC.offsetLeft + P.P15.x * _this.pxmm + divT.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
+        divT.style.top = (domC.offsetTop + P.P15.y * _this.pxmm - divT.offsetHeight / 2 * Math.cos(angleR) - divT.offsetHeight / 2) + "px";
 
         divB.style.width = divT.style.width;
-        divB.style.left = (domC.offsetLeft + P.E35.x * _this.pxmm - divB.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
-        divB.style.top = (domC.offsetTop + P.E35.y * _this.pxmm + divB.offsetHeight / 2 * Math.cos(angleR) - divB.offsetHeight / 2) + "px";
+        divB.style.left = (domC.offsetLeft + P.P35.x * _this.pxmm - divB.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
+        divB.style.top = (domC.offsetTop + P.P35.y * _this.pxmm + divB.offsetHeight / 2 * Math.cos(angleR) - divB.offsetHeight / 2) + "px";
 
         divL.style.height = (P.height * _this.pxmm + 2 * divT.offsetHeight) + "px";
-        divL.style.left = (domC.offsetLeft + P.E45.x * _this.pxmm - divL.offsetWidth / 2 * Math.cos(angleR) - divL.offsetWidth / 2) + "px";
-        divL.style.top = (domC.offsetTop + P.E45.y * _this.pxmm - divL.offsetWidth / 2 * Math.sin(angleR) - divL.offsetHeight / 2) + "px";
+        divL.style.left = (domC.offsetLeft + P.P45.x * _this.pxmm - divL.offsetWidth / 2 * Math.cos(angleR) - divL.offsetWidth / 2) + "px";
+        divL.style.top = (domC.offsetTop + P.P45.y * _this.pxmm - divL.offsetWidth / 2 * Math.sin(angleR) - divL.offsetHeight / 2) + "px";
 
         divR.style.height = divL.style.height;
-        divR.style.left = (domC.offsetLeft + P.E25.x * _this.pxmm + divR.offsetWidth / 2 * Math.cos(angleR) - divR.offsetWidth / 2) + "px";
-        divR.style.top = (domC.offsetTop + P.E25.y * _this.pxmm + divR.offsetWidth / 2 * Math.sin(angleR) - divR.offsetHeight / 2) + "px";
+        divR.style.left = (domC.offsetLeft + P.P25.x * _this.pxmm + divR.offsetWidth / 2 * Math.cos(angleR) - divR.offsetWidth / 2) + "px";
+        divR.style.top = (domC.offsetTop + P.P25.y * _this.pxmm + divR.offsetWidth / 2 * Math.sin(angleR) - divR.offsetHeight / 2) + "px";
     }
     hideHover() {
         let _this = this;
@@ -585,20 +585,20 @@
 
         // ------------------------------------------------
         divT.style.width = (P.width * _this.pxmm) + "px";
-        divT.style.left = (domC.offsetLeft + P.E15.x * _this.pxmm + divT.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
-        divT.style.top = (domC.offsetTop + P.E15.y * _this.pxmm - divT.offsetHeight / 2 * Math.cos(angleR) - divT.offsetHeight / 2) + "px";
+        divT.style.left = (domC.offsetLeft + P.P15.x * _this.pxmm + divT.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
+        divT.style.top = (domC.offsetTop + P.P15.y * _this.pxmm - divT.offsetHeight / 2 * Math.cos(angleR) - divT.offsetHeight / 2) + "px";
 
         divB.style.width = divT.style.width;
-        divB.style.left = (domC.offsetLeft + P.E35.x * _this.pxmm - divB.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
-        divB.style.top = (domC.offsetTop + P.E35.y * _this.pxmm + divB.offsetHeight / 2 * Math.cos(angleR) - divB.offsetHeight / 2) + "px";
+        divB.style.left = (domC.offsetLeft + P.P35.x * _this.pxmm - divB.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
+        divB.style.top = (domC.offsetTop + P.P35.y * _this.pxmm + divB.offsetHeight / 2 * Math.cos(angleR) - divB.offsetHeight / 2) + "px";
 
         divL.style.height = (P.height * _this.pxmm + 2 * divT.offsetHeight) + "px";
-        divL.style.left = (domC.offsetLeft + P.E45.x * _this.pxmm - divL.offsetWidth / 2 * Math.cos(angleR) - divL.offsetWidth / 2) + "px";
-        divL.style.top = (domC.offsetTop + P.E45.y * _this.pxmm - divL.offsetWidth / 2 * Math.sin(angleR) - divL.offsetHeight / 2) + "px";
+        divL.style.left = (domC.offsetLeft + P.P45.x * _this.pxmm - divL.offsetWidth / 2 * Math.cos(angleR) - divL.offsetWidth / 2) + "px";
+        divL.style.top = (domC.offsetTop + P.P45.y * _this.pxmm - divL.offsetWidth / 2 * Math.sin(angleR) - divL.offsetHeight / 2) + "px";
 
         divR.style.height = divL.style.height;
-        divR.style.left = (domC.offsetLeft + P.E25.x * _this.pxmm + divR.offsetWidth / 2 * Math.cos(angleR) - divR.offsetWidth / 2) + "px";
-        divR.style.top = (domC.offsetTop + P.E25.y * _this.pxmm + divR.offsetWidth / 2 * Math.sin(angleR) - divR.offsetHeight / 2) + "px";
+        divR.style.left = (domC.offsetLeft + P.P25.x * _this.pxmm + divR.offsetWidth / 2 * Math.cos(angleR) - divR.offsetWidth / 2) + "px";
+        divR.style.top = (domC.offsetTop + P.P25.y * _this.pxmm + divR.offsetWidth / 2 * Math.sin(angleR) - divR.offsetHeight / 2) + "px";
     }
     hideResize() {
         let _this = this;
@@ -627,7 +627,7 @@
         }
 
         if (domResize.resizeType.equals("L")) {
-            widthNew = Util.getTriangleHeight(P.E2, P.E3, pDrag);
+            widthNew = Util.getTriangleHeight(P.P2, P.P3, pDrag);
 
             if (angle <= 90) {
                 P.top = parseFloat(P.top) + (P.width - widthNew) * Math.sin(angleR);
@@ -645,7 +645,7 @@
             P.width = widthNew.toFixed(2);
         }
         else if (domResize.resizeType.equals("R")) {
-            widthNew = Util.getTriangleHeight(P.E1, P.E4, pDrag);
+            widthNew = Util.getTriangleHeight(P.P1, P.P4, pDrag);
 
             if (angle <= 90) {
                 // -- do nothing --
@@ -663,7 +663,7 @@
             P.width = widthNew.toFixed(2);
         }
         else if (domResize.resizeType.equals("T")) {
-            heightNew = Util.getTriangleHeight(P.E3, P.E4, pDrag);
+            heightNew = Util.getTriangleHeight(P.P3, P.P4, pDrag);
 
             if (angle <= 90) {
                 P.top = parseFloat(P.top) + (P.height - heightNew) * Math.abs(Math.cos(angleR));
@@ -681,7 +681,7 @@
             P.height = heightNew.toFixed(2);;
         }
         else if (domResize.resizeType.equals("B")) {
-            heightNew = Util.getTriangleHeight(P.E1, P.E2, pDrag);
+            heightNew = Util.getTriangleHeight(P.P1, P.P2, pDrag);
 
             if (angle <= 90) {
                 P.left = parseFloat(P.left) + (P.height - heightNew) * Math.abs(Math.sin(angleR));
@@ -762,7 +762,7 @@
         try {
             return JSON.stringify(this.label,
                 (k, v) => {
-                    if (k.startsWith("_")) {    // -- _this, _canvas --                        
+                    if (k.startsWith("_") || k.startsWith("$")) {    // -- _this, _canvas --                        
                         return undefined;
                     }
                     else {
