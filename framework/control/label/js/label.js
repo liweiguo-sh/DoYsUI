@@ -636,7 +636,6 @@
         else if (domResize.resizeType.equals("R")) {
             widthNew = Util.getTriangleHeight(P.E1, P.E4, pDrag);
 
-
             P.width = widthNew.toFixed(2);;
         }
         else if (domResize.resizeType.equals("T")) {

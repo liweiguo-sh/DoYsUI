@@ -90,6 +90,8 @@
         labelId = win.para.labelId || 0;
         labelContent = win.para.content || "";
 
+        let dt1 = new Date();
+
         lbl = new Label({ container: divCanvas, env: "design" });
         lbl.loadLabel(labelContent, {
             labelId: labelId,
@@ -100,6 +102,11 @@
             point: win.para.point || 600
         });
         lbl.compute(true);
+
+        let dt2 = new Date();
+        let interval = dt2.diffSecond(dt1);
+        console.log("interval = " + interval);
+
     }
 
     function winResize() {
@@ -297,11 +304,11 @@
       },
       "position": {
         "layer": 1,
-        "angle": 30,
-        "top": 5,
-        "left": 10,
-        "width": 25,
-        "height": 20,
+        "angle": 300,
+        "top": 0,
+        "left": 0,
+        "width": 20,
+        "height": 10,
         "textAlign": "left",
         "verticalAlign": "top",
         "marginLeft": 0,
