@@ -618,7 +618,7 @@
         let P = element.position;
         let domCanvas = element._canvas;
         let width, height, widthNew, heightNew;
-        let angleR = P.angleR;
+        let angle = P.angle, angleR = P.angleR;
 
         // -- 1. 计算domCanvas的位置及宽高 -------------------
         let pDrag = {
@@ -629,54 +629,103 @@
         if (domResize.resizeType.equals("L")) {
             widthNew = Util.getTriangleHeight(P.E2, P.E3, pDrag);
 
-            P.top = parseFloat(P.top) + (P.width - widthNew) * Math.sin(angleR);
-            P.left = parseFloat(P.left) + (P.width - widthNew) * Math.cos(angleR);
+            if (angle <= 90) {
+                P.top = parseFloat(P.top) + (P.width - widthNew) * Math.sin(angleR);
+                P.left = parseFloat(P.left) + (P.width - widthNew) * Math.cos(angleR);
+            }
+            else if (angle <= 180) {
+                P.top = parseFloat(P.top) + (P.width - widthNew) * Math.sin(angleR);
+            }
+            else if (angle <= 270) {
+                // -- do nothing --
+            }
+            else {
+                P.left = parseFloat(P.left) + (P.width - widthNew) * Math.cos(angleR);
+            }
             P.width = widthNew.toFixed(2);
         }
         else if (domResize.resizeType.equals("R")) {
             widthNew = Util.getTriangleHeight(P.E1, P.E4, pDrag);
 
-            P.width = widthNew.toFixed(2);;
+            if (angle <= 90) {
+                // -- do nothing --
+            }
+            else if (angle <= 180) {
+                P.left = parseFloat(P.left) + (P.width - widthNew) * Math.abs(Math.cos(angleR));
+            }
+            else if (angle <= 270) {
+                P.top = parseFloat(P.top) + (P.width - widthNew) * Math.abs(Math.sin(angleR));
+                P.left = parseFloat(P.left) + (P.width - widthNew) * Math.abs(Math.cos(angleR));
+            }
+            else {
+                P.top = parseFloat(P.top) + (P.width - widthNew) * Math.abs(Math.sin(angleR));
+            }
+            P.width = widthNew.toFixed(2);
         }
         else if (domResize.resizeType.equals("T")) {
             heightNew = Util.getTriangleHeight(P.E3, P.E4, pDrag);
 
-            P.top = parseFloat(P.top) + (P.height - heightNew) * Math.cos(angleR);
+            if (angle <= 90) {
+                P.top = parseFloat(P.top) + (P.height - heightNew) * Math.abs(Math.cos(angleR));
+            }
+            else if (angle <= 180) {
+                // -- do nothing --
+            }
+            else if (angle <= 270) {
+                P.left = parseFloat(P.left) + (P.height - heightNew) * Math.abs(Math.sin(angleR));
+            }
+            else {
+                P.top = parseFloat(P.top) + (P.height - heightNew) * Math.abs(Math.cos(angleR));
+                P.left = parseFloat(P.left) + (P.height - heightNew) * Math.abs(Math.sin(angleR));
+            }
             P.height = heightNew.toFixed(2);;
         }
         else if (domResize.resizeType.equals("B")) {
             heightNew = Util.getTriangleHeight(P.E1, P.E2, pDrag);
 
-            P.left = parseFloat(P.left) + (P.height - heightNew) * Math.sin(angleR);
+            if (angle <= 90) {
+                P.left = parseFloat(P.left) + (P.height - heightNew) * Math.abs(Math.sin(angleR));
+            }
+            else if (angle <= 180) {
+                P.left = parseFloat(P.left) + (P.height - heightNew) * Math.abs(Math.sin(angleR));
+                P.top = parseFloat(P.top) + (P.height - heightNew) * Math.abs(Math.cos(angleR));
+            }
+            else if (angle <= 270) {
+                P.top = parseFloat(P.top) + (P.height - heightNew) * Math.abs(Math.cos(angleR));
+            }
+            else {
+                // -- no nothing --
+            }
             P.height = heightNew.toFixed(2);;
         }
 
         UtilElement.computeProp({ element: element });
         UtilElement.draw({ element: element });
         _this.showResize();
-        return;
 
-        // -- 2. 根据旋转角度，重新计算元素宽高，使元素适应新的domCanvas边框范围 --
-        element.position.left = (domCanvas.offsetLeft / pxmm).toFixed(2);
-        element.position.top = (domCanvas.offsetTop / pxmm).toFixed(2);
+        if (false) {
+            // -- 2. 根据旋转角度，重新计算元素宽高，使元素适应新的domCanvas边框范围 --
+            element.position.left = (domCanvas.offsetLeft / pxmm).toFixed(2);
+            element.position.top = (domCanvas.offsetTop / pxmm).toFixed(2);
 
-        element.position.width = (domCanvas.offsetWidth / pxmm).toFixed(2);
-        element.position.height = (domCanvas.offsetHeight / pxmm).toFixed(2);
+            element.position.width = (domCanvas.offsetWidth / pxmm).toFixed(2);
+            element.position.height = (domCanvas.offsetHeight / pxmm).toFixed(2);
 
-        width = domCanvas.offsetWidth / pxmm;
-        height = domCanvas.offsetHeight / pxmm;
-        element.position.width = (width * Math.abs(Math.cos(angleR)) + height * Math.sin(angleR)).toFixed(2);
-        element.position.height = (height * Math.abs(Math.cos(angleR)) + width * Math.sin(angleR)).toFixed(2);
+            width = domCanvas.offsetWidth / pxmm;
+            height = domCanvas.offsetHeight / pxmm;
+            element.position.width = (width * Math.abs(Math.cos(angleR)) + height * Math.sin(angleR)).toFixed(2);
+            element.position.height = (height * Math.abs(Math.cos(angleR)) + width * Math.sin(angleR)).toFixed(2);
 
-        // -- 9. 实时重绘 -------------------------------------
-        if (element.head.elementType.equals("image")) {
-            // -- 通过重置canvas宽度，让图像消失，避免拖动过程中抖动 --
-            domCanvas.width = (element.position.width * pxmm).toFixed(2);
-        }
-        else {
-            // -- 非图像元素抖动不明显，可以实时重绘，提升用户体验 --
-            UtilElement.computeProp({ element: element });
-            UtilElement.draw({ element: element });
+            // -- 9. 实时重绘 -------------------------------------
+            if (element.head.elementType.equals("image")) {
+                // -- 通过重置canvas宽度，让图像消失，避免拖动过程中抖动 --
+                domCanvas.width = (element.position.width * pxmm).toFixed(2);
+            }
+            else {
+                // -- 非图像元素抖动不明显，可以实时重绘，提升用户体验 --
+                UtilElement.computeProp({ element: element });
+                UtilElement.draw({ element: element });
+            }
         }
     }
     onResizeDragEnd(evt) {
@@ -704,6 +753,7 @@
         UtilElement.computeProp({ element: element });
         UtilElement.draw({ element: element });
 
+        _this.showResize();
         return angle;
     }
 
