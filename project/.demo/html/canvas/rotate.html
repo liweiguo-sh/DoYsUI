@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas旋转</title>
+
+    <style type="text/css">
+        #divButton input {
+            min-width: 100px;
+            height: 36px;
+            line-height: 36px;
+            font-family: 'Microsoft YaHei';
+        }
+
+        .canvas1 {
+            background-color: burlywood;
+            transform: rotate(15deg); /* Equal to rotateZ(45deg) */
+        }
+
+            .canvas1:hover {
+                background-color: aqua;
+            }
+
+        .div1 {
+            width: 20px;
+            height: 250px;
+            background-color: burlywood;
+            transform: rotate(15deg); /* Equal to rotateZ(45deg) */
+        }
+
+            .div1:hover {
+                background-color: aqua;
+                cursor: ew-resize;
+            }
+    </style>
+</head>
+<body>
+    <div id="divButton">
+        <input type="button" value="测试一" onclick="test1_click();" />
+        <input type="button" value="测试二" onclick="test2_click();" />
+    </div>
+    <hr />
+    <div style="margin-left:100px;background-color:#d0d0d0">
+        <div id="div1" class="div1">div1</div>
+        <canvas id="cvs" class="canvas1" width="600" height="400"></canvas>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var cvs = window.document.getElementById("cvs");
+    var ctx = cvs.getContext("2d");
+    function winLoad() {
+        test1_click();
+    }
+</script>
+
+<!-- appInit -->
+<script>
+    function test1_click() {
+        ctx.font = "30px Times new Roman";
+        ctx.fillStyle = "red"
+        ctx.fillText("1234567890", 100, 100);
+
+        ctx.fillStyle = "green"
+        ctx.fillRect(0, 0, 100, 100);
+    }
+
+    var div1 = window.document.getElementById("div1");
+    function test2_click() {
+        div1.style.transform = "rotate(-15deg)";
+    }
+</script>

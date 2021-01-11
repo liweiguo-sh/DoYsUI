@@ -9,6 +9,7 @@
 
         // -- 2. label container --
         this.container = jsp.container;                             // -- 标签容器 --
+        this.container._this = this;
         this.parentContainer = this.container.parentElement;        // -- 标签容器的父对象 --
         this.parentContainer.ondblclick = function (evt) {
             let prop = {
@@ -34,7 +35,6 @@
         this.container.ondragover = function (evt) {
             evt.preventDefault();
         }
-        this.container._this = this;
         this.container.onclick = function (evt) {
             let _domContainer = evt.srcElement;
             let _this = _domContainer._this;
@@ -51,6 +51,22 @@
         this.dragOffsetY = 0;
         this.divHoverT = null; this.divHoverR = null; this.divHoverB = null; this.divHoverL = null;     // -- element hover border --
         this.divT = null; this.divR = null; this.divB = null; this.divT = null;                         // -- element resize border --
+    }
+    initConstructor() {
+        let X = 0, Y = 0;
+
+        X = this.container.offsetLeft;                              // -- 容器偏移量 --
+        X += this.container.clientLeft;                             // -- 容器边框宽度 --
+        X -= g.x.getStyleValue(this.container, "marginLeft");       // -- 容器margin --
+        X += g.x.getStyleValue(this.container, "paddingLeft");      // -- 容器padding --
+
+        Y = this.container.offsetTop;                               // -- 容器偏移量 --
+        Y += this.container.clientTop;                              // -- 容器边框宽度 --
+        Y -= g.x.getStyleValue(this.container, "marginTop");        // -- 容器padding --
+        Y += g.x.getStyleValue(this.container, "paddingTop");       // -- 容器padding --
+
+        this.containerLeft = X;
+        this.containerTop = Y;
     }
     // -- label methods -------------------------------------------------------
     loadLabel(labelString, jsp = {}) {
@@ -70,9 +86,10 @@
         else {
             this.label = JSON.parse(labelString);
         }
-        if (jsp.fields) this.label.fields = jsp.fields;
+        if (jsp.fields) this.label.fields = g.x.extendJSON(this.label.fields, jsp.fields);
         if (jsp.width) this.label.head.width = jsp.width;
         if (jsp.height) this.label.head.height = jsp.height;
+        if (jsp.point) this.label.head.point = jsp.point;
         this.labelId = jsp.labelId || "";
         this.head = this.label.head;
         this.fields = this.label.fields;
@@ -96,12 +113,20 @@
 
         this.container.style.width = this.width + "px";
         this.container.style.height = this.height + "px";
+        this.initConstructor();
+        this.container.onmousemove = function (evt) {
+            let _this = evt.srcElement._this;
+            if (_this && _this.hoveredElement) {
+                _this.hideHover();
+            }
+        }
 
         // -- 4. 加载标签元素 --
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
             element.env = this.env;
+            element.point = this.head.point;
             element.imageBaseUrl = this.imageBaseUrl;
 
             this.createElement(element);
@@ -229,12 +254,14 @@
                 _this.activeElement(_dom._element);
 
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
-                _this.ondragstart(evt, _this.container);
+                _this.ondragstart(evt);
             };
             cvsElement.ondrag = _this.onCanvasDrag;
 
-            cvsElement.onmouseenter = this.showHover;
-            cvsElement.onmouseleave = function (evt) {
+            cvsElement.onmousemove = this.cvsElementOnMousemove;
+
+            cvsElement.onmouseenter1 = this.showHover;
+            cvsElement.onmouseleave1 = function (evt) {
                 let _dom = evt.srcElement;
                 let _this = _dom._this;
 
@@ -256,22 +283,16 @@
     }
 
     // -- element event: drag -------------------------------------------------
-    ondragstart(evt, domContainer) {
+    ondragstart(evt) {
         let domDrag = evt.srcElement;
         let dragOffsetX = 0, dragOffsetY = 0;
 
-        dragOffsetX = domContainer.offsetLeft;                              // -- 容器偏移量 --
-        dragOffsetX += domContainer.clientLeft;                             // -- 容器边框宽度 --
-        dragOffsetX -= g.x.getStyleValue(domContainer, "marginLeft");       // -- 容器margin --
-        dragOffsetX += g.x.getStyleValue(domContainer, "paddingLeft");      // -- 容器padding --
+        dragOffsetX = this.containerLeft;                                   // -- 容器偏移量、边框、margin、padding --
         dragOffsetX += g.x.getStyleValue(domDrag, "marginLeft");            // -- 拖动对象margin --
         dragOffsetX += domDrag.clientLeft;                                  // -- 拖动对象边框宽度 --
         dragOffsetX += evt.offsetX;                                         // -- 拖动对象偏移量(鼠标坐标相对于拖动对象) --
 
-        dragOffsetY = domContainer.offsetTop;                               // -- 容器偏移量 --
-        dragOffsetY += domContainer.clientTop;                              // -- 容器边框宽度 --
-        dragOffsetY -= g.x.getStyleValue(domContainer, "marginTop");        // -- 容器padding --
-        dragOffsetY += g.x.getStyleValue(domContainer, "paddingTop");       // -- 容器padding --
+        dragOffsetY = this.containerTop;                                    // -- 容器偏移量、边框、margin、padding --
         dragOffsetY += g.x.getStyleValue(domDrag, "marginTop");             // -- 拖动对象margin --
         dragOffsetY += domDrag.clientTop;                                   // -- 拖动对象边框宽度 --
         dragOffsetY += evt.offsetY;                                         // -- 拖动对象偏移量(鼠标坐标相对于拖动对象) --
@@ -301,6 +322,26 @@
         }
     }
 
+    cvsElementOnMousemove = function (evt) {
+        if (evt.buttons > 0) return;
+
+        let _dom = evt.srcElement;
+        let _this = _dom._this;
+        let element = _dom._element;
+        let position = element.position;
+
+        let points = [position.E1, position.E2, position.E3, position.E4];
+        let blIn = Util.inPolygon(evt.layerX / _this.pxmm, evt.layerY / _this.pxmm, points);
+        if (blIn) {
+            _this.showHover(evt);
+        }
+        else {
+            _this.hideHover();
+        }
+
+        evt.stopPropagation();
+        return false;
+    }
     // -- element event: click and hover --------------------------------------
     onElementClick(evt) {
         let _dom = evt.srcElement;
@@ -359,96 +400,106 @@
     }
 
     showHover(evt) {
-        let _dom = evt.srcElement;
-        let _this = _dom._this;
-        let element = _dom._element;
+        let domC = evt.srcElement;      // -- domCanvas --
+        let _this = domC._this;
+        let element = domC._element;
+        let P = element.position;
+        let angle = P.angle, angleR = P.angleR;
 
+        let divL = _this.divHoverL, divR = _this.divHoverR, divT = _this.divHoverT, divB = _this.divHoverB;
         // ------------------------------------------------
         if (element.head.locked) return;
-
         if (_this.activatedElement) {
-            if (_this.activatedElement._canvas.id.equals(_dom.id)) {
+            if (_this.activatedElement._canvas.id.equals(domC.id)) {
                 return;
             }
         }
+        if (_this.hoveredElement) {
+            if (_this.hoveredElement._canvas.id.equals(domC.id)) {
+                return;
+            }
+        }
+        _this.hoveredElement = element;
+
         // ------------------------------------------------
-        if (!_this.divHoverT) {
-            _this.divHoverT = _this.doc.createElement("DIV");
-            _this.divHoverT.className = _this.prefix + "hoverTB";
-            _this.divHoverT.style.zIndex = _this.zIndexHover;
-            _this.container.appendChild(_this.divHoverT);
+        if (!divT) {
+            divT = _this.doc.createElement("DIV");
+            divT.className = _this.prefix + "hoverTB";
+            divT.style.zIndex = _this.zIndexHover;
+            _this.container.appendChild(divT);
 
-            _this.divHoverB = _this.doc.createElement("DIV");
-            _this.divHoverB.className = _this.prefix + "hoverTB";
-            _this.divHoverB.style.zIndex = _this.zIndexHover;
-            _this.container.appendChild(_this.divHoverB);
+            divB = _this.doc.createElement("DIV");
+            divB.className = _this.prefix + "hoverTB";
+            divB.style.zIndex = _this.zIndexHover;
+            _this.container.appendChild(divB);
 
-            _this.divHoverL = _this.doc.createElement("DIV");
-            _this.divHoverL.className = _this.prefix + "hoverLR";
-            _this.divHoverL.style.zIndex = _this.zIndexHover;
-            _this.container.appendChild(_this.divHoverL);
 
-            _this.divHoverR = _this.doc.createElement("DIV");
-            _this.divHoverR.className = _this.prefix + "hoverLR";
-            _this.divHoverR.style.zIndex = _this.zIndexHover;
-            _this.container.appendChild(_this.divHoverR);
+            divL = _this.doc.createElement("DIV");
+            divL.className = _this.prefix + "hoverLR";
+            divL.style.zIndex = _this.zIndexHover;
+            _this.container.appendChild(divL);
+
+            divR = _this.doc.createElement("DIV");
+            divR.className = _this.prefix + "hoverLR";
+            divR.style.zIndex = _this.zIndexHover;
+            _this.container.appendChild(divR);
+
+            _this.divHoverT = divT; _this.divHoverB = divB; _this.divHoverL = divL; _this.divHoverR = divR;
         }
         else {
-            _this.divHoverT.style.display = "";
-            _this.divHoverB.style.display = "";
-            _this.divHoverL.style.display = "";
-            _this.divHoverR.style.display = "";
+            divT.style.display = ""; divB.style.display = "";
+            divL.style.display = ""; divR.style.display = "";
         }
 
         // ------------------------------------------------
-        _this.divHoverT.style.top = (_dom.offsetTop - _this.divHoverT.offsetHeight) + "px";
-        _this.divHoverT.style.left = (_dom.offsetLeft) + "px";
-        _this.divHoverT.style.width = (_dom.offsetWidth) + "px";
+        divT.style.transform = "rotate(" + angle + "deg)"; divB.style.transform = "rotate(" + angle + "deg)";
+        divL.style.transform = "rotate(" + angle + "deg)"; divR.style.transform = "rotate(" + angle + "deg)";
 
-        _this.divHoverB.style.top = (_dom.offsetTop + _dom.offsetHeight) + "px";
-        _this.divHoverB.style.left = _this.divHoverT.style.left;
-        _this.divHoverB.style.width = _this.divHoverT.style.width;
+        divT.style.width = (P.width * _this.pxmm) + "px";
+        divT.style.left = (domC.offsetLeft + P.E15.x * _this.pxmm + divT.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
+        divT.style.top = (domC.offsetTop + P.E15.y * _this.pxmm - divT.offsetHeight / 2 * Math.cos(angleR) - divT.offsetHeight / 2) + "px";
 
-        _this.divHoverL.style.top = (_dom.offsetTop - _this.divHoverT.offsetHeight) + "px";
-        _this.divHoverL.style.left = (_dom.offsetLeft - _this.divHoverL.offsetWidth) + "px";
-        _this.divHoverL.style.height = (_dom.offsetHeight + 2 * _this.divHoverT.offsetHeight) + "px";
+        divB.style.width = divT.style.width;
+        divB.style.left = (domC.offsetLeft + P.E35.x * _this.pxmm - divB.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
+        divB.style.top = (domC.offsetTop + P.E35.y * _this.pxmm + divB.offsetHeight / 2 * Math.cos(angleR) - divB.offsetHeight / 2) + "px";
 
-        _this.divHoverR.style.left = (_dom.offsetLeft + _dom.offsetWidth) + "px";
-        _this.divHoverR.style.top = _this.divHoverL.style.top;
-        _this.divHoverR.style.height = _this.divHoverL.style.height;
+        divL.style.height = (P.height * _this.pxmm + 2 * divT.offsetHeight) + "px";
+        divL.style.left = (domC.offsetLeft + P.E45.x * _this.pxmm - divL.offsetWidth / 2 * Math.cos(angleR) - divL.offsetWidth / 2) + "px";
+        divL.style.top = (domC.offsetTop + P.E45.y * _this.pxmm - divL.offsetWidth / 2 * Math.sin(angleR) - divL.offsetHeight / 2) + "px";
+
+        divR.style.height = divL.style.height;
+        divR.style.left = (domC.offsetLeft + P.E25.x * _this.pxmm + divR.offsetWidth / 2 * Math.cos(angleR) - divR.offsetWidth / 2) + "px";
+        divR.style.top = (domC.offsetTop + P.E25.y * _this.pxmm + divR.offsetWidth / 2 * Math.sin(angleR) - divR.offsetHeight / 2) + "px";
     }
     hideHover() {
         let _this = this;
-        if (_this.divHoverT) {
+        if (_this.hoveredElement) {
             _this.divHoverT.style.display = "none";
             _this.divHoverB.style.display = "none";
             _this.divHoverL.style.display = "none";
             _this.divHoverR.style.display = "none";
+
+            _this.hoveredElement = null;
         }
     }
 
     // -- element event: resize -----------------------------------------------
     showResize() {
         let _this = this;
-        let domCanvas, divT, divB, divL, divR;
+        let domC = _this.activatedElement._canvas;
+
+        let divT, divB, divL, divR;
+        let P = _this.activatedElement.position;
+        let angle = P.angle, angleR = P.angleR;
         // ------------------------------------------------
-        if (_this.activatedElement) {
-            if (_this.activatedElement.head.locked) {
-                this.hideResize();
-                return;
-            }
-            domCanvas = _this.activatedElement._canvas;
+        if (_this.divT) {
+            divT = _this.divT; divB = _this.divB;
+            divL = _this.divL; divR = _this.divR;
+
+            divT.style.display = ""; divB.style.display = "";
+            divL.style.display = ""; divR.style.display = "";
         }
         else {
-            if (_this.divT) {
-                _this.divT.style.display = "none";
-                _this.divB.style.display = "none";
-                _this.divL.style.display = "none";
-                _this.divR.style.display = "none";
-            }
-        }
-        // ------------------------------------------------
-        if (!_this.divT) {
             divT = _this.doc.createElement("DIV");
             divT.resizeType = "T";
             divT.className = _this.prefix + "resizeTB";
@@ -456,7 +507,7 @@
             divT.draggable = true;
             divT.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;
-                _this.ondragstart(evt, _this.container);
+                _this.ondragstart(evt);
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
             };
             divT.ondrag = _this.onResizeDrag;
@@ -472,7 +523,7 @@
             divB.draggable = true;
             divB.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;
-                _this.ondragstart(evt, _this.container);
+                _this.ondragstart(evt);
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
             };
             divB.ondrag = _this.onResizeDrag;
@@ -488,7 +539,7 @@
             divR.draggable = true;
             divR.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;
-                _this.ondragstart(evt, _this.container);
+                _this.ondragstart(evt);
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
             };
             divR.ondrag = _this.onResizeDrag;
@@ -504,7 +555,7 @@
             divL.draggable = true;
             divL.ondragstart = function (evt) {
                 let _this = evt.srcElement._this;
-                _this.ondragstart(evt, _this.container);
+                _this.ondragstart(evt);
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
             };
             divL.ondrag = _this.onResizeDrag;
@@ -513,32 +564,41 @@
             _this.container.appendChild(divL);
             _this.divL = divL;
         }
-        else {
-            divT = _this.divT;
-            divB = _this.divB;
-            divL = _this.divL;
-            divR = _this.divR;
-        }
+
         // ------------------------------------------------
-        divT.style.display = "";
-        divT.style.top = (domCanvas.offsetTop - divT.offsetHeight) + "px";
-        divT.style.left = (domCanvas.offsetLeft) + "px";
-        divT.style.width = (domCanvas.offsetWidth) + "px";
+        divT.style.transform = "rotate(" + angle + "deg)"; divB.style.transform = "rotate(" + angle + "deg)";
+        divL.style.transform = "rotate(" + angle + "deg)"; divR.style.transform = "rotate(" + angle + "deg)";
+        if ((angle > 22.5 && angle <= 67.5) || (angle > 202.5 && angle <= 247.5)) {
+            divT.style.cursor = "ne-resize"; divL.style.cursor = "se-resize";
+        }
+        else if ((angle > 67.5 && angle <= 112.5) || (angle > 247.5 && angle <= 292.5)) {
+            divT.style.cursor = "ew-resize"; divL.style.cursor = "ns-resize";
+        }
+        else if ((angle > 112.5 && angle <= 157.5) || (angle > 292.5 && angle <= 337.5)) {
+            divT.style.cursor = "se-resize"; divL.style.cursor = "ne-resize";
+        }
+        else if ((angle > 157.5 && angle <= 202.5) || angle > 337.5 || angle <= 22.5) {
+            divT.style.cursor = "ns-resize"; divL.style.cursor = "ew-resize";
+        }
+        divB.style.cursor = divT.style.cursor; divR.style.cursor = divL.style.cursor;
 
-        divB.style.display = "";
-        divB.style.top = (domCanvas.offsetTop + domCanvas.offsetHeight) + "px";
-        divB.style.left = divT.style.left;
+
+        // ------------------------------------------------
+        divT.style.width = (P.width * _this.pxmm) + "px";
+        divT.style.left = (domC.offsetLeft + P.E15.x * _this.pxmm + divT.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
+        divT.style.top = (domC.offsetTop + P.E15.y * _this.pxmm - divT.offsetHeight / 2 * Math.cos(angleR) - divT.offsetHeight / 2) + "px";
+
         divB.style.width = divT.style.width;
+        divB.style.left = (domC.offsetLeft + P.E35.x * _this.pxmm - divB.offsetHeight / 2 * Math.sin(angleR) - P.width / 2 * _this.pxmm) + "px";
+        divB.style.top = (domC.offsetTop + P.E35.y * _this.pxmm + divB.offsetHeight / 2 * Math.cos(angleR) - divB.offsetHeight / 2) + "px";
 
-        divL.style.display = "";
-        divL.style.top = (domCanvas.offsetTop - divT.offsetHeight) + "px";
-        divL.style.left = (domCanvas.offsetLeft - divL.offsetWidth) + "px";
-        divL.style.height = (domCanvas.offsetHeight + 2 * divT.offsetHeight) + "px";
+        divL.style.height = (P.height * _this.pxmm + 2 * divT.offsetHeight) + "px";
+        divL.style.left = (domC.offsetLeft + P.E45.x * _this.pxmm - divL.offsetWidth / 2 * Math.cos(angleR) - divL.offsetWidth / 2) + "px";
+        divL.style.top = (domC.offsetTop + P.E45.y * _this.pxmm - divL.offsetWidth / 2 * Math.sin(angleR) - divL.offsetHeight / 2) + "px";
 
-        divR.style.display = "";
-        divR.style.left = (domCanvas.offsetLeft + domCanvas.offsetWidth) + "px";
-        divR.style.top = divL.style.top;
         divR.style.height = divL.style.height;
+        divR.style.left = (domC.offsetLeft + P.E25.x * _this.pxmm + divR.offsetWidth / 2 * Math.cos(angleR) - divR.offsetWidth / 2) + "px";
+        divR.style.top = (domC.offsetTop + P.E25.y * _this.pxmm + divR.offsetWidth / 2 * Math.sin(angleR) - divR.offsetHeight / 2) + "px";
     }
     hideResize() {
         let _this = this;
@@ -551,67 +611,71 @@
         }
     }
     onResizeDrag(evt) {
-        let domResize = evt.srcElement;
-        let _this = domResize._this;
+        let _this = evt.srcElement._this;
         let pxmm = _this.pxmm;
+        let domResize = evt.srcElement;
         let element = _this.activatedElement;
+        let P = element.position;
         let domCanvas = element._canvas;
-        let width, height;
+        let width, height, widthNew, heightNew;
+        let angleR = P.angleR;
 
-        if (domResize.resizeType.equals("L") || domResize.resizeType.equals("R")) {
-            domResize.style.left = (evt.clientX - _this.dragOffsetX) + "px";
-            if (domResize.offsetLeft - domResize.offsetWidth < 0) domResize.style.left = -domResize.offsetWidth + "px";
-            width = _this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth;
-
-            if (domResize.resizeType.equals("L")) {
-                if (width < _this.minElementWidth) _this.divL.style.left = (_this.divR.offsetLeft - _this.divL.offsetWidth - _this.minElementWidth) + "px";
-                domResize.style.top = _this.divR.offsetTop + "px";
-            }
-            else {
-                if (width < _this.minElementWidth) _this.divR.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth + _this.minElementWidth) + "px";
-                domResize.style.top = _this.divL.offsetTop + "px";
-            }
-
-            domCanvas.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
-            domCanvas.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
-            domCanvas._element.position.left = (domCanvas.offsetLeft / pxmm).toFixed(2);
-            domCanvas._element.position.width = (domCanvas.offsetWidth / pxmm).toFixed(2);
-
-            _this.divT.style.left = (_this.divL.offsetLeft + _this.divL.offsetWidth) + "px";
-            _this.divT.style.width = (_this.divR.offsetLeft - _this.divL.offsetLeft - _this.divL.offsetWidth) + "px";
-
-            _this.divB.style.left = _this.divT.offsetLeft + "px";
-            _this.divB.style.width = _this.divT.offsetWidth + "px";
-        }
-        else {
-            domResize.style.top = (evt.clientY - _this.dragOffsetY) + "px";
-            if (domResize.offsetTop - domResize.offsetHeight < 0) domResize.style.top = - domResize.offsetHeight + "px";
-            height = _this.divB.offsetTop - _this.divT.offsetTop - _this.divT.offsetHeight;
-            if (domResize.resizeType.equals("T")) {
-                if (height < _this.minElementHeight) _this.divT.style.top = (_this.divB.offsetTop - _this.divT.offsetHeight - _this.minElementHeight) + "px";
-                domResize.style.left = _this.divB.offsetLeft + "px";
-            }
-            else {
-                if (height < _this.minElementHeight) _this.divB.style.top = (_this.divT.offsetTop + _this.divT.offsetHeight + _this.minElementHeight) + "px";
-                domResize.style.left = _this.divT.offsetLeft + "px";
-            }
-
-            domCanvas.style.top = (_this.divT.offsetTop + _this.divT.offsetHeight) + "px";
-            domCanvas.style.height = (_this.divB.offsetTop - _this.divT.offsetTop - _this.divT.offsetHeight) + "px";
-            domCanvas._element.position.top = (domCanvas.offsetTop / pxmm).toFixed(2);
-            domCanvas._element.position.height = (domCanvas.offsetHeight / pxmm).toFixed(2);
-
-            _this.divL.style.top = _this.divT.offsetTop + "px";
-            _this.divL.style.height = (_this.divB.offsetTop - _this.divT.offsetTop + _this.divB.offsetHeight) + "px";
-
-            _this.divR.style.top = _this.divL.offsetTop + "px";
-            _this.divR.style.height = _this.divL.offsetHeight + "px";
+        // -- 1. 计算domCanvas的位置及宽高 -------------------
+        let pDrag = {
+            x: (evt.clientX - _this.containerLeft) / pxmm - P.left,
+            y: (evt.clientY - _this.containerTop) / pxmm - P.top
         }
 
+        if (domResize.resizeType.equals("L")) {
+            widthNew = Util.getTriangleHeight(P.E2, P.E3, pDrag);
+
+            P.top = parseFloat(P.top) + (P.width - widthNew) * Math.sin(angleR);
+            P.left = parseFloat(P.left) + (P.width - widthNew) * Math.cos(angleR);
+            P.width = widthNew.toFixed(2);
+        }
+        else if (domResize.resizeType.equals("R")) {
+            widthNew = Util.getTriangleHeight(P.E1, P.E4, pDrag);
+
+
+            P.width = widthNew.toFixed(2);;
+        }
+        else if (domResize.resizeType.equals("T")) {
+            heightNew = Util.getTriangleHeight(P.E3, P.E4, pDrag);
+
+            P.top = parseFloat(P.top) + (P.height - heightNew) * Math.cos(angleR);
+            P.height = heightNew.toFixed(2);;
+        }
+        else if (domResize.resizeType.equals("B")) {
+            heightNew = Util.getTriangleHeight(P.E1, P.E2, pDrag);
+
+            P.left = parseFloat(P.left) + (P.height - heightNew) * Math.sin(angleR);
+            P.height = heightNew.toFixed(2);;
+        }
+
+        UtilElement.computeProp({ element: element });
+        UtilElement.draw({ element: element });
+        _this.showResize();
+        return;
+
+        // -- 2. 根据旋转角度，重新计算元素宽高，使元素适应新的domCanvas边框范围 --
+        element.position.left = (domCanvas.offsetLeft / pxmm).toFixed(2);
+        element.position.top = (domCanvas.offsetTop / pxmm).toFixed(2);
+
+        element.position.width = (domCanvas.offsetWidth / pxmm).toFixed(2);
+        element.position.height = (domCanvas.offsetHeight / pxmm).toFixed(2);
+
+        width = domCanvas.offsetWidth / pxmm;
+        height = domCanvas.offsetHeight / pxmm;
+        element.position.width = (width * Math.abs(Math.cos(angleR)) + height * Math.sin(angleR)).toFixed(2);
+        element.position.height = (height * Math.abs(Math.cos(angleR)) + width * Math.sin(angleR)).toFixed(2);
+
+        // -- 9. 实时重绘 -------------------------------------
         if (element.head.elementType.equals("image")) {
+            // -- 通过重置canvas宽度，让图像消失，避免拖动过程中抖动 --
             domCanvas.width = (element.position.width * pxmm).toFixed(2);
         }
         else {
+            // -- 非图像元素抖动不明显，可以实时重绘，提升用户体验 --
             UtilElement.computeProp({ element: element });
             UtilElement.draw({ element: element });
         }
@@ -623,6 +687,25 @@
 
         UtilElement.computeProp({ element: element });
         UtilElement.draw({ element: element });
+    }
+
+    // -- properties change ---------------------------------------------------
+    setAngle(angle) {
+        if (!this.activatedElement) return;
+
+        let _this = this;
+        let element = _this.activatedElement;
+
+        if (Math.abs(angle) > 360) {
+            angle = (Math.abs(angle) % 360) * (angle < 0 ? -1 : 1);
+        }
+        if (angle < 0) angle = angle + 360;
+
+        element.position.angle = angle;
+        UtilElement.computeProp({ element: element });
+        UtilElement.draw({ element: element });
+
+        return angle;
     }
 
     // -- toJson, getData, setValue, etc. -------------------------------------

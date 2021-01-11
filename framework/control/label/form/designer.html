@@ -13,6 +13,21 @@
             min-width: 100px;
             margin-bottom: 10px;
         }
+
+        #tbProp {
+            border: 1px dashed red;
+            width: 100%;
+        }
+
+        .tdPropName {
+            border: 1px dashed green;
+            color: green;
+        }
+
+        .tdPropValue {
+            border: 1px dashed blue;
+            color: blue;
+        }
     </style>
 </head>
 <body>
@@ -31,10 +46,19 @@
         <input type="button" id="btnLoadLabel" onclick="btnLoadLabel_click();" value="加载标签" />
         <input type="button" id="btnLabel1" onclick="btnLabel1_click();" value="标签1" />
         <input type="button" id="btnLabel2" onclick="btnLabel2_click();" value="标签2" />
+        <span id="spanMessage">spanMessage</span>
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
-            <td id="tdMainLeft" class="tdMain">属性区</td>
+            <td id="tdMainLeft" class="tdMain" style="background-color:aquamarine;vertical-align:top">
+                <table id="tbProp" style="display:none">
+                    <tr>
+                        <td class="tdPropName">旋转角度</td>
+                        <td class="tdPropValue"><input id="txtPropAngle" value="0" onblur="onAngleBlur();" onkeydown="onAngleKeydown(event);" /></td>
+                    </tr>
+
+                </table>
+            </td>
             <td id="tdCanvas" class="tdMain" style="padding:15px;">
                 <div id="divCanvas" class="doys_label_continer"></div>
             </td>
@@ -72,7 +96,8 @@
             imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
             fields: win.para.fields || null,
             width: win.para.width || null,
-            height: win.para.height || null
+            height: win.para.height || null,
+            point: win.para.point || 600
         });
         lbl.compute(true);
     }
@@ -165,6 +190,23 @@
     }
 </script>
 
+<!-- 属性区 -->
+<script>
+    function onAngleKeydown(evt) {
+        if (evt.key.equals("Enter")) {
+            onAngleBlur();
+        }
+    }
+    function onAngleBlur() {
+        let txt = gId("txtPropAngle");
+        let angle = txt.value.toInt();
+
+        txt.value = lbl.setAngle(angle);
+        //txt.select();
+        //txt.focus();
+    }
+</script>
+
 <!-- debug and test -->
 <script>
     function btnDebug_click() {
@@ -194,7 +236,7 @@
         labelContent = getLabel1();
         lbl.loadLabel(labelContent);
 
-        lbl.setValue("单价", "$111.11");
+        lbl.setValue("单价", "大熊猫面馆,大熊猫面馆");
         lbl.compute(true);
     }
     function btnLabel2_click() {
@@ -215,7 +257,7 @@
     "imageBaseUrl": "http://127.0.0.1/DoYsUI/framework/control/label/image/"
   },
   "fields": {
-    "单价": "123.45",
+    "单价": "大熊猫面馆",
     "图片01": "01.png",
     "图片02": "02.png",
     "Img_user": "http://www.masocloud.com/DoYsUI/project/aprint/image/main/user.png",
@@ -243,24 +285,25 @@
       ],
       "font": {
         "lineHeight": 0,
-        "size": "12",
+        "size": "6",
         "bold": true,
-        "name": "Arial",
+        "name": "微软雅黑",
         "wordWrap": false
       },
       "frame": {
-        "type": "rectangle",
-        "width": 0.2,
+        "type": "",
+        "width": 0.1,
         "color": "#F0F253"
       },
       "position": {
         "layer": 1,
-        "top": "1.85",
-        "left": "4.69",
-        "width": 20,
-        "height": 10,
-        "textAlign": "center",
-        "verticalAlign": "middle",
+        "angle": 30,
+        "top": 5,
+        "left": 10,
+        "width": 25,
+        "height": 20,
+        "textAlign": "left",
+        "verticalAlign": "top",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
@@ -335,5 +378,10 @@
   ]
 }
         `;
+    }
+
+    var spanMessage = gId("spanMessage");
+    function showInfo(message) {
+        spanMessage.innerHTML = (new Date()).toTimeString("ss:ms") + "  " + message;
     }
 </script>

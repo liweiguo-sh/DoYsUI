@@ -29,7 +29,7 @@ UtilElement.computeProp = function (jsp) {
     let position = element.position;
 
     let w, h, x, y;
-    // -- 补全默认值 -------------------------------------------
+    // -- 补全默认值 ----------------------------------------
     font = element.font || {};
     font.lineHeight = parseFloat(font.lineHeight || 0);
     font.size = font.size || 12;
@@ -37,6 +37,8 @@ UtilElement.computeProp = function (jsp) {
     frame.type = element.frame.type || "";
     frame.width = parseFloat(frame.width || 0);
 
+    position.angle = position.angle || 0;
+    position.angleR = position.angle * Math.PI / 180;
     position.textAlign = position.textAlign || "left";
     position.verticalAlign = position.verticalAlign || "top";
 
@@ -45,6 +47,7 @@ UtilElement.computeProp = function (jsp) {
     position.marginTop = parseFloat(position.marginTop || 0);
     position.marginBottom = parseFloat(position.marginBottom || 0);
 
+    UtilElement.computePropAngle(element);
     // ----------------------------------------------------
     if (head.elementType.equals("text")) {
         font._fontDraw = UtilElement._getContextFont(font, pxmm);
@@ -143,6 +146,58 @@ UtilElement.computeProp = function (jsp) {
         }
     }
 }
+UtilElement.computePropAngle = function (element) {
+    let position = element.position;
+    let angle = position.angle, angleR = position.angleR;
+    let wE = position.width, hE = position.height;          // -- heightElement, widthElement --
+
+    // -- 1. 计算canvas(dom对象)的宽高 --
+    position.wC = hE * Math.abs(Math.sin(angleR)) + wE * Math.abs(Math.cos(angleR));
+    position.hC = hE * Math.abs(Math.cos(angleR)) + wE * Math.abs(Math.sin(angleR));
+
+    // -- 2. 计算offsetX、offsetY --
+    position.E1 = {}; position.E15 = {};
+    position.E2 = {}; position.E25 = {};
+    position.E3 = {}; position.E35 = {};
+    position.E4 = {}; position.E45 = {};
+
+    if (angle <= 90) {
+        position.offsetX = hE * Math.sin(angleR);
+        position.offsetY = 0;
+
+        position.E1.x = hE * Math.sin(angleR);
+        position.E1.y = 0;
+        position.E2.x = hE * Math.sin(angleR) + wE * Math.cos(angleR);
+        position.E2.y = wE * Math.sin(angleR);
+
+        position.E3.x = wE * Math.cos(angleR);
+        position.E3.y = hE * Math.cos(angleR) + wE * Math.sin(angleR);
+        position.E4.x = 0;
+        position.E4.y = hE * Math.cos(angleR);
+
+        position.E15.x = position.E1.x + wE * Math.cos(angleR) / 2;
+        position.E15.y = position.E1.y + wE * Math.sin(angleR) / 2;
+        position.E25.x = position.E2.x - hE * Math.sin(angleR) / 2;
+        position.E25.y = position.E2.y + hE * Math.cos(angleR) / 2;
+
+        position.E35.x = position.E3.x - wE * Math.cos(angleR) / 2;
+        position.E35.y = position.E3.y - wE * Math.sin(angleR) / 2;
+        position.E45.x = position.E4.x + hE * Math.sin(angleR) / 2;
+        position.E45.y = position.E4.y - hE * Math.cos(angleR) / 2;
+    }
+    else if (angle <= 180) {
+        position.offsetX = hE * Math.sin(angleR) + wE * Math.abs(Math.cos(angleR));
+        position.offsetY = hE * Math.abs(Math.cos(angleR));
+    }
+    else if (angle <= 270) {
+        position.offsetX = wE * Math.abs(Math.cos(angleR));
+        position.offsetY = wE * Math.abs(Math.sin(angleR)) + hE * Math.abs(Math.cos(angleR));
+    }
+    else {
+        position.offsetX = 0;
+        position.offsetY = -wE * Math.sin(angle * Math.PI / 180);
+    }
+}
 UtilElement.computeValue = function (jsp) {
     let element = jsp.element;
     let fields = jsp.fields;
@@ -215,32 +270,45 @@ UtilElement.draw = function (jsp) {
     let head = element.head;
     let position = element.position;
     let domCanvas = element._canvas;
+    let context = domCanvas.getContext("2d");
 
     //if (element.position.hidden) return;
-    // -- position ----------------------------------------    
+    // -- position ----------------------------------------
     domCanvas.style.zIndex = position.layer;
     domCanvas.style.top = (position.top * pxmm) + "px";
     domCanvas.style.left = (position.left * pxmm) + "px";
-    domCanvas.width = (position.width * pxmm);
-    domCanvas.height = (position.height * pxmm);
+    domCanvas.width = position.wC * pxmm;
+    domCanvas.height = position.hC * pxmm;
 
-    // -- repaint -----------------------------------------    
+    // -- repaint -----------------------------------------
+    context.translate(position.offsetX * pxmm, position.offsetY * pxmm);
+    context.rotate(position.angleR);
+
     if (element.frame.type) {
-        UtilElement.drawFrame(domCanvas, element);
+        UtilElement.drawFrame(context, element);
+    }
+    else {
+        if (position.angle % 90 != 0) {
+            // -- 没有边框，又存在旋转角度，设计状态下绘制虚拟边框，预览及打印时不绘制 --
+            context.strokeStyle = "#FF00FB";
+            context.lineWidth = 1;
+            context.setLineDash([12, 9]);
+            context.strokeRect(-1, -1, position.width * pxmm + 2, position.height * pxmm + 2);
+        }
     }
 
     if (head.elementType.equals("text")) {
-        UtilElement.draw_text(domCanvas, element);
+        UtilElement.draw_text(context, element);
     }
     else if (head.elementType.equals("image")) {
-        UtilElement.draw_image(domCanvas, element);
+        UtilElement.draw_image(context, element);
     }
     else if (head.elementType.equals("barcode")) {
         if (UtilElement.Is1D(head.barcodeType)) {
-            UtilElement.draw_barcode1D(domCanvas, element);
+            UtilElement.draw_barcode1D(context, element);
         }
         else {
-            UtilElement.draw_barcode2D(domCanvas, element);
+            UtilElement.draw_barcode2D(context, element);
         }
     }
 }
@@ -303,10 +371,9 @@ UtilElement.reduce = function (jsp) {
 }
 
 // -- draw frame --------------------------------------------------------------
-UtilElement.drawFrame = function (domCanvas, element) {
+UtilElement.drawFrame = function (context, element) {
     let _this = element._this;
     let pxmm = _this.pxmm;
-    let context = domCanvas.getContext("2d");
     let frame = element.frame;
     let width = element.position.width;
     let height = element.position.height;
@@ -338,9 +405,7 @@ UtilElement.drawFrame = function (domCanvas, element) {
 }
 
 // -- draw text ---------------------------------------------------------------
-UtilElement.draw_text = function (domCanvas, element) {
-    let context = domCanvas.getContext("2d");
-
+UtilElement.draw_text = function (context, element) {
     if (element.font.wordWrap) {
         UtilElement._drawMultiLine(context, element);
     }
@@ -351,6 +416,7 @@ UtilElement.draw_text = function (domCanvas, element) {
 
 UtilElement._drawSingleLine = function (context, element) {
     let pxmm = element._this.pxmm;
+    let position = element.position;
 
     context.font = element.font._fontDraw;
     context.fillStyle = element.font._fillStyleDraw;
@@ -359,6 +425,7 @@ UtilElement._drawSingleLine = function (context, element) {
 
     let xxx = 4;    // -- 补4个像素，解决中文削顶问题，C#中没有这个问题 --
     let text = element.head._sectionsText || (element.env.equals("design") ? "<空>" : "");
+
     context.fillText(text, element.position._leftDraw * pxmm, element.position._topDraw * pxmm + xxx);
 }
 UtilElement._drawMultiLine = function (context, element) {
@@ -472,12 +539,11 @@ UtilElement._getContextLineHeight = function (font) {
 }
 
 // -- draw image --------------------------------------------------------------
-UtilElement.draw_image = function (domCanvas, element) {
+UtilElement.draw_image = function (context, element) {
     let pxmm = element._this.pxmm;
 
     let width = element.position.width * pxmm, widthImg;
     let height = element.position.height * pxmm, heightImg;
-    let context = domCanvas.getContext("2d");
     let deformation = element.image.deformation || "";
 
     let urlImg;
@@ -531,9 +597,7 @@ UtilElement.Is2D = function (barcodeType) {
     return false;
 }
 
-UtilElement.draw_barcode1D = async function (domCanvas, element) {
-    let context = domCanvas.getContext("2d");
-
+UtilElement.draw_barcode1D = async function (context, element) {
     // -- 1. 输出文本部分 --
     if (!element.head.pureBarcode) {
         UtilElement._drawSingleLine(context, element);
@@ -544,12 +608,15 @@ UtilElement.draw_barcode1D = async function (domCanvas, element) {
         env: element.env,
         barcodeType: element.head.barcodeType,
         barcodeValue: element.head._segmentsText,
+        width: element.position.width,
+        height: element.position.height,
+        point: element.point,
         gs1: element.head.gs1
     });
     if (!srcImg) return;
 
     // -- 3. 输出条码部分 --
-    let _this = element._this;    
+    let _this = element._this;
     let pxmm = _this.pxmm;
     let position = element.position;
     let x = position._barcodeLeft * pxmm;
@@ -572,9 +639,7 @@ UtilElement.draw_barcode1D = async function (domCanvas, element) {
         context.fillText("| ||    XXXXXXXX    || |", x, y);
     }
 }
-UtilElement.draw_barcode2D = async function (domCanvas, element) {
-    let context = domCanvas.getContext("2d");
-
+UtilElement.draw_barcode2D = async function (context, element) {
     // -- 1. 输出文本部分 --
     if (!element.head.pureBarcode) {
         UtilElement._drawSingleLine(context, element);
@@ -585,6 +650,9 @@ UtilElement.draw_barcode2D = async function (domCanvas, element) {
         env: element.env,
         barcodeType: element.head.barcodeType,
         barcodeValue: element.head._segmentsText,
+        width: element.position.width,
+        height: element.position.height,
+        point: element.point,
         gs1: element.head.gs1
     });
     if (!srcImg) return;
@@ -622,7 +690,7 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
         }
         else {
             // -- 1.2 非设计状态不显示条码占位图片 --
-            return "";                      
+            return "";
         }
     }
     else {
@@ -638,6 +706,9 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
         action: "getBarcodeBase64",
         barcodeType: jsp.barcodeType,
         barcodeValue: jsp.barcodeValue,
+        width: jsp.width,
+        height: jsp.height,
+        point: jsp.point,
         isGS1: jsp.gs1 ? true : false
     }
     let hashcode = JSON.getHashCode(para);

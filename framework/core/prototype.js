@@ -100,6 +100,9 @@ String.prototype.toDate = function () {
 };
 
 // -- Date --------------------------------------------------------------------
+Date.prototype.toDate = function () {
+    return this.toStr().toDate();
+}
 Date.prototype.toDateString = function (format = "yyyy-MM-dd") {
     return this.toString(format);
 };

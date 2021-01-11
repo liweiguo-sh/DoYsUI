@@ -10,8 +10,8 @@
             <el-col :span="8" style="padding-right:20px;">
                 <el-row>
                     <el-button @click="deleteTask" :disabled="!taskId">删除数据</el-button>
-                    <el-button @click="preview({restorePreviewWindow: 'restore'})" v-show="labelId">预览</el-button>
-                    <el-button @click="print" type="danger" :disabled="!taskId">打印</el-button>
+                    <el-button @click="preview({restorePreviewWindow: 'restore'})" :disabled="!labelId">预览</el-button>
+                    <el-button @click="print" type="danger" :disabled="!labelId">打印</el-button>
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
@@ -99,8 +99,13 @@
 
             labelId: null,
             actionUpload: "",
+            uploadFields: "",           // -- 当前导入的Excel列集合 --
+            dataPreview: null,          // -- 当前导入的数据集(仅预览部分) --
 
+            labelType: "",              // -- 标签类型(DLabel/MASO/BarTender/NiceLabel etc.) --
             taskId: null,
+            labelContent: "",           // -- 标签内容 --
+
             taskPk: null,
             rowNoFrom: null,
             rowNoTo: null,
@@ -128,7 +133,8 @@
             reset() {
                 this.taskId = 0;
                 this.taskPk = "";
-                this.variables = [];
+                this.variables = {};
+                this.dataPreview = null;
                 this.rowNoFrom = 0;
                 this.rowNoTo = 0;
                 this.copies = 1;
@@ -139,6 +145,8 @@
                 this.actionUpload = g.prefix + "/aprint/print/ExcelPrint/uploadExcel?labelId=" + this.labelId;
                 ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.labelId }).then(res => {
                     this.dtbLabel = res.dtbLabel;
+                    this.labelType = this.dtbLabel.rows[0]["type"].value;
+                    this.labelContent = this.dtbLabel.rows[0]["content"].value;
 
                     this.preview();
                     this.initGrid();
@@ -167,11 +175,17 @@
                     this.dtbTask = res.dtbTask;
                     this.taskId = this.dtbTask.rows[0]["id"].value;
                     this.taskPk = this.dtbTask.rows[0]["pk"].value;
+                    this.uploadFields = res.uploadFields;
 
                     this.initGrid();
 
                     this.rowNoFrom = 1;
                     this.rowNoTo = res.qty;
+
+                    if (this.labelType.equals("DLabel")) {
+                        this.dataPreview = res.dataPreview;
+                        this.DLabelPreview();
+                    }
                 }
                 else {
                     topWin.alert(res.error);
@@ -220,9 +234,20 @@
                 para.action = "previewLabel";
                 para.dataString = dataString;
                 para.printerName = this.printerName;
-                this.printLabel(para);
+
+                if (this.labelType.equals("DLabel")) {
+                    this.DLabelPreview();
+                }
+                else {
+                    this.printLabel(para);
+                }
             },
             print() {
+                if (this.labelType.equals("DLabel")) {
+                    this.DLabelPrint();
+                    return;
+                }
+
                 let postData = {
                     labelId: this.labelId,
                     taskId: this.taskId,
@@ -284,6 +309,117 @@
                 }
                 top.printLabel(paraInvoke);
             },
+
+            DLabelPreview() {
+                let fields = null;
+                if (this.dataPreview) {
+                    let columnCount = this.dataPreview[0].length;
+                    let name, value;
+
+                    fields = {};
+                    for (let iCol = 0; iCol < columnCount; iCol++) {
+                        name = this.dataPreview[0][iCol];
+                        value = this.dataPreview[1][iCol];
+                        fields[name] = value;
+                    }
+                }
+                // ----------------------------------------
+                if (winPreview) {
+                    if (!this.labelId.equals(winPreview.window.labelId)) {
+                        winPreview.close({ callerIsParent: true });
+                        winPreview = null;
+                    }
+                }
+
+                if (winPreview == null) {
+                    let prop = {
+                        url: g.path.framework + "/control/label/form/preview.html",
+                        left: win.p.maxWidth / 2,
+                        parent: win,
+                        modal: false
+                    };
+                    let para = {
+                        labelId: this.labelId,
+                        labelContent: this.labelContent,
+                        labelFields: fields,
+                        labelWidth: this.dtbLabel.rows[0]["width"].value,
+                        labelHeight: this.dtbLabel.rows[0]["height"].value
+                    };
+                    winPreview = topWin.openWindow(prop, para);
+                }
+                else {
+                    winPreview.show();
+                    winPreview.window.lbl.loadLabel(this.labelContent, {
+                        labelId: this.labelId,
+                        imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+                        fields: fields,
+                        readonly: true
+                    });
+                    winPreview.window.lbl.compute(true);
+                }
+            },
+            DLabelPrint() {
+                let lbl = winPreview.window.lbl;
+                let datas = [], dataString, name, value;
+                // -- 打印样张 --------------------------------
+                if (!this.taskId) {
+                    datas.push(lbl.getData());
+                    dataString = JSON.stringify(datas, null, " ");
+
+                    let para = {
+                        protocol: "2.0",
+                        action: "printDLabel",
+                        labelString: lbl.toJson(),
+                        dataString: dataString,
+                        printerName: this.printerName,
+                        copies: this.copies
+                    }
+                    top.invokeEdge(para);
+                    return;
+                }
+
+                // -- 打印任务单数据 -----------------------------
+                let postData = {
+                    labelId: this.labelId,
+                    taskId: this.taskId,
+                    rowNoFrom: this.rowNoFrom,
+                    rowNoTo: this.rowNoTo
+                };
+                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
+                    let dtbTaskData = res.dtbTaskData;
+                    let rowCount = dtbTaskData.rowCount;
+                    let columnCount = dtbTaskData.columnCount;
+                    // ------------------------------------
+                    for (let i = 0; i < rowCount; i++) {
+                        for (let j = 0; j < columnCount; j++) {
+                            name = dtbTaskData.columns[j].name;
+                            if (name.equals("task_id") || name.equals("id")
+                                || name.equals("$row_no") || name.equals("$cdate")
+                                || ("," + this.uploadFields + ",").indexOf("," + name + ",") < 0) {
+                                continue;
+                            }
+                            value = dtbTaskData.rows[i][j].value;
+
+                            lbl.setValue(name, value);
+                        }
+                        lbl.compute(i == rowCount - 1);
+                        datas.push(lbl.getData());
+                    }
+                    dataString = JSON.stringify(datas, null, " ");
+
+                    // --------------------------------------------
+                    let para = {
+                        protocol: "2.0",
+                        action: "printDLabel",
+                        labelString: lbl.toJson(),
+                        dataString: dataString,
+                        printerName: this.printerName,
+                        copies: this.copies
+                    }
+
+                    top.invokeEdge(para);
+                });
+            },
             onPrinterChange() {
                 setLocalItem(ckLatestPrinter, this.printerName);
             },
@@ -292,9 +428,9 @@
                 var para = {
                     viewPk: "x_label",
                     controller: "/aprint/print/x_label_view",
-                    filter: "task_id = " + this.taskId,
+                    filter: "task_id = " + (this.taskId || 0),
                     extUserDef: {
-                        labelId: this.labelId
+                        labelId: this.labelId || 0
                     }
                 }
                 this.$refs.grid.init(para);
@@ -305,7 +441,7 @@
 <!-- winLoad -->
 <script>
     var ckLatestPrinter = "excel_print_latest_printer";
-
+    var winPreview;
     // ------------------------------------------------------------------------
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
