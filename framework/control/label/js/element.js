@@ -313,7 +313,7 @@ UtilElement.draw = function (jsp) {
             context.strokeStyle = "#FF00FB";
             context.lineWidth = 1;
             context.setLineDash([12, 9]);
-            context.strokeRect(-1, -1, position.width * pxmm + 2, position.height * pxmm + 2);
+            //context.strokeRect(-1, -1, position.width * pxmm + 2, position.height * pxmm + 2);
         }
     }
 
