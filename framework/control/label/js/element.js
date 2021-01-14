@@ -34,8 +34,8 @@ UtilElement.computeProp = function (jsp) {
     font.lineHeight = parseFloat(font.lineHeight || 0);
     font.size = font.size || 12;
 
-    frame.type = element.frame.type || "";
-    frame.width = parseFloat(frame.width || 0);
+    frame.type = frame.type || "";
+    frame.width = frame.type.equals("") ? 0 : parseFloat(frame.width || 0);
 
     position.angle = position.angle || 0;
     position.angleR = position.angle * Math.PI / 180;
@@ -89,7 +89,7 @@ UtilElement.computeProp = function (jsp) {
             position._leftDraw = position.width - frame.width - position.marginRight;
         }
 
-        // -- 文本垂直位置 --       
+        // -- 文本垂直位置 --
         position._topDraw = frame.width + position.marginTop;
         if (position.verticalAlign.equals("middle")) {
             position._topDraw = position.marginTop + (position.height - position.marginTop - position.marginBottom - element.font._fontHeight) / 2;
@@ -440,13 +440,13 @@ UtilElement._drawSingleLine = function (context, element) {
 
     context.font = element.font._fontDraw;
     context.fillStyle = element.font._fillStyleDraw;
-    context.textAlign = element.position.textAlign;
+    context.textAlign = position.textAlign;
     context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
 
-    let xxx = 4;    // -- 补4个像素，解决中文削顶问题，C#中没有这个问题 --
+    let patchTop = position.verticalAlign.equals("top") ? 4 : 0;    // -- 补4个像素，解决中文削顶问题，C#中没有这个问题 --
     let text = element.head._sectionsText || (element.env.equals("design") ? "<空>" : "");
 
-    context.fillText(text, element.position._leftDraw * pxmm, element.position._topDraw * pxmm + xxx);
+    context.fillText(text, position._leftDraw * pxmm, position._topDraw * pxmm + patchTop);
 }
 UtilElement._drawMultiLine = function (context, element) {
     let font = element.font;
@@ -660,27 +660,29 @@ UtilElement.draw_barcode1D = async function (context, element) {
     }
 }
 UtilElement.draw_barcode2D = async function (context, element) {
+    let _this = element._this;
+    let pxmm = _this.pxmm;
+    let head = element.head;
+    let position = element.position;
+
     // -- 1. 输出文本部分 --
-    if (!element.head.pureBarcode) {
+    if (!head.pureBarcode) {
         UtilElement._drawSingleLine(context, element);
     }
 
     // -- 2. 通过weview获取条码图片(base64格式) --
     let srcImg = await UtilElement._getBarcodeBase64({
         env: element.env,
-        barcodeType: element.head.barcodeType,
-        barcodeValue: element.head._segmentsText,
-        width: element.position.width,
-        height: element.position.height,
+        barcodeType: head.barcodeType,
+        barcodeValue: head._segmentsText,
+        width: position._barcodeWidth,
+        height: position._barcodeHeight,
         point: element.point,
-        gs1: element.head.gs1
+        gs1: head.gs1
     });
     if (!srcImg) return;
 
-    // -- 3. 输出条码部分 --
-    let _this = element._this;
-    let pxmm = _this.pxmm;
-    let position = element.position;
+    // -- 3. 输出条码部分 --   
     let x = position._barcodeLeft * pxmm;
     let y = position._barcodeTop * pxmm;
     let img = new Image();

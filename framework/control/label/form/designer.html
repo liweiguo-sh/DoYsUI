@@ -259,24 +259,26 @@
         return `
 {
   "head": {
-    "width": 70,
-    "height": 50,
+    "width": 44,
+    "height": 15,
     "point": 600
   },
   "fields": {
-    "单价": 123   
+    "单价": "大熊猫面馆,大熊猫面馆"
   },
   "elements": [
     {
       "head": {
-        "name": "11-Canada",
-        "elementType": "text"
+        "name": "doys_label_element_3",
+        "elementType": "barcode",
+        "barcodeType": "QR_CODE",
+        "pureBarcode": true
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "Canada",
+          "value": "12345678",
           "format": ""
         },
         {
@@ -287,69 +289,81 @@
         }
       ],
       "font": {
-        "size": "9",
-        "name": "Arial",
-        "lineHeight": 0
+        "lineHeight": 0,
+        "size": "12",
+        "name": "Arial"
       },
       "frame": {
         "type": "rectangle",
-        "width": 0.1,
-        "color": "#CF1818"
+        "width": 0,
+        "fillColor": "#6ABF82",
+        "color": null
       },
       "position": {
         "layer": 1,
         "top": "0",
         "left": "0",
-        "width": 15,
-        "height": 4,
-        "textAlign": "left",
+        "width": "29.00",
+        "height": "15",
+        "angle": 0,
+        "angleR": 0,
+        "textAlign": "center",
         "verticalAlign": "bottom",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "angle": 330,
-        "angleR": 5.759586531581287,
-        "wCanvas": 225.9,
-        "hCanvas": 60.24,
-        "offsetX": 0,
-        "offsetY": 7.500000000000007,
-        "wC": 14.990381056766578,
-        "hC": 10.96410161513776,
+        "wC": 29,
+        "hC": 15,
         "P1": {
           "x": 0,
-          "y": 7.500000000000007
+          "y": 0
         },
         "P2": {
-          "x": 12.990381056766577,
+          "x": 29,
           "y": 0
         },
         "P3": {
-          "x": 14.990381056766578,
-          "y": 3.4641016151377535
+          "x": 29,
+          "y": 15
         },
         "P4": {
-          "x": 2.0000000000000018,
-          "y": 10.96410161513776
+          "x": 0,
+          "y": 15
         },
         "P15": {
-          "x": 6.495190528383288,
-          "y": 3.7500000000000036
+          "x": 14.5,
+          "y": 0
         },
         "P25": {
-          "x": 13.990381056766577,
-          "y": 1.7320508075688767
+          "x": 29,
+          "y": 7.5
         },
         "P35": {
-          "x": 8.49519052838329,
-          "y": 7.214101615137757
+          "x": 14.5,
+          "y": 15
         },
         "P45": {
-          "x": 1.0000000000000009,
-          "y": 9.232050807568884
-        }
+          "x": 0,
+          "y": 7.5
+        },
+        "offsetX": 0,
+        "offsetY": 0
       },
-      "imageBaseUrl": "http://127.0.0.1:9988/DoYsSV/resRun/100/aprint/label_variable_image/",
+      "segments": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "12345678",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
       "env": "design",
       "point": 600
     }
