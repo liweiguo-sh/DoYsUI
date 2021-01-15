@@ -26,10 +26,9 @@ UtilElement.computeProp = function (jsp) {
     let head = element.head;
     let font = element.font;
     let frame = element.frame;
-    let position = element.position;
+    let P = element.position;
 
-    let w, h, x, y;
-    // -- 补全默认值 ----------------------------------------
+    // -- 0. 补全默认值 -------------------------------------
     font = element.font || {};
     font.lineHeight = parseFloat(font.lineHeight || 0);
     font.size = font.size || 12;
@@ -37,112 +36,84 @@ UtilElement.computeProp = function (jsp) {
     frame.type = frame.type || "";
     frame.width = frame.type.equals("") ? 0 : parseFloat(frame.width || 0);
 
-    position.angle = position.angle || 0;
-    position.angleR = position.angle * Math.PI / 180;
-    position.textAlign = position.textAlign || "left";
-    position.verticalAlign = position.verticalAlign || "top";
+    P.angle = P.angle || 0;
+    P.angleR = P.angle * Math.PI / 180;
+    P.textAlign = P.textAlign || "left";
+    P.verticalAlign = P.verticalAlign || "top";
 
-    position.marginLeft = parseFloat(position.marginLeft || 0);
-    position.marginRight = parseFloat(position.marginRight || 0);
-    position.marginTop = parseFloat(position.marginTop || 0);
-    position.marginBottom = parseFloat(position.marginBottom || 0);
+    P.marginLeft = parseFloat(P.marginLeft || 0);
+    P.marginRight = parseFloat(P.marginRight || 0);
+    P.marginTop = parseFloat(P.marginTop || 0);
+    P.marginBottom = parseFloat(P.marginBottom || 0);
 
     UtilElement.computePropAngle(element);
-    // ----------------------------------------------------
-    if (head.elementType.equals("text")) {
+
+    // -- 1. 文本(包括条码的文本部分) -------------------------
+    if (head.elementType.equals("text") || head.elementType.equals("barcode")) {
         font._fontDraw = UtilElement._getContextFont(font, pxmm);
         font._fillStyleDraw = UtilElement._getContextFillStyle({ color: font.color });
         font._fontHeight = UtilElement._getContextLineHeight(font);
         font._lineHeightDraw = element.font.lineHeight || font._fontHeight;
 
-        position._topDraw = position.marginTop + frame.width;
-        position._leftDraw = position.marginLeft + frame.width;
         // -- 水平位置 --
-        if (position.textAlign.equals("center")) {
-            position._leftDraw = position.width / 2;
+        if (P.textAlign.equals("center")) {
+            P.leftText = frame.width + P.marginLeft + (P.width - 2 * frame.width - P.marginLeft - P.marginRight) / 2;
         }
-        else if (position.textAlign.equals("right")) {
-            position._leftDraw = position.width - position.marginRight - frame.width;
-        }
-        // -- 垂直位置 --
-        if (position.verticalAlign.equals("middle")) {
-            position._topDraw = (position.height - element.font._lineHeightDraw) / 2;
-        }
-        else if (position.verticalAlign.equals("bottom")) {
-            position._topDraw = position.height - position.marginBottom - font._fontHeight - frame.width;
-        }
-        position._topDraw = Math.max(position._topDraw, 0);
-
-    }
-    if (head.elementType.equals("barcode")) {
-        font._fontDraw = UtilElement._getContextFont(font, pxmm);
-        font._fillStyleDraw = UtilElement._getContextFillStyle({ color: font.color });
-        font._fontHeight = UtilElement._getContextLineHeight(font);
-        font._lineHeightDraw = element.font.lineHeight || font._fontHeight;
-
-        // -- 文本水平位置 --
-        position._leftDraw = frame.width + position.marginLeft;
-        if (position.textAlign.equals("center")) {
-            position._leftDraw = position.width / 2;
-        }
-        else if (position.textAlign.equals("right")) {
-            position._leftDraw = position.width - frame.width - position.marginRight;
-        }
-
-        // -- 文本垂直位置 --
-        position._topDraw = frame.width + position.marginTop;
-        if (position.verticalAlign.equals("middle")) {
-            position._topDraw = position.marginTop + (position.height - position.marginTop - position.marginBottom - element.font._fontHeight) / 2;
-        }
-        else if (position.verticalAlign.equals("bottom")) {
-            position._topDraw = position.height - position.marginBottom - font._fontHeight;
-        }
-        position._topDraw = Math.max(position._topDraw, 0);
-
-        // -- 条码位置(1D/2D) --
-        if (UtilElement.Is1D(head.barcodeType)) {
-            position._barcodeWidth = position.width - 2 * frame.width - position.marginLeft - position.marginRight;
-            position._barcodeLeft = position.marginLeft + frame.width;
-
-            if (head.pureBarcode || position.verticalAlign.equals("middle")) {
-                position._barcodeHeight = position.height - position.marginTop - position.marginBottom - 2 * frame.width;
-                position._barcodeTop = position.marginTop + frame.width;
-            }
-            else {
-                position._barcodeHeight = position.height - position.marginTop - position.marginBottom - font._fontHeight - 2 * frame.width;
-                if (position.verticalAlign.equals("bottom")) {
-                    position._barcodeTop = position.marginTop + frame.width;
-                }
-                else {
-                    position._barcodeTop = position.marginTop + font._fontHeight - frame.width;
-                }
-            }
-            position._barcodeHeight = Math.max(position._barcodeHeight, 2);
+        else if (P.textAlign.equals("right")) {
+            P.leftText = P.width - frame.width - P.marginRight;
         }
         else {
-            x = frame.width + position.marginLeft;
-            y = frame.width + position.marginTop;
-            w = position.width - 2 * frame.width - position.marginLeft - position.marginRight;
-            h = position.height - 2 * frame.width - position.marginTop - position.marginBottom;
+            P.leftText = frame.width + P.marginLeft;
+        }
+        P.leftText = Math.max(P.leftText, 0);
 
-            if (w > h) {
-                x += (w - h) / 2;
-                w = h;
+        // -- 垂直位置 --
+        if (P.verticalAlign.equals("middle")) {
+            P.topText = frame.width + P.marginTop + (P.height - 2 * frame.width - P.marginTop - P.marginBottom) / 2;
+        }
+        else if (P.verticalAlign.equals("bottom")) {
+            P.topText = P.height - frame.width - P.marginBottom;
+        }
+        else {
+            P.topText = frame.width + P.marginTop;
+        }
+        P.topText = Math.max(P.topText, 0);
+    }
+
+    // -- 2. 条码(条码的图片部分) -----------------------------
+    if (head.elementType.equals("barcode")) {
+        if (head.pureBarcode || P.verticalAlign.equals("middle")) {
+            font._fontHeight = 0;
+        }
+        P.heightBarcode = P.height - 2 * frame.width - P.marginTop - P.marginBottom - font._fontHeight;
+        P.widthBarcode = P.width - 2 * frame.width - P.marginLeft - P.marginRight;
+        P.leftBarcode = frame.width + P.marginLeft;
+
+        // -- 垂直位置 --
+        if (P.verticalAlign.equals("top")) {
+            P.topBarcode = frame.width + P.marginTop + font._fontHeight;
+        }
+        else {
+            P.topBarcode = frame.width + P.marginTop;
+        }
+        // -- 水平位置 --
+        if (UtilElement.Is1D(head.barcodeType)) {
+            // -- 一维码宽度是最大化填充，所以水平永远是居左的 --
+        }
+        else {
+            P.widthBarcode = Math.min(P.widthBarcode, P.heightBarcode);
+            P.heightBarcode = Math.min(P.widthBarcode, P.heightBarcode);
+
+            if (P.textAlign.equals("right")) {
+                P.leftBarcode = P.width - frame.width + P.marginRight - P.widthBarcode;
+            }
+            else if (P.textAlign.equals("center")) {
+                P.leftBarcode = frame.width + P.marginLeft
+                    + Math.max((P.width - 2 * frame.width - P.marginLeft - P.marginRight - P.widthBarcode) / 2, 0);
             }
             else {
-                if (position.verticalAlign.equals("top")) {         // -- 文字在上，条码在下 --
-                    y += (h - w);
-                }
-                else if (position.verticalAlign.equals("middle")) { // -- 文字在中间，条码垂直居中 --
-                    y += (h - w) / 2;
-                }
-                h = w;
+                P.leftBarcode = frame.width + P.marginLeft;
             }
-
-            position._barcodeLeft = x;
-            position._barcodeTop = y;
-            position._barcodeWidth = w;
-            position._barcodeHeight = h;
         }
     }
 }
@@ -435,18 +406,21 @@ UtilElement.draw_text = function (context, element) {
 }
 
 UtilElement._drawSingleLine = function (context, element) {
+    // -- 参考：https://www.w3school.com.cn/tags/canvas_textbaseline.asp --
     let pxmm = element._this.pxmm;
     let position = element.position;
+    let x = position.leftText * pxmm;
+    let y = position.topText * pxmm;
+    let text = element.head._sectionsText || (element.env.equals("design") ? "<空>" : "");
 
+    if (position.verticalAlign.equals("top")) {
+        y += 4;     // -- 补4个像素，解决中文字体削顶问题，C#中没有这个问题 --
+    }
     context.font = element.font._fontDraw;
     context.fillStyle = element.font._fillStyleDraw;
     context.textAlign = position.textAlign;
-    context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
-
-    let patchTop = position.verticalAlign.equals("top") ? 4 : 0;    // -- 补4个像素，解决中文削顶问题，C#中没有这个问题 --
-    let text = element.head._sectionsText || (element.env.equals("design") ? "<空>" : "");
-
-    context.fillText(text, position._leftDraw * pxmm, position._topDraw * pxmm + patchTop);
+    context.textBaseline = position.verticalAlign;
+    context.fillText(text, x, y);
 }
 UtilElement._drawMultiLine = function (context, element) {
     let font = element.font;
@@ -491,7 +465,7 @@ UtilElement._drawMultiLine = function (context, element) {
 
     // -- 3. 垂直位置计算 -----------------------------------
     context.textAlign = position.textAlign;
-    left = element.position._leftDraw;
+    left = element.position.leftText;
 
     context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
     if (position.verticalAlign.equals("top")) {
@@ -618,40 +592,42 @@ UtilElement.Is2D = function (barcodeType) {
 }
 
 UtilElement.draw_barcode1D = async function (context, element) {
+    let _this = element._this;
+    let pxmm = _this.pxmm;
+    let head = element.head;
+    let position = element.position;
+
     // -- 1. 输出文本部分 --
-    if (!element.head.pureBarcode) {
+    if (!head.pureBarcode) {
         UtilElement._drawSingleLine(context, element);
     }
 
     // -- 2. 通过weview获取条码图片(base64格式) --
     let srcImg = await UtilElement._getBarcodeBase64({
         env: element.env,
-        barcodeType: element.head.barcodeType,
-        barcodeValue: element.head._segmentsText,
-        width: element.position.width,
-        height: element.position.height,
+        barcodeType: head.barcodeType,
+        barcodeValue: head._segmentsText,
+        width: position.width,
+        height: position.height,
         point: element.point,
-        gs1: element.head.gs1
+        gs1: head.gs1
     });
     if (!srcImg) return;
 
     // -- 3. 输出条码部分 --
-    let _this = element._this;
-    let pxmm = _this.pxmm;
-    let position = element.position;
-    let x = position._barcodeLeft * pxmm;
-    let y = position._barcodeTop * pxmm;
+    let x = position.leftBarcode * pxmm;
+    let y = position.topBarcode * pxmm;
     let img = new Image();
 
     img.src = srcImg;
     img.onload = function () {
-        let w = position._barcodeWidth * pxmm;
-        let h = position._barcodeHeight * pxmm;
+        let w = position.widthBarcode * pxmm;
+        let h = position.heightBarcode * pxmm;
 
         context.drawImage(img, x, y, w, h);
     }
     img.onerror = function () {
-        context.font = position._barcodeHeight * pxmm / 2 + "px Arial";
+        context.font = position.heightBarcode * pxmm / 2 + "px Arial";
         context.fillStyle = element.font._fillStyleDraw;
         context.textAlign = "left";
         context.textBaseline = "top";
@@ -675,27 +651,27 @@ UtilElement.draw_barcode2D = async function (context, element) {
         env: element.env,
         barcodeType: head.barcodeType,
         barcodeValue: head._segmentsText,
-        width: position._barcodeWidth,
-        height: position._barcodeHeight,
+        width: position.widthBarcode,
+        height: position.heightBarcode,
         point: element.point,
         gs1: head.gs1
     });
     if (!srcImg) return;
 
     // -- 3. 输出条码部分 --   
-    let x = position._barcodeLeft * pxmm;
-    let y = position._barcodeTop * pxmm;
+    let x = position.leftBarcode * pxmm;
+    let y = position.topBarcode * pxmm;
     let img = new Image();
 
     img.src = srcImg;
     img.onload = function () {
-        let w = position._barcodeWidth * pxmm;
-        let h = position._barcodeHeight * pxmm;
+        let w = position.widthBarcode * pxmm;
+        let h = position.heightBarcode * pxmm;
         let m1 = 0.0, m2 = 1 - 2 * m1;          // -- 裁剪二维码图片，减少二维码留白 --
         context.drawImage(img, img.width * m1, img.height * m1, img.width * m2, img.height * m2, x, y, w, h);
     }
     img.onerror = function () {
-        context.font = position._barcodeHeight * pxmm / 2 + "px Arial";
+        context.font = position.heightBarcode * pxmm / 2 + "px Arial";
         context.fillStyle = element.font._fillStyleDraw;
         context.textAlign = "left";
         context.textBaseline = "top";

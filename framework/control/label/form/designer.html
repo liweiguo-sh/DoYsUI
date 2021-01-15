@@ -217,14 +217,13 @@
 <!-- debug and test -->
 <script>
     function btnDebug_click() {
+        txtJson.value = lbl.toJson();
+
         if (gId("divDebug").style.display.equals("")) {
             gId("divDebug").style.display = "none";
         }
         else {
             gId("divDebug").style.display = "";
-            if (!txtJson.value) {
-                txtJson.value = lbl.toJson();
-            }
             gId("txtJson").focus();
         }
     }
@@ -269,16 +268,15 @@
   "elements": [
     {
       "head": {
-        "name": "doys_label_element_3",
+        "name": "doys_label_element_4",
         "elementType": "barcode",
-        "barcodeType": "QR_CODE",
-        "pureBarcode": true
+        "barcodeType": "QR_CODE"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "12345678",
+          "value": "123456",
           "format": ""
         },
         {
@@ -290,21 +288,21 @@
       ],
       "font": {
         "lineHeight": 0,
-        "size": "12",
-        "name": "Arial"
+        "size": 12,
+        "name": "宋体"
       },
       "frame": {
         "type": "rectangle",
-        "width": 0,
-        "fillColor": "#6ABF82",
-        "color": null
+        "width": 0.035,
+        "fillColor": "#FF0095",
+        "color": "#006AFF"
       },
       "position": {
         "layer": 1,
-        "top": "0",
-        "left": "0",
-        "width": "29.00",
-        "height": "15",
+        "top": "0.97",
+        "left": 3.35,
+        "width": "22.14",
+        "height": "13.25",
         "angle": 0,
         "angleR": 0,
         "textAlign": "center",
@@ -313,48 +311,54 @@
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 29,
-        "hC": 15,
+        "wC": 22.14,
+        "hC": 13.25,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 29,
+          "x": 22.14,
           "y": 0
         },
         "P3": {
-          "x": 29,
-          "y": 15
+          "x": 22.14,
+          "y": 13.25
         },
         "P4": {
           "x": 0,
-          "y": 15
+          "y": 13.25
         },
         "P15": {
-          "x": 14.5,
+          "x": 11.07,
           "y": 0
         },
         "P25": {
-          "x": 29,
-          "y": 7.5
+          "x": 22.14,
+          "y": 6.625
         },
         "P35": {
-          "x": 14.5,
-          "y": 15
+          "x": 11.07,
+          "y": 13.25
         },
         "P45": {
           "x": 0,
-          "y": 7.5
+          "y": 6.625
         },
         "offsetX": 0,
-        "offsetY": 0
+        "offsetY": 0,
+        "leftText": 11.07,
+        "topText": 13.215,
+        "heightBarcode": 8.946666666666667,
+        "widthBarcode": 8.946666666666667,
+        "leftBarcode": 6.596666666666667,
+        "topBarcode": 0.035
       },
       "segments": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "12345678",
+          "value": "1234567890",
           "format": ""
         },
         {
@@ -364,6 +368,76 @@
           "format": ""
         }
       ],
+      "env": "design",
+      "point": 600
+    },
+    {
+      "head": {
+        "name": "doys_label_element_2",
+        "elementType": "shape"
+      },
+      "font": {
+        "lineHeight": 0,
+        "size": 12
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0.035,
+        "color": "#04FF00"
+      },
+      "position": {
+        "layer": 1,
+        "top": "5.06",
+        "left": "18.88",
+        "width": "9.18",
+        "height": "5.59",
+        "angle": 0,
+        "angleR": 0,
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 9.18,
+        "hC": 5.59,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 9.18,
+          "y": 0
+        },
+        "P3": {
+          "x": 9.18,
+          "y": 5.59
+        },
+        "P4": {
+          "x": 0,
+          "y": 5.59
+        },
+        "P15": {
+          "x": 4.59,
+          "y": 0
+        },
+        "P25": {
+          "x": 9.18,
+          "y": 2.795
+        },
+        "P35": {
+          "x": 4.59,
+          "y": 5.59
+        },
+        "P45": {
+          "x": 0,
+          "y": 2.795
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "leftText": 0.035,
+        "topText": 0.035
+      },
       "env": "design",
       "point": 600
     }
