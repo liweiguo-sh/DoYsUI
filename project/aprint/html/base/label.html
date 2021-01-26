@@ -349,6 +349,7 @@
             openDLabelDesign: function () {
                 let labelId = this.form.id;
                 ajax.send("/aprint/dlabel/getLabelForDesign", { labelId: labelId }).then(res => {
+                    let _this = this;
                     let dtbLabel = res.dtbLabel;
                     let dtbLabelVariable = res.dtbLabelVariable;
                     let labelContent = dtbLabel.rows[0]["content"].value;
@@ -366,23 +367,29 @@
                         parent: win,
                         modal: false
                     };
-                    let para = {
-                        labelId: labelId,
-                        content: labelContent,
+                    let para = {};
+                    let jspLabel = {
                         fields: variables,
                         width: dtbLabel.rows[0]["width"].value,
                         height: dtbLabel.rows[0]["height"].value,
                         point: dtbLabel.rows[0]["point"].value,
-                        callback: this.saveDLabelContent
-                    };
+                        imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl
+                    }
+                    let winDesinger = topWin.openFullWindow(prop, para);
+                    winDesinger.addEventListener("afterLoad", function (winOpen) {
+                        lbl = winOpen.window.getLabel();
+                        lbl.loadLabel(labelContent, jspLabel);
+                        lbl.compute(true);
 
-                    topWin.openFullWindow(prop, para);
+                        // -- 注册并监听标签保存事件 --
+                        lbl.addEventListener("onSave", _this.saveDLabelContent, { labelId: _this.form.id });
+                    }, false);
                 });
             },
             saveDLabelContent: function (jsp) {
                 let postData = {
-                    id: this.form.id,
-                    content: jsp.content
+                    id: jsp.labelId,
+                    content: lbl.toJson()
                 };
 
                 ajax.send("/aprint/dlabel/saveLabelForDesign", postData).then(res => {
@@ -395,6 +402,7 @@
 
 <!-- javascript block -->
 <script>
+    let lbl;
     function getLabelId() {
         return app.$refs.vf.getId();
     }

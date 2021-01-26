@@ -54,6 +54,7 @@
         <input type="button" id="btnSaveLabel" onclick="btnSaveLabel_click();" value="保存标签" />
         &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="button" id="btnPrint" onclick="btnPrint_click();" value="打印样张" />
+        <input type="button" id="btnClose" onclick="win.close();" value="关闭" style="display:none;" />
 
         <span id="spanMessage" style="margin-left:15px;"></span>
     </div>
@@ -90,6 +91,10 @@
 
     window.addEventListener("load", init, false);
     // ------------------------------------------------------------------------
+    function winLoad() {
+        gId("btnClose").style.display = "";
+    }
+
     function init() {
         winResize();
 

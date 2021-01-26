@@ -12,6 +12,8 @@
         this.container._this = this;
         this.parentContainer = this.container.parentElement;        // -- 标签容器的父对象 --
         this.parentContainer.ondblclick = function (evt) {
+            if (_this.readonly) return;
+
             let prop = {
                 url: "label.html",
                 parent: window.win,
@@ -61,7 +63,7 @@
 
         // -- 4. cwin --
         if (window.topWin) {
-            debugger;
+            window.cWin = topWin.cWin;
         }
         else {
             window.cWin = new window.xwf_window({});
@@ -105,6 +107,7 @@
         if (jsp.width) this.label.head.width = jsp.width;
         if (jsp.height) this.label.head.height = jsp.height;
         if (jsp.point) this.label.head.point = jsp.point;
+        this.label.head.imageBaseUrl = this.imageBaseUrl || this.label.head.imageBaseUrl;
         this.labelId = jsp.labelId || "";
         this.head = this.label.head;
         this.fields = this.label.fields;
