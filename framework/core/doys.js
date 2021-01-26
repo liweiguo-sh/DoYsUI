@@ -149,12 +149,12 @@ function importFrameworkRes(fileRes) {
     }
     // -- 3. doys组件 --
     else if (fileRes.equals("d-label")) {
-        arrRes.push(g.path.framework + "/control/label/css/designer.css");
+        arrRes.push(g.path.framework + "/control/DLabel/css/designer.css");
 
-        arrRes.push(g.path.framework + "/control/label/js/font.js");
-        arrRes.push(g.path.framework + "/control/label/js/util.js");
-        arrRes.push(g.path.framework + "/control/label/js/element.js");
-        arrRes.push(g.path.framework + "/control/label/js/label.js");        
+        arrRes.push(g.path.framework + "/control/DLabel/js/font.js");
+        arrRes.push(g.path.framework + "/control/DLabel/js/util.js");
+        arrRes.push(g.path.framework + "/control/DLabel/js/element.js");
+        arrRes.push(g.path.framework + "/control/DLabel/js/label.js");        
     }
     // -- 4. plugin组件 --
     else if (fileRes.equals("echarts")) {

@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签预览窗口</title>
+    <script src="../../../core/doys.js"></script>
+    <script>
+        importFrameworkRes("d-label");
+    </script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="divParent">
+        <div id="divCanvas" class="doys_label_continer"></div>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var labelId, labelContent, labelFields, labelWidth, labelHeight;
+
+    var divParent = gId("divParent"), divCanvas = gId("divCanvas");
+    var lbl;
+    // ------------------------------------------------------------------------
+    function winLoad() {
+        labelId = win.para.labelId;
+        labelContent = win.para.labelContent;
+        labelFields = win.para.labelFields;
+        labelWidth = win.para.labelWidth;
+        labelHeight = win.para.labelHeight;
+
+        winResize();
+        win.addEventListener("beforeClose", function () {
+            win.hide();
+            return false;
+        });
+
+        lbl = new Label({ container: divCanvas });
+        lbl.loadLabel(labelContent, {
+            labelId: labelId,
+            imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+            fields: labelFields,
+            readonly: true
+        });
+        lbl.compute(true);
+    }
+
+    function winResize() {
+        let whLabel = labelWidth / labelHeight;
+        let whWin = win.p.maxWidth / win.p.maxHeight;
+
+        if (whLabel < whWin) {
+            divParent.style.height = (0.6 * win.p.maxHeight) + "px";
+            divParent.style.width = (0.6 * win.p.maxHeight) * (labelWidth / labelHeight) + "px";
+        }
+        else {
+            divParent.style.width = (0.4 * win.p.maxWidth) + "px";
+            divParent.style.height = (0.4 * win.p.maxWidth) * (labelHeight / labelWidth) + "px";
+        }
+    }
+</script>

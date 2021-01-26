@@ -8,18 +8,24 @@
 */
 var css_xwf_window = true;
 // -- 类定义 ------------------------------------------------------------------
-window.xwf_window = function (jsonProp) {
+window.xwf_window = function (prop) {
     ///<summary>window控件，支持窗口拖动、模态窗口、窗口组、最大化等</summary>
-    if (jsonProp == null) return;
-    for (var key in jsonProp) {
-        this[key] = jsonProp[key];
+    if (prop == null) return;
+
+    for (var key in prop) {
+        this[key] = prop[key];
     }
     this.zIndexFrom = this.zIndex;
+    this.rangeContainer = this.rangeContainer || window.document.documentElement;
+
+    // -- 补全属性值 --
+    this.jsVer = this.jsVer || (new Date).getTime();
+
     this.init();
 };
 window.xwf_window.prototype = {
     prefix: "xwf_win_",
-    doc: top.document,                  // -- 
+    doc: document,                      // -- 
     rangeContainer: null,               // -- 窗口活动区域容器 --
 
     zIndexFrom: 30000,                  // -- 初始窗口集zIndex --
@@ -60,7 +66,7 @@ window.xwf_window.prototype.init = function () {
     this.maxHeight -= (this.borderHeight + this.titleHeight);
 
     this.divModal = top.document.createElement("DIV");
-    top.document.body.appendChild(this.divModal);
+    this.doc.body.appendChild(this.divModal);
     this.divModal.id = this.prefix + "divModal";
     this.divModal.className = this.prefix + "divModal";
     this.divModal.style.display = "none";
@@ -115,7 +121,7 @@ window.xwf_window.prototype.openWindow = function (_jsonProp, _jsonPara) {
     if (win.p.noTitle) win.tbWin.style.display = "none";
     if (win.p.windowState.equals("maximized")) win.maxWindow();
 
-    win.iframe.src = _jsonProp.url + (_jsonProp.url.indexOf("?") > 0 ? "&" : "?") + "rnd=" + g.cfg.jsVer;
+    win.iframe.src = _jsonProp.url + (_jsonProp.url.indexOf("?") > 0 ? "&" : "?") + "rnd=" + this.jsVer;
     win.show();
     // ----------------------------------------------------
     if (win.p.menu) win.p.menu.win = win;

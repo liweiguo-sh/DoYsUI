@@ -232,9 +232,10 @@
 
     function winLoad() {
         var jsonProp = {
+            jsVer: g.cfg.jsVer,
             zIndex: g.c.zIndexWin,
-            taskbar: null,
-            rangeContainer: gId("ifrHome")
+            rangeContainer: gId("ifrHome"),
+            taskbar: null
         };
         topWin.cWin = new window.xwf_window(jsonProp);
     }

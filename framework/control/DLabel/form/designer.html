@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签窗口</title>
+    <link href="../../../../plugin/element/index.css" rel="stylesheet" />
+    <link href="../../window/xwf.window.css" rel="stylesheet" />
+    <link href="../css/designer.css" rel="stylesheet" />
+
+    <script src="../../../../plugin/vue.js"></script>
+    <script src="../../../../plugin/element/index.js"></script>
+
+    <script src="../../../core/prototype.js"></script>
+    <script src="../../../core/core.js"></script>
+    <script src="../../window/xwf.window.js"></script>
+
+    <script src="../js/font.js"></script>
+    <script src="../js/util.js"></script>
+    <script src="../js/element.js"></script>
+    <script src="../js/label.js"></script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #divButtons input[type=button] {
+            height: 36px;
+            line-height: 36px;
+            min-width: 100px;
+            margin-bottom: 10px;
+        }
+
+        #tbProp {
+            border: 1px dashed red;
+            width: 100%;
+        }
+
+        .tdPropName {
+            border: 1px dashed green;
+            color: green;
+        }
+
+        .tdPropValue {
+            border: 1px dashed blue;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div id="divButtons">
+        <input type="button" id="btnBlankLabel" onclick="btnBlankLabel_click();" value="空白标签" />
+        <input type="button" id="btnAddElement" onclick="btnAddElement_click();" value="添加新元素" />
+        <input type="button" id="btnDelElement" onclick="btnDelElement_click();" value="删除元素" />
+        <input type="button" id="btnSaveLabel" onclick="btnSaveLabel_click();" value="保存标签" />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="button" id="btnPrint" onclick="btnPrint_click();" value="打印样张" />
+
+        <span id="spanMessage" style="margin-left:15px;"></span>
+    </div>
+    <table id="tbMain" class="tbMain">
+        <tr>
+            <td id="tdMainLeft" class="tdMain" style="background-color:aquamarine;vertical-align:top;">
+                属性区
+                <table id="tbProp" style="display:none">
+                    <tr>
+                        <td class="tdPropName">旋转角度</td>
+                        <td class="tdPropValue"><input id="txtPropAngle" value="0" onblur="onAngleBlur();" onkeydown="onAngleKeydown(event);" /></td>
+                    </tr>
+
+                </table>
+            </td>
+            <td id="tdCanvas" class="tdMain" style="padding:15px;">
+                <div id="divCanvas" class="doys_label_continer"></div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    let tbMain = gId("tbMain");
+    let tdMainLeft = gId("tdMainLeft");
+    let tdCanvas = gId("tdCanvas");
+
+    let divCanvas = gId("divCanvas");
+
+    let labelId = 0, labelContent = "";
+    let lbl;
+
+    window.addEventListener("load", init, false);
+    // ------------------------------------------------------------------------
+    function init() {
+        winResize();
+
+        lbl = getLabel();
+    }
+    function winResize() {
+        let width = document.documentElement.clientWidth;
+        let heigth = document.documentElement.clientHeight;
+
+        tdCanvas.style.width = (width - 320) + "px";
+        tdCanvas.style.height = (heigth - tbMain.offsetTop - 40) + "px";
+    }
+
+    function getLabel() {
+        if (lbl == null) {
+            lbl = new Label({ container: divCanvas, env: "design" });
+            lbl.loadLabel("", {
+                labelId: 0,
+                imageBaseUrl: "",
+                fields: {},
+                width: 80,
+                height: 60,
+                point: 600
+            });
+            lbl.compute(true);
+        }
+        return lbl;
+    }
+</script>
+<!-- buttons -->
+<script>
+    function btnBlankLabel_click() {
+        lbl.loadLabel("", { width: 80, height: 60 });
+    }
+    function btnAddElement_click() {
+        lbl.addBlankTextElement();
+    }
+    function btnDelElement_click() {
+        lbl.delElement();
+    }
+    function btnSaveLabel_click() {
+        lbl.save();
+    }
+
+    function btnPrint_click() {
+        let page = 0, pages = 2;
+        let datas = [], dataString;
+        // ------------------------------------------------
+        try {
+            if (labelId) {
+                datas.push(lbl.getData());
+            }
+            else {
+                // -- 模拟数据 --
+                if (false) {
+                    if (page++ < pages) {
+                        lbl.setValue("零售价", "$138.00");
+                        lbl.setValue("会员价", "$110.40");
+                        lbl.setValue("图片01", "https://cn.vuejs.org/images/imooc-sponsor2.png");
+                        lbl.setValue("条码", "888-" + page);
+
+                        lbl.computeElements();
+                        datas.push(lbl.getData());
+                    }
+                    if (page++ < pages) {
+                        lbl.setValue("零售价", "$138.00");
+                        lbl.setValue("会员价", "$110.40");
+                        lbl.setValue("图片01", "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png");
+                        lbl.setValue("条码", "888-" + page);
+
+                        lbl.computeElements();
+                        datas.push(lbl.getData());
+                    }
+                    lbl.computeElements(true);
+                }
+                else {
+                    datas.push(lbl.getData());
+                }
+            }
+            dataString = JSON.stringify(datas, null, " ");
+
+            // --------------------------------------------
+            let para = {
+                protocol: "2.0",
+                action: "printDLabel",
+                labelString: lbl.toJson(),
+                dataString: dataString,
+                copies: 1
+            }
+
+            top.invokeEdge(para);
+        }
+        catch (e) {
+            topWin.alert(e, "error");
+        }
+    }
+</script>
+<!-- debug and test -->
+<script>
+    let spanMessage = gId("spanMessage");
+
+    function showInfo(message) {
+        spanMessage.innerHTML = (new Date()).toTimeString("ss:ms") + "  " + message;
+    }
+</script>
+
+<!-- 属性区 -->
+<script>
+    function onAngleKeydown(evt) {
+        if (evt.key.equals("Enter")) {
+            onAngleBlur();
+        }
+    }
+    function onAngleBlur() {
+        let txt = gId("txtPropAngle");
+        let angle = txt.value.toInt();
+
+        txt.value = lbl.setAngle(angle);
+    }
+</script>

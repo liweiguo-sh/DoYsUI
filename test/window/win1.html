@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>html page 1</title>
+
+    <style type="text/css">
+        #divMessage {
+            width: 600px;
+            height: 300px;
+            overflow: auto;
+            margin: 20px 0px 0px 20px;
+            border: solid 1px green;
+        }
+
+        #ifrDesigner {
+            border: solid 1px green;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <input id="btnOpen" type="button" value="打开新窗口" onclick="btnOpen_click();" />
+        <input id="btnInvoke" type="button" value="调用新窗口函数" onclick="btnInvoke_click();" />
+        <div id="divMessage"></div>
+    </div>
+    <iframe id="ifrDesigner"></iframe>
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+    var ifr = window.document.getElementById("ifrDesigner");
+
+    window.addEventListener("load", function () {
+        debugger
+        ifr.style.width = "1800px";
+        ifr.style.height = "800px";
+    }, false);
+    // ------------------------------------------------------------------------
+    function btnOpen_click() {
+        win = window.open(url);
+        win.addEventListener("load", function () {
+            debugger;
+            win.abc(jsp);
+        }, false);
+
+        console.log("ok");
+    }
+
+    function btnInvoke_click() {
+        win.abc(jsp);
+    }
+</script> 
