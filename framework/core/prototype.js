@@ -29,20 +29,6 @@ String.prototype.equals = function (str) {
         return (this.toUpperCase().trim().localeCompare(str.toUpperCase()) == 0);
     }
 };
-String.prototype.startWith = function (prefix) {
-    if (this.substring(0, prefix.length).equals(prefix)) {
-        return true;
-    }
-    return false;
-};
-String.prototype.endWith = function (str) {
-    let result = false;
-    if (this.length >= str.length) {
-        let ends = this.substring(this.length - str.length);
-        result = ends.equals(str);
-    }
-    return result;
-};
 String.prototype.right = function (len) {
     var start = (this.length > len ? this.length - len : 0);
     return this.substr(start, len);

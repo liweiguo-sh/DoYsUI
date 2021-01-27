@@ -5,6 +5,7 @@
  * Modify Date: 2020-12-15
  * Copyright 2020, doys-next.com
  */
+
 (function () {
     window.g = {
         debug: false,                           // -- 调试模式 --
@@ -154,7 +155,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(g.path.framework + "/control/DLabel/js/font.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/util.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/element.js");
-        arrRes.push(g.path.framework + "/control/DLabel/js/label.js");        
+        arrRes.push(g.path.framework + "/control/DLabel/js/label.js");
     }
     // -- 4. plugin组件 --
     else if (fileRes.equals("echarts")) {
@@ -167,7 +168,7 @@ function importFrameworkRes(fileRes) {
 
     // -- 9. output javascript --
     for (let res of arrRes) {
-        if (res.endWith(".css")) {
+        if (res.endsWith(".css")) {
             document.write("<link href='" + res + "?v=" + g.cfg.jsVer + "' rel='stylesheet' />");
         }
         else {

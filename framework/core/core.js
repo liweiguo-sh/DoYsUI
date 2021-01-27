@@ -157,7 +157,7 @@ g.x.isImageUrl = function (url) {
     let len = suffixes.length;
 
     for (let i = 0; i < len; i++) {
-        if (url.endWith(suffixes[i])) {
+        if (url.toLowerCase().endsWith(suffixes[i])) {
             return true;
         }
     }

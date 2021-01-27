@@ -550,7 +550,7 @@ UtilElement.draw_image = function (context, element) {
     let img = new Image();
     // ----------------------------------------------------
     urlImg = element.image.url || "";
-    if (!urlImg.equals("") && !urlImg.startWith("http:") && !urlImg.startWith("https:")) {
+    if (!urlImg.equals("") && !urlImg.startsWith("http:") && !urlImg.startsWith("https:")) {
         if (!element.labelHead.imageBaseUrl) {
             alert("配置标签参数 (imageBaseUrl) 未配置, 请检查。");
             return;

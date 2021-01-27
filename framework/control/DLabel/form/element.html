@@ -531,7 +531,7 @@
 
             if (g.x.isImageUrl(v)) {
                 url = v;
-                if (!url.startWith("http")) {
+                if (!url.startsWith("http")) {
                     url = win.para.labelHead.imageBaseUrl + v;
                 }
                 images.push({ k: k, v: v, url: url });
