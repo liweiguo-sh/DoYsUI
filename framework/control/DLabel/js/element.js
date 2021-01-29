@@ -614,7 +614,7 @@ UtilElement.draw_barcode1D = async function (context, element) {
         barcodeValue: head._segmentsText,
         width: position.width,
         height: position.height,
-        point: element.point,
+        point: element.labelHead.point,
         gs1: head.gs1
     });
     if (!srcImg) return;
@@ -658,7 +658,7 @@ UtilElement.draw_barcode2D = async function (context, element) {
         barcodeValue: head._segmentsText,
         width: position.widthBarcode,
         height: position.heightBarcode,
-        point: element.point,
+        point: element.labelHead.point,
         gs1: head.gs1
     });
     if (!srcImg) return;

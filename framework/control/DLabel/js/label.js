@@ -144,7 +144,6 @@
             let element = this.elements[i];
 
             element.env = this.env;
-            element.point = this.head.point;
             element.labelHead = this.head;
 
             this.createElement(element);
@@ -230,6 +229,8 @@
             }
         }
         element._this = this;
+        element.env = this.env;
+        element.labelHead = this.head;
 
         this.elements.push(element);
         UtilElement.computeProp({ element: element });
@@ -416,7 +417,6 @@
 
             callback: _this.onElementDblClickCallback
         };
-        //topWin.openWindow(prop, para);
         cWin.openWindow(prop, para);
 
         event.stopPropagation();

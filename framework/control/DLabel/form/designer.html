@@ -127,6 +127,12 @@
 <!-- buttons -->
 <script>
     function btnBlankLabel_click() {
+        if (lbl.elements.length > 0) {
+            if (!confirm("当前标签已存在内容，确定要清空为空白标签吗？")) {
+                return;
+            }
+        }
+
         lbl.loadLabel("", { width: 80, height: 60 });
     }
     function btnAddElement_click() {
