@@ -70,7 +70,18 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
-                            &nbsp;
+                            <el-form-item label="份数" required>
+                                <el-input v-model="copies" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col>
+                            <el-form-item label="打印机">
+                                <el-select v-model="printerName" @change="preview();onPrinterChange();" filterable style="width:100%;">
+                                    <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
+                                </el-select>
+                            </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
@@ -98,7 +109,7 @@
 </body>
 </html>
 
-<!-- winLoad -->
+<!-- vue.init -->
 <script>
     var app = new Vue({
         el: '#app',
@@ -117,11 +128,15 @@
 
             labelId: null,
             qty: null,
+            copies: 1,
 
             taskId: null,
             taskPk: null,
             rowNoFrom: null,
-            rowNoTo: null
+            rowNoTo: null,
+
+            printerName: "",
+            printers: []
         },
         mounted() { },
         methods: {
@@ -248,6 +263,9 @@
                 this.preview({});
                 this.initGrid();
             },
+            onPrinterChange() {
+                setLocalItem(ckLatestPrinter, this.printerName);
+            },
 
             createTask() {
                 if (!this.labelId) {
@@ -344,6 +362,7 @@
 
                 para.action = "previewLabel";
                 para.dataString = dataString;
+                para.printerName = this.printerName;
                 this.printLabel(para);
             },
             print() {
@@ -388,6 +407,8 @@
                     labelType: this.dtbLabel.rows[0]["type"].value,
                     labelSummary: this.getLabelSummary(),
                     taskId: this.taskId,
+                    printerName: this.printerName,
+                    copies: this.copies,
                     dataString: para.dataString
                 }
                 paraInvoke = g.x.extendJSON(paraInvoke, para);
@@ -410,11 +431,21 @@
         }
     });
 
+</script>
+
+<!-- winLoad -->
+<script>
+    var ckLatestPrinter = "renben_order_latest_printer";
+
     // ------------------------------------------------------------------------
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
 
+        for (let i = 0; i < topWin.printers.length; i++) {
+            app.printers.push(topWin.printers[i]);
+        }
+        app.printerName = getLocalItem(ckLatestPrinter);
+
         app.initGrid();
-        //app.loadLabels();
     }
 </script>
