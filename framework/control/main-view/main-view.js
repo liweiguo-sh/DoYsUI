@@ -317,6 +317,9 @@
             else if (button.name.equals("close")) {
                 win.close();
             }
+            else if (button.name.equals("export")) {
+                this.exportData();
+            }
             else {
                 this.$message(button.name + ", " + button.text);
             }
@@ -366,6 +369,11 @@
         onPageChange(pageNum) {
             this.pageNum = pageNum;
             this.getViewData(pageNum);
+        },
+
+        exportData() {
+            console.log();
+            this.$message("数据导出");
         },
 
         onViewClick(scope) {

@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Alis 敖维标识管理系统</title>
+    <script>var jsVer = "V2021_0127";</script>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("window");
+        importFrameworkRes("taskbar");
+        importFrameworkRes("main-menu");
+
+        importFrameworkRes("topwin");
+        importFrameworkRes("main");
+    </script>
+    <script src="../../js/project.js?v=V2020_1217"></script>
+
+    <!-- layout-main -->
+    <style type="text/css">
+        html, body, #app, .el-container, .el-header {
+            margin: 0px;
+            padding: 0px;
+            height: 100%;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        .el-header {
+            background-color: white;
+            color: #324057;
+            text-align: center;
+        }
+
+        .el-main {
+            background-color: #E9EEF3;
+            color: #333;
+            text-align: center;
+            line-height: 160px;
+        }
+
+        .el-footer {
+            background-color: #B3C0D1;
+            color: #333;
+            text-align: center;
+            line-height: 60px;
+        }
+    </style>
+    <!-- layout-header -->
+    <style type="text/css">
+        #tbLayoutHeader {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            #tbLayoutHeader td {
+                height: 80px;
+                padding: 0px;
+                overflow: hidden;
+                border: dotted 0px green;
+            }
+
+        #tdTopLeft {
+            width: 210px;
+            text-align: left;
+            background-image: url('../../image/main/logo_left_top1.png');
+            background-position: 6px center;
+            background-repeat: no-repeat;
+            background-size: auto 60%;
+        }
+
+        #tdTopCenter {
+            text-align: left;
+        }
+
+        #tdTopRight {
+            width: 200px;
+            text-align: right;
+        }
+
+        .fullscreen:before {
+            cursor: pointer;
+            font-size: 36px;
+            margin-right: 24px;
+            display: inline-block;
+            transform: rotate(45deg);
+        }
+    </style>
+    <!-- layout-main -->
+    <style type="text/css">
+        #ifrHome {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body onload="winLoad()">
+    <div id="app">
+        <el-container>
+            <el-header style="height:auto;">
+                <table id="tbLayoutHeader">
+                    <tr>
+                        <td id="tdTopLeft"></td>
+                        <td id="tdTopCenter" style1="vertical-align:bottom">
+                            <main-menu :menus="menus" @onmenuclick="onMenuClick"></main-menu>
+                        </td>
+                        <td id="tdTopRight">
+                            <!--<i class="el-icon-rank fullscreen" title="全屏" onclick="app.fullScreen()"></i>-->
+                            <el-dropdown trigger="click" @command="shiftSystem" style="margin-right:24px;" placement="bottom">
+                                <el-avatar :size="36" style="cursor:pointer" src="../../image/main/sub_system.png" title="切换子系统"></el-avatar>
+                                <el-dropdown-menu slot="dropdown" :systems="systems">
+                                    <el-dropdown-item v-for="system in systems" :key="system['pk'].value" :command="system" icon="el-icon-full-screen">{{system["text"].value}}</el-dropdown-item>
+                                </el-dropdown-menu>
+                            </el-dropdown>
+                            <el-dropdown trigger="click" @command="handleCommand" style="margin-right:24px;" placement="bottom">
+                                <el-avatar :size="36" style="cursor:pointer" src="../../image/main/user.png" title="用户中心"></el-avatar>
+                                <el-dropdown-menu slot="dropdown">
+                                    <el-dropdown-item command="change-password" icon="el-icon-finished">修改密码</el-dropdown-item>
+                                    <el-dropdown-item command="exit" icon="el-icon-refresh-left">退出</el-dropdown-item>
+                                </el-dropdown-menu>
+                            </el-dropdown>
+                        </td>
+                    </tr>
+                </table>
+                <div style="height:40px;background-color: #4E5465 !important;">
+                    <taskbar id="taskbar" ref="taskBar" :deskbar-text="deskbarText" :taskbars="taskbars" @onclick="onTaskbarClick"></taskbar>
+                </div>
+            </el-header>
+            <el-main style="margin:0px;padding:0px;overflow:hidden;">
+                <iframe id="ifrHome" src="about:blank" frameborder="0"></iframe>
+            </el-main>
+            <!--<el-footer style="height:40px;line-height:40px;">foot</el-footer>-->
+        </el-container>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            userPk: getUrlItem("userPk"),
+            systemKey: "",
+            systemName: "",
+            systemText: "",
+            systems: [],
+            menus: [],
+            taskbars: [],
+            deskbarText: "工作台"
+        },
+        mounted() {
+            this.taskbars = [];
+
+            ajax.send("/sys_menu/getSystem").then(response => {
+                let dtbSystem = response.dtbSystem;
+                this.systems = dtbSystem.rows;
+
+                if (dtbSystem.rowCount == 0) {
+                    this.$alert("当前用户尚未分配权限，请与系统管理员联系。", "系统提示", { confirmButtonText: "确定" });
+                    return;
+                }
+                this.systemKey = getUrlItem("systemKey") || dtbSystem.rows[0]["pk"].value;
+                for (let i = 0; i < dtbSystem.rowCount; i++) {
+                    if (this.systemKey.equals(dtbSystem.rows[i]["pk"].value)) {
+                        this.shiftSystem(dtbSystem.rows[i]);
+                        return;
+                    }
+                }
+                this.$message("当前用户没有指定登录的子系统权限，请检查。");
+            })
+
+            gId("ifrHome").src = "home.html?rnd=" + g.cfg.jsVer;
+        },
+        methods: {
+            fullScreen() {
+                let el = document.documentElement;
+                let rfs = el.webkitRequestFullScreen || el.requestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+                if (typeof rfs != "undefined" && rfs) {
+                    rfs.call(el);
+                };
+            },
+            shiftSystem(system) {
+                this.systemKey = system["pk"].value;
+                this.systemName = system["name"].value;
+                this.systemText = system["text"].value;
+
+                let para = { systemKey: this.systemKey };
+                ajax.send("/sys_menu/getMenuByUser", para).then(response => {
+                    if (response.ok) {
+                        this.menus = dtbMenuToJson(response.dtbMenu, para.systemKey);
+                    }
+                    else {
+                        this.$alert(response.error, { type: "error", title: "系统消息..." });
+                    }
+                })
+
+                // -- TODO: 清理 --
+                this.$notify({
+                    title: "系统提示", message: "登录到子系统：" + this.systemText, type: "success", position: "bottom-left"
+                });
+            },
+            handleCommand(command) {
+                if (command.equals("exit")) {
+                    window.location.href = getUrlItem("urlLogin");
+                }
+                else {
+                    this.$message('click on item ' + command);
+                }
+            },
+            onMenuClick(menu) {
+                openMenu(menu);
+            },
+            onTaskbarClick(barName) {
+                if (barName.equals("desktop")) {
+                    // -- TODO: 激活工作台 --
+                    //this.$message("激活工作台事件处理...");
+                    //Vue.prototype.$ELEMENT = { size: 'small', zIndex: 80000 };
+                }
+                else {
+                    // -- this.$message("点击bar：" + barName); --
+                }
+            }
+        }
+    })
+
+    function winLoad() {
+        var jsonProp = {
+            jsVer: g.cfg.jsVer,
+            zIndex: g.c.zIndexWin,
+            rangeContainer: gId("ifrHome"),
+            taskbar: null
+        };
+        topWin.cWin = new window.xwf_window(jsonProp);
+
+        let para = {
+            protocol: "2.0",
+            action: "getPrinterList"
+        }
+        top.invokeEdge(para);
+    }
+</script>
+
+<!-- js invoke shell -->
+<script>
+    function invokeEdge(jsp) {
+        if (!chrome || !chrome.webview) {
+            if (!g.debug) {
+                topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "error");
+            }
+            return;
+        }
+        try {
+            return chrome.webview.postMessage(jsp);
+        }
+        catch (e) {
+            topWin.alert(e.toString(), "error");
+        }
+    }
+
+    function jsInvokeCommonShell(para) {
+        if (!chrome || !chrome.webview) {
+            if (!g.debug) {
+                topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "error");
+            }
+            return;
+        }
+        try {
+            if (para.action.equals("designLabel")) {
+                return chrome.webview.postMessage(para);
+            }
+            else if (para.action.equals("initLabel")) {
+                return chrome.webview.postMessage(para);
+            }
+            else if (para.action.equals("previewLabel") || para.action.equals("printLabel")) {
+                return chrome.webview.postMessage(para);
+            }
+            else if (para.action.equals("downloadLabelContent_callback")) {
+                return chrome.webview.postMessage(para);
+            }
+            else {
+                topWin.alert("尚未实现的 action：" + para.action + "，请检查。", "error");
+            }
+        }
+        catch (e) {
+            topWin.alert(e.toString(), "error");
+        }
+    }
+
+    function openMasoDesigner(para) {
+        ajax.send("/aprint/label/getLabelContentById", para).then(res => {
+            let para = {
+                action: 'designLabel',
+                labelCode: res.id,
+                labelVersion: res.version,
+                labelContent: res.content,
+                labelName: res.name,
+                labelType: res.type
+            }
+            jsInvokeCommonShell(para);
+        });
+    }
+    function printLabel(para) {
+        jsInvokeCommonShell(para);
+    }
+
+    function initLabel(para) {
+        jsInvokeCommonShell(para);
+    }
+</script>
+<!-- shell invoke js -->
+<script>
+    function commonShellInvokeJs(para) {
+        try {
+            if (para.action.equals("setPrinterList")) {
+                topWin.printers = para.printers;
+            }
+            else if (para.action.equals("setBarcodeBase64")) {
+                setBarcodeBase64(para);
+            }
+            else if (para.action.equals("saveLabelContent")) {
+                saveMasoLabel(para);
+            }
+            else if (para.action.equals("downloadLabelContent")) {
+                downloadLabelContent(para);
+            }
+            else {
+                topWin.alert("尚未实现的 action：" + para.action + "，请检查。", "error");
+            }
+        }
+        catch (e) {
+            topWin.alert(e.toString(), "error");
+        }
+    }
+
+    function saveMasoLabel(para) {
+        let postData = {
+            id: para.labelCode,
+            content: para.labelContent,
+            vars: para.labelVars
+        };
+        ajax.send("/aprint/labels/maso/MasoFile/saveLabelContent", postData).then(res => {
+            topWin.message("标签保存成功。", "success");
+        });
+    }
+    function downloadLabelContent(para) {
+        let post = {
+            code: para.labelCode,
+            version: para.labelVersion
+        };
+        ajax.send("/aprint/labels/maso/MasoFile/getLabelContent", post).then(res => {
+            let dtbLabel = res.dtbLabel;
+            if (dtbLabel.rowCount == 1) {
+                para.action = "downloadLabelContent_callback";
+                para.labelContent = dtbLabel.rows[0]["content"].value;
+                para.labelMVersion = dtbLabel.rows[0]["mdate"].value;
+
+                jsInvokeCommonShell(para);
+            }
+        });
+    }
+
+    function setBarcodeBase64(para) {
+        top.EdgeJsSwapArea.DLabel[para.base64Key] = para.base64;
+    }
+</script>

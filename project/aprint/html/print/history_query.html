@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>打印数据查询</title>
+    <script src="../../../../framework/core/boot.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col style="width:400px;">
+                <el-row>
+                    <el-select v-model="labelId" filterable style="width:100%;">
+                        <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                            <span style="float: left">{{ item.code }}</span>
+                            <span style="float: right;">{{ item.name }}</span>
+                        </el-option>
+                    </el-select>
+                </el-row>
+                <br />
+                <el-row>
+                    <el-col :span="11">
+                        <el-date-picker type="date" placeholder="选择起始日期" v-model="date1" style="width:100%"></el-date-picker>
+                    </el-col>
+                    <el-col :span="2">&nbsp;</el-col>
+                    <el-col :span="11">
+                        <el-date-picker type="date" placeholder="选择截止日期" v-model="date2" style="width:100%"></el-date-picker>
+                    </el-col>
+                </el-row>
+                <br />
+                <el-row>
+                    <el-col :span="5">
+                        <el-button @click="query">查询</el-button>
+                    </el-col>
+                    <el-col :span="6" style="text-align:right">
+                        <el-button @click="reset">重置查询</el-button>
+                    </el-col>
+                    <el-col :span="2">&nbsp;</el-col>
+                    <el-col :span="6">
+                        <el-button type="primary" @click="exportData">导出数据</el-button>
+                    </el-col>
+                    <el-col :span="5" style="text-align:right">
+                        <el-button onclick="win.close()">关闭</el-button>
+                    </el-col>
+                </el-row>
+                <br />
+                <el-row>
+                    <el-col :span="13">&nbsp;</el-col>
+                    <el-col :span="6" style="text-align:center;">
+                        <el-link :href="urlXlsx" type="primary" v-show="urlXlsx" target="_blank">下载文件<i class="el-icon-link"></i></el-link>
+                    </el-col>
+                </el-row>
+            </el-col>
+            <el-col style="width:500px;">
+                <sub-view id="grid" ref="grid" style="height:350px;margin-left:10px;"></sub-view>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            labels: [],
+
+            labelId: null,
+            date1: null,
+            date2: null,
+            urlXlsx: ""
+        },
+        mounted() {
+            ajax.send("/aprint/print/print_query/getLabels", {}).then((res) => {
+                let dtbLabel = res.dtbLabel;
+                let labels = [];
+                for (let i = 0; i < dtbLabel.rowCount; i++) {
+                    labels.push({
+                        id: dtbLabel.rows[i]["id"].value,
+                        code: dtbLabel.rows[i]["code"].value,
+                        name: dtbLabel.rows[i]["name"].value
+                    });
+                }
+                this.labels = labels;
+            })
+
+            this.reset();
+        },
+        methods: {
+            reset() {
+                this.labelId = null;
+                this.date1 = new Date();
+                this.date2 = new Date();
+                this.urlXlsx = "";
+
+                let para2 = {
+                    viewPk: "task_history", 
+                    vfUrl: g.path.project + "/aprint/html/print/history_print.html",
+                    filter: "1 = 0"
+                }
+                this.$refs.grid.init(para2);
+            },
+            query() {
+                let filter = "cdate >= '" + this.date1.toDate().toStr() + "' AND cdate <= '" + this.date2.toDate().toStr() + " 23:59:59'";
+                if (this.labelId) {
+                    filter += " AND label_id = " + this.labelId;
+                }
+                this.$refs.grid.setFilter(filter);
+            },
+
+            exportData() {
+                this.date1 = this.date1.toDate();
+                this.date2 = this.date2.toDate();
+                if (this.date2.diffDay(this.date1) > 30) {
+                    topWin.alert("数据导出时间跨度不能超过一个月，请重设。", "warn");
+                    return;
+                }
+                this.urlXlsx = "";
+
+                let para = {
+                    labelId: this.labelId || 0,
+                    date1: this.date1.toStr(),
+                    date2: this.date2.toStr()
+                }
+                ajax.send("/aprint/print/print_query/exportData", para).then((res) => {
+                    this.urlXlsx = g.prefix + res.urlFile;
+                    window.open(this.urlXlsx, "_blank");
+                })
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    let grid = gId("grid");
+    function winLoad() {
+        grid.style.width = (win.p.maxWidth - grid.offsetLeft) + "px";
+        grid.style.height = (win.p.maxHeight) + "px";
+    }
+</script>

@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>历史任务单查询</title>
+    <title>历史任务单</title>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -17,19 +17,26 @@
     <div id="app">
         <div id="app" style="width:1200px;">
             <view-form-bar id="vf" ref="vf"></view-form-bar>
-            <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-form :model="form" ref="form" label-width="90px" label-position="left">
                 <el-row>
                     <el-col :span="span[1]">
-                        <el-form-item label="任务单号">
-                            <el-input v-model="form.task_pk" :disabled="true" />
+                        <el-form-item label="打印机">
+                            <el-select v-model="printerName" @change="preview();onPrinterChange();" filterable style="width:100%;">
+                                <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
+                            </el-select>
                         </el-form-item>
                     </el-col>
                     <el-col :span="span[2]">
+                        <el-form-item label="打印份数" required>
+                            <el-input v-model="copies" />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="span[3]">
                         <el-form-item label="起始行号" required>
                             <el-input v-model="rowNoFrom" />
                         </el-form-item>
                     </el-col>
-                    <el-col :span="span[3]">
+                    <el-col :span="span[4]">
                         <el-form-item label="到" required>
                             <el-input v-model="rowNoTo" />
                         </el-form-item>
@@ -47,15 +54,31 @@
     var app = new Vue({
         el: '#app',
         data: {
-            span: [24, 10, 7, 7],
+            span: [24, 9, 5, 5, 5],
             form: {},
 
             dtbLabel: null,
+            dtbTaskData: null,
+
+            taskId: 0,
+            labelId: 0,
+            labelType: "",   
+            labelContent: "",
+
             rowNoFrom: 1,
-            rowNoTo: 100
+            rowNoTo: 100,
+            copies: 1,
+
+            printerName: "",
+            printers: []
         },
         methods: {
             afterMove: function () {
+                this.taskId = this.form.id;
+                this.labelId = this.form.label_id;
+                this.labelType = this.form.label_type;
+                this.rowNoTo = this.form.qty ? this.form.qty : 0;
+
                 var para = {
                     viewPk: "x_label",
                     controller: "/aprint/print/x_label_view",
@@ -66,14 +89,11 @@
                 }
                 this.$refs.grid.init(para);
 
-                ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.form.label_id }).then(res => {
-                    this.dtbLabel = res.dtbLabel;
-                });
-
-                this.rowNoTo = this.form.qty ? this.form.qty : 0;
+                if (winPreview) {
+                    winPreview.hide();
+                }
             },
             onClick: function (button) {
-                debugger;
                 if (button.name.equals("task_print")) {
                     this.print();
                 }
@@ -81,7 +101,194 @@
                     topWin.alert("name = " + button.name + ", text = " + button.text);
                 }
             },
-            
+
+            print() {
+                if (this.rowNoFrom.toInt() < 1 || this.rowNoTo.toInt() < 1 || this.rowNoTo.toInt() < this.rowNoFrom.toInt()) {
+                    topWin.alert("请输入正确的起始行号。");
+                    return;
+                }
+                if (this.copies.toInt() < 1) {
+                    topWin.alert("请输入正确的打印份数。");
+                    return;
+                }
+
+                let para = {
+                    taskId: this.form.id,
+                    labelId: this.form.label_id,
+                    rowNoFrom: this.rowNoFrom,
+                    rowNoTo: this.rowNoTo
+                };
+                ajax.send("/aprint/print/print_query/getForPrint", para).then(res => {
+                    this.dtbLabel = res.dtbLabel;
+                    this.dtbTaskData = res.dtbTaskData;
+
+                    this.labelContent = this.dtbLabel.rows[0]["content"].value;
+
+                    if (this.labelType.equals("DLabel")) {
+                        this.DLabelPrint();
+                    }
+                    else {
+                        this.BtOrMasoLabelPrint();
+                    }
+                });
+            },
+            BtOrMasoLabelPrint() {                
+                let DATA = [];
+                let rowCount = this.dtbTaskData.rowCount;
+                let columnCount = this.dtbTaskData.columnCount;
+
+                let arr = [];
+                for (let i = 0; i < columnCount; i++) {
+                    arr.push(this.dtbTaskData.columns[i].name);
+                }
+                DATA.push(arr.join(g.c.CHAR2));
+
+                for (let i = 0; i < rowCount; i++) {
+                    let arr = [];
+                    for (let j = 0; j < columnCount; j++) {
+                        arr.push(this.dtbTaskData.rows[i][j].value);
+                    }
+                    DATA.push(arr.join(g.c.CHAR2));
+                }
+
+                let para = {
+                    action: "printLabel",
+                    labelId: this.labelId,
+                    labelType: this.labelType,
+                    labelContent: this.labelContent,                    
+                    labelSummary: this.getLabelSummary(),
+                    taskId: this.taskId,
+                    dataString: DATA.join(g.c.CHAR1),
+                    printerName: this.printerName,
+                    copies: this.copies
+                }
+
+                if (this.labelType.equals("BarTender")) {
+                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
+                        return;
+                    }
+                    para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+
+                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
+                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
+                        return;
+                    }
+                    para.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                }
+                top.printLabel(para);
+            },
+            async DLabelPrint() {
+                this.DLabelPreview();
+
+                while (!winPreview.window) {
+                    await sleep(50)
+                }
+                let lbl = winPreview.window.lbl;
+                let datas = [], dataString, name, value;
+                // -- 打印样张 --------------------------------
+                if (!this.taskId) {
+                    datas.push(lbl.getData());
+                    dataString = JSON.stringify(datas, null, " ");
+
+                    let para = {
+                        protocol: "2.0",
+                        action: "printDLabel",
+                        labelString: lbl.toJson(),
+                        dataString: dataString,
+                        printerName: this.printerName,
+                        copies: this.copies
+                    }
+                    top.invokeEdge(para);
+                    return;
+                }
+
+                // -- 打印任务单数据 -----------------------------
+                let postData = {
+                    labelId: this.labelId,
+                    taskId: this.taskId,
+                    rowNoFrom: this.rowNoFrom,
+                    rowNoTo: this.rowNoTo
+                };
+                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
+                    let dtbTaskData = res.dtbTaskData;
+                    let rowCount = dtbTaskData.rowCount;
+                    let columnCount = dtbTaskData.columnCount;
+                    // ------------------------------------
+                    for (let i = 0; i < rowCount; i++) {
+                        for (let j = 0; j < columnCount; j++) {
+                            name = dtbTaskData.columns[j].name;
+                            if (name.equals("task_id") || name.equals("id")
+                                || name.equals("$row_no") || name.equals("$cdate")) {
+                                continue;
+                            }
+                            value = dtbTaskData.rows[i][j].value;
+
+                            lbl.setValue(name, value);
+                        }
+                        lbl.compute(i == rowCount - 1);
+                        datas.push(lbl.getData());
+                    }
+                    dataString = JSON.stringify(datas, null, " ");
+
+                    // --------------------------------------------
+                    let para = {
+                        protocol: "2.0",
+                        action: "printDLabel",
+                        labelString: lbl.toJson(),
+                        dataString: dataString,
+                        printerName: this.printerName,
+                        copies: this.copies
+                    }
+
+                    top.invokeEdge(para);
+                });
+            },
+            DLabelPreview() {
+                let fields = {}, variable, name, value;
+                for (let key in this.variables) {
+                    variable = this.variables[key];
+                    name = key;
+                    value = variable.valueFormat;
+
+                    fields[name] = value;
+                }
+                // ----------------------------------------
+                if (winPreview) {
+                    if (!this.labelId.equals(winPreview.window.labelId)) {
+                        winPreview.close({ callerIsParent: true });
+                        winPreview = null;
+                    }
+                }
+
+                if (winPreview == null) {
+                    let prop = {
+                        url: g.path.framework + "/control/DLabel/form/preview.html",
+                        left: win.p.maxWidth / 2,
+                        parent: win,
+                        modal: false
+                    };
+                    let para = {
+                        labelId: this.labelId,
+                        labelContent: this.labelContent,
+                        labelFields: fields,
+                        labelWidth: this.dtbLabel.rows[0]["width"].value,
+                        labelHeight: this.dtbLabel.rows[0]["height"].value
+                    };
+                    winPreview = topWin.openWindow(prop, para);
+                }
+                else {
+                    winPreview.show();
+                    winPreview.window.lbl.loadLabel(this.labelContent, {
+                        labelId: this.labelId,
+                        imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+                        fields: fields,
+                        readonly: true
+                    });
+                    winPreview.window.lbl.compute(true);
+                }
+            },
+
             getLabelSummary() {
                 let dataRow = this.dtbLabel.rows[0];
                 let arr = new Array();
@@ -93,75 +300,23 @@
 
                 return arr.join("    ");
             },
-
-            print() {
-                if (this.rowNoFrom.toInt() < 1 || this.rowNoTo.toInt() < 1 || this.rowNoTo.toInt() < this.rowNoFrom.toInt()) {
-                    topWin.alert("请输入正确的起始行号。");
-                    return;
-                }
-
-                let postData = {
-                    labelId: this.form.label_id,
-                    taskId: this.form.id,
-                    rowNoFrom: this.rowNoFrom,
-                    rowNoTo: this.rowNoTo
-                };
-                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
-                    let DATA = [];
-                    let dtbTaskData = res.dtbTaskData;
-
-                    let rowCount = dtbTaskData.rowCount;
-                    let columnCount = dtbTaskData.columnCount;
-
-                    let arr = [];
-                    for (let i = 0; i < columnCount; i++) {
-                        arr.push(dtbTaskData.columns[i].name);
-                    }
-                    DATA.push(arr.join(g.c.CHAR2));
-
-                    for (let i = 0; i < rowCount; i++) {
-                        let arr = [];
-                        for (let j = 0; j < columnCount; j++) {
-                            arr.push(dtbTaskData.rows[i][j].value);
-                        }
-                        DATA.push(arr.join(g.c.CHAR2));
-                    }
-
-                    this.printLabel({ action: "printLabel", quickPrint: false, dataString: DATA.join(g.c.CHAR1) });
-                });
-            },
-            printLabel(para) {
-                let paraInvoke = {
-                    action: para.action,
-                    labelId: this.form.label_id,
-                    labelContent: this.dtbLabel.rows[0]["content"].value,
-                    labelType: this.dtbLabel.rows[0]["type"].value,
-                    labelSummary: this.getLabelSummary(),
-                    quickPrint: (para.quickPrint ? "1" : "0"),
-                    taskId: this.form.id,
-                    dataString: para.dataString
-                }
-                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
-                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
-                        return;
-                    }
-                    paraInvoke.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
-
-                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
-                        return;
-                    }
-                    paraInvoke.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
-                }
-
-                top.printLabel(paraInvoke);
-            },
         }
     });
 
+</script>
+
+<!-- winLoad -->
+<script>
+    var ckLatestPrinter = "quick_print_latest_printer";
+
+    var winPreview;
     // ------------------------------------------------------------------------
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 200) + "px";
+
+        for (let i = 0; i < topWin.printers.length; i++) {
+            app.printers.push(topWin.printers[i]);
+        }
+        app.printerName = getLocalItem(ckLatestPrinter);
     }
 </script>

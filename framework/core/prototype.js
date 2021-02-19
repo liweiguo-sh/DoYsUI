@@ -163,6 +163,12 @@ Date.prototype.diffSecond = function (dateEarly) {
     ///<param name="date2">日期对象</param>
     return (this.getTime() - dateEarly.getTime()) / 1000;
 };
+Date.prototype.diffDay = function (dateEarly) {
+    ///<summary>返回2个日期（时间）对象的时间间隔，单位：天 </summary>
+    ///<param name="date1">日期对象</param>
+    ///<param name="date2">日期对象</param>
+    return (this.getTime() - dateEarly.getTime()) / 1000 / 3600 / 24;
+};
 
 // -- Number ------------------------------------------------------------------
 Number.prototype.toInt = function () {

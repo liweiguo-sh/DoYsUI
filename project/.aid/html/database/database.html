@@ -25,14 +25,16 @@
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="text">
-                        <el-input v-model="form.text" />
+                    <el-form-item label="instance_pk">
+                        <el-input v-model="form.instance_pk" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="类型">
+                    <el-form-item label="type">
                         <el-select v-model="form.type">
-                            <el-option value="MySQL" label="MySQL"></el-option>
+                            <el-option value="sys" label="sys"></el-option>
+                            <el-option value="prefix" label="prefix"></el-option>
+                            <el-option value="common" label="common"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>

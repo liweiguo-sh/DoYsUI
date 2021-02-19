@@ -53,7 +53,7 @@
                         <el-col :span="span[3]">
                             <el-form-item label="数据库" required>
                                 <el-select v-model="form.database_pk" filterable :popper-append-to-body="false">
-                                    <el-option v-for="item in ds.database_pk" :key="item.pk" :value="item.pk" :label="item.text"></el-option>
+                                    <el-option v-for="item in ds.database_pk" :key="item.type" :value="item.pk" :label="item.type"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
