@@ -229,44 +229,46 @@
             else if (button.name.equals("save") || button.name.equals("addnew") || button.name.equals("delete") || button.name.equals("cancel")) {
                 this.doCRUD(button);
             }
-            else {
-                if (button.actionType.equals("move")) {
-                    this.dataRowView = this.view.onVfMove(button.name);
-                    this.getFormData();
-                }
-                else if (button.actionType.equals("sql")) {
-                    if (this.$parent.beforeFlowClick) {
-                        if (!this.$parent.beforeFlowClick()) {
-                            return false;
-                        }
+            else if (button.name.equals("copy")) {
+                this.copy();
+            }
+            else if (button.actionType.equals("move")) {
+                this.dataRowView = this.view.onVfMove(button.name);
+                this.getFormData();
+            }
+            else if (button.actionType.equals("sql")) {
+                if (this.$parent.beforeFlowClick) {
+                    if (!this.$parent.beforeFlowClick()) {
+                        return false;
                     }
+                }
 
-                    this.$confirm("确定要执行 [" + button.text + "] 操作吗？", g.c.titleConfirm, {
-                        confirmButtonText: "确定", cancelButtonText: "取消", type: "warning",
-                        button: button,
-                        callback: (action, instance) => {
-                            if (action.equals("confirm")) {
-                                this.doFlow(instance.button);
-                            }
-                        }
-                    }).then((a, b, c) => {
-                        // -- 用了callback，此处就不会再进来 --
-                    })
-                }
-                else if (button.actionType.equals("client")) {
-                    if (this.$parent.onClick) {
-                        if (this.$parent.onClick(button)) {
-                            this.doClick(button);
+                this.$confirm("确定要执行 [" + button.text + "] 操作吗？", g.c.titleConfirm, {
+                    confirmButtonText: "确定", cancelButtonText: "取消", type: "warning",
+                    button: button,
+                    callback: (action, instance) => {
+                        if (action.equals("confirm")) {
+                            this.doFlow(instance.button);
                         }
                     }
-                    else {
+                }).then((a, b, c) => {
+                    // -- 用了callback，此处就不会再进来 --
+                })
+            }
+            else if (button.actionType.equals("client")) {
+                if (this.$parent.onClick) {
+                    if (this.$parent.onClick(button)) {
                         this.doClick(button);
                     }
                 }
                 else {
-                    this.$message("unsupport actionType = " + button.actionType + ", button.name = " + button.name);
+                    this.doClick(button);
                 }
             }
+            else {
+                this.$message("unsupport actionType = " + button.actionType + ", button.name = " + button.name);
+            }
+
         },
         doCRUD(button) {
             if (button.name.equals("save")) {
@@ -303,11 +305,13 @@
             }
         },
         save() {
-            let nFind, datatype;
+            let nFind, datatype, nullable, text, value;
             for (let key in this.$parent.form) {
                 nFind = this.dtbViewField.find([key]);
                 if (nFind >= 0) {
+                    text = this.dtbViewField.rows[nFind]["text"].value;
                     datatype = this.dtbViewField.rows[nFind]["datatype"].value;
+                    nullable = this.dtbViewField.rows[nFind]["flag_nullable"].value;
 
                     if (datatype.equals("tinyint")) {
                         this.$parent.form[key] = this.$parent.form[key] ? true : false;
@@ -315,6 +319,12 @@
                     else {
                         if (g.x.isString(this.$parent.form[key])) {
                             this.$parent.form[key] = this.$parent.form[key].trim();
+                        }
+                        value = this.$parent.form[key];
+                        if (!nullable && !value && this.$parent.$refs[key]) {
+                            topWin.alert("字段 " + text + " 的值不能为空，请检查。", "warning");
+                            this.$parent.$refs[key].focus();                            
+                            return false;
                         }
                     }
                 }
@@ -369,13 +379,42 @@
 
             // -- do addnew --
             this.clear();
-            //this.$parent.$refs.form.resetFields();
-            //this.$parent.$refs.form.clearValidate();
             this.setStatus("addnew");
 
             // -- afterAddnew --
             if (this.$parent.afterAddnew) {
                 this.$parent.afterAddnew();
+            }
+        },
+        copy() {
+            // -- beforeCopy & beforeAddnew --
+            if (this.$parent.beforeCopy) {
+                if (!this.$parent.beforeCopy()) {
+                    return false;
+                }
+            }
+            if (this.$parent.beforeAddnew) {
+                if (!this.$parent.beforeAddnew()) {
+                    return false;
+                }
+            }
+
+            // -- do copy --
+            for (let key in this.$parent.form) {
+                if (key.equals("id") || key.equals("pk")
+                    || key.equals("creator") || key.equals("cdate") || key.equals("modifier") || key.equals("mdate")
+                    || key.equals("auditor") || key.equals("adate") || key.equals("astatus")) {
+                    this.$parent.form[key] = "";
+                }
+            }
+            this.setStatus("addnew");
+
+            // -- afterCopy & afterAddnew --
+            if (this.$parent.afterAddnew) {
+                this.$parent.afterAddnew();
+            }
+            if (this.$parent.afterCopy) {
+                this.$parent.afterCopy();
             }
         },
         delete() {

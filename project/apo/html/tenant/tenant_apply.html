@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>商户申请</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="申请单号">
+                        <el-input v-model="form.pk" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="日期" required>
+                        <el-date-picker v-model="form.bus_date" type="date" placeholder="开户日期" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="企业名称" required>
+                        <el-input v-model="form.tenant_name" ref="tenant_name" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="企业简称" required>
+                        <el-input v-model="form.tenant_shortname" ref="tenant_shortname" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="销售" required>
+                        <el-input v-model="form.salesman" ref="salesman" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="开户费" required>
+                        <el-input v-model="form.amount" ref="amount" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="到期日期" required>
+                        <el-date-picker v-model="form.exp_date" type="date" placeholder="到期日期" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="4" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {}
+        },
+
+        methods: {
+            afterAddnew: function () {
+                this.form.bus_date = (new Date).toStr();
+                this.form.exp_date = (new Date).add(1,"year").toStr();
+            },
+            beforeSave: function () {
+                return true;
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+    }
+</script>
