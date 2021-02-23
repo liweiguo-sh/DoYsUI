@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>数据库配置</title>
+    <title>商户查询</title>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -13,37 +13,32 @@
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="pk">
-                        <el-input v-model="form.pk" :disabled="true" />
+                    <el-form-item label="商户名称">
+                        <el-input v-model="form.name" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="type">
-                        <el-select v-model="form.type">
-                            <el-option value="sys" label="sys"></el-option>
-                            <el-option value="prefix" label="prefix"></el-option>
-                            <el-option value="common" label="common"></el-option>
-                        </el-select>
+                    <el-form-item label="开户日期">
+                        <el-input v-model="form.bus_date" />
                     </el-form-item>
-                </el-col>                
+                </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="name">
-                        <el-input v-model="form.name" :disabled="true" />
+                    <el-form-item label="销售">
+                        <el-input v-model="form.salesman" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="db_type">
-                        <el-input v-model="form.db_type" />
+                    <el-form-item label="到期日期">
+                        <el-input v-model="form.exp_date" />
                     </el-form-item>
                 </el-col>
-
-            </el-row>            
+            </el-row>
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                        <el-input v-model="form.remark" type="textarea" :rows="4" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -60,7 +55,17 @@
             span: [24, 12, 12],
             form: {}
         },
-        methods: {            
+
+        methods: {
+            beforeSave: function () {
+                return true;
+            }
         }
     });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+    }
 </script>
