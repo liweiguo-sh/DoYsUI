@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>商户申请</title>
+    <title>商户续费登记</title>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -13,50 +13,31 @@
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="申请单号">
+                    <el-form-item label="续费单号">
                         <el-input v-model="form.pk" :disabled="true" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="日期" required>
-                        <el-date-picker v-model="form.bus_date" type="date" placeholder="开户日期" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="企业代码">
-                        <el-input v-model="form.tenant_code" :disabled="true" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[1]" v-show="false">
-                    <el-form-item label="模板企业">
-                        <el-input v-model="form.tenant_code_templet" :disabled="true" />
+                        <el-date-picker v-model="form.bus_date" type="date" placeholder="续费日期" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[0]">
-                    <el-form-item label="企业名称" required>
-                        <el-input v-model="form.tenant_name" ref="tenant_name" />
+                    <el-form-item label="续费企业" required>
+                        <el-select v-model="form.tenant_id" @change="onTenantIdChange" filterable :popper-append-to-body="false">
+                            <el-option v-for="item in ds.tenant_id" :key="item.id" :value="item.id" :label="item.name">
+                                <span style="float: left">{{ item.name }}</span>
+                                <span style="float: right;">{{item.type + item.id + ' (' + item.exp_date + ')'}}</span>
+                            </el-option>
+                        </el-select>
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="企业简称" required>
-                        <el-input v-model="form.tenant_shortname" ref="tenant_shortname" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="销售" required>
-                        <el-input v-model="form.salesman" ref="salesman" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="开户费" required>
+                    <el-form-item label="续费金额" required>
                         <el-input v-model="form.amount" ref="amount" />
                     </el-form-item>
                 </el-col>
@@ -68,14 +49,11 @@
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="管理员账号" required>
-                        <el-input v-model="form.admin_user_pk" ref="admin_user_pk" />
+                    <el-form-item label="销售">
+                        <el-input v-model="form.salesman" ref="salesman" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="管理员密码" required>
-                        <el-input v-model="form.admin_password" ref="admin_password" show-password />
-                    </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
@@ -96,17 +74,28 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {}
+            form: {},
+            ds: {}
         },
 
         methods: {
+            onTenantIdChange(tenantId) {
+                let option = this.ds.tenant_id.find((item) => {
+                    return item.id === tenantId;
+                });
+                this.form.tenant_name = option.name;
+                this.form.exp_date = option.exp_date.toDate().add(1, "year").toStr();
+                this.form.salesman = option.salesman;
+                this.form.amount = "";
+            },
             afterAddnew: function () {
                 this.form.bus_date = (new Date).toStr();
-                this.form.exp_date = (new Date).add(1, "year").toStr();
-
-                this.form.tenant_code_templet = "F100";
             },
             beforeSave: function () {
+                if (!this.form.tenant_id) {
+                    topWin.alert("请选择续费企业。", "warning");
+                    return false;
+                }
                 return true;
             }
         }
