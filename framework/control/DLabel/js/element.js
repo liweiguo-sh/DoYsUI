@@ -48,8 +48,18 @@ UtilElement.computeProp = function (jsp) {
 
     UtilElement.computePropAngle(element);
 
-    // -- 1. 文本(包括条码的文本部分) -------------------------
-    if (head.elementType.equals("text") || head.elementType.equals("barcode") || head.elementType.equals("image")) {
+    // -- 1. 通用属性 --
+    P.offsetLeft = P.marginLeft; P.offsetRight = P.marginRight;
+    P.offsetTop = P.marginTop; P.offsetBottom = P.marginBottom;
+    if (frame.type) {
+        P.offsetLeft += frame.width; P.offsetRight += frame.width;
+        P.offsetTop += frame.width; P.offsetBottom += frame.width;
+    }
+    P.clientWidth = P.width - P.offsetLeft - P.offsetRight;
+    P.clientHeight = P.height - P.offsetTop - P.offsetBottom;
+
+    // -- 2. 文本(包括条码的文本部分) --
+    if (head.elementType.equals("text") || head.elementType.equals("barcode")) {
         font._fontDraw = UtilElement._getContextFont(font, pxmm);
         font._fillStyleDraw = UtilElement._getContextFillStyle({ color: font.color });
         font._fontHeight = UtilElement._getContextLineHeight(font);
@@ -79,12 +89,8 @@ UtilElement.computeProp = function (jsp) {
         }
         P.topText = Math.max(P.topText, 0);
     }
-    if (head.elementType.equals("image")) {
-        P.imgWidth = P.width - 2 * frame.width - P.marginLeft - P.marginRight;
-        P.imgHeight = P.height - 2 * frame.width - P.marginTop - P.marginBottom;
-    }
 
-    // -- 2. 条码(条码的图片部分) -----------------------------
+    // -- 3. 条码(条码的图片部分) --
     if (head.elementType.equals("barcode")) {
         if (head.pureBarcode || P.verticalAlign.equals("middle")) {
             font._fontHeight = 0;
@@ -538,47 +544,68 @@ UtilElement._getContextLineHeight = function (font) {
 
 // -- draw image --------------------------------------------------------------
 UtilElement.draw_image = function (context, element) {
-    let pxmm = element._this.pxmm;
-    let position = element.position;
-    let x = position.leftText * pxmm;
-    let y = position.topText * pxmm;
-    let width = position.imgWidth * pxmm, widthImg;
-    let height = position.imgHeight * pxmm, heightImg;
-    let deformation = element.image.deformation || "";
-
-    let urlImg;
-    let img = new Image();
+    let urlImg = element.image.url || "";
     // ----------------------------------------------------
-    urlImg = element.image.url || "";
     if (!urlImg.equals("") && !urlImg.startsWith("http:") && !urlImg.startsWith("https:")) {
-        if (!element.labelHead.imageBaseUrl) {
+        if (!element._labelHead.imageBaseUrl) {
             alert("配置标签参数 (imageBaseUrl) 未配置, 请检查。");
             return;
         }
-        urlImg = element.labelHead.imageBaseUrl + urlImg;
+        urlImg = element._labelHead.imageBaseUrl + urlImg;
     }
-    // ----------------------------------------------------
+
+    let img = new Image();
+    // ----------------------------------------------------    
     img.src = urlImg;
     img.onload = function () {
+        let pxmm = element._this.pxmm;
+        let P = element.position;
+        let deformation = element.image.deformation || "";
+        let x, y, widthImg, heightImg;
+
+        // -- 1. deformation --
         if (deformation.equals("stretch")) {    // -- 拉伸(变形) --
-            widthImg = width;
-            heightImg = height;
+            widthImg = P.clientWidth;
+            heightImg = P.clientHeight;
         }
         else if (deformation.equals("zoom")) {  // -- 缩放(同比缩放) --
-            if (img.width / img.height > width / height) {
-                widthImg = width;
-                heightImg = width * img.height / img.width;
+            if (img.width / img.height > P.clientWidth / P.clientHeight) {
+                widthImg = P.clientWidth;
+                heightImg = P.clientWidth * img.height / img.width;
             }
             else {
-                heightImg = height;
-                widthImg = height * img.width / img.height;
+                heightImg = P.clientHeight;
+                widthImg = P.clientHeight * img.width / img.height;
             }
         }
         else {
             widthImg = img.width;
             heightImg = img.height;
         }
-        context.drawImage(img, x, y, widthImg, heightImg);
+
+        // -- 2. textAlign and verticalAlign --
+        if (P.textAlign.equals("right")) {
+            x = P.width - P.offsetRight - widthImg;
+        }
+        else if (P.textAlign.equals("center")) {
+            x = P.offsetLeft + (P.clientWidth - widthImg) / 2;
+        }
+        else {
+            x = P.offsetLeft;
+        }
+
+        if (P.verticalAlign.equals("bottom")) {
+            y = P.height - P.offsetBottom - heightImg;
+        }
+        else if (P.verticalAlign.equals("middle")) {
+            y = P.offsetTop + (P.clientHeight - heightImg) / 2;
+        }
+        else {
+            y = P.offsetTop;
+        }
+
+        // -- 3. draw --
+        context.drawImage(img, x * pxmm, y * pxmm, widthImg * pxmm, heightImg * pxmm);
     }
     img.onerror = function () {
         UtilElement._drawError(context, element, "404");
@@ -614,7 +641,7 @@ UtilElement.draw_barcode1D = async function (context, element) {
         barcodeValue: head._segmentsText,
         width: position.width,
         height: position.height,
-        point: element.labelHead.point,
+        point: element._labelHead.point,
         gs1: head.gs1
     });
     if (!srcImg) return;
@@ -658,7 +685,7 @@ UtilElement.draw_barcode2D = async function (context, element) {
         barcodeValue: head._segmentsText,
         width: position.widthBarcode,
         height: position.heightBarcode,
-        point: element.labelHead.point,
+        point: element._labelHead.point,
         gs1: head.gs1
     });
     if (!srcImg) return;

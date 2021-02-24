@@ -90,7 +90,6 @@
         if (this.elements) this.clearLabel();
 
         // -- 1. 初始化参数 --        
-        this.imageBaseUrl = jsp.imageBaseUrl;
         this.readonly = jsp.readonly;
         this.zIndexCanvas = 100;
         this.zIndexResize = 200;
@@ -107,9 +106,10 @@
         if (jsp.width) this.label.head.width = jsp.width;
         if (jsp.height) this.label.head.height = jsp.height;
         if (jsp.point) this.label.head.point = jsp.point;
-        this.label.head.imageBaseUrl = this.imageBaseUrl || this.label.head.imageBaseUrl;
+        if (jsp.imageBaseUrl) this.label.head.imageBaseUrl = jsp.imageBaseUrl;
         this.labelId = jsp.labelId || "";
         this.head = this.label.head;
+        this.head.id = this.head.id || 1;
         this.fields = this.label.fields;
         this.elements = this.label.elements;
 
@@ -144,7 +144,7 @@
             let element = this.elements[i];
 
             element.env = this.env;
-            element.labelHead = this.head;
+            element._labelHead = this.head;
 
             this.createElement(element);
             UtilElement.computeProp({ element: element });
@@ -209,9 +209,9 @@
     // -- element base --------------------------------------------------------
     addBlankTextElement() {
         let element = {
-            imageBaseUrl: this.imageBaseUrl,
+            _labelHead: this.head,
             head: {
-                name: this.prefix + "element_" + this.id,
+                name: "element_" + this.head.id++,
                 elementType: "text"
             },
             sections: [
@@ -222,15 +222,15 @@
             frame: {},
             position: {
                 "layer": 1,
-                top: 5,
-                left: 10,
+                top: this.head.height * Math.random() / 2,
+                left: this.head.width * Math.random() / 2,
                 width: 20,
                 height: 8
             }
         }
         element._this = this;
         element.env = this.env;
-        element.labelHead = this.head;
+        element._labelHead = this.head;
 
         this.elements.push(element);
         UtilElement.computeProp({ element: element });
@@ -407,7 +407,7 @@
 
             canvasId: element._canvasId,
             head: element.head,
-            labelHead: element.labelHead,
+            _labelHead: element._labelHead,
             segments: element.segments,
             sections: element.sections,
             font: element.font,
@@ -911,13 +911,13 @@
         for (let i = 1; i <= arr.length && i <= 6; i++) {
             let element = this.getElementByName("图片0" + i);
             let idxImg = parseInt(arr[i - 1]);
-            let imgUrl = this.imageBaseUrl + this.fields["image0" + idxImg];
+            let imgUrl = this.head.imageBaseUrl + this.fields["image0" + idxImg];
 
             element.image.url = imgUrl;
         }
         for (let i = arr.length + 1; i <= 6; i++) {
             let element = this.getElementByName("图片0" + i);
-            let imgUrl = this.imageBaseUrl + this.fields["image00"];
+            let imgUrl = this.head.imageBaseUrl + this.fields["image00"];
 
             element.image.url = imgUrl;
         }
@@ -931,13 +931,13 @@
         for (let i = 1; i <= arr.length && i <= 6; i++) {
             let element = this.getElementByName("图片0" + i);
             let idxImg = parseInt(arr[i - 1]);
-            let imgUrl = this.imageBaseUrl + this.fields["image0" + idxImg];
+            let imgUrl = this.head.imageBaseUrl + this.fields["image0" + idxImg];
 
             element.image.url = imgUrl;
         }
         for (let i = arr.length + 1; i <= 6; i++) {
             let element = this.getElementByName("图片0" + i);
-            let imgUrl = this.imageBaseUrl + this.fields["image00"];
+            let imgUrl = this.head.imageBaseUrl + this.fields["image00"];
 
             element.image.url = imgUrl;
         }
