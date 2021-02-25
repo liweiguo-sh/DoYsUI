@@ -841,7 +841,7 @@
                     data[head.name] = element.image.url;
                 }
                 else {
-                    data[head.name] = element.imageBaseUrl + element.image.url;
+                    data[head.name] = element._labelHead.imageBaseUrl + element.image.url;
                 }
             }
         }
