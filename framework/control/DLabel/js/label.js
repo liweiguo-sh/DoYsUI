@@ -212,7 +212,8 @@
             _labelHead: this.head,
             head: {
                 name: "element_" + this.head.id++,
-                elementType: "text"
+                elementType: "text",
+                barcodeType: ""
             },
             sections: [
                 UtilElement.getFixedSection({ pos: 0 }),

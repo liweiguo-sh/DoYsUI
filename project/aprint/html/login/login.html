@@ -45,7 +45,7 @@
     
     <div id="app">
         <el-link href="/download/AlisSetup_x86.msi" style="color:#c0c0c0" target="_blank">码尚客户端下载</el-link><br />
-        <el-link href="https://www.microsoft.com/zh-cn/edge/business/download" style="color:#c0c0c0" target="_blank">Edge(Beta版)下载</el-link>
+        <el-link href="https://www.microsoft.com/zh-cn/edge/business/download" style="color:#c0c0c0" target="_blank">Edge(商业版)下载</el-link>
         <el-card id="elCardLogin" class="box-card">
             <el-row style="text-align:center;">
                 <el-image style="width:100%; height:100%" :src="logoUrl"></el-image>
@@ -88,7 +88,7 @@
     var app = new Vue({
         el: '#app',
         data: {
-            logoUrl: '../../image/login/maso.png',
+            logoUrl: "",
             tenantId: "",
             userPk: "",
             password: "",
@@ -105,7 +105,15 @@
 
             gId("elCardLogin").style.marginTop = (0.6 * heightBlank) + "px";
             gId("elCardLogin").style.marginLeft = (0.8 * widthBlank) + "px";
-
+            // --------------------------------------------
+            let hostname = window.document.location.hostname;
+            
+            if (hostname.startsWith("udi.")) {
+                this.logoUrl = "../../image/login/maso_udi.jpg";
+            }
+            else {
+                this.logoUrl = "../../image/login/maso.png";
+            }
             // --------------------------------------------
             this.remenber = getLocalItem("login.remenber", "0").equals("1");
             if (this.remenber) {
