@@ -31,6 +31,7 @@ function openMenu(menu) {
             text: menu.text
         };
         let para = {
+            menuPk: menu.pk,
             viewPk: menu.typePk,
             controller: menu.controller,
             flowPks: menu.flowPksUdf || menu.flowPks,
@@ -47,9 +48,11 @@ function openMenu(menu) {
 
         let prop = {
             url: url,
-            text: menu.text
+            text: menu.text            
         };
-        let para = {};
+        let para = {
+            menuPk: menu.pk
+        };
         if (menu.flagMaximized) {
             win = topWin.openFullWindow(prop, para);
         }
