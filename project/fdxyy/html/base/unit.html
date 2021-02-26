@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>药品单位维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:600px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="单位名称" required>
+                        <el-input v-model="form.name" ref="name" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="3" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {} 
+        },
+
+        methods: {
+        }
+    });
+</script>

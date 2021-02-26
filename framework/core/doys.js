@@ -88,7 +88,7 @@ function initGlobalJs() {
         arrJS.push(g.path.plugin + "/axios.min.js");
     }
     arrJS.push(g.path.plugin + "/vue.js");
-    arrJS.push(g.path.plugin + "/element/index.js");
+    arrJS.push(g.path.plugin + "/element/index.js");    
 
     // -- core --
     arrJS.push(g.path.framework + "/core/" + "prototype.js");
@@ -137,6 +137,7 @@ function importFrameworkRes(fileRes) {
     }
     else if (fileRes.equals("view-form-bar")) {
         arrRes.push(g.path.framework + "/control/view-form-bar/view-form-bar.js");
+        arrRes.push(g.path.plugin + "/util/pinyin.js");
     }
     else if (fileRes.equals("main-menu")) {
         arrRes.push(g.path.framework + "/control/menu/top-menu/menu.js");
