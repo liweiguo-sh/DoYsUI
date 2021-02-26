@@ -219,14 +219,20 @@
                 UtilElement.getFixedSection({ pos: 0 }),
                 UtilElement.getBlankSection({ pos: 1 })
             ],
-            font: {},
+            font: {
+                // -- 宋体五号 --
+                name: "宋体",
+                size: "10.5"
+            },
             frame: {},
             position: {
                 "layer": 1,
                 top: this.head.height * Math.random() / 2,
                 left: this.head.width * Math.random() / 2,
                 width: 20,
-                height: 8
+                height: 8,
+                textAlign: "left",
+                verticalAlign: "middle"
             }
         }
         element._this = this;

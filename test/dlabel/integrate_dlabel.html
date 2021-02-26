@@ -50,7 +50,7 @@
         txtJson.style.width = ifr.offsetWidth / 2 + "px";
         txtJson.style.height = ifr.offsetHeight + "px";
 
-        ifr.src = "../../framework/control/DLabel/form/designer.html";
+        ifr.src = "../../framework/control/DLabel/form/designer.html?v=" + Math.random();
         ifr.addEventListener("load", function (evt) {
             lbl = ifr.contentWindow.getLabel();
 
