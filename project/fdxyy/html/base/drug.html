@@ -53,7 +53,7 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="库房单位" required>
-                        <el-select v-model="form.unit_big" filterable>
+                        <el-select v-model="form.unit_big" filterable allow-create>
                             <el-option v-for="item in ds.unit" :key="item.name" :value="item.name" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
@@ -65,7 +65,7 @@
                 </el-col>
                 <el-col :span="span[3]">
                     <el-form-item label="门诊单位" required>
-                        <el-select v-model="form.unit" filterable>
+                        <el-select v-model="form.unit" filterable allow-create>
                             <el-option v-for="item in ds.unit" :key="item.name" :value="item.name" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
@@ -74,7 +74,7 @@
             <el-row>
                 <el-col :span="span[1]+span[2]">
                     <el-form-item label="生产厂商">
-                        <el-select v-model="form.mfg_name" filterable>
+                        <el-select v-model="form.mfg_name" filterable allow-create>
                             <el-option v-for="item in ds.mfg_name" :key="item.name" :value="item.name" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>

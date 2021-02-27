@@ -2,14 +2,14 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2020-12-15
- * Copyright 2020, doys-next.com
+ * Modify Date: 2021-02-27
+ * Copyright 2020-2021, doys-next.com
  */
 
 (function () {
     window.g = {
         debug: false,                           // -- 调试模式 --
-        prefix: "http://{domain}:9988/DoYsSV",  // -- 后台服务入口，实例：http://192.168.169.1:9988，{domain}表示和前端相同 --
+        prefix: "http://{domain}:9988/DoYsSV",  // -- 后台服务入口，示例：http://192.168.169.200:5555，{domain}表示和前端相同 --
         path: {
             base: "DoYsUI",                     // -- 前台应用根目录 --
             framework: "/framework",            // -- 框架根目录 --
@@ -24,6 +24,13 @@
             remark: "全局配置项集合"
         }
     };
+    if (window.runtime) {
+        // -- 替换运行环境的配置参数(如果有) --
+        for (let k in window.runtime) {
+            window.g[k] = window.runtime[k];
+        }
+    }
+
     window.g.c = {
         CHAR1: "\1",
         CHAR2: "\2",

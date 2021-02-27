@@ -28,5 +28,7 @@
         alert("When running boot.js, unexpected error encountered, please check.");
         return;
     }
-    document.write("<script src='" + jsBootPath + "doys.js?v=" + jsVer + "'></script>");
+
+    document.write("<script src='" + jsBootPath + "runtime.js?v=" + jsVer + "'></script>");
+    document.write("<script src='" + jsBootPath + "doys.js?v=" + jsVer + "'></script>");    
 })()
