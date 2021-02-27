@@ -9,7 +9,7 @@
 (function () {
     window.g = {
         debug: false,                           // -- 调试模式 --
-        prefix: "http://{domain}:9988/DoYsSV",  // -- 后台服务入口，示例：http://192.168.169.200:5555，{domain}表示和前端相同 --
+        prefix: "http://{domain}:5555/DoYsSV",  // -- 后台服务入口，示例：http://192.168.169.200:5555，{domain}表示和前端相同 --
         path: {
             base: "DoYsUI",                     // -- 前台应用根目录 --
             framework: "/framework",            // -- 框架根目录 --
