@@ -8,7 +8,7 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:900px;">
+    <div id="app" style="width:930px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="110px" label-position="left">
             <!-- 名称、规格、价格-->
@@ -87,14 +87,16 @@
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    &nbsp;
+                    <el-form-item label="剂型">
+                        <el-input v-model="form.dosage" />
+                    </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
                     &nbsp;
                 </el-col>
                 <el-col :span="span[3]">
                     <el-form-item label="低库存预警">
-                        <el-input v-model="form.qty_low" placeholder="低库存报警线" />
+                        <el-input v-model="form.qty_low" placeholder="低库存报警线(门诊单位)" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -127,6 +129,7 @@
                 this.form.unit_big_qty = "1";
             },
             beforeSave: function () {
+                debugger
                 if (this.form.pinyin.equals("")) {
                     this.form.pinyin = UtilPinyin.getPinyin(this.form.common_name);
                 }
