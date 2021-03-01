@@ -15,7 +15,7 @@
             <el-row>
                 <el-col :span="span[1]+span[2]">
                     <el-form-item label="通用名" required>
-                        <el-input v-model="form.common_name" ref="common_name" placeholder="药品通用名称" />
+                        <el-input v-model="form.name" ref="name" placeholder="药品通用名称" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[3]">
@@ -32,7 +32,7 @@
                 </el-col>
                 <el-col :span="span[3]">
                     <el-form-item label="进货价格" required>
-                        <el-input v-model="form.price_in" placeholder="采购价" />
+                        <el-input v-model="form.price_buy" placeholder="采购价" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -53,14 +53,14 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="库房单位" required>
-                        <el-select v-model="form.unit_big" filterable allow-create>
+                        <el-select v-model="form.pack" filterable allow-create>
                             <el-option v-for="item in ds.unit" :key="item.name" :value="item.name" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="数量" required>
-                        <el-input v-model="form.unit_big_qty" placeholder="" />
+                        <el-input v-model="form.rate" placeholder="" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[3]">
@@ -129,9 +129,8 @@
                 this.form.unit_big_qty = "1";
             },
             beforeSave: function () {
-                debugger
                 if (this.form.pinyin.equals("")) {
-                    this.form.pinyin = UtilPinyin.getPinyin(this.form.common_name);
+                    this.form.pinyin = UtilPinyin.getPinyin(this.form.name);
                 }
                 return true;
             }

@@ -33,6 +33,7 @@
             viewData: [],
             showSelectColumn: false,
             showDetailColumn: false,
+            showDeleteColumn: false,
             showSingleColumn: false,
             totalRows: 0,                   // -- 总记录数 --
             pageNum: 0,                     // -- 当前页号 --
@@ -139,6 +140,7 @@
             let columnsL = [], columns = [];
             this.showSelectColumn = (this.dtbView.rows[0]["show_select"].value == 1);
             this.showDetailColumn = (this.dtbView.rows[0]["show_detail"].value == 1);
+            this.showDeleteColumn = (this.dtbView.rows[0]["show_delete"].value == 1);
             this.showSingleColumn = (this.dtbView.rows[0]["show_single"].value == 1);
 
             for (let i = 0; i < this.dtbViewField.rowCount; i++) {
@@ -307,11 +309,19 @@
                 this.setCurrentRow(scope.$index);
                 this.openEditForm("view");
             }
-            if (columnType.equals("single")) {
+            else if (columnType.equals("single")) {
                 let rowData = this.viewData[scope.$index];
                 this.$emit('onsingle', rowData);
             }
+            else if (columnType.equals("delete")) {
+                this.$confirm("记录删除后不能恢复，确定要执行删除操作吗？", g.c.titleConfirm, {
+                    confirmButtonText: "确定", cancelButtonText: "取消", type: "warning"
+                }).then(() => {
+                    this.deleteRow();
+                })
+            }
             else {
+                topWin.message("debug here");
             }
         },
         openEditForm(firstAction) {
@@ -357,6 +367,23 @@
             this.winViewForm.addEventListener("afterClose", () => {
                 this.winViewForm = null;
             });
+        },
+        async deleteRow() {
+            // -- before delete --
+
+            // -- do delete --
+            let form = {};
+            for (let i = 0; i < this.dtbViewData.columnCount; i++) {
+                let k = this.dtbViewData.columns[i].name;
+                let v = this.dtbViewData.rows[this.currentRowIdx][k].value;
+                form[k] = v;
+            }
+            let postData = { viewPk: this.viewPk, id: form.id, idNext: -1, form: form };
+            let res = await ajax.send(this.controller + "/delete", postData);
+            if (!res.ok) return;
+
+            // -- after delete --
+            this.afterVfDelete();
         },
 
         onCurrentChange(val) {
@@ -463,6 +490,11 @@
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
                             <template slot-scope="scope">
                                 <el-button @click="onViewClick(scope, 'edit')" type="text" size="small">查看</el-button>
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="showDeleteColumn" width="60" align="center" label="删除" fixed="left">
+                            <template slot-scope="scope">
+                                <el-button @click="onViewClick(scope, 'delete')" type="text" size="small">删除</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-if="showSingleColumn" width="60" align="center" label="单选" fixed="left">

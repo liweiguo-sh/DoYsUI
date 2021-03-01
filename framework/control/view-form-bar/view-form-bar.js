@@ -304,7 +304,8 @@
                 }
             }
         },
-        save() {
+        async save() {
+            let blResult = false;
             let nFind, datatype, nullable, text, value;
             for (let key in this.$parent.form) {
                 nFind = this.dtbViewField.find([key]);
@@ -335,7 +336,7 @@
 
             let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;
             let postData = { viewPk: this.viewPk, id: id, form: this.$parent.form };
-            ajax.send(this.controller + "/save", postData).then(res => {
+            await ajax.send(this.controller + "/save", postData).then(res => {
                 if (res.ok) {
                     let addnew = this.status.equals("addnew");
                     let dtbViewData = res.dtbViewData;
@@ -363,11 +364,13 @@
                         this.$parent.afterSave({ addnew: addnew });
                     }
                     win.flashTitle("数据保存成功  " + (new Date).toTimeString());
+                    blResult = true;
                 }
                 else {
                     topWin.alert(res.error, "error");
                 }
             });
+            return blResult;
         },
         addnew() {
             // -- beforeAddnew --
@@ -420,7 +423,7 @@
         delete() {
             let id = this.dataRowView["id"].value;
             let idNext = this.view.getNextId();
-            let postData = { viewPk: this.viewPk, id: id, idNext, idNext, form: this.$parent.form };
+            let postData = { viewPk: this.viewPk, id: id, idNext: idNext, form: this.$parent.form };
             ajax.send(this.controller + "/delete", postData).then(res => {
                 if (res.ok) {
                     this.dataRowView = this.view.afterVfDelete();
