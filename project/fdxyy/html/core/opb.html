@@ -19,13 +19,15 @@
             text-align: center;
             font-weight: bold;
         }
+
         .divGap {
-            height: 25px;
+            height: 36px;
+            line-height: 36px;
         }
     </style>
 </head>
 <body>
-    <div id="app" style="width:1024px;">
+    <div id="app" style="width:1024px;padding-right:20px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="75px" label-position="left">
             <el-row>
@@ -159,9 +161,6 @@
                     </el-col>
                 </el-row>
             </el-collapse-item>
-            <el-collapse-item title="处方、收费：" name="3">
-
-            </el-collapse-item>
         </el-collapse>
         <!-- 添加明细 -->
         <div class="divGap">处方、收费：</div>
@@ -169,8 +168,8 @@
             <el-col style="width:518px;padding-right:0;border:solid 0px red;">
                 <el-select v-model="drugId" @change="onDrugSelect" filterable default-first-option style="width:100%;" placeholder="请选择药品">
                     <el-option v-for="item in drugs" :key="item.id" :value="item.id" :label="item.label">
-                        <span style="float:left">{{ item.itemText }}</span>
-                        <span style="float:right;">{{ item.price + '元/' + item.unit }}</span>
+                        <span style="float:left">{{ item.spanLeft }}</span>
+                        <span style="float:right;">{{item.spanRight }}</span>
                     </el-option>
                 </el-select>
             </el-col>
@@ -204,9 +203,30 @@
                 astatus: "0"
             },
 
+            dtbStock: null,
             drugs: [],
             drugId: null,
             qty: 0
+        },
+        mounted() {
+            ajax.send("/fdxyy/core/opb/getStock", {}).then(res => {
+                this.dtbStock = res.dtbStock;
+
+                let drugs = [];
+                for (let i = 0; i < this.dtbStock.rowCount; i++) {
+                    let dataRow = this.dtbStock.rows[i];
+                    let label = dataRow["name"].value + " [" + dataRow["pinyin"].value + "] " + dataRow["spec"].value + " " + dataRow["qty"].value + dataRow["unit"].value;
+                    let spanLeft = dataRow["name"].value + " " + dataRow["spec"].value;
+                    let spanRight = dataRow["price"].value + "元/" + dataRow["unit"].value + " " + dataRow["qty"].value + dataRow["unit"].value;
+                    drugs.push({
+                        id: dataRow["id"].value,
+                        label: label,
+                        spanLeft: spanLeft,
+                        spanRight: spanRight
+                    });
+                }
+                this.drugs = drugs;
+            });
         },
         methods: {
             afterAddnew: function () {
@@ -219,8 +239,24 @@
             onDrugSelect: function () {
 
             },
-            addItem: function () {
+            addItem: async function () {
+                let result;
+                if (!this.form.id) {
+                    result = await this.$refs.vf.save();
+                    if (!result) return;
+                }
 
+                let para = {
+                    opbId: this.form.id,
+                    drugId: this.drugId,
+                    qty: this.qty
+                }
+
+                ajax.send("/fdxyy/core/opb/addItem", para).then(res => {
+                    this.form.amount = res.amount;
+                    this.$refs.grid.setFilter("opb_id = " + this.form.id);
+
+                })
             },
             showGrid: function () {
                 let filter = "opb_id = " + this.form.id.toInt();

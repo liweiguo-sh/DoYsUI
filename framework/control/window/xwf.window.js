@@ -246,6 +246,7 @@ window.xwf_window.prototype.onFormLoad = function (event) {
 
     _this.autoSize(_this, win);
     win.setTitle(contentWindow.document.title || win.p.title);
+    // -- win.setTitle(this.zIndex);
 };
 window.xwf_window.prototype.iframe_onreadystatechange = function (win) {
     var winId = win.id;
@@ -507,7 +508,7 @@ window.xwf_window.prototype.activeWin = function (win) {
     _this.toFront(win, (_this.zIndex - parseInt(divWin.style.zIndex)));
 
     //-- 调整zIndex值, 避免zIndex值增长过大 ---------------
-    if (_this.zIndex > _this.zIndexFrom + 9000) {
+    if (_this.zIndex > _this.zIndexFrom + 1000) {   // todo: 此处暂定为1000，因为超过2000会遮挡ElementUI的模态对话框，待研究 --
         var arrIdx = new Array();
         for (var i = 0; i < _this.arrWindows.length; i++) {
             arrIdx.push((100000 + parseInt(_this.arrWindows[i].divWin.style.zIndex)).toString() + "_" + _this.arrWindows[i].id);

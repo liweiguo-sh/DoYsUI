@@ -271,12 +271,7 @@
 
         },
         doCRUD(button) {
-            if (button.name.equals("save")) {
-                if (this.$parent.beforeSave) {
-                    if (!this.$parent.beforeSave()) {
-                        return false;
-                    }
-                }
+            if (button.name.equals("save")) {                
                 this.save();
             }
             else if (button.name.equals("addnew")) {
@@ -305,6 +300,12 @@
             }
         },
         async save() {
+            if (this.$parent.beforeSave) {
+                if (!this.$parent.beforeSave()) {
+                    return false;
+                }
+            }
+
             let blResult = false;
             let nFind, datatype, nullable, text, value;
             for (let key in this.$parent.form) {

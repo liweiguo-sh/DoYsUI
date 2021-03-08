@@ -14,7 +14,7 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="变量名称" required>
-                        <el-input v-model="form.name" />
+                        <el-input v-model="form.name" ref="name" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
@@ -45,10 +45,11 @@
                                 <el-upload class="upload-demo"
                                            accept=".png,.jpg,.jpeg,.bmp"
                                            :action="actionUploadVariableImage"
+                                           :before-upload="beforeUploadVariableImage"
                                            :on-success="afterUploadVariableImage"
                                            :with-credentials="true"
                                            :show-file-list="false">
-                                    <el-button type="primary">上传变量图片 (.png, .jpg, .jpeg, .bmp)</el-button>
+                                    <el-button type="primary" @click="beforeUploadVariableImage0">上传变量图片 (.png, .jpg, .jpeg, .bmp)</el-button>
                                 </el-upload>
                                 <el-image style="width:100px;height:100px;margin-top:15px;" :src="imageUrl" :fit="fit"></el-image>
                             </el-collapse-item>
@@ -151,7 +152,7 @@
             form: {},
 
             imageUrl: "",
-            actionUploadVariableImage: "",            
+            actionUploadVariableImage: "",
 
             checkedLabelVariables: [],
             labelVariables: [],
@@ -194,8 +195,25 @@
                 this.checkedLabelVariables = this.form.seq_fields.split(",");
             },
 
+            beforeUploadVariableImage0: async function (evt) {
+                let result;
+                if (!this.form.id) {
+                    result = await this.$refs.vf.save();
+                    if (!result) {
+                        evt.stopPropagation();
+                        return false;
+                    }
+                }
+                return true;
+            },
+            beforeUploadVariableImage: function () {
+                if (!this.form.id) {
+                    return false;
+                }
+            },
             afterUploadVariableImage: function (res, b, c) {
-                if (res.ok) {                    
+                if (res.ok) {
+
                     this.form.value = res.filename;
                     this.imageUrl = topWin.cfg.labelVariableImageBaseUrl + this.form.value + "?rnd" + (new Date()).getTime();
                     win.flashTitle("标签变量图片上传成功", "success");
