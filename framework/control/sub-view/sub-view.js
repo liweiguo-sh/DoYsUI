@@ -45,14 +45,14 @@
 
             vfUrl: "",                      // -- vf窗口URL --
             vfWindowState: "",              // -- vf窗口状态 --
-            // -- TODO：此处不可以定义winViewForm，回造成内存泄漏，有待进一步分析原因。后面直接使用没有泄漏问题，很是奇怪 --
+            // -- TODO：此处不可以定义winViewForm，会造成内存泄漏，有待进一步分析原因。后面直接使用没有泄漏问题，很是奇怪 --
             // -- winViewForm: null,        // -- vf编辑窗口 --
             remark: ""
         }
     },
     methods: {
-        init(para) {
-            this.initialized = true;
+        async init(para) {
+            this.initialized = false;
             this.viewPk = para.viewPk;
             this.controller = para.controller || this.controller;
             this.flowPks = para.flowPks || this.flowPks;
@@ -65,7 +65,7 @@
 
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
             postData = g.x.extendJSON(postData, this.extUserDef);
-            ajax.send(this.controller + "/getViewSchema", postData).then(res => {
+            await ajax.send(this.controller + "/getViewSchema", postData).then(res => {
                 if (res.ok) {
                     this.dtbView = res.dtbView;
                     this.controller = this.dtbView.rows[0]["controller"].value || this.controller;
@@ -84,13 +84,17 @@
 
                     this.getViewData(0);
                     this.initToolbar();
-
                     this.resize();
                 }
                 else {
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });
                 }
-            })
+                this.initialized = true;
+            });
+
+            // -- 后期处理 --
+            if (para.showDeleteColumn != undefined) this.showDeleteColumn = para.showDeleteColumn;
+
         },
         initToolbar() {
             let leftButtons = [
@@ -163,14 +167,15 @@
             this.columnsL = columnsL;
             this.columns = columns;
         },
-        setFilter(filterExternal) {
+        setFilter(filterExternal, jsp = {}) {
             this.filterExternal = filterExternal;
             this.getViewData();
+
+            if (jsp.showDeleteColumn != undefined) this.showDeleteColumn = jsp.showDeleteColumn;
         },
 
         getViewData(pageNum = 0) {
             this.loading = true;
-
             if (this.winViewForm) this.winViewForm.close();
             if (pageNum == 0) this.totalRows = 0;
 
@@ -191,7 +196,8 @@
                     this.viewData = [];
                 }
                 this.loading = false;
-            })
+            });
+
         },
         getFilter() {
             let arrFilter = new Array();
@@ -370,6 +376,12 @@
         },
         async deleteRow() {
             // -- before delete --
+            let ret = {};
+            let para = {};
+            this.$emit("beforedelete", para, (retJson) => {
+                ret = g.x.extendJSON({ cancel: false }, retJson);
+            });
+            if (ret.cancel) return;
 
             // -- do delete --
             let form = {};
@@ -379,10 +391,14 @@
                 form[k] = v;
             }
             let postData = { viewPk: this.viewPk, id: form.id, idNext: -1, form: form };
-            let res = await ajax.send(this.controller + "/delete", postData);
-            if (!res.ok) return;
+            let response = await ajax.send(this.controller + "/delete", postData);
+            if (!response.ok) return;
 
             // -- after delete --
+            this.$emit("afterdelete", response, (retJson) => {
+                ret = g.x.extendJSON({}, retJson);
+            });
+
             this.afterVfDelete();
         },
 

@@ -809,6 +809,12 @@
     // -- toJson, getData, setValue, etc. -------------------------------------
     toJson() {
         try {
+            // -- 按照图层排序 --
+            this.elements.sort(function (e1, e2) {
+                return e1.position.layer - e2.position.layer;
+            });
+
+
             return JSON.stringify(this.label,
                 (k, v) => {
                     if (k.startsWith("_") || k.startsWith("$")) {    // -- _this, _canvas --                        

@@ -13,6 +13,4 @@
 
         remark: "this is runtime.remark"
     };
-
-    console.log(window.runtime.remark);
 })()

@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>门诊业务主界面</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+
+    <style type="text/css">
+        .span1 {
+            line-height: 42px;
+            margin-right: 10px;
+        }
+
+        .spanTitle {
+            padding-left: 5px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .divGap {
+            height: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:1024px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="75px" label-position="left">
+            <el-row>
+                <el-col :span="6">
+                    <el-form-item label="门诊单号">
+                        <el-input v-model="form.pk" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-date-picker v-model="form.bus_date" type="datetime" style="width:100%;"></el-date-picker>
+                </el-col>
+                <el-col :span="6">
+                    <el-form-item label="卡号">
+                        <el-input v-model="form.card_no" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-form-item label="收费类型">
+                        <el-select v-model="form.charge_type" style="width:100%">
+                            <el-option value="1" label="医保"></el-option>
+                            <el-option value="2" label="自费"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="6">
+                    <el-form-item label="姓名">
+                        <el-input v-model="form.name" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-form-item label="性别">
+                        <el-select v-model="form.gender" style="width:100%">
+                            <el-option value="男" label="男"></el-option>
+                            <el-option value="女" label="女"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-form-item label="年龄">
+                        <el-input v-model="form.age" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-form-item label="学/工号">
+                        <el-input v-model="form.stuff_no" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="6">
+                    <el-form-item label="电话">
+                        <el-input v-model="form.tel" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="18">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+        <el-collapse v-model="activeName">
+            <el-collapse-item title="病例：" name="1">
+                <el-row>
+                    <el-col :span="1"><div class="spanTitle">主诉</div></el-col>
+                    <el-col :span="23">
+                        <el-input v-model="form.m1" type="textarea" :rows="5" />
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="1"><div class="spanTitle">现病史</div></el-col>
+                    <el-col :span="23">
+                        <el-input v-model="form.m2" type="textarea" :rows="4" />
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="1"><div class="spanTitle">既往史</div></el-col>
+                    <el-col :span="23">
+                        <el-input v-model="form.m3" type="textarea" :rows="4" />
+                    </el-col>
+                </el-row>
+                <!-- 体检 -->
+                <el-row>
+                    <el-col :span="1"><div class="spanTitle">体检</div></el-col>
+                    <el-col :span="23">
+                        <el-input v-model="form.m4" type="textarea" :rows="3" />
+                    </el-col>
+                </el-row>
+                <el-row style="margin-top:6px;">
+                    <el-col :span="2">&nbsp;</el-col>
+                    <el-col :span="4">
+                        <span class="span1">体温</span>
+                        <el-input v-model="form.temperature" style="width:72px;" placeholder="°C" />
+                    </el-col>
+                    <el-col :span="5">
+                        <el-row>
+                            <el-col :span="6" style="line-height:42px;">血压</el-col>
+                            <el-col :span="9">
+                                <el-input v-model="form.blood_high" style="width:72px;" placeholder="mmHg" />
+                            </el-col>
+                            <el-col :span="9">
+                                <el-input v-model="form.blood_low" style="width:72px;" placeholder="mmHg" />
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="1">&nbsp;</el-col>
+                    <el-col :span="4">
+                        <span class="span1">血糖</span>
+                        <el-input v-model="form.blood_glucose" style="width:72px;" placeholder="mg/dl" />
+                    </el-col>
+                    <el-col :span="4">
+                        <span class="span1">体重</span>
+                        <el-input v-model="form.weight" style="width:72px;" placeholder="kg" />
+                    </el-col>
+                    <el-col :span="4">&nbsp;</el-col>
+                </el-row>
+            </el-collapse-item>
+            <el-collapse-item title="诊断：" name="2">
+                <el-row>
+                    <el-col :span="1"><div class="spanTitle" style="color:red">初步诊断</div></el-col>
+                    <el-col :span="23">
+                        <el-input v-model="form.m5" type="textarea" :rows="5" />
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="1"><div class="spanTitle">处置</div></el-col>
+                    <el-col :span="23">
+                        <el-input v-model="form.m6" type="textarea" :rows="5" />
+                    </el-col>
+                </el-row>
+            </el-collapse-item>
+            <el-collapse-item title="处方、收费：" name="3">
+
+            </el-collapse-item>
+        </el-collapse>
+        <!-- 添加明细 -->
+        <div class="divGap">处方、收费：</div>
+        <el-row style="margin-bottom:8px;" v-show="form.astatus.equals('0')">
+            <el-col style="width:518px;padding-right:0;border:solid 0px red;">
+                <el-select v-model="drugId" @change="onDrugSelect" filterable default-first-option style="width:100%;" placeholder="请选择药品">
+                    <el-option v-for="item in drugs" :key="item.id" :value="item.id" :label="item.label">
+                        <span style="float:left">{{ item.itemText }}</span>
+                        <span style="float:right;">{{ item.price + '元/' + item.unit }}</span>
+                    </el-option>
+                </el-select>
+            </el-col>
+            <el-col style="width:75px;padding-right:0;border:solid 0px red;">
+                <el-input v-model="qty" placeholder="数量" style="text-align:right;" />
+            </el-col>
+            <el-col style="width:120px;border:solid 0px red;">
+                &nbsp;
+            </el-col>
+            <el-col style="width:180px;border:solid 0px red;">
+                <el-button type="success" :disabled="!drugId || qty<=0" icon="el-icon-arrow-down" @click="addItem"></el-button>
+            </el-col>
+        </el-row>
+        <el-row>
+            <sub-view id="grid" ref="grid" style="height:360px;"></sub-view>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 6, 6, 6],
+            activeName: "3",
+
+            ds: [],
+            form: {
+                astatus: "0"
+            },
+
+            drugs: [],
+            drugId: null,
+            qty: 0
+        },
+        methods: {
+            afterAddnew: function () {
+                this.form.bus_date = (new Date).toString("yyyy-MM-dd HH:mm:ss");
+            },
+            afterMove: function () {
+                this.showGrid();
+            },
+
+            onDrugSelect: function () {
+
+            },
+            addItem: function () {
+
+            },
+            showGrid: function () {
+                let filter = "opb_id = " + this.form.id.toInt();
+
+                if (this.$refs.grid.initialized) {
+                    this.$refs.grid.setFilter(filter);
+                }
+                else {
+
+                    var para = {
+                        viewPk: "opb_item",
+                        filter: filter
+                    }
+                    this.$refs.grid.init(para);
+                }
+            }
+        }
+    });
+</script>

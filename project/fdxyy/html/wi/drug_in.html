@@ -76,14 +76,13 @@
                     &nbsp;
                 </el-col>
                 <el-col style="width:180px;border:solid 0px red;">
-                    <el-button type="success" icon="el-icon-arrow-down" @click="addItem"></el-button>
-                    <el-button type="danger" icon="el-icon-delete"></el-button>
+                    <el-button type="success" :disabled="!drugId || qty<=0" icon="el-icon-arrow-down" @click="addItem"></el-button>
                 </el-col>
             </el-row>
 
             <!-- 明细网格 -->
             <el-row>
-                <sub-view id="grid" ref="grid" style="height:420px;" @onaddnew="onGridAddnew"></sub-view>
+                <sub-view id="grid" ref="grid" style="height:420px;" @beforedelete="beforeGridDelete" @afterdelete="afterGridDelete"></sub-view>
             </el-row>
         </el-form>
     </div>
@@ -107,7 +106,7 @@
             idxDrug: 0,
 
             units: [],
-            unit: "",            
+            unit: "",
             qty: 1
         },
         mounted() {
@@ -130,10 +129,10 @@
                     });
                 }
                 this.drugs = drugs;
-            })
+            });
         },
         methods: {
-            onDrugSelect: function (a, b, c) {                
+            onDrugSelect: function (a, b, c) {
                 for (let i = 0; i < this.drugs.length; i++) {
                     if (this.drugs[i].id == this.drugId) {
                         let units = [];
@@ -144,32 +143,11 @@
                         this.unit = this.drugs[i].pack;
                         break;
                     }
-                }                
-            },
-            onGridAddnew: function (callback) {
-                if (!this.$refs.vf.status.equals("view")) {
-                    callback(true);
-                    topWin.alert("请先保存主表。", (val) => {
-                        win.flashTitle("请先保存主表");
-                    });
                 }
             },
 
             afterMove: function () {
-                let drugInId = this.$refs.vf.getId();
-                let filter = "drug_in_id = " + drugInId;
-                if (this.$refs.grid.initialized) {
-                    this.$refs.grid.setFilter(filter);
-                }
-                else {
-                    var para = {
-                        viewPk: "drug_in_item",
-                        flowPks: "'sys_crud'",
-                        filter: filter,
-                        vfUrl: "" // -- g.path.project + "/fdxyy/html/wi/drug_in_item.html"
-                    }
-                    this.$refs.grid.init(para);
-                }
+                this.showGrid();
             },
             afterAddnew: function () {
                 for (let i = 0; i < this.ds.warehouse_id.length; i++) {
@@ -180,7 +158,7 @@
                 this.form.bus_date = (new Date()).toStr();
                 this.form.consignee = topWin.userName;
                 this.form.astatus = "0";
-            },            
+            },
             beforeSave: function () {
                 console.log(this.form.astatus);
                 return true;
@@ -208,13 +186,38 @@
             },
             delItem: function () {
 
+            },
+
+            async showGrid() {
+                let drugInId = this.form.id.toInt();
+                let filter = "drug_in_id = " + drugInId;
+                let showDeleteColumn = this.form.astatus.equals("0");
+
+                if (!this.$refs.grid.initialized) {
+                    var para = {
+                        viewPk: "drug_in_item",
+                        filter: filter,
+                        showDeleteColumn: showDeleteColumn
+                    }
+                    this.$refs.grid.init(para);
+                }
+                else {
+                    this.$refs.grid.setFilter(filter, { showDeleteColumn: showDeleteColumn });
+                }
+            },
+            beforeGridDelete: function (jsp, callback) {
+                console.log(jsp);
+                callback({ cancel: false });
+            },
+            afterGridDelete: function (jsp) {
+                this.form.amount = jsp.amount;
             }
         }
     });
 </script>
 
+<!-- winLoad -->
 <script>
-    function getProductId() {
-        return app.$refs.vf.getId();
+    function winLoad() {
     }
 </script>
