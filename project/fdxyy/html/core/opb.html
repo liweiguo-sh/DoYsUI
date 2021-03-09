@@ -94,7 +94,7 @@
         <el-collapse v-model="activeName">
             <el-collapse-item title="病例：" name="1">
                 <el-row>
-                    <el-col :span="1"><div class="spanTitle">主诉</div></el-col>
+                    <el-col :span="1"><div class="spanTitle" style="color:blue">主诉</div></el-col>
                     <el-col :span="23">
                         <el-input v-model="form.m1" type="textarea" :rows="5" />
                     </el-col>
@@ -245,9 +245,11 @@
                     result = await this.$refs.vf.save();
                     if (!result) return;
                 }
-
+                console.log(this.form.drug_out_id);
+                debugger
                 let para = {
                     opbId: this.form.id,
+                    drugOutId: this.form.drug_out_id,
                     drugId: this.drugId,
                     qty: this.qty
                 }
