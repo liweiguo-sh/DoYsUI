@@ -30,6 +30,18 @@
     <div id="app" style="width:1024px;padding-right:20px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="75px" label-position="left">
+            <el-row v-show="false">
+                <el-col :span="6">
+                    <el-form-item label="仓库" required>
+                        <el-select v-model="form.warehouse_id" filterable>
+                            <el-option v-for="item in ds.warehouse_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="18">
+                    &nbsp;
+                </el-col>
+            </el-row>
             <el-row>
                 <el-col :span="6">
                     <el-form-item label="门诊单号">
@@ -166,7 +178,7 @@
         <div class="divGap">处方、收费：</div>
         <el-row style="margin-bottom:8px;" v-show="form.astatus.equals('0')">
             <el-col style="width:518px;padding-right:0;border:solid 0px red;">
-                <el-select v-model="drugId" @change="onDrugSelect" filterable default-first-option style="width:100%;" placeholder="请选择药品">
+                <el-select v-model="drugId" filterable default-first-option style="width:100%;" placeholder="请选择药品">
                     <el-option v-for="item in drugs" :key="item.id" :value="item.id" :label="item.label">
                         <span style="float:left">{{ item.spanLeft }}</span>
                         <span style="float:right;">{{item.spanRight }}</span>
@@ -230,26 +242,29 @@
         },
         methods: {
             afterAddnew: function () {
+                for (let i = 0; i < this.ds.warehouse_id.length; i++) {
+                    if (this.ds.warehouse_id[i]["flag_default"].equals("true")) {
+                        this.form.warehouse_id = this.ds.warehouse_id[i]["id"];
+                    }
+                }
                 this.form.bus_date = (new Date).toString("yyyy-MM-dd HH:mm:ss");
+                this.form.astatus = "0";
             },
             afterMove: function () {
                 this.showGrid();
             },
 
-            onDrugSelect: function () {
-
-            },
             addItem: async function () {
                 let result;
                 if (!this.form.id) {
                     result = await this.$refs.vf.save();
                     if (!result) return;
                 }
-                console.log(this.form.drug_out_id);
-                debugger
+
                 let para = {
                     opbId: this.form.id,
-                    drugOutId: this.form.drug_out_id,
+                    warehouseId: this.form.warehouse_id,
+                    drugOutId: this.form.drug_out_id,                    
                     drugId: this.drugId,
                     qty: this.qty
                 }
