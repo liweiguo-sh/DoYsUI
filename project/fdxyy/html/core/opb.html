@@ -196,7 +196,7 @@
             </el-col>
         </el-row>
         <el-row>
-            <sub-view id="grid" ref="grid" style="height:360px;"></sub-view>
+            <sub-view id="grid" ref="grid" style="height:360px;" @before-delete="beforeItemDelete" @after-delete="afterItemDelete"></sub-view>
         </el-row>
     </div>
 </body>
@@ -271,8 +271,8 @@
 
                 ajax.send("/fdxyy/core/opb/addItem", para).then(res => {
                     this.form.amount = res.amount;
-                    this.$refs.grid.setFilter("opb_id = " + this.form.id);
 
+                    this.$refs.grid.setFilter("opb_id = " + this.form.id);
                 })
             },
             showGrid: function () {
@@ -289,6 +289,12 @@
                     }
                     this.$refs.grid.init(para);
                 }
+            },
+            beforeItemDelete: function (jsp, callback) {
+                // -- callback({ cancel: true });
+            },
+            afterItemDelete: function (jsp) {
+                this.form.amount = jsp.amount;
             }
         }
     });

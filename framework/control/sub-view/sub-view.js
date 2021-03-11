@@ -378,7 +378,7 @@
             // -- before delete --
             let ret = {};
             let para = {};
-            this.$emit("beforedelete", para, (retJson) => {
+            this.$emit("before-delete", para, (retJson) => {
                 ret = g.x.extendJSON({ cancel: false }, retJson);
             });
             if (ret.cancel) return;
@@ -395,7 +395,7 @@
             if (!response.ok) return;
 
             // -- after delete --
-            this.$emit("afterdelete", response, (retJson) => {
+            this.$emit("after-delete", response, (retJson) => {
                 ret = g.x.extendJSON({}, retJson);
             });
 

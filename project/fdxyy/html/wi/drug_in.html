@@ -82,7 +82,7 @@
 
             <!-- 明细网格 -->
             <el-row>
-                <sub-view id="grid" ref="grid" style="height:420px;" @beforedelete="beforeGridDelete" @afterdelete="afterGridDelete"></sub-view>
+                <sub-view id="grid" ref="grid" style="height:420px;" @before-delete="beforeItemDelete" @after-delete="afterItemDelete"></sub-view>
             </el-row>
         </el-form>
     </div>
@@ -205,11 +205,10 @@
                     this.$refs.grid.setFilter(filter, { showDeleteColumn: showDeleteColumn });
                 }
             },
-            beforeGridDelete: function (jsp, callback) {
-                console.log(jsp);
+            beforeItemDelete: function (jsp, callback) {
                 callback({ cancel: false });
             },
-            afterGridDelete: function (jsp) {
+            afterItemDelete: function (jsp) {
                 this.form.amount = jsp.amount;
             }
         }
