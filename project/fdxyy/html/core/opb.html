@@ -195,9 +195,50 @@
                 <el-button type="success" :disabled="!drugId || qty<=0" icon="el-icon-arrow-down" @click="addItem"></el-button>
             </el-col>
         </el-row>
+        <!-- 明细网格 -->
         <el-row>
             <sub-view id="grid" ref="grid" style="height:360px;" @before-delete="beforeItemDelete" @after-delete="afterItemDelete"></sub-view>
         </el-row>
+        <el-form ref="form2" label-width="75px" label-position="left">
+            <div style="height:15px;"></div>
+            <el-row>
+                <el-col :span="6">
+                    <el-form-item label="总金额">
+                        <el-input v-model="form.amount" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-form-item label="应交金额">
+                        <el-input v-model="form.amount" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-form-item label="支付方式">
+                        <el-select v-model="form.payment_type" style="width:100%">
+                            <el-option value="1" label="一卡通"></el-option>
+                            <el-option value="2" label="现金"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-button type="success">支付</el-button>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="6">
+                    &nbsp;
+                </el-col>
+                <el-col :span="12">
+                    <el-button type="primary">打印处方</el-button>
+                    <el-button type="primary">开具病假单</el-button>
+                    <el-button type="primary">开具转诊凭证</el-button>
+                </el-col>
+                <el-col :span="6">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <div style="height:20px;"></div>
+        </el-form>
     </div>
 </body>
 </html>
