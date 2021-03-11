@@ -65,7 +65,7 @@
                 </el-col>
                 <el-col :span="span[3]">
                     <el-form-item label="门诊单位" required>
-                        <el-select v-model="form.unit" filterable allow-create>
+                        <el-select v-model="form.unit" ref="unit" filterable allow-create>
                             <el-option v-for="item in ds.unit" :key="item.name" :value="item.name" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
