@@ -19,7 +19,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[3]">
-                    <el-form-item label="助记码" required>
+                    <el-form-item label="助记码">
                         <el-input v-model="form.pinyin" placeholder="拼音缩写" />
                     </el-form-item>
                 </el-col>
@@ -31,20 +31,20 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[3]">
-                    <el-form-item label="进货价格" required>
+                    <el-form-item label="进货价格">
                         <el-input v-model="form.price_buy" placeholder="采购价" />
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[1]+span[2]">
-                    <el-form-item label="品规" required>
+                    <el-form-item label="品规">
                         <el-input v-model="form.spec" placeholder="规格" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[3]">
                     <el-form-item label="门诊价格" required>
-                        <el-input v-model="form.price_patient" placeholder="零售价" />
+                        <el-input v-model="form.price_patient" ref="price_patient" placeholder="零售价" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -92,7 +92,9 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    &nbsp;
+                    <el-form-item label="禁用">
+                        <el-checkbox v-model="form.flag_inactive">禁用</el-checkbox>
+                    </el-form-item>
                 </el-col>
                 <el-col :span="span[3]">
                     <el-form-item label="低库存预警">
@@ -126,12 +128,34 @@
 
         methods: {
             afterAddnew: function () {
-                this.form.unit_big_qty = "1";
+                this.form.rate = "1";
+                this.form.qty_low = "0";
             },
             beforeSave: function () {
-                if (this.form.pinyin.equals("")) {
-                    this.form.pinyin = UtilPinyin.getPinyin(this.form.name);
+                if (!this.form.price_patient) {
+                    topWin.alert("门诊价格不能为空，请输入。", "warning");
+                    this.$refs.price_patient.focus();
+                    return;
                 }
+
+                if (this.form.pinyin.equals("")) this.form.pinyin = UtilPinyin.getPinyin(this.form.name);
+                if (this.form.trade_name.equals("")) this.form.trade_name = this.form.name;                
+                if (!this.form.price_buy) this.form.price_buy = this.form.price_patient;
+                if (!this.form.pack) this.form.pack = this.form.unit;                
+                if (!this.form.rate.toInt()) this.form.rate = "1";
+                if (!this.form.qty_low) this.form.qty_low = "0";   
+
+                if (!this.form.pack.equals(this.form.unit) && this.form.rate.toInt() <= 1) {
+                    topWin.alert("库房单位和门诊单位不同，请输入正确的换算数量。", "warning");
+                    this.$refs.rate.focus();
+                    return;
+                }
+                if (this.form.pack.equals(this.form.unit) && this.form.rate.toInt() != 1) {
+                    topWin.alert("库房单位和门诊单位相同，换算数量必须为 1。", "warning");
+                    this.$refs.rate.focus();
+                    return;
+                }
+
                 return true;
             }
         }
