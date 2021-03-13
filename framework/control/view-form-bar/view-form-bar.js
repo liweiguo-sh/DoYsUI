@@ -15,6 +15,7 @@
             dtbFormData: null,          // -- 基础表记录集 --
             firstAction: "view",        // -- 首次进入动作，addnew 或 view --
             status: "none",             // -- 状态 --
+            idCopy: 0,                  // -- 被拷贝的记录ID --
             remark: ""
         }
     },
@@ -230,6 +231,7 @@
                 this.doCRUD(button);
             }
             else if (button.name.equals("copy")) {
+                this.idCopy = this.getId();
                 this.copy();
             }
             else if (button.actionType.equals("move")) {
@@ -271,7 +273,7 @@
 
         },
         doCRUD(button) {
-            if (button.name.equals("save")) {                
+            if (button.name.equals("save")) {
                 this.save();
             }
             else if (button.name.equals("addnew")) {
@@ -301,7 +303,7 @@
         },
         async save() {
             if (this.$parent.beforeSave) {
-                if (!this.$parent.beforeSave()) {
+                if (!this.$parent.beforeSave({ copy: this.idCopy > 0 })) {
                     return false;
                 }
             }
@@ -325,7 +327,7 @@
                         value = this.$parent.form[key];
                         if (!nullable && !value && this.$parent.$refs[key]) {
                             topWin.alert("字段 " + text + " 的值不能为空，请检查。", "warning");
-                            this.$parent.$refs[key].focus();                            
+                            this.$parent.$refs[key].focus();
                             return false;
                         }
                     }
@@ -336,7 +338,7 @@
             }
 
             let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;
-            let postData = { viewPk: this.viewPk, id: id, form: this.$parent.form };
+            let postData = { viewPk: this.viewPk, id: id, idCopy: this.idCopy, form: this.$parent.form };
             await ajax.send(this.controller + "/save", postData).then(res => {
                 if (res.ok) {
                     let addnew = this.status.equals("addnew");
@@ -362,8 +364,9 @@
                     }
 
                     if (this.$parent.afterSave) {
-                        this.$parent.afterSave({ addnew: addnew });
+                        this.$parent.afterSave({ addnew: addnew, copy: this.idCopy > 0 });
                     }
+                    this.idCopy = 0;
                     win.flashTitle("数据保存成功  " + (new Date).toTimeString());
                     blResult = true;
                 }
@@ -376,7 +379,7 @@
         addnew() {
             // -- beforeAddnew --
             if (this.$parent.beforeAddnew) {
-                if (!this.$parent.beforeAddnew()) {
+                if (!this.$parent.beforeAddnew({ copy: false })) {
                     return false;
                 }
             }
@@ -387,7 +390,7 @@
 
             // -- afterAddnew --
             if (this.$parent.afterAddnew) {
-                this.$parent.afterAddnew();
+                this.$parent.afterAddnew({ copy: false });
             }
         },
         copy() {
@@ -398,7 +401,7 @@
                 }
             }
             if (this.$parent.beforeAddnew) {
-                if (!this.$parent.beforeAddnew()) {
+                if (!this.$parent.beforeAddnew({ copy: true })) {
                     return false;
                 }
             }
@@ -415,7 +418,7 @@
 
             // -- afterCopy & afterAddnew --
             if (this.$parent.afterAddnew) {
-                this.$parent.afterAddnew();
+                this.$parent.afterAddnew({ copy: true });
             }
             if (this.$parent.afterCopy) {
                 this.$parent.afterCopy();

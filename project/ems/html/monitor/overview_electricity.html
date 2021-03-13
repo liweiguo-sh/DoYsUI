@@ -57,13 +57,13 @@
             <div>
                 <el-row>
                     <el-col :span="8">
-                        <el-image style="width:100px; height:100px" src="../../image/meter/electricity/4.png" fit="fit"></el-image>
+                        <el-image style="width:100px; height:100px" src="../../image/meter/electricity/4.png" fit="contain"></el-image>
                     </el-col>
                     <el-col :span="16">
                         <el-row>
                             <el-col :span="6">
-                                <el-image v-if="item.status" style="width:40px; height:40px" src="../../image/meter/alert.svg" fit="fit"></el-image>
-                                <el-image v-if="!item.status" style="width:40px; height:40px" src="../../image/meter/run.svg" fit="fit"></el-image>
+                                <el-image v-if="item.status" style="width:40px; height:40px" src="../../image/meter/alert.svg" fit="contain"></el-image>
+                                <el-image v-if="!item.status" style="width:40px; height:40px" src="../../image/meter/run.svg" fit="contain"></el-image>
                             </el-col>
                             <el-col :span="18">
                                 <span v-if="item.status" style="color:red;height:40px;line-height:40px;">
