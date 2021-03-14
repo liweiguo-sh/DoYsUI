@@ -96,14 +96,27 @@
                         <el-input v-model="form.tel" />
                     </el-form-item>
                 </el-col>
-                <el-col :span="18">
+                <el-col :span="6">
+                    <el-form-item label="婚否">
+                        <el-select v-model="form.married" style="width:100%">
+                            <el-option value="未婚" label="未婚"></el-option>
+                            <el-option value="已婚" label="已婚"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                    <el-form-item label="民族">
+                        <el-input v-model="form.nation" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="6">
                     <el-form-item label="备注">
                         <el-input v-model="form.remark" />
                     </el-form-item>
                 </el-col>
             </el-row>
         </el-form>
-        <el-collapse v-model="activeName">
+        <el-collapse v-model="activeName">            
             <el-collapse-item title="病例：" name="1">
                 <el-row>
                     <el-col :span="1"><div class="spanTitle" style="color:blue">主诉</div></el-col>
@@ -228,13 +241,11 @@
                 <el-col :span="6">
                     &nbsp;
                 </el-col>
-                <el-col :span="12">
+                <el-col :span="18">
+                    <el-button type="primary">打印病历单</el-button>
                     <el-button type="primary">打印处方</el-button>
                     <el-button type="primary">开具病假单</el-button>
                     <el-button type="primary">开具转诊凭证</el-button>
-                </el-col>
-                <el-col :span="6">
-                    &nbsp;
                 </el-col>
             </el-row>
             <div style="height:20px;"></div>
@@ -249,7 +260,7 @@
         el: '#app',
         data: {
             span: [24, 6, 6, 6],
-            activeName: "3",
+            activeName: "",
 
             ds: [],
             form: {
