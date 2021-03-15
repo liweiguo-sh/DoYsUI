@@ -1,0 +1,14 @@
+﻿/* -- dlabel.toolbar.css -- */
+
+.row-toolbar {
+    --background-color: red;
+}
+
+    .row-toolbar .el-button {
+        padding: 8px;
+    }
+
+/** 覆盖ali-icon-font.css */
+.alifont {
+    font-size: 24px !important;     
+}

@@ -1,48 +1,49 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>标签窗口</title>
+    <title>标签设计页面</title>
     <script src="../js/boot.js"></script>
-    <style type="text/css">
-        body {
-            overflow: hidden;
-        }
-
-        #divButtons input[type=button] {
-            height: 36px;
-            line-height: 36px;
-            min-width: 100px;
-            margin-bottom: 10px;
-        }
-
-        #tbProp {
-            border: 1px dashed red;
-            width: 100%;
-        }
-
-        .tdPropName {
-            border: 1px dashed green;
-            color: green;
-        }
-
-        .tdPropValue {
-            border: 1px dashed blue;
-            color: blue;
-        }
-    </style>
 </head>
 <body>
-    <div id="divButtons">
-        <input type="button" id="btnBlankLabel" onclick="btnBlankLabel_click();" value="空白标签" />
-        <input type="button" id="btnExampleLabel" onclick="btnExampleLabel_click();" value="样例标签" style="display:none" />
-        <input type="button" id="btnAddElement" onclick="btnAddElement_click();" value="添加新元素" />
-        <input type="button" id="btnDelElement" onclick="btnDelElement_click();" value="删除元素" />
-        <input type="button" id="btnSaveLabel" onclick="btnSaveLabel_click();" value="保存标签" />
-        &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="button" id="btnPrint" onclick="btnPrint_click();" value="打印样张" />
-        <input type="button" id="btnClose" onclick="win.close();" value="关闭" style="display:none;" />
-
-        <span id="spanMessage" style="margin-left:15px;"></span>
+    <div id="app">
+        <el-row class="row-toolbar">
+            <el-button-group>
+                <el-button type="info" onclick="btnBlankLabel_click();" icon="alifont ali-icon-new" title="新建空白标签"></el-button>
+                <el-button type="info" icon="alifont ali-icon-blank" title="打开标签"></el-button>
+                <el-button type="success" onclick="btnSaveLabel_click();" icon="alifont ali-icon-save" title="保存标签"></el-button>
+                <el-button type="info" icon="alifont ali-icon-saveas" title="另存为"></el-button>
+            </el-button-group>
+            <el-button-group>
+                <el-button type="info" icon="alifont ali-icon-grid" title="页面设置"></el-button>
+                <el-button type="info" onclick="btnPrint_click();" icon="alifont ali-icon-print" title="打印样张"></el-button>
+                <el-button type="info" icon="alifont ali-icon-preview" title="预览"></el-button>
+            </el-button-group>
+            <el-button-group>
+                <el-button type="info" icon="alifont ali-icon-copy" title="复制元素"></el-button>
+                <el-button type="info" icon="alifont ali-icon-paste" title="粘贴元素"></el-button>
+                <el-button type="success" icon="alifont ali-icon-back" title="撤销"></el-button>
+                <el-button type="info" icon="alifont ali-icon-redo" title="重做"></el-button>
+            </el-button-group>
+            <el-button-group>
+                <el-button type="primary" onclick="btnAddElement_click('text');" icon="alifont ali-icon-a" title="文本"></el-button>
+                <el-button type="primary" icon="alifont ali-icon-barcode" title="一维码"></el-button>
+                <el-button type="primary" icon="alifont ali-icon-qrcode" title="二维码"></el-button>
+                <el-button type="primary" icon="alifont ali-icon-image" title="图片"></el-button>
+                <el-button type="primary" icon="alifont ali-icon-rectangle" title="矩形"></el-button>
+                <el-button type="primary" icon="alifont ali-icon-ellipse" title="椭圆"></el-button>
+                <el-button type="primary" icon="alifont ali-icon-line" title="直线"></el-button>
+            </el-button-group>
+            <el-button-group>
+                <el-button type="info" icon="alifont ali-icon-zoomin" title="放大"></el-button>
+                <el-button type="info" icon="alifont ali-icon-zoomout" title="缩小"></el-button>
+                <el-button type="info" icon="alifont ali-icon-zoom" title="适应窗口大小"></el-button>
+            </el-button-group>
+            <el-button-group>
+                <el-button type="info" onclick="btnExampleLabel_click();" icon="alifont ali-icon-label" title="样例标签"></el-button>
+                <el-button type="success" icon="alifont ali-icon-help" title="帮助"></el-button>
+            </el-button-group>
+        </el-row>
+        <div style="height:5px;"></div>
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
@@ -63,6 +64,26 @@
     </table>
 </body>
 </html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {},
+        methods: {
+            method1() {
+                ajax.send("/", {}).then((res) => {
+                    if (res.ok) {
+                        topWin.message("当前操作成功");
+                    }
+                    else {
+                        topWin.alert("系统信息 ...", "error");
+                    }
+                })
+            }
+        }
+    });
+</script>
 
 <!-- winLoad -->
 <script>
@@ -113,7 +134,7 @@
         return lbl;
     }
 </script>
-<!-- buttons -->
+<!-- toolbar -->
 <script>
     function btnBlankLabel_click() {
         if (lbl.elements.length > 0) {

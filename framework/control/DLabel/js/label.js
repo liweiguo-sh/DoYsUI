@@ -285,6 +285,7 @@
         cvsElement._this = _this;
         cvsElement._element = element;
         cvsElement.id = canvasId;
+        cvsElement.tabIndex = _this.id;     // -- 可以解决keydown事件无效问题，参考：https://stackoverflow.com/questions/12886286/addeventlistener-for-keydown-on-canvas
         cvsElement.className = _this.prefix + "element";
         cvsElement.title = element.head.name;
 
@@ -306,6 +307,7 @@
             };
             cvsElement.ondrag = _this.onCanvasDrag;
 
+            cvsElement.onkeydown = this.cvsElementOnKeydown;
             cvsElement.onmousemove = this.cvsElementOnMousemove;
 
             cvsElement.onmouseenter1 = this.showHover;
@@ -389,6 +391,14 @@
 
         evt.stopPropagation();
         return false;
+    }
+    cvsElementOnKeydown(evt) {
+        let _dom = evt.srcElement;
+        let _this = _dom._this;
+
+        if (evt.code.equals("Delete")) {
+            _this.delElement();
+        }        
     }
     // -- element event: click and hover --------------------------------------
     onElementClick(evt) {

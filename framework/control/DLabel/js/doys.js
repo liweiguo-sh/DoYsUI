@@ -9,7 +9,7 @@
 
 (function () {
     var resRootPath, jsDoys = "doys.js";
-    var jsVer = top.jsVer || (new Date()).getTime();
+    var jsVer = top.jsVer || "2021-03-15";
     // ----------------------------------------------------
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         jsVer = (new Date()).getTime();
@@ -32,9 +32,14 @@
 
     var arrCss = new Array(), arrJs = new Array();
     // ----------------------------------------------------
-    arrCss.push("/framework/control/window/xwf.window.css");
-    arrCss.push("/framework/control/DLabel/css/designer.css");
     arrCss.push("/plugin/element/index.css");
+
+    arrCss.push("/framework/css/ali-icon-font.css");
+    arrCss.push("/framework/control/window/xwf.window.css");
+
+    arrCss.push("/framework/control/DLabel/css/designer.css");
+    arrCss.push("/framework/control/DLabel/css/toolbar.css");
+    arrCss.push("/framework/control/DLabel/css/label.css");
 
     arrJs.push("/plugin/vue.js");
     arrJs.push("/plugin/element/index.js");
