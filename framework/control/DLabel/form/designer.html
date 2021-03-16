@@ -5,7 +5,7 @@
     <script src="../js/boot.js"></script>
 </head>
 <body>
-    <div id="app">
+    <div id="vmToolbar">
         <el-row class="row-toolbar">
             <el-button-group>
                 <el-button type="info" onclick="btnBlankLabel_click();" icon="alifont ali-icon-new" title="新建空白标签"></el-button>
@@ -47,15 +47,82 @@
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
-            <td id="tdMainLeft" class="tdMain" style="background-color:aquamarine;vertical-align:top;">
-                属性区
-                <table id="tbProp" style="display:none">
-                    <tr>
-                        <td class="tdPropName">旋转角度</td>
-                        <td class="tdPropValue"><input id="txtPropAngle" value="0" onblur="onAngleBlur();" onkeydown="onAngleKeydown(event);" /></td>
-                    </tr>
-
-                </table>
+            <td id="tdMainLeft" class="tdMain" style="padding-top:15px;padding-left:10px;">
+                <div id="vmProp">
+                    <el-collapse accordion>
+                        <!-- head -->>
+                        <el-collapse-item>
+                            <template slot="title">
+                                <div class="divPropGrouName">元素</div>
+                                <i class="el-icon-news"></i>
+                            </template>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">名称</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="head.name" @change="propChangeHead('name')"></el-input>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="head.elementType" @change="propChangeHead('elementType')">
+                                        <el-option value="barcode" label="条形码"></el-option>
+                                        <el-option value="text" label="文本"></el-option>
+                                        <el-option value="image" label="图片"></el-option>
+                                        <el-option value="shape" label="形状"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row v-show="head.elementType=='barcode'">
+                                <el-col :span="span[1]"><div class="divPropName">符号体系</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="head.barcodeType" filterable>
+                                        <el-option-group label="一维码">
+                                            <el-option value="CODE_128" key="CODE_128" label="Code 128"></el-option>
+                                            <el-option value="CODE_39" key="CODE_39" label="Code 39"></el-option>
+                                        </el-option-group>
+                                        <el-option-group label="二维码">
+                                            <el-option value="QR_CODE" key="QR_CODE" label="QR Code"></el-option>
+                                            <el-option value="DATA_MATRIX" key="DATA_MATRIX" label="DataMatrix"></el-option>
+                                            <el-option value="PDF_417" key="PDF_417" label="PDF_417" :disabled="true"></el-option>
+                                        </el-option-group>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row v-show="head.elementType=='barcode'">
+                                <el-col :span="span[1]">&nbsp;</el-col>
+                                <el-col :span="span[2]">
+                                    <el-checkbox v-model="head.pureBarcode">隐藏条码文本</el-checkbox>
+                                </el-col>
+                            </el-row>
+                            <el-row v-show="head.elementType=='barcode'">
+                                <el-col :span="span[1]">&nbsp;</el-col>
+                                <el-col :span="span[2]">
+                                    <el-checkbox v-model="head.gs1">GS1条码</el-checkbox>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]">&nbsp;</el-col>
+                                <el-col :span="span[2]">
+                                    <el-checkbox v-model="head.locked">锁定</el-checkbox>
+                                </el-col>
+                            </el-row>
+                        </el-collapse-item>
+                        <el-collapse-item title="字体 Font">
+                            <div>控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；</div>
+                            <div>页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。</div>
+                        </el-collapse-item>
+                        <el-collapse-item title="边框 Frame">
+                            <div>简化流程：设计简洁直观的操作流程；</div>
+                            <div>清晰明确：语言表达清晰且表意明确，让用户快速理解进而作出决策；</div>
+                            <div>帮助用户识别：界面简单直白，让用户快速识别而非回忆，减少用户记忆负担。</div>
+                        </el-collapse-item>
+                        <el-collapse-item title="位置 Position">
+                            <div>用户决策：根据场景可给予用户操作建议或安全提示，但不能代替用户进行决策；</div>
+                            <div>结果可控：用户可以自由的进行操作，包括撤销、回退和终止当前操作等。</div>
+                        </el-collapse-item>
+                    </el-collapse>
+                </div>
             </td>
             <td id="tdCanvas" class="tdMain" style="padding:15px;">
                 <div id="divCanvas" class="doys_label_continer"></div>
@@ -67,8 +134,8 @@
 
 <!-- appInit -->
 <script>
-    var app = new Vue({
-        el: '#app',
+    var vmTollbar = new Vue({
+        el: '#vmToolbar',
         data: {},
         methods: {
             method1() {
@@ -80,6 +147,23 @@
                         topWin.alert("系统信息 ...", "error");
                     }
                 })
+            }
+        }
+    });
+    var vmProp = new Vue({
+        el: '#vmProp',
+        data: {
+            span: [24, 7, 17],
+            head: {
+
+            }
+        },
+        methods: {
+            propChangeHead(propName) {
+                debugger;
+                if (propName.equals("elementType")) {
+                    debugger
+                }                
             }
         }
     });
@@ -115,7 +199,7 @@
         let width = document.documentElement.clientWidth;
         let heigth = document.documentElement.clientHeight;
 
-        tdCanvas.style.width = (width - 320) + "px";
+        tdCanvas.style.width = (width - 350) + "px";
         tdCanvas.style.height = (heigth - tbMain.offsetTop - 40) + "px";
     }
 
