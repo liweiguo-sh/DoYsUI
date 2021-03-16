@@ -11,6 +11,11 @@
         this.container = jsp.container;                             // -- 标签容器 --
         this.container._this = this;
         this.parentContainer = this.container.parentElement;        // -- 标签容器的父对象 --
+        this.parentContainer.onclick = function (evt) {
+            if (_this.readonly) return;
+
+            _this.clearMultiSelect();
+        }
         this.parentContainer.ondblclick = function (evt) {
             if (_this.readonly) return;
 
@@ -50,18 +55,21 @@
 
             _this.activatedElement = null;
             _this.hideResize();
+            _this.clearMultiSelect();
         }
 
         // -- 3. label element --
         this.minElementWidth = 1;                                   // -- 元素最小宽度 --
         this.minElementHeight = 1;                                  // -- 元素最小高度 --
 
-        this.dragOffsetX = 0;
-        this.dragOffsetY = 0;
+        this.dragOffsetX = 0; this.dragOffsetY = 0;                 // -- 元素开始拖动时的坐标 --
+
         this.divHoverT = null; this.divHoverR = null; this.divHoverB = null; this.divHoverL = null;     // -- element hover border --
         this.divT = null; this.divR = null; this.divB = null; this.divT = null;                         // -- element resize border --
 
-        // -- 4. cwin --
+        // -- 4. label properties --
+
+        // -- 5. cwin --
         if (window.topWin) {
             window.cWin = topWin.cWin;
         }
@@ -176,6 +184,15 @@
         this.fields = null;
         this.label = null;
     }
+    clearMultiSelect() {
+        for (let i = 0; i < this.elements.length; i++) {
+            let element = this.elements[i];
+            if (element.head._selected) {
+                element.head._selected = false;
+                UtilElement.draw({ element: element });
+            }
+        }
+    }
     newLabel(jsp = {}) {
         return {
             head: {
@@ -208,6 +225,8 @@
     }
     // -- element base --------------------------------------------------------
     addBlankTextElement() {
+        this.clearMultiSelect();
+
         let element = {
             _labelHead: this.head,
             head: {
@@ -251,15 +270,17 @@
         this.activatedElement = element;
         this.showResize();
     }
-    delElement() {
-        if (!this.activatedElement) return;
+    delElement(element) {
+        if (!element) {
+            element = this.activatedElement;
+        }
+        if (!element) return;
 
-        let domCanvas = this.activatedElement._canvas;
+        let domCanvas = element._canvas;
 
         this.container.removeChild(domCanvas);
-
         for (let i = 0; i < this.elements.length; i++) {
-            if (this.elements[i]._canvasId == this.activatedElement._canvasId) {
+            if (this.elements[i]._canvasId == element._canvasId) {
                 this.elements.splice(i, 1);
                 break;
             }
@@ -335,6 +356,7 @@
     // -- element event: drag -------------------------------------------------
     ondragstart(evt) {
         let domDrag = evt.srcElement;
+        let element = domDrag._element;
         let dragOffsetX = 0, dragOffsetY = 0;
 
         dragOffsetX = this.containerLeft;                                   // -- 容器偏移量、边框、margin、padding --
@@ -349,6 +371,13 @@
 
         this.dragOffsetX = dragOffsetX;
         this.dragOffsetY = dragOffsetY;
+        for (let i = 0; i < this.elements.length; i++) {
+            let el = this.elements[i];
+            if (!el.head._selected) continue;
+
+            el._canvas.offsetLeft0 = el._canvas.offsetLeft;                 // -- 拖动前X坐标 --
+            el._canvas.offsetTop0 = el._canvas.offsetTop;                   // -- 拖动前Y坐标 --
+        }
     }
     onCanvasDrag(evt) {
         let domDrag = evt.srcElement;
@@ -363,12 +392,29 @@
 
         domDrag.style.left = x + "px";
         domDrag.style.top = y + "px";
-
         element.position.left = (x / _this.pxmm).toFixed(2);
         element.position.top = (y / _this.pxmm).toFixed(2);
 
         if (_this.activatedElement) {
             _this.showResize();
+        }
+
+        // -- 多选拖动联动 --------------------------------------
+        let cvs, el;
+        let xMove = domDrag.offsetLeft - domDrag.offsetLeft0;
+        let yMove = domDrag.offsetTop - domDrag.offsetTop0;
+        for (let i = 0; i < _this.elements.length; i++) {
+            el = _this.elements[i];
+            if (!el.head._selected || el.head.name.equals(element.head.name)) continue;
+
+            cvs = el._canvas;
+            x = cvs.offsetLeft0 + xMove;
+            y = cvs.offsetTop0 + yMove;
+
+            cvs.style.left = x + "px";
+            cvs.style.top = y + "px";
+            el.position.left = (x / _this.pxmm).toFixed(2);
+            el.position.top = (y / _this.pxmm).toFixed(2);
         }
     }
 
@@ -398,7 +444,12 @@
 
         if (evt.code.equals("Delete")) {
             _this.delElement();
-        }        
+            for (let i = _this.elements.length - 1; i >= 0; i--) {
+                if (_this.elements[i].head._selected) {
+                    _this.delElement(_this.elements[i]);
+                }
+            }
+        }
     }
     // -- element event: click and hover --------------------------------------
     onElementClick(evt) {
@@ -407,7 +458,15 @@
         let element = _dom._element;
 
         evt.stopPropagation();
-        _this.activeElement(element);
+        _this.activeElement(element,);
+
+        if (evt.ctrlKey) {
+            element.head._selected = !element.head._selected;
+            UtilElement.draw({ element: element });
+        }
+        else {
+            _this.clearMultiSelect();
+        }
     }
     onElementDblClick(_this, evt) {
         let domElement = evt.srcElement;

@@ -312,6 +312,9 @@ UtilElement.draw = function (jsp) {
             UtilElement.draw_barcode2D(context, element);
         }
     }
+
+    // -- paint multiSelect -------------------------------
+    UtilElement.drawMultiSelect(context, element);
 }
 
 UtilElement.getFixedSegment = function (jsp) {
@@ -403,6 +406,25 @@ UtilElement.drawFrame = function (context, element) {
         context.fillStyle = frame.fillColor;
         context.fillRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm);
     }
+}
+UtilElement.drawMultiSelect = function (context, element) {
+    if (!element.head._selected) return;
+
+    let _this = element._this;
+    let pxmm = _this.pxmm;
+    let x = 5, y = x;
+    let w = element.position.width * pxmm - 2 * x;
+    let h = element.position.height * pxmm - 2 * y;
+    // ----------------------------------------------------
+    context.strokeStyle = "#FF1493";
+    context.lineWidth = 2;
+    context.setLineDash([]);
+    context.strokeRect(x, y, w, h);
+
+    context.strokeStyle = "#FFFFFF";
+    context.lineWidth = 2;
+    context.setLineDash([8, 8]);
+    context.strokeRect(x, y, w, h);
 }
 
 // -- draw text ---------------------------------------------------------------
@@ -606,6 +628,8 @@ UtilElement.draw_image = function (context, element) {
 
         // -- 3. draw --
         context.drawImage(img, x * pxmm, y * pxmm, widthImg * pxmm, heightImg * pxmm);
+
+        UtilElement.drawMultiSelect(context, element);
     }
     img.onerror = function () {
         UtilElement._drawError(context, element, "404");
@@ -657,6 +681,8 @@ UtilElement.draw_barcode1D = async function (context, element) {
         let h = position.heightBarcode * pxmm;
 
         context.drawImage(img, x, y, w, h);
+
+        UtilElement.drawMultiSelect(context, element);
     }
     img.onerror = function () {
         context.font = position.heightBarcode * pxmm / 2 + "px Arial";
@@ -700,7 +726,10 @@ UtilElement.draw_barcode2D = async function (context, element) {
         let w = position.widthBarcode * pxmm;
         let h = position.heightBarcode * pxmm;
         let m1 = 0.0, m2 = 1 - 2 * m1;          // -- 裁剪二维码图片，减少二维码留白 --
+
         context.drawImage(img, img.width * m1, img.height * m1, img.width * m2, img.height * m2, x, y, w, h);
+
+        UtilElement.drawMultiSelect(context, element);
     }
     img.onerror = function () {
         context.font = position.heightBarcode * pxmm / 2 + "px Arial";
