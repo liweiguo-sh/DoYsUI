@@ -120,6 +120,7 @@
         this.head.id = this.head.id || 1;
         this.fields = this.label.fields;
         this.elements = this.label.elements;
+        this.multiCount = 0;                    // -- 多选选中的元素数量 --
 
         // -- 3. 计算标签换算系数(毫米|像素) --
         let mmW = this.head.width, mmH = this.head.height, mmWH = mmW / mmH;
@@ -183,14 +184,27 @@
         this.elements = null;
         this.fields = null;
         this.label = null;
+
+        this.multiCount = 0;
+        this.raiseEvent("on-select");
     }
-    clearMultiSelect() {
+    clearMultiSelect(jsp = { raiseEvent: false, excludeActivated: false }) {
+        let nameActivated = this.activatedElement ? this.activatedElement.head.name : "";
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
-            if (element.head._selected) {
-                element.head._selected = false;
-                UtilElement.draw({ element: element });
+
+            if (!element.head._selected) continue;
+            if (jsp.excludeActivated) {
+                if (element.head.name.equals(nameActivated)) continue;
             }
+
+            this.multiCount--;
+            element.head._selected = false;
+            UtilElement.draw({ element: element });
+        }
+
+        if (jsp.raiseEvent) {
+            this.raiseEvent("on-select");
         }
     }
     newLabel(jsp = {}) {
@@ -210,6 +224,24 @@
                 this.onSaveEvents = [];
             }
             this.onSaveEvents.push({ callback: callback, jsp: jsp });
+        }
+        else if (name.equals("on-select")) {
+            if (!this.onSelectEvents) {
+                this.onSelectEvents = [];
+            }
+            this.onSelectEvents.push({ callback: callback, jsp: jsp });
+        }
+        else {
+            throw ("unsupport event: " + name);
+        }
+    }
+    raiseEvent(name, jsp = {}) {
+        let evt;
+        if (name.equals("on-select")) {
+            for (let i = 0; i < this.onSelectEvents.length; i++) {
+                evt = this.onSelectEvents[i];
+                evt.callback(jsp, evt.jsp);     // -- 事件参数，事件注册时的原始参数 --
+            }
         }
         else {
             throw ("unsupport event: " + name);
@@ -400,6 +432,7 @@
         }
 
         // -- 多选拖动联动 --------------------------------------
+        if (!element.head._selected) return;
         let cvs, el;
         let xMove = domDrag.offsetLeft - domDrag.offsetLeft0;
         let yMove = domDrag.offsetTop - domDrag.offsetTop0;
@@ -456,17 +489,34 @@
         let _dom = evt.srcElement;
         let _this = _dom._this;
         let element = _dom._element;
-
+        // ------------------------------------------------
         evt.stopPropagation();
-        _this.activeElement(element,);
 
+        // ------------------------------------------------
         if (evt.ctrlKey) {
-            element.head._selected = !element.head._selected;
+            if (_this.activatedElement) {
+                _this.activatedElement = null;
+                _this.hideResize();
+                _this.hideHover();                
+            }
+
+            if (element.head._selected) {
+                element.head._selected = false;
+                _this.multiCount--;
+            }
+            else {
+                element.head._selected = true;
+                _this.multiCount++;
+            }
             UtilElement.draw({ element: element });
         }
-        else {
-            _this.clearMultiSelect();
+        else {            
+            if (_this.multiCount > 0) {
+                _this.clearMultiSelect();
+            }
+            _this.activeElement(element);
         }
+        _this.raiseEvent("on-select");
     }
     onElementDblClick(_this, evt) {
         let domElement = evt.srcElement;

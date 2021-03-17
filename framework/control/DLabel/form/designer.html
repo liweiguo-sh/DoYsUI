@@ -49,20 +49,21 @@
         <tr>
             <td id="tdMainLeft" class="tdMain" style="padding-top:15px;padding-left:10px;">
                 <div id="vmProp">
-                    <el-collapse accordion>
-                        <!-- head -->>
-                        <el-collapse-item>
+                    <el-row><span style="color:yellow">元素选中数量：{{multiCount}}</span></el-row>
+                    <el-collapse v-model="activeNames" accordion>
+                        <!-- head -->
+                        <el-collapse-item name="head" v-show="multiCount>0">
                             <template slot="title">
-                                <div class="divPropGrouName">元素</div>
+                                <div class="divPropGrouName">元素 Element</div>
                                 <i class="el-icon-news"></i>
                             </template>
-                            <el-row>
+                            <el-row v-show="multiCount==1">
                                 <el-col :span="span[1]"><div class="divPropName">名称</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-input v-model="head.name" @change="propChangeHead('name')"></el-input>
                                 </el-col>
                             </el-row>
-                            <el-row>
+                            <el-row v-show="multiCount==1">
                                 <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-select v-model="head.elementType" @change="propChangeHead('elementType')">
@@ -92,34 +93,39 @@
                             <el-row v-show="head.elementType=='barcode'">
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="head.pureBarcode">隐藏条码文本</el-checkbox>
+                                    <el-checkbox v-model="head.pureBarcode" @change="propChangeHead('head.pureBarcode')">隐藏条码文本</el-checkbox>
                                 </el-col>
                             </el-row>
                             <el-row v-show="head.elementType=='barcode'">
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="head.gs1">GS1条码</el-checkbox>
+                                    <el-checkbox v-model="head.gs1" @change="propChangeHead('head.gs1')">GS1条码</el-checkbox>
+                                </el-col>
+                            </el-row>
+                            <el-row v-show="multiCount>0">
+                                <el-col :span="span[1]">&nbsp;</el-col>
+                                <el-col :span="span[2]">
+                                    <el-checkbox v-model="head.locked" @change="propChangeHead('head.locked')">锁定</el-checkbox>
+                                </el-col>
+                            </el-row>
+                        </el-collapse-item>
+                        <!-- position -->
+                        <el-collapse-item name="position" v-show="multiCount>0">
+                            <template slot="title">
+                                <div class="divPropGrouName">位置 Position</div>
+                            </template>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">位置X</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="position.left" @change="propChangeHead('position.left')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
-                                <el-col :span="span[1]">&nbsp;</el-col>
+                                <el-col :span="span[1]"><div class="divPropName">位置Y</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="head.locked">锁定</el-checkbox>
+                                    <el-input v-model="position.top" @change="propChangeHead('position.top')"></el-input>
                                 </el-col>
                             </el-row>
-                        </el-collapse-item>
-                        <el-collapse-item title="字体 Font">
-                            <div>控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；</div>
-                            <div>页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。</div>
-                        </el-collapse-item>
-                        <el-collapse-item title="边框 Frame">
-                            <div>简化流程：设计简洁直观的操作流程；</div>
-                            <div>清晰明确：语言表达清晰且表意明确，让用户快速理解进而作出决策；</div>
-                            <div>帮助用户识别：界面简单直白，让用户快速识别而非回忆，减少用户记忆负担。</div>
-                        </el-collapse-item>
-                        <el-collapse-item title="位置 Position">
-                            <div>用户决策：根据场景可给予用户操作建议或安全提示，但不能代替用户进行决策；</div>
-                            <div>结果可控：用户可以自由的进行操作，包括撤销、回退和终止当前操作等。</div>
                         </el-collapse-item>
                     </el-collapse>
                 </div>
@@ -154,16 +160,41 @@
         el: '#vmProp',
         data: {
             span: [24, 7, 17],
-            head: {
+            activeNames: ["head", "position"],
 
+            multiCount: 0,
+            head: {
+                name: null,
+                elementType: null,
+                barcodeType: null,
+                pureBarcode: false, gs1: false, locked: false
+
+            },
+            position: {
+                top: null, left: null, width: null, height: null
             }
         },
         methods: {
-            propChangeHead(propName) {
-                debugger;
-                if (propName.equals("elementType")) {
-                    debugger
-                }                
+            propChangeHead(name) {
+                let element;
+                let propGroupName = name.split(".")[0];
+                let propName = name.split(".")[1];
+
+                if (lbl.multiCount > 0) {
+                    for (let i = 0; i < lbl.elements.length; i++) {
+                        element = lbl.elements[i];
+                        if (element.head._selected) {
+                            element[propGroupName][propName] = this[propGroupName][propName];
+                            UtilElement.draw({ element: element });
+                        }
+                    }
+                }
+                else {
+                    element = lbl.activatedElement;
+                    element[propGroupName][propName] = this[propGroupName][propName];
+                    UtilElement.draw({ element: element });
+                    lbl.showResize();
+                }
             }
         }
     });
@@ -214,6 +245,8 @@
                 point: 600
             });
             lbl.compute(true);
+
+            lbl.addEventListener("on-select", onSelect);
         }
         return lbl;
     }
@@ -305,6 +338,81 @@
         let angle = txt.value.toInt();
 
         txt.value = lbl.setAngle(angle);
+    }
+
+    function showElementProp() {
+        let props = [], group, name, value;
+        // -- head ----------------------------------------
+        props.push({ group: "head", name: "name" }); 
+        props.push({ group: "head", name: "elementType" }); 
+        props.push({ group: "head", name: "barcodeType" }); 
+        props.push({ group: "head", name: "pureBarcode" }); 
+        props.push({ group: "head", name: "gs1" }); 
+        props.push({ group: "head", name: "locked" }); 
+
+        // -- position ------------------------------------
+        props.push({ group: "position", name: "top" });
+        props.push({ group: "position", name: "left" });
+
+        // -- 循环获取属性值 ---------------------------------
+        for (let i = 0; i < props.length; i++) {
+            group = props[i].group;
+            name = props[i].name;
+
+            value = getPropValue(group, name);
+            vmProp[group][name] = value;
+        }
+    }
+
+    function getPropValue(propGroupName, propName) {
+        let propValue, propGroup;
+        let element;
+
+        // -- 1. 获取首个元素(多个选中元素的第一个，或者当前ActivatedElement) --
+        if (lbl.multiCount > 0) {
+            for (let i = 0; i < lbl.elements.length; i++) {
+                if (lbl.elements[i].head._selected) {
+                    element = lbl.elements[i];
+                    break;
+                }
+            }
+        }
+        else {
+            element = lbl.activatedElement;
+        }
+        if (!element) return "";
+
+        // -- 2. 取首个元素属性值 ----------------------------
+        if (!element[propGroupName]) return "";
+        propValue = element[propGroupName][propName];
+        if (!propValue) return "";
+
+        // -- 3. 判断属性值在选中的多个元素中是否完全相同 ---------
+        if (lbl.multiCount > 0) {
+            propValue = propValue.toString();
+            for (let i = 1; i < lbl.elements.length; i++) {
+                if (!lbl.elements[i].head._selected) continue;
+                propGroup = lbl.elements[i][propGroupName];
+                if (!propGroup) return "";
+
+                if (!propValue.equals(propGroup[propName])) return "";
+            }
+        }
+        return propValue;
+    }
+</script>
+<!-- 事件 -->
+<script>
+    function onSelect(jsp) {
+        let multiCount = lbl.multiCount;
+        if (multiCount == 0) {
+            if (lbl.activatedElement) {
+                multiCount = 1;
+            }
+        }
+        vmProp.multiCount = multiCount;
+        showElementProp();
+        //vmProp.position.left = vmProp.position.left + "a";
     }
 </script>
 
