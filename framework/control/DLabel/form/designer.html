@@ -47,9 +47,9 @@
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
-            <td id="tdMainLeft" class="tdMain" style="padding-top:15px;padding-left:10px;">
-                <div id="vmProp">
-                    <el-row><span style="color:yellow">元素选中数量：{{multiCount}}</span></el-row>
+            <td id="tdProp" class="tdMain" style="padding-top:15px;padding-left:10px;">
+                <div id="vmProp" style="overflow-y:auto;">
+                    <el-row v-show="false"><span style="color:yellow">元素选中数量：{{multiCount}}</span></el-row>
                     <el-collapse v-model="activeNames" accordion>
                         <!-- head -->
                         <el-collapse-item name="head" v-show="multiCount>0">
@@ -114,6 +114,39 @@
                             <template slot="title">
                                 <div class="divPropGrouName">位置 Position</div>
                             </template>
+                            <!-- hidden,layer,angle -->
+                            <el-row>
+                                <el-col :span="span[1]">&nbsp;</el-col>
+                                <el-col :span="span[2]">
+                                    <el-checkbox v-model="position.hidden" @change="propChangeHead('position.hidden')">打印时隐藏</el-checkbox>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">图层</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="position.layer" @change="propChangeHead('position.layer')" style="width:100%;">
+                                        <el-option value="0" label="底层"></el-option>
+                                        <el-option value="1" label="1层"></el-option>
+                                        <el-option value="2" label="2层"></el-option>
+                                        <el-option value="3" label="3层"></el-option>
+                                        <el-option value="4" label="4层"></el-option>
+                                        <el-option value="5" label="5层"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">旋转角度</div></el-col>
+                                <el-col :span="span[2]">
+                                    <!--<el-input v-model="position.angle" @change="propChangeHead('position.angle')"></el-input>-->
+                                    <el-select v-model="position.angle" @change="propChangeHead('position.angle')" filterable allow-create default-first-option>
+                                        <el-option value="0" label="0"></el-option>
+                                        <el-option value="90" label="90"></el-option>
+                                        <el-option value="180" label="180"></el-option>
+                                        <el-option value="270" label="270"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <!-- x,y,w,h-->
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">位置X</div></el-col>
                                 <el-col :span="span[2]">
@@ -124,6 +157,100 @@
                                 <el-col :span="span[1]"><div class="divPropName">位置Y</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-input v-model="position.top" @change="propChangeHead('position.top')"></el-input>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">宽度</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="position.width" @change="propChangeHead('position.width')"></el-input>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">高度</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="position.height" @change="propChangeHead('position.height')"></el-input>
+                                </el-col>
+                            </el-row>
+                            <!-- textAlign,verticalAlign -->
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">水平位置</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="position.textAlign" @change="propChangeHead('position.textAlign')">
+                                        <el-option value="left" label="居左"></el-option>
+                                        <el-option value="center" label="居中"></el-option>
+                                        <el-option value="right" label="居右"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">垂直位置</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="position.verticalAlign" @change="propChangeHead('position.verticalAlign')">
+                                        <el-option value="top" label="居上"></el-option>
+                                        <el-option value="middle" label="居中"></el-option>
+                                        <el-option value="bottom" label="居下"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <!-- margin -->
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">左边距</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="position.marginLeft" @change="propChangeHead('position.marginLeft')"></el-input>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">上边距</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="position.marginTop" @change="propChangeHead('position.marginTop')"></el-input>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">右边距</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="position.marginRight" @change="propChangeHead('position.marginRight')"></el-input>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">下边距</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="position.marginBottom" @change="propChangeHead('position.marginBottom')"></el-input>
+                                </el-col>
+                            </el-row>
+
+                        </el-collapse-item>
+                        <!-- frame -->
+                        <el-collapse-item name="frame" v-show="multiCount>0">
+                            <template slot="title">
+                                <div class="divPropGrouName">边框 Frame</div>
+                            </template>
+                            <!-- type,width,color,fillColor -->
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="frame.type" @change="propChangeHead('frame.type')">
+                                        <el-option value="" label="无"></el-option>
+                                        <el-option value="rectangle" label="矩形"></el-option>
+                                        <el-option value="ellipse" label="椭圆" :disabled="true"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">粗细(mm)</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="frame.width" @change="propChangeHead('frame.width')"></el-input>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">边框颜色</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-color-picker v-model="frame.color" @change="propChangeHead('frame.color')"></el-color-picker>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">填充色</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-color-picker v-model="frame.fillColor" @change="propChangeHead('frame.fillColor')"></el-color-picker>
                                 </el-col>
                             </el-row>
                         </el-collapse-item>
@@ -160,7 +287,7 @@
         el: '#vmProp',
         data: {
             span: [24, 7, 17],
-            activeNames: ["head", "position"],
+            activeNames: ["frame"],
 
             multiCount: 0,
             head: {
@@ -168,10 +295,15 @@
                 elementType: null,
                 barcodeType: null,
                 pureBarcode: false, gs1: false, locked: false
-
             },
             position: {
-                top: null, left: null, width: null, height: null
+                layer: null, angle: 0, hidden: false,
+                top: null, left: null, width: null, height: null,
+                marginTop: null, marginLeft: null, marginRight: null, marginBottom: null,
+                textAlign: null, verticalAlign: null
+            },
+            frame: {
+                type: null, width: null, color: null, fillColor: null
             }
         },
         methods: {
@@ -185,6 +317,8 @@
                         element = lbl.elements[i];
                         if (element.head._selected) {
                             element[propGroupName][propName] = this[propGroupName][propName];
+
+                            UtilElement.computeProp({ element: element });
                             UtilElement.draw({ element: element });
                         }
                     }
@@ -192,6 +326,8 @@
                 else {
                     element = lbl.activatedElement;
                     element[propGroupName][propName] = this[propGroupName][propName];
+
+                    UtilElement.computeProp({ element: element });
                     UtilElement.draw({ element: element });
                     lbl.showResize();
                 }
@@ -203,7 +339,7 @@
 <!-- winLoad -->
 <script>
     let tbMain = gId("tbMain");
-    let tdMainLeft = gId("tdMainLeft");
+    let tdProp = gId("tdProp");
     let tdCanvas = gId("tdCanvas");
 
     let divCanvas = gId("divCanvas");
@@ -227,11 +363,12 @@
         lbl = getLabel();
     }
     function winResize() {
-        let width = document.documentElement.clientWidth;
-        let heigth = document.documentElement.clientHeight;
+        let hMax = document.documentElement.clientHeight;
+        let height = (hMax - tbMain.offsetTop - 40);
 
-        tdCanvas.style.width = (width - 350) + "px";
-        tdCanvas.style.height = (heigth - tbMain.offsetTop - 40) + "px";
+        gId("vmProp").style.height = height + "px";
+        tdCanvas.style.height = height + "px";
+        tdProp.style.width = "300px";
     }
 
     function getLabel() {
@@ -328,31 +465,36 @@
 
 <!-- 属性区 -->
 <script>
-    function onAngleKeydown(evt) {
-        if (evt.key.equals("Enter")) {
-            onAngleBlur();
-        }
-    }
-    function onAngleBlur() {
-        let txt = gId("txtPropAngle");
-        let angle = txt.value.toInt();
-
-        txt.value = lbl.setAngle(angle);
-    }
-
     function showElementProp() {
         let props = [], group, name, value;
         // -- head ----------------------------------------
-        props.push({ group: "head", name: "name" }); 
-        props.push({ group: "head", name: "elementType" }); 
-        props.push({ group: "head", name: "barcodeType" }); 
-        props.push({ group: "head", name: "pureBarcode" }); 
-        props.push({ group: "head", name: "gs1" }); 
-        props.push({ group: "head", name: "locked" }); 
+        props.push({ group: "head", name: "name" });
+        props.push({ group: "head", name: "elementType" });
+        props.push({ group: "head", name: "barcodeType" });
+        props.push({ group: "head", name: "pureBarcode" });
+        props.push({ group: "head", name: "gs1" });
+        props.push({ group: "head", name: "locked" });
 
         // -- position ------------------------------------
+        props.push({ group: "position", name: "hidden" });
+        props.push({ group: "position", name: "layer" });
+        props.push({ group: "position", name: "angle" });
+        props.push({ group: "position", name: "textAlign" });
+        props.push({ group: "position", name: "verticalAlign" });
         props.push({ group: "position", name: "top" });
         props.push({ group: "position", name: "left" });
+        props.push({ group: "position", name: "width" });
+        props.push({ group: "position", name: "height" });
+        props.push({ group: "position", name: "marginTop" });
+        props.push({ group: "position", name: "marginLeft" });
+        props.push({ group: "position", name: "marginRight" });
+        props.push({ group: "position", name: "marginBottom" });
+
+        // -- frame ---------------------------------------
+        props.push({ group: "frame", name: "type" });
+        props.push({ group: "frame", name: "width" });
+        props.push({ group: "frame", name: "color" });
+        props.push({ group: "frame", name: "fillColor" });
 
         // -- 循环获取属性值 ---------------------------------
         for (let i = 0; i < props.length; i++) {
@@ -410,6 +552,7 @@
                 multiCount = 1;
             }
         }
+
         vmProp.multiCount = multiCount;
         showElementProp();
         //vmProp.position.left = vmProp.position.left + "a";
@@ -956,7 +1099,8 @@
       },
       "frame": {
         "type": "rectangle",
-        "width": 0,
+        "width": 0.5,
+        "color": "#EA5C5C",
         "fillColor": "#E7E580"
       },
       "position": {

@@ -14,7 +14,7 @@
         this.parentContainer.onclick = function (evt) {
             if (_this.readonly) return;
 
-            _this.clearMultiSelect();
+            _this.clearMultiSelect({ raiseEvent: true });
         }
         this.parentContainer.ondblclick = function (evt) {
             if (_this.readonly) return;
