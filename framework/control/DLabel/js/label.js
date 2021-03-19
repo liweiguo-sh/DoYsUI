@@ -1,4 +1,15 @@
-﻿class Label {
+﻿/**
+ * DoYs JavaScript Library v1.0
+ * Author: David.Li
+ * Create Date: 2021-03-19
+ * Modify Date: 2021-03-19
+ * Copyright 2021, doys-next.com
+ * DLabel class
+ * 
+ * 事件命名规则，标签事件：on(after)-label-xxx，元素事件：on(after)-xxx
+ * 
+ */
+class Label {
     constructor(jsp) {
         let _this = this;
         // -- 1. init --
@@ -171,6 +182,9 @@
         else {
             this.jsAfterCompute = null;
         }
+
+        // -- 6. RaiseEvent --
+        this.raiseEvent("after-label-load");
     }
     clearLabel() {
         this.activatedElement = null;
@@ -219,7 +233,13 @@
     }
 
     addEventListener(name, callback, jsp) {
-        if (name.equals("onSave")) {
+        if (name.equals("after-label-load")) {
+            if (!this.afterLabelLoadEvents) {
+                this.afterLabelLoadEvents = [];
+            }
+            this.afterLabelLoadEvents.push({ callback: callback, jsp: jsp });
+        }
+        else if (name.equals("onSave")) {
             if (!this.onSaveEvents) {
                 this.onSaveEvents = [];
             }
@@ -237,10 +257,21 @@
     }
     raiseEvent(name, jsp = {}) {
         let evt;
-        if (name.equals("on-select")) {
-            for (let i = 0; i < this.onSelectEvents.length; i++) {
-                evt = this.onSelectEvents[i];
-                evt.callback(jsp, evt.jsp);     // -- 事件参数，事件注册时的原始参数 --
+
+        if (name.equals("after-label-load")) {
+            if (this.afterLabelLoadEvents) {
+                for (let i = 0; i < this.afterLabelLoadEvents.length; i++) {
+                    evt = this.afterLabelLoadEvents[i];
+                    evt.callback(jsp, evt.jsp);     // -- 事件参数，事件注册时的原始参数 --
+                }
+            }
+        }
+        else if (name.equals("on-select") && this.onSelectEvents) {
+            if (this.onSelectEvents) {
+                for (let i = 0; i < this.onSelectEvents.length; i++) {
+                    evt = this.onSelectEvents[i];
+                    evt.callback(jsp, evt.jsp);     // -- 事件参数，事件注册时的原始参数 --
+                }
             }
         }
         else {
@@ -497,7 +528,7 @@
             if (_this.activatedElement) {
                 _this.activatedElement = null;
                 _this.hideResize();
-                _this.hideHover();                
+                _this.hideHover();
             }
 
             if (element.head._selected) {
@@ -510,7 +541,7 @@
             }
             UtilElement.draw({ element: element });
         }
-        else {            
+        else {
             if (_this.multiCount > 0) {
                 _this.clearMultiSelect();
             }
