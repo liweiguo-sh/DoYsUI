@@ -15,7 +15,8 @@ DLbelExample.debug1 = function () {
     "width": 80,
     "height": 60,
     "point": 600,
-    "imageBaseUrl": "http://127.0.0.1/DoYsUI/framework/control/DLabel/image/"
+    "imageBaseUrl": "http://127.0.0.1/DoYsUI/framework/control/DLabel/image/",
+    "scriptAfterCompute": "console.log(\\"Script:AfterComputer debug infomation ...\\")"
   },
   "fields": {
     "gtin": "06938450873308",
@@ -671,5 +672,35 @@ DLbelExample.debug1 = function () {
     }
   ]
 }
+        `;
+}
+
+DLbelExample.getExampleScript = function (scriptKey) {
+    let script;
+    if (scriptKey.equals("")) {
+        script = DLbelExample.script1().trim();
+    }
+    else {
+        script = "";
+    }
+    return script.trim();
+}
+DLbelExample.script1 = function () {
+    return `
+    for (let i = 1; i <= 6; i++) {
+        let name = "image_" + i;
+        let element = this.getElementByName(name);
+        element.image.url = this.head.imageBaseUrl + this.fields["image_empty"];
+    }
+
+    let tagNames = this.fields["tag_names"];
+    let names = tagNames.toLowerCase().replaceAll(",", "").split("");
+    for (let i = 1; i <= names.length && i <= 6; i++) {
+        let name = "image_" + names[i - 1];
+        let imgUrl = this.head.imageBaseUrl + this.fields[name];
+        let element = this.getElementByName("image_" + i);
+
+        element.image.url = imgUrl;
+    }
         `;
 }

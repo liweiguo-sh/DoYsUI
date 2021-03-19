@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签脚本定义</title>
+    <script src="../js/boot.js"></script>
+    <script src="../js/example.js"></script>
+    <style type="text/css">
+        .inputScript {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:960px;height:510px;">
+        <el-row style="margin-bottom:10px;">
+            <el-button-group>
+                <el-button @click="save" icon="el-icon-check">保存</el-button>
+                <el-button @click="abandon" icon="el-icon-close">放弃</el-button>
+                <el-button @click="check"type="success" icon="el-icon-check">检查</el-button>
+            </el-button-group>
+        </el-row>
+        <el-tabs v-model="activeTabName" type="card">
+            <el-tab-pane label="Script: AfterCompute" name="jsAfterCompute">
+                <el-input v-model="scriptAfterCompute" class="inputScript" type="textarea" :rows="21" placeholder="请输入脚本" spellcheck="false"></el-input>
+            </el-tab-pane>
+            <el-tab-pane label="样例" name="jsExample">
+                <el-input v-model="scriptExample" type="textarea" :rows="21" placeholder="样例脚本，敬请期待..." spellcheck="false"></el-input>
+            </el-tab-pane>
+        </el-tabs>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            activeTabName: "jsAfterCompute",
+
+            saveAction: false,                                  // -- 是否保存修改 --
+            scriptAfterCompute: "",
+            scriptExample: DLbelExample.getExampleScript("")    // -- 样例脚本 --
+        },
+        methods: {
+            save() {
+                if (this.check()) {
+                    this.saveAction = true;
+                    win.close();
+                }
+            },
+            abandon() {
+                win.close();
+            },
+            check() {
+                try {
+                    this.scriptAfterCompute = this.scriptAfterCompute.trim();
+                    eval(this.scriptAfterCompute);
+                    Util.message("语法检查正确，没有发现错误。", "success");
+                }
+                catch (e) {
+                    Util.alert(e.toString(), "error");
+                    return false;
+                }
+                return true;
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.scriptAfterCompute = win.para.scriptAfterCompute || "";
+
+        // ------------------------------------------------
+        win.addEventListener("afterClose", () => {
+            if (win.para.callback) {
+                win.para.callback({   
+                    saveAction: app.saveAction,
+                    scriptAfterCompute: app.scriptAfterCompute
+                });
+            }
+            app.$destroy();
+        });
+    }
+</script>

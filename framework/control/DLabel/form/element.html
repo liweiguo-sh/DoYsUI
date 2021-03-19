@@ -1,80 +1,18 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>标签元素定义</title>
+    <title>元素数据定义</title>
     <script src="../js/boot.js"></script>
     <style type="text/css">
         body {
-            overflow-x: hidden;
-        }
-
-        .el-col-base {
-            padding-right: 20px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
     <div id="app" style="width:900px;height:500px;">
         <el-tabs v-model="activeTabName" type="card">
-            <el-tab-pane label="基本信息" name="base">
-                <el-form label-width="120px" label-position="right">
-                    <el-row>
-                        <el-col :span="10" class="el-col-base">
-                            <el-form-item label="元素类型" required>
-                                <el-select v-model="head.elementType" @change="elementTypeChange()" style="width:100%;">
-                                    <el-option value="barcode" label="条形码"></el-option>
-                                    <el-option value="text" label="文本"></el-option>
-                                    <el-option value="image" label="图片"></el-option>
-                                    <el-option value="shape" label="形状"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="14" class="el-col-base">
-                            <el-form-item label="名称">
-                                <el-input v-model="head.name"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row v-show="head.elementType=='barcode'">
-                        <el-col :span="10" class="el-col-base">
-                            <el-form-item label="符号体系">
-                                <el-select v-model="head.barcodeType" filterable style="width:100%;">
-                                    <el-option-group label="一维码">
-                                        <el-option value="CODE_128" key="CODE_128" label="Code 128"></el-option>
-                                        <el-option value="CODE_39" key="CODE_39" label="Code 39"></el-option>
-                                    </el-option-group>
-                                    <el-option-group label="二维码">
-                                        <el-option value="QR_CODE" key="QR_CODE" label="QR Code"></el-option>
-                                        <el-option value="DATA_MATRIX" key="DATA_MATRIX" label="DataMatrix"></el-option>
-                                        <el-option value="PDF_417" key="PDF_417" label="PDF_417" :disabled="true"></el-option>
-                                    </el-option-group>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" class="el-col-base">
-                            <el-form-item label="条码文本">
-                                <el-checkbox v-model="head.pureBarcode">隐藏</el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" class="el-col-base">
-                            <el-form-item label="GS1">
-                                <el-checkbox v-model="head.gs1">GS1条码</el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="10" class="el-col-base">
-                            &nbsp;
-                        </el-col>
-                        <el-col :span="14" class="el-col-base">
-                            <el-form-item label="锁定状态">
-                                <el-checkbox v-model="head.locked">锁定</el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </el-tab-pane>
-            <!-- 条码、文本、图片 -->
+            <!-- 条码、文本 -->
             <el-tab-pane label="条码内容(机器识读)" name="segments" v-if="head.elementType=='barcode'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
                     <el-col :span="19">
@@ -141,217 +79,6 @@
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="图片" name="image" v-if="head.elementType=='image'">
-                <el-form label-width="135px" label-position="right">
-                    <el-row>
-                        <el-col :span="12" class="el-col-base">
-                            <el-form-item label="图片">
-                                <el-select v-model="image.value" @change="imgChange();" clearable style="width:100%;">
-                                    <el-option v-for="item in images" :value="item.k" :label="item.k" :key="item.k" :title="item.k + '  (' + item.v + ')'" style="height:52px;padding-top:2px;">
-                                        <slot>
-                                            <image :src="item.url" style="height:48px;" />
-                                        </slot>
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="12" class="el-col-base">
-                            <el-form-item label="尺寸选项">
-                                <el-select v-model="image.deformation" style="width:100%;">
-                                    <el-option value="stretch" label="拉伸填充"></el-option>
-                                    <el-option value="zoom" label="同比缩放"></el-option>
-                                    <el-option value="none" label="图片原始大小"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="24" class="el-col-base">
-                            <el-form-item label="url">
-                                <el-input v-model="image.url" @change="imgChange();" :disabled="image.value!=''"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </el-tab-pane>
-            <!-- 字体、边框、位置 -->
-            <el-tab-pane label="字体" name="font" v-if="head.elementType=='barcode' || head.elementType=='text'">
-                <el-form label-width="120px" label-position="right">
-                    <el-row>
-                        <el-col :span="10" class="el-col-base">
-                            <el-form-item label="字体">
-                                <el-select v-model="font.name" @change="reComputer();" style="width:100%;" filterable>
-                                    <el-option v-for="name in fontNames" :value="name" :label="name" :key="name">
-                                        <slot>
-                                            <div style="width:350px;">
-                                                <span style="float:left">{{name}}</span>
-                                                <span :style="'float:right;font-family:' + name">简体中文AaBbCc123</span>
-                                            </div>
-                                        </slot>
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" class="el-col-base">
-                            <el-form-item label="字号">
-                                <el-select v-model="font.size" @change="reComputer();" style="width:100%;" filterable>
-                                    <el-option v-for="size in fontSizes" :value="size" :label="size" :key="size"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" class="el-col-base">
-                            <el-form-item label="颜色">
-                                <el-color-picker v-model="font.color" @change="reComputer();"></el-color-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="10" class="el-col-base">
-                            <el-form-item label="样式">
-                                <el-checkbox v-model="font.bold">粗体</el-checkbox>
-                                <el-checkbox v-model="font.italic">斜体</el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" class="el-col-base">
-                            <el-form-item label="换行">
-                                <el-checkbox v-model="font.wordWrap">自动换行</el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" class="el-col-base">
-                            <el-form-item label="行高">
-                                <el-input v-model="font.lineHeight"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </el-tab-pane>
-            <el-tab-pane label="边框" name="frame">
-                <el-form label-width="120px" label-position="right">
-                    <el-row>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="类型">
-                                <el-select v-model="frame.type" style="width:100%;">
-                                    <el-option value="" label="无"></el-option>
-                                    <el-option value="rectangle" label="矩形"></el-option>
-                                    <el-option value="ellipse" label="椭圆" :disabled="true"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="粗细(mm)">
-                                <el-input v-model="frame.width"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="边框颜色">
-                                <el-color-picker v-model="frame.color"></el-color-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="16" class="el-col-base">&nbsp;</el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="填充色">
-                                <el-color-picker v-model="frame.fillColor"></el-color-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </el-tab-pane>
-            <el-tab-pane label="位置" name="position">
-                <el-form label-width="135px" label-position="right">
-                    <el-row>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="图层">
-                                <el-select v-model="position.layer" style="width:100%;">
-                                    <el-option value="0" label="底层"></el-option>
-                                    <el-option value="1" label="1层"></el-option>
-                                    <el-option value="2" label="2层"></el-option>
-                                    <el-option value="3" label="3层"></el-option>
-                                    <el-option value="4" label="4层"></el-option>
-                                    <el-option value="5" label="5层"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="旋转角度">
-                                <el-input v-model="position.angle"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="隐藏">
-                                <el-checkbox v-model="position.hidden"></el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="位置X">
-                                <el-input v-model="position.left"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="宽度">
-                                <el-input v-model="position.width"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="水平位置">
-                                <el-select v-model="position.textAlign" style="width:100%;" filterable>
-                                    <el-option value="left" label="居左"></el-option>
-                                    <el-option value="center" label="居中"></el-option>
-                                    <el-option value="right" label="居右"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="位置Y">
-                                <el-input v-model="position.top"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="高度">
-                                <el-input v-model="position.height"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="垂直位置">
-                                <el-select v-model="position.verticalAlign" style="width:100%;" filterable>
-                                    <el-option value="top" label="居上"></el-option>
-                                    <el-option value="middle" label="居中"></el-option>
-                                    <el-option value="bottom" label="居下"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="左边距">
-                                <el-input v-model="position.marginLeft"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="右边距">
-                                <el-input v-model="position.marginRight"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="上边距">
-                                <el-input v-model="position.marginTop"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" class="el-col-base">
-                            <el-form-item label="下边距">
-                                <el-input v-model="position.marginBottom"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </el-tab-pane>
         </el-tabs>
         <hr />
         <el-button @click="reComputer();">preview</el-button>
@@ -366,63 +93,20 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            activeTabName: "base",
+            activeTabName: "sections",
 
             fields: [],
-            images: [],
 
             head: {},
             segments: [],
             sections: [],
-            font: {},
-            frame: {},
-            position: {},
-            image: {},
 
             symbols: UtilElement.getAI(),
             sectionTypes: UtilElement.getSectionTypes(),
 
-            fontNames: UtilFont.getNames(),
-            fontSizes: UtilFont.getSizes(),
-
             remark: ""
         },
         methods: {
-            elementTypeChange() {
-                if (this.head.elementType.equals("barcode")) {
-                    if (!this.head.barcodeType) {
-                        this.head.barcodeType = "CODE_128";
-                        this.position.textAlign = "center";
-                        this.position.verticalAlign = "bottom";
-                    }
-
-                    if (!this.segments || this.segments.length == 0) {
-                        this.segments = [
-                            UtilElement.getFixedSegment({ pos: 0 }),
-                            UtilElement.getBlankSegment({ pos: 1 })
-                        ];
-                    }
-                }
-                if (this.head.elementType.equals("barcode") || this.head.elementType.equals("text")) {
-                    if (!this.sections || this.sections.length == 0) {
-                        this.sections = [
-                            UtilElement.getFixedSection({ pos: 0 }),
-                            UtilElement.getBlankSection({ pos: 1 })
-                        ];
-                    }
-                }
-                if (this.head.elementType.equals("image")) {
-                    if (!this.image) {
-                        this.image = {
-                            "value": this.images.length > 0 ? this.images[0].k : "",
-                            "deformation": "zoom"
-                        };
-                    }
-                }
-
-                this.reComputer();
-            },
-
             sectionTypeChange(pos) {
                 let section = this.sections[pos];
                 if (section.type != "" && pos == this.sections.length - 1) {
@@ -487,19 +171,12 @@
                 this.reComputer();
             },
 
-            imgChange() {
-                this.reComputer();
-            },
             reComputer() {
                 win.para.callback({
                     canvasId: win.para.canvasId,
                     head: app.head,
                     segments: app.segments,
-                    sections: app.sections,
-                    font: app.font,
-                    frame: app.frame,
-                    position: app.position,
-                    image: app.image
+                    sections: app.sections
                 });
             },
 
@@ -514,38 +191,22 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
-        let fields = [], k, v, url, images = [];
+        let fields = [], k, v;
         for (k in win.para.fields) {
             v = win.para.fields[k];
             fields.push({ k: k, v: v });
-
-            if (g.x.isImageUrl(v)) {
-                url = v;
-                if (!url.startsWith("http")) {
-                    url = win.para._labelHead.imageBaseUrl + v;
-                }
-                images.push({ k: k, v: v, url: url });
-            }
         }
         app.fields = fields;
-        app.images = images;
 
         app.head = win.para.head;
         app.segments = win.para.segments;
         app.sections = win.para.sections;
-        app.font = win.para.font;
-        app.frame = win.para.frame;
-        app.position = win.para.position;
-        app.image = win.para.image;
 
         if (app.head.elementType.equals("barcode")) {
             app.activeTabName = "segments";
         }
         else if (app.head.elementType.equals("text")) {
             app.activeTabName = "sections";
-        }
-        else if (app.head.elementType.equals("image")) {
-            app.activeTabName = "image";
         }
 
         // ------------------------------------------------

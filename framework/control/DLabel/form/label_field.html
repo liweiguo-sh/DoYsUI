@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签字段集</title>
+    <script src="../js/boot.js"></script>
+</head>
+<body>
+    <div id="app" style="width:900px;height:500px;">
+        <el-row :gutter="8" style="margin-bottom:5px;">
+            <el-col :span="6" class="el-col-base">
+                <el-tag type="success" effect="dark">字段 (变量) 名称</el-tag>
+            </el-col>
+            <el-col :span="18" class="el-col-base">
+                <el-tag type="success" effect="dark">字段 (变量) 值</el-tag>
+            </el-col>
+        </el-row>
+        <el-row v-for="field,idx in fields" :key="idx" :gutter="8" style="margin-bottom:5px;">
+            <el-col :span="6" class="el-col-base">
+                <el-input v-model="field.k" @change="fieldNameChange(idx)"></el-input>
+            </el-col>
+            <el-col :span="16" class="el-col-base">
+                <el-input v-model="field.v"></el-input>
+            </el-col>
+            <el-col :span="2">
+                <el-button-group>
+                    <el-button type="danger" v-if="field.k" @click="fieldDelete(idx)" title="删除" icon="el-icon-delete"></el-button>
+                </el-button-group>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+
+            fields: []
+        },
+        methods: {
+            fieldNameChange(idx) {
+                let field = this.fields[idx];
+                if (field.k != "" && idx == this.fields.length - 1) {                    
+                    this.fields.push({ "k": "", "v": "" });
+                } 
+            },
+            fieldDelete(idx) {
+                this.fields.splice(idx, 1);
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        let fields = [], k, v;
+        for (k in win.para.fields) {
+            v = win.para.fields[k];
+            fields.push({ k: k, v: v }); 
+        }
+        fields.push({ k: "", v: "" });
+        app.fields = fields;
+
+        // ------------------------------------------------
+        win.addEventListener("afterClose", () => {
+            let fields = {};
+            for (let i = 0; i < app.fields.length; i++) {
+                let field = app.fields[i];
+                if (field.k) {
+                    fields[field.k] = field.v;
+                }
+            }
+
+            if (win.para.callback) {
+                win.para.callback({
+                    _this: win.para._this,
+                    fields: fields
+                });
+            }
+            app.$destroy();
+        });
+    }
+</script>

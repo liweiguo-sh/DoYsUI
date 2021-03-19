@@ -29,6 +29,23 @@ UtilElement.computeProp = function (jsp) {
     let P = element.position;
 
     // -- 0. 补全默认值 -------------------------------------
+    if (head.elementType.equals("barcode")) {
+        if (!head.barcodeType) {
+            head.barcodeType = "CODE_128";
+        }
+        if (!element.segments) {
+            element.segments = [
+                UtilElement.getFixedSegment({ pos: 0 }),
+                UtilElement.getBlankSegment({ pos: 1 })
+            ];
+        }
+        if (!element.sections) {
+            element.sections = [
+                UtilElement.getFixedSection({ pos: 0 }),
+                UtilElement.getBlankSection({ pos: 1 })
+            ];
+        }
+    }
     font = element.font || {};
     font.lineHeight = parseFloat(font.lineHeight || 0);
     font.size = font.size || 12;
@@ -601,8 +618,8 @@ UtilElement.draw_image = function (context, element) {
             }
         }
         else {
-            widthImg = img.width;
-            heightImg = img.height;
+            widthImg = img.width / pxmm;
+            heightImg = img.height / pxmm;
         }
 
         // -- 2. textAlign and verticalAlign --

@@ -21,37 +21,17 @@ class Label {
         // -- 2. label container --
         this.container = jsp.container;                             // -- 标签容器 --
         this.container._this = this;
+
         this.parentContainer = this.container.parentElement;        // -- 标签容器的父对象 --
+        this.parentContainer.ondblclick = function (evt) {
+            console.log("可以考虑设计为当前缩放比例和100%比例之间切换");
+        }
         this.parentContainer.onclick = function (evt) {
             if (_this.readonly) return;
 
+            _this.activatedElement = null;
+            _this.hideResize();
             _this.clearMultiSelect({ raiseEvent: true });
-        }
-        this.parentContainer.ondblclick = function (evt) {
-            if (_this.readonly) return;
-
-            let prop = {
-                url: "label.html",
-                parent: window.win,
-                modal: true
-            };
-
-            let para = {
-                head: _this.head,
-                fields: _this.fields,
-                callback: function (jsp) {
-                    let _this = jsp._this;
-
-                    _this.label.fields = jsp.fields;
-                    _this.fields = _this.label.fields;
-
-                    _this.loadLabel(_this.toJson());
-                    _this.compute(true);
-                },
-                _this: _this
-            };
-
-            cWin.openWindow(prop, para);
         }
 
         this.container.ondragenter = function (evt) {
@@ -61,12 +41,9 @@ class Label {
             evt.preventDefault();
         }
         this.container.onclick = function (evt) {
-            let _domContainer = evt.srcElement;
-            let _this = _domContainer._this;
-
-            _this.activatedElement = null;
-            _this.hideResize();
-            _this.clearMultiSelect();
+            // -- 此处不处理，事件自动传导到父容器执行，参见：this.parentContainer.onclick --
+            // -- evt.stopPropagation();
+            // -- return false;
         }
 
         // -- 3. label element --
@@ -332,6 +309,8 @@ class Label {
 
         this.activatedElement = element;
         this.showResize();
+
+        this.raiseEvent("on-select");
     }
     delElement(element) {
         if (!element) {
@@ -567,10 +546,6 @@ class Label {
             _labelHead: element._labelHead,
             segments: element.segments,
             sections: element.sections,
-            font: element.font,
-            frame: element.frame,
-            position: element.position,
-            image: element.image,
 
             callback: _this.onElementDblClickCallback
         };
@@ -586,10 +561,6 @@ class Label {
         element.head = jsp.head;
         element.segments = jsp.segments;
         element.sections = jsp.sections;
-        element.font = jsp.font;
-        element.frame = jsp.frame;
-        element.position = jsp.position;
-        element.image = jsp.image;
         UtilElement.reduce({ element: element });
 
         UtilElement.computeProp({ element: element });
