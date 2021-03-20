@@ -57,10 +57,10 @@
                 try {
                     this.scriptAfterCompute = this.scriptAfterCompute.trim();
                     eval(this.scriptAfterCompute);
-                    Util.message("语法检查正确，没有发现错误。", "success");
+                    topWin.message("语法检查正确，没有发现错误。", "success");
                 }
                 catch (e) {
-                    Util.alert(e.toString(), "error");
+                    topWin.alert(e.toString(), "error");
                     return false;
                 }
                 return true;

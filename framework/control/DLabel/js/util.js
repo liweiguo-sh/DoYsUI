@@ -43,24 +43,3 @@ Util.getTriangleHeight = function (p1, p2, p3) {
     h = 2 * s / a;
     return h;
 }
-
-
-// -- message -----------------------------------------------------------------
-Util.message = function (message, type = "info") {
-    app.$message({
-        showClose: true,
-        message: message,
-        dangerouslyUseHTMLString: true,
-        type: type              // -- success、warning、error --
-    });
-};
-Util.alert = function (message, type = "info", callback) {
-    app.$alert(message, "系统消息...", {
-        dangerouslyUseHTMLString: true,
-        confirmButtonText: "确定",
-        type: type,
-        customClass: "alertClass"
-    }).then(() => {
-        if (callback) callback();
-    })
-};

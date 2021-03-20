@@ -1,11 +1,15 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>标签设计页面</title>
+    <title>标签设计页面</title> 
     <script src="../js/boot.js"></script>
+    <script>
+        importFrameworkRes("designer");
+    </script>
     <script src="../js/example.js"></script>
 </head>
 <body>
+    <div id="app"></div>
     <div id="vmToolbar">
         <el-row class="row-toolbar">
             <el-button-group>
@@ -51,7 +55,7 @@
             <td id="tdProp" class="tdMain" style="padding-top:15px;padding-left:10px;">
                 <div id="vmProp" style="overflow-y:auto;">
                     <el-row v-show="false"><span style="color:yellow">元素选中数量：{{multiCount}}</span></el-row>
-                    <el-collapse v-model="activeNames" accordion>
+                    <el-collapse v-model="activeNames" @change="propGroupChange" accordion>
                         <!-- label -->
                         <el-collapse-item name="labelHead" v-show="multiCount==0">
                             <template slot="title">
@@ -61,19 +65,19 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">宽度</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="labelHead.width" @change="propChangeHead('labelHead.width')"></el-input>
+                                    <el-input v-model="labelHead.width" @change="elementPropChange('labelHead.width')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">高度</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="labelHead.height" @change="propChangeHead('labelHead.height')"></el-input>
+                                    <el-input v-model="labelHead.height" @change="elementPropChange('labelHead.height')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">打印机点数</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="labelHead.point" @change="propChangeHead('labelHead.point')">
+                                    <el-select v-model="labelHead.point" @change="elementPropChange('labelHead.point')">
                                         <el-option value="200" label="200"></el-option>
                                         <el-option value="300" label="300"></el-option>
                                         <el-option value="400" label="400"></el-option>
@@ -85,7 +89,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">图片根路径</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="labelHead.imageBaseUrl" @change="propChangeHead('labelHead.imageBaseUrl')"></el-input>
+                                    <el-input v-model="labelHead.imageBaseUrl" @change="elementPropChange('labelHead.imageBaseUrl')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row style="margin-top:10px;">
@@ -109,13 +113,13 @@
                             <el-row v-show="multiCount==1">
                                 <el-col :span="span[1]"><div class="divPropName">名称</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="head.name" @change="propChangeHead('head.name')"></el-input>
+                                    <el-input v-model="head.name" @change="elementPropChange('head.name')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row v-show="multiCount==1">
                                 <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="head.elementType" @change="propChangeHead('head.elementType')">
+                                    <el-select v-model="head.elementType" @change="elementPropChange('head.elementType')">
                                         <el-option value="barcode" label="条形码"></el-option>
                                         <el-option value="text" label="文本"></el-option>
                                         <el-option value="image" label="图片"></el-option>
@@ -126,7 +130,7 @@
                             <el-row v-show="head.elementType=='barcode'">
                                 <el-col :span="span[1]"><div class="divPropName">符号体系</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="head.barcodeType" @change="propChangeHead('head.barcodeType')" filterable>
+                                    <el-select v-model="head.barcodeType" @change="elementPropChange('head.barcodeType')" filterable>
                                         <el-option-group label="一维码">
                                             <el-option value="CODE_128" key="CODE_128" label="Code 128"></el-option>
                                             <el-option value="CODE_39" key="CODE_39" label="Code 39"></el-option>
@@ -142,19 +146,19 @@
                             <el-row v-show="head.elementType=='barcode'">
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="head.pureBarcode" @change="propChangeHead('head.pureBarcode')">隐藏条码文本</el-checkbox>
+                                    <el-checkbox v-model="head.pureBarcode" @change="elementPropChange('head.pureBarcode')">隐藏条码文本</el-checkbox>
                                 </el-col>
                             </el-row>
                             <el-row v-show="head.elementType=='barcode'">
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="head.gs1" @change="propChangeHead('head.gs1')">GS1条码</el-checkbox>
+                                    <el-checkbox v-model="head.gs1" @change="elementPropChange('head.gs1')">GS1条码</el-checkbox>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="head.locked" @change="propChangeHead('head.locked')">锁定</el-checkbox>
+                                    <el-checkbox v-model="head.locked" @change="elementPropChange('head.locked')">锁定</el-checkbox>
                                 </el-col>
                             </el-row>
                         </el-collapse-item>
@@ -167,13 +171,13 @@
                             <el-row>
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="position.hidden" @change="propChangeHead('position.hidden')">打印时隐藏</el-checkbox>
+                                    <el-checkbox v-model="position.hidden" @change="elementPropChange('position.hidden')">打印时隐藏</el-checkbox>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">图层</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="position.layer" @change="propChangeHead('position.layer')" style="width:100%;">
+                                    <el-select v-model="position.layer" @change="elementPropChange('position.layer')" style="width:100%;">
                                         <el-option value="0" label="底层"></el-option>
                                         <el-option value="1" label="1层"></el-option>
                                         <el-option value="2" label="2层"></el-option>
@@ -186,8 +190,8 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">旋转角度</div></el-col>
                                 <el-col :span="span[2]">
-                                    <!--<el-input v-model="position.angle" @change="propChangeHead('position.angle')"></el-input>-->
-                                    <el-select v-model="position.angle" @change="propChangeHead('position.angle')" filterable allow-create default-first-option>
+                                    <!--<el-input v-model="position.angle" @change="elementPropChange('position.angle')"></el-input>-->
+                                    <el-select v-model="position.angle" @change="elementPropChange('position.angle')" filterable allow-create default-first-option>
                                         <el-option value="0" label="0"></el-option>
                                         <el-option value="90" label="90"></el-option>
                                         <el-option value="180" label="180"></el-option>
@@ -199,32 +203,32 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">位置X</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="position.left" @change="propChangeHead('position.left')"></el-input>
+                                    <el-input v-model="position.left" @change="elementPropChange('position.left')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">位置Y</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="position.top" @change="propChangeHead('position.top')"></el-input>
+                                    <el-input v-model="position.top" @change="elementPropChange('position.top')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">宽度</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="position.width" @change="propChangeHead('position.width')"></el-input>
+                                    <el-input v-model="position.width" @change="elementPropChange('position.width')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">高度</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="position.height" @change="propChangeHead('position.height')"></el-input>
+                                    <el-input v-model="position.height" @change="elementPropChange('position.height')"></el-input>
                                 </el-col>
                             </el-row>
                             <!-- textAlign,verticalAlign -->
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">水平位置</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="position.textAlign" @change="propChangeHead('position.textAlign')">
+                                    <el-select v-model="position.textAlign" @change="elementPropChange('position.textAlign')">
                                         <el-option value="left" label="居左"></el-option>
                                         <el-option value="center" label="居中"></el-option>
                                         <el-option value="right" label="居右"></el-option>
@@ -234,7 +238,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">垂直位置</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="position.verticalAlign" @change="propChangeHead('position.verticalAlign')">
+                                    <el-select v-model="position.verticalAlign" @change="elementPropChange('position.verticalAlign')">
                                         <el-option value="top" label="居上"></el-option>
                                         <el-option value="middle" label="居中"></el-option>
                                         <el-option value="bottom" label="居下"></el-option>
@@ -245,25 +249,25 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">左边距</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="position.marginLeft" @change="propChangeHead('position.marginLeft')"></el-input>
+                                    <el-input v-model="position.marginLeft" @change="elementPropChange('position.marginLeft')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">上边距</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="position.marginTop" @change="propChangeHead('position.marginTop')"></el-input>
+                                    <el-input v-model="position.marginTop" @change="elementPropChange('position.marginTop')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">右边距</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="position.marginRight" @change="propChangeHead('position.marginRight')"></el-input>
+                                    <el-input v-model="position.marginRight" @change="elementPropChange('position.marginRight')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">下边距</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="position.marginBottom" @change="propChangeHead('position.marginBottom')"></el-input>
+                                    <el-input v-model="position.marginBottom" @change="elementPropChange('position.marginBottom')"></el-input>
                                 </el-col>
                             </el-row>
 
@@ -277,7 +281,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="frame.type" @change="propChangeHead('frame.type')">
+                                    <el-select v-model="frame.type" @change="elementPropChange('frame.type')">
                                         <el-option value="" label="无"></el-option>
                                         <el-option value="rectangle" label="矩形"></el-option>
                                         <el-option value="ellipse" label="椭圆" :disabled="true"></el-option>
@@ -287,19 +291,19 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">粗细(mm)</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="frame.width" @change="propChangeHead('frame.width')"></el-input>
+                                    <el-input v-model="frame.width" @change="elementPropChange('frame.width')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">边框颜色</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-color-picker v-model="frame.color" @change="propChangeHead('frame.color')"></el-color-picker>
+                                    <el-color-picker v-model="frame.color" @change="elementPropChange('frame.color')"></el-color-picker>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">填充色</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-color-picker v-model="frame.fillColor" @change="propChangeHead('frame.fillColor')"></el-color-picker>
+                                    <el-color-picker v-model="frame.fillColor" @change="elementPropChange('frame.fillColor')"></el-color-picker>
                                 </el-col>
                             </el-row>
                         </el-collapse-item>
@@ -312,7 +316,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">字体</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="font.name" @change="propChangeHead('font.name')">
+                                    <el-select v-model="font.name" @change="elementPropChange('font.name')">
                                         <el-option v-for="name in fontNames" :value="name" :label="name" :key="name">
                                             <slot>
                                                 <div style="width:350px;">
@@ -327,7 +331,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">字号(pt)</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="font.size" @change="propChangeHead('font.size')" filterable allow-create default-first-option>
+                                    <el-select v-model="font.size" @change="elementPropChange('font.size')" filterable allow-create default-first-option>
                                         <el-option v-for="size in fontSizes" :value="size" :label="size" :key="size"></el-option>
                                     </el-select>
                                 </el-col>
@@ -335,31 +339,31 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">颜色</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-color-picker v-model="font.color" @change="propChangeHead('font.color')"></el-color-picker>
+                                    <el-color-picker v-model="font.color" @change="elementPropChange('font.color')"></el-color-picker>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="font.bold" @change="propChangeHead('font.bold')">粗体</el-checkbox>
+                                    <el-checkbox v-model="font.bold" @change="elementPropChange('font.bold')">粗体</el-checkbox>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="font.italic" @change="propChangeHead('font.italic')">斜体</el-checkbox>
+                                    <el-checkbox v-model="font.italic" @change="elementPropChange('font.italic')">斜体</el-checkbox>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
-                                    <el-checkbox v-model="font.wordWrap" @change="propChangeHead('font.wordWrap')">自动换行</el-checkbox>
+                                    <el-checkbox v-model="font.wordWrap" @change="elementPropChange('font.wordWrap')">自动换行</el-checkbox>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">行高</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="font.lineHeight" @change="propChangeHead('font.lineHeight')"></el-input>
+                                    <el-input v-model="font.lineHeight" @change="elementPropChange('font.lineHeight')"></el-input>
                                 </el-col>
                             </el-row>
                         </el-collapse-item>
@@ -371,7 +375,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">图片</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="image.value" @change="propChangeHead('image.value')" clearable>
+                                    <el-select v-model="image.value" @change="elementPropChange('image.value')" clearable>
                                         <el-option v-for="item in images" :value="item.k" :label="item.k" :key="item.k" :title="item.k + '  (' + item.v + ')'" style="height:52px;padding-top:2px;">
                                             <slot>
                                                 <image :src="item.url" style="height:48px;" />
@@ -383,13 +387,13 @@
                             <el-row v-show="false">
                                 <el-col :span="span[1]"><div class="divPropName">url</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-input v-model="image.url" @change="propChangeHead('image.url')"></el-input>
+                                    <el-input v-model="image.url" @change="elementPropChange('image.url')"></el-input>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">尺寸选项</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="image.deformation" @change="propChangeHead('image.deformation')">
+                                    <el-select v-model="image.deformation" @change="elementPropChange('image.deformation')">
                                         <el-option value="stretch" label="拉伸填充"></el-option>
                                         <el-option value="zoom" label="同比缩放"></el-option>
                                         <el-option value="none" label="图片原始大小"></el-option>
@@ -410,6 +414,11 @@
 
 <!-- appInit -->
 <script>
+    var app = new Vue({
+        el: '#app',
+        data: {},
+        methods: {}
+    });
     var vmTollbar = new Vue({
         el: '#vmToolbar',
         data: {},
@@ -430,8 +439,8 @@
         el: '#vmProp',
         data: {
             span: [24, 7, 17],
-            activeNames: ["labelHead"],
-            lastActiveNames: ["labelHead"],
+            activeNames: "labelHead",
+            lastActiveNames: "labelHead",
 
             labelHead: {
                 width: null, height: null, point: null,
@@ -465,7 +474,10 @@
             }
         },
         methods: {
-            propChangeHead(name) {                
+            propGroupChange() {
+                this.lastActiveNames = this.activeNames;
+            },
+            elementPropChange(name) {
                 let element;
                 let propGroupName = name.split(".")[0];
                 let propName = name.split(".")[1];
@@ -501,8 +513,11 @@
                 }
             },
             onFieldsClick() {
+                debugger
                 let prop = {
+                    topWin: topWin,
                     url: "label_field.html",
+                    //url2: g.path.project + "/aprint/html/select/label_field.html",
                     parent: window.win,
                     modal: true
                 };
@@ -522,11 +537,12 @@
             },
             onScriptClick() {
                 let prop = {
+                    topWin: topWin,
                     url: "label_script.html",
                     parent: window.win,
                     modal: true
                 };
-                let para = {
+                let para = {                    
                     scriptAfterCompute: lbl.head.scriptAfterCompute,
                     callback: function (jsp) {
                         if (jsp.saveAction) {
@@ -557,14 +573,22 @@
     window.addEventListener("load", init, false);
     // ------------------------------------------------------------------------
     function winLoad() {
-        gId("btnClose").style.display = "";
-
         if (win.para.menuPk && win.para.menuPk.equals("001094")) {
             gId("btnExampleLabel").style.display = "";
         }
     }
 
     function init() {
+        if (window.topWin && topWin.cWin) {
+            window.cWin = topWin.cWin;
+        }
+        else {
+            window.cWin = new window.xwf_window({
+                jsVer: jsVer,
+                zIndex: 1000
+            });
+        }
+
         winResize();
 
         lbl = getLabel();
@@ -796,15 +820,26 @@
         vmProp.multiCount = multiCount;
         if (vmProp.multiCount == 0) {
             vmProp.lastActiveNames = vmProp.activeNames;
-            vmProp.activeNames = ["labelHead"];
+            vmProp.activeNames = "labelHead";
         }
         else {
             showElementProp();
-            if (vmProp.lastActiveNames[0].equals("labelHead")) {
-                vmProp.activeNames = ["head"];
+            if (vmProp.lastActiveNames.equals("labelHead")) {
+                vmProp.activeNames = "head";
             }
             else {
                 vmProp.activeNames = vmProp.lastActiveNames;
+            }
+
+            if (lbl.activatedElement.head.elementType.equals("image")) {
+                if (vmProp.activeNames.equals("font")) {
+                    vmProp.activeNames = "image";
+                }
+            }
+            else {
+                if (vmProp.activeNames.equals("image")) {
+                    vmProp.activeNames = "head";
+                }
             }
         }
     }

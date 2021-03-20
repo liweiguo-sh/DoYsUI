@@ -56,14 +56,6 @@ class Label {
         this.divT = null; this.divR = null; this.divB = null; this.divT = null;                         // -- element resize border --
 
         // -- 4. label properties --
-
-        // -- 5. cwin --
-        if (window.topWin) {
-            window.cWin = topWin.cWin;
-        }
-        else {
-            window.cWin = new window.xwf_window({});
-        }
     }
     initConstructor() {
         let X = 0, Y = 0;
