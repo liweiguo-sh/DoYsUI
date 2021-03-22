@@ -3,8 +3,12 @@
 <head>
     <title>元素数据定义</title>
     <script src="../js/boot.js"></script>
+    <script>
+        importFrameworkRes("DLabel-element");
+    </script>
     <style type="text/css">
         body {
+            overflow-x: hidden;
             overflow-y: auto;
         }
     </style>
@@ -79,10 +83,12 @@
                     </el-col>
                 </el-row>
             </el-tab-pane>
-        </el-tabs>
-        <hr />
-        <el-button @click="reComputer();">preview</el-button>
-        <el-button @click="test1();">测试一</el-button>
+        </el-tabs>        
+        <div style="display:none;">
+            <hr />
+            <el-button @click="reComputer();">preview</el-button>
+            <el-button @click="test1();">测试一</el-button>
+        </div>        
     </div>
 </body>
 </html>

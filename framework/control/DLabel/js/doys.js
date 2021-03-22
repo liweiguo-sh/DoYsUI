@@ -8,7 +8,7 @@
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-03-20";
+    window.jsVer = top.jsVer || "2021-03-22";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }
@@ -39,7 +39,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");
 
-        arrRes.push(resRootPath + "/framework//css/ali-icon-font.css");
+        arrRes.push(resRootPath + "/framework/css/ali-icon-font.css");
 
         arrRes.push(resRootPath + "/framework/control/DLabel/css/designer.css");
         arrRes.push(resRootPath + "/framework/control/DLabel/css/toolbar.css");
@@ -49,6 +49,13 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/framework/control/DLabel/js/util.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/element.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/label.js");
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/example.js");
+    }
+    else if (fileRes.equals("DLabel-element")) {
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/element.js");
+    }
+    else if (fileRes.equals("DLabel-example")) {
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/example.js");
     }
     else {
         alert("importFrameworkRes found unknown resource: " + fileRes);

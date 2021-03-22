@@ -256,43 +256,18 @@ class Label {
         }
     }
     // -- element base --------------------------------------------------------
-    addBlankTextElement() {
-        this.clearMultiSelect();
+    addBlankTextElement(elementType) {
+        this.clearMultiSelect();    
 
-        let element = {
-            _labelHead: this.head,
-            head: {
-                name: "element_" + this.head.id++,
-                elementType: "text",
-                barcodeType: ""
-            },
-            sections: [
-                UtilElement.getFixedSection({ pos: 0 }),
-                UtilElement.getBlankSection({ pos: 1 })
-            ],
-            font: {
-                // -- 宋体五号 --
-                name: "宋体",
-                size: "10.5"
-            },
-            frame: {},
-            position: {
-                "layer": 1,
-                top: this.head.height * Math.random() / 2,
-                left: this.head.width * Math.random() / 2,
-                width: 20,
-                height: 8,
-                textAlign: "left",
-                verticalAlign: "middle"
-            }
-        }
-        element._this = this;
+        let element = DLbelExample.getElement(elementType);
         element.env = this.env;
+        element._this = this;        
         element._labelHead = this.head;
+        element.head.name = "element_" + this.head.id++;
+        element.position.top = (this.head.height * Math.random() / 2).toFixed(2);
+        element.position.left = (this.head.width * Math.random() / 2).toFixed(2);
 
         this.elements.push(element);
-        UtilElement.computeProp({ element: element });
-
         this.createElement(element);
 
         UtilElement.computeProp({ element: element });
@@ -301,7 +276,6 @@ class Label {
 
         this.activatedElement = element;
         this.showResize();
-
         this.raiseEvent("on-select");
     }
     delElement(element) {
@@ -523,9 +497,11 @@ class Label {
     onElementDblClick(_this, evt) {
         let domElement = evt.srcElement;
         let element = domElement._element;
+        let elementType = element.head.elementType;
+        if (!elementType.equals("text") && !elementType.equals("barcode")) return;
 
         let prop = {
-            url: "element.html",
+            url: g.x.getPath() + "element.html",
             parent: window.win,
             parent: null,
             modal: true

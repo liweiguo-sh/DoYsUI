@@ -2,8 +2,8 @@
  * DoYs.core.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2020-11-13
- * Copyright 2020, doys-next.com
+ * Modify Date: 2021-03-22
+ * Copyright 2020-2021, doys-next.com
  */
 
 (function () {
@@ -162,4 +162,25 @@ g.x.isImageUrl = function (url) {
         }
     }
     return false;
+}
+
+g.x.getPath = function (relativePath = "", endWith = "/") {
+    let url = document.documentURI;
+    let idx = url.lastIndexOf("/");
+    let path = url.substring(0, idx);
+
+    // ----------------------------------------------------
+    if (relativePath.startsWith("/")) {
+        relativePath = relativePath.substring(1);
+    }
+    if (relativePath.endsWith("/")) {
+        relativePath = relativePath.substring(0, relativePath.length - 1);
+    }
+    if (!relativePath.equals("")) {
+        path += "/" + relativePath;
+    }
+    if (endWith.equals("/")) {
+        path += "/";
+    }
+    return path;
 }

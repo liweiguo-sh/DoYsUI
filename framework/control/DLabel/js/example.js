@@ -704,3 +704,152 @@ DLbelExample.script1 = function () {
     }
         `;
 }
+
+// -- 空白新元素模板 -------------------------------------------------------------
+DLbelExample.getElement = function (elementType = "text", elementProp = {}) {
+    let element;
+    if (elementType.equals("text")) {
+        element = DLbelExample._getElement_text(elementProp);
+    }
+    else if (elementType.equals("barcode1D")) {
+        element = DLbelExample._getElement_barcode1D(elementProp);
+    }
+    else if (elementType.equals("barcode2D")) {
+        element = DLbelExample._getElement_barcode2D(elementProp);
+    }
+    else if (elementType.equals("image")) {
+        element = DLbelExample._getElement_image(elementProp);
+    }
+    else if (elementType.equals("sharp")) {
+        element = DLbelExample._getElement_sharp(elementProp);
+    }
+    else {
+        alert("debug here");
+    }
+    return element;
+}
+
+DLbelExample._getElement_text = function (elementProp = {}) {
+    let element = {
+        head: {
+            elementType: "text"
+        },
+        sections: [
+            UtilElement.getFixedSection({ pos: 0 }),
+            UtilElement.getBlankSection({ pos: 1 })
+        ],
+        font: {
+            // -- 宋体五号 --
+            name: "宋体",
+            size: "10.5"
+        },
+        frame: {},
+        position: {
+            "layer": 1,
+            width: 20,
+            height: 8,
+            textAlign: "left",
+            verticalAlign: "middle"
+        }
+    }
+
+    return element;
+}
+DLbelExample._getElement_barcode1D = function (elementProp = {}) {
+    let element = {
+        head: {
+            elementType: "barcode",
+            barcodeType: "CODE_128"
+        },
+        sections: [
+            UtilElement.getFixedSection({ pos: 0 }),
+            UtilElement.getBlankSection({ pos: 1 })
+        ],
+        font: {
+            // -- 宋体五号 --
+            name: "宋体",
+            size: "10.5"
+        },
+        frame: {},
+        position: {
+            "layer": 1,
+            width: 30,
+            height: 10,
+            textAlign: "center",
+            verticalAlign: "bottom"
+        }
+    }
+
+    return element;
+}
+DLbelExample._getElement_barcode2D = function (elementProp = {}) {
+    let element = {
+        head: {
+            elementType: "barcode",
+            barcodeType: "QR_CODE"
+        },
+        sections: [
+            UtilElement.getFixedSection({ pos: 0 }),
+            UtilElement.getBlankSection({ pos: 1 })
+        ],
+        font: {
+            // -- 宋体五号 --
+            name: "宋体",
+            size: "10.5"
+        },
+        frame: {},
+        position: {
+            "layer": 1,
+            width: 20,
+            height: 20,
+            textAlign: "center",
+            verticalAlign: "bottom"
+        }
+    }
+
+    return element;
+}
+
+DLbelExample._getElement_image = function (elementProp = {}) {
+    let element = {
+        head: {
+            elementType: "image"
+        },
+        frame: {},
+        position: {
+            "layer": 1,
+            width: 20,
+            height: 20,
+            textAlign: "center",
+            verticalAlign: "middle"
+        },
+        image: {
+            "value": "",
+            "deformation": "zoom",
+            "url": "http://biosunmed.com/upload/2020/7/61552460.jpg"
+        }
+    }
+
+    return element;
+}
+DLbelExample._getElement_sharp = function (elementProp = {}) {
+    let element = {
+        head: {
+            elementType: "sharp"
+        },
+        frame: {
+            "type": "rectangle",
+            "width": 0.5,
+            "color": "#000000"
+        },
+        position: {
+            "layer": 1,
+            width: 32,
+            height: 18,
+            textAlign: "center",
+            verticalAlign: "middle"
+        }
+    }
+
+    return element;
+}

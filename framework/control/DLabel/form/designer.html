@@ -5,8 +5,7 @@
     <script src="../js/boot.js"></script>
     <script>
         importFrameworkRes("designer");
-    </script>
-    <script src="../js/example.js"></script>
+    </script> 
 </head>
 <body>
     <div id="app"></div>
@@ -14,38 +13,37 @@
         <el-row class="row-toolbar">
             <el-button-group>
                 <el-button type="info" onclick="btnBlankLabel_click();" icon="alifont ali-icon-new" title="新建空白标签"></el-button>
-                <el-button type="info" icon="alifont ali-icon-blank" title="打开标签"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-blank" title="打开标签"></el-button>
                 <el-button type="success" onclick="btnSaveLabel_click();" icon="alifont ali-icon-save" title="保存标签"></el-button>
-                <el-button type="info" icon="alifont ali-icon-saveas" title="另存为"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-saveas" title="另存为"></el-button>
             </el-button-group>
             <el-button-group>
-                <el-button type="info" icon="alifont ali-icon-grid" title="页面设置"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-grid" title="页面设置"></el-button>
                 <el-button type="info" onclick="btnPrint_click();" icon="alifont ali-icon-print" title="打印样张"></el-button>
-                <el-button type="info" icon="alifont ali-icon-preview" title="预览"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-preview" title="预览"></el-button>
             </el-button-group>
             <el-button-group>
-                <el-button type="info" icon="alifont ali-icon-copy" title="复制元素"></el-button>
-                <el-button type="info" icon="alifont ali-icon-paste" title="粘贴元素"></el-button>
-                <el-button type="success" icon="alifont ali-icon-back" title="撤销"></el-button>
-                <el-button type="info" icon="alifont ali-icon-redo" title="重做"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-copy" title="复制元素"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-paste" title="粘贴元素"></el-button>
+                <el-button type="success" :disabled="true" icon="alifont ali-icon-back" title="撤销"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-redo" title="重做"></el-button>
             </el-button-group>
             <el-button-group>
                 <el-button type="primary" onclick="btnAddElement_click('text');" icon="alifont ali-icon-a" title="文本"></el-button>
-                <el-button type="primary" icon="alifont ali-icon-barcode" title="一维码"></el-button>
-                <el-button type="primary" icon="alifont ali-icon-qrcode" title="二维码"></el-button>
-                <el-button type="primary" icon="alifont ali-icon-image" title="图片"></el-button>
-                <el-button type="primary" icon="alifont ali-icon-rectangle" title="矩形"></el-button>
-                <el-button type="primary" icon="alifont ali-icon-ellipse" title="椭圆"></el-button>
-                <el-button type="primary" icon="alifont ali-icon-line" title="直线"></el-button>
+                <el-button type="primary" onclick="btnAddElement_click('barcode1D');" icon="alifont ali-icon-barcode" title="一维码"></el-button>
+                <el-button type="primary" onclick="btnAddElement_click('barcode2D');" icon="alifont ali-icon-qrcode" title="二维码"></el-button>
+                <el-button type="primary" onclick="btnAddElement_click('image');" icon="alifont ali-icon-image" title="图片"></el-button>
+                <el-button type="primary" onclick="btnAddElement_click('sharp');" icon="alifont ali-icon-rectangle" title="形状"></el-button>
+                <el-button type="primary" :disabled="true" onclick="btnAddElement_click('line');" icon="alifont ali-icon-line" title="直线"></el-button>
             </el-button-group>
             <el-button-group>
-                <el-button type="info" icon="alifont ali-icon-zoomin" title="放大"></el-button>
-                <el-button type="info" icon="alifont ali-icon-zoomout" title="缩小"></el-button>
-                <el-button type="info" icon="alifont ali-icon-zoom" title="适应窗口大小"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-zoomin" title="放大"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-zoomout" title="缩小"></el-button>
+                <el-button type="info" :disabled="true" icon="alifont ali-icon-zoom" title="适应窗口大小"></el-button>
             </el-button-group>
             <el-button-group>
                 <el-button type="info" onclick="btnExampleLabel_click();" icon="alifont ali-icon-label" title="样例标签"></el-button>
-                <el-button type="success" icon="alifont ali-icon-help" title="帮助"></el-button>
+                <el-button type="success" :disabled="true" icon="alifont ali-icon-help" title="帮助"></el-button>
             </el-button-group>
         </el-row>
         <div style="height:5px;"></div>
@@ -119,7 +117,7 @@
                             <el-row v-show="multiCount==1">
                                 <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="head.elementType" @change="elementPropChange('head.elementType')">
+                                    <el-select v-model="head.elementType" @change="elementPropChange('head.elementType')" :disabled="true">
                                         <el-option value="barcode" label="条形码"></el-option>
                                         <el-option value="text" label="文本"></el-option>
                                         <el-option value="image" label="图片"></el-option>
@@ -513,11 +511,9 @@
                 }
             },
             onFieldsClick() {
-                debugger
                 let prop = {
                     topWin: topWin,
-                    url: "label_field.html",
-                    //url2: g.path.project + "/aprint/html/select/label_field.html",
+                    url: g.x.getPath("/") + "label_field.html",
                     parent: window.win,
                     modal: true
                 };
@@ -538,7 +534,7 @@
             onScriptClick() {
                 let prop = {
                     topWin: topWin,
-                    url: "label_script.html",
+                    url: g.x.getPath() + "label_script.html",
                     parent: window.win,
                     modal: true
                 };
@@ -631,8 +627,8 @@
 
         lbl.loadLabel("", { width: 80, height: 60 });
     }
-    function btnAddElement_click() {
-        lbl.addBlankTextElement();
+    function btnAddElement_click(elementType) {
+        lbl.addBlankTextElement(elementType);
     }
     function btnDelElement_click() {
         lbl.delElement();
