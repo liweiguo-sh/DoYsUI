@@ -19,6 +19,7 @@ class Label {
         this.id = 1;
 
         // -- 2. label container --
+        this.zoom = 1;
         this.container = jsp.container;                             // -- 标签容器 --
         this.container._this = this;
 
@@ -104,8 +105,8 @@ class Label {
 
         // -- 3. 计算标签换算系数(毫米|像素) --
         let mmW = this.head.width, mmH = this.head.height, mmWH = mmW / mmH;
-        let pxW = this.parentContainer.clientWidth - g.x.getStyleValue(this.parentContainer, "padding-left") - g.x.getStyleValue(this.parentContainer, "padding-right")
-        let pxH = this.parentContainer.clientHeight - g.x.getStyleValue(this.parentContainer, "padding-top") - g.x.getStyleValue(this.parentContainer, "padding-bottom")
+        let pxW = this.parentContainer.offsetWidth - g.x.getStyleValue(this.parentContainer, "padding-left") - g.x.getStyleValue(this.parentContainer, "padding-right")
+        let pxH = this.parentContainer.offsetHeight - g.x.getStyleValue(this.parentContainer, "padding-top") - g.x.getStyleValue(this.parentContainer, "padding-bottom")
         let pxWH = pxW / pxH;
 
         if (mmWH >= pxWH) {
@@ -116,6 +117,8 @@ class Label {
             this.height = pxH;
             this.width = pxH * mmWH;
         }
+        this.width *= this.zoom;
+        this.height *= this.zoom;
         this.pxmm = this.width / mmW;
 
         this.container.style.width = this.width + "px";
@@ -255,6 +258,25 @@ class Label {
             }
         }
     }
+
+    zoomIn() {
+        if (this.zoom > 2) return;
+        this.zoom = this.zoom * 1.1;
+        this.loadLabel(this.toJson());
+        this.compute(true);
+    }
+    zoomOut() {
+        if (this.zoom < 0.5) return;
+        this.zoom = this.zoom * 0.9;
+        this.loadLabel(this.toJson());
+        this.compute(true);
+    }
+    zoomFit() {
+        this.zoom = 1;
+        this.loadLabel(this.toJson());
+        this.compute(true);
+    }
+
     // -- element base --------------------------------------------------------
     addBlankTextElement(elementType) {
         this.clearMultiSelect();
@@ -296,7 +318,7 @@ class Label {
             element._labelHead = this.head;
             element.head.name = "element_" + this.head.element_id++;
             element.head._selected = (count > 1);
-            
+
             element.position.top = parseFloat(elementsCopy[i].position.top) + 5;
             element.position.left = parseFloat(elementsCopy[i].position.left) + 10;
 

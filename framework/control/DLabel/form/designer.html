@@ -36,10 +36,11 @@
                 <el-button type="primary" onclick="btnAddElement_click('sharp');" icon="alifont ali-icon-rectangle" title="形状"></el-button>
                 <el-button type="primary" :disabled="true" onclick="btnAddElement_click('line');" icon="alifont ali-icon-line" title="直线"></el-button>
             </el-button-group>
+            <!-- zoom -->
             <el-button-group>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-zoomin" title="放大"></el-button>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-zoomout" title="缩小"></el-button>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-zoom" title="适应窗口大小"></el-button>
+                <el-button type="info" onclick="zoomIn()" icon="alifont ali-icon-zoomin" title="放大"></el-button>
+                <el-button type="info" onclick="zoomOut()" icon="alifont ali-icon-zoomout" title="缩小"></el-button>
+                <el-button type="info" onclick="zoomFit()" icon="alifont ali-icon-zoom" title="适应窗口大小"></el-button>
             </el-button-group>
             <el-button-group>
                 <el-button type="info" onclick="btnExampleLabel_click();" icon="alifont ali-icon-label" title="样例标签"></el-button>
@@ -402,8 +403,10 @@
                     </el-collapse>
                 </div>
             </td>
-            <td id="tdCanvas" class="tdMain" style="padding:15px;">
-                <div id="divCanvas" class="doys_label_continer"></div>
+            <td id="tdCanvas" class="tdMain" style="padding:15px 0px 15px 15px;border:solid 0px red;">
+                <div id="divContainerParent" style="--background-color:blue;overflow:auto;">
+                    <div id="divCanvas" class="doys_label_container"></div>
+                </div>
             </td>
         </tr>
     </table>
@@ -575,6 +578,7 @@
     let tdProp = gId("tdProp");
     let tdCanvas = gId("tdCanvas");
 
+    let divContainerParent = gId("divContainerParent");
     let divCanvas = gId("divCanvas");
 
     let labelId = 0, labelContent = "";
@@ -606,11 +610,13 @@
     }
     function winResize() {
         let hMax = document.documentElement.clientHeight;
-        let height = (hMax - tbMain.offsetTop - 40);
+        let height = (hMax - tbMain.offsetTop - 40 - 20);
 
-        gId("vmProp").style.height = height + "px";
-        tdCanvas.style.height = height + "px";
         tdProp.style.width = "300px";
+        gId("vmProp").style.height = height + "px";
+
+        divContainerParent.style.width = (tdCanvas.offsetWidth - g.x.getStyleValue(tdCanvas, "paddingLeft") - g.x.getStyleValue(tdCanvas, "paddingRight")) + "px";
+        divContainerParent.style.height = (tdCanvas.offsetHeight - g.x.getStyleValue(tdCanvas, "paddingLeft") - g.x.getStyleValue(tdCanvas, "paddingRight")) + "px";
     }
 
     function getLabel() {
@@ -727,6 +733,17 @@
             return;
         }
         lbl.pasteElements(elementsCopy);
+    }
+
+    // -- zoom --------------------------------------------
+    function zoomIn() {
+        lbl.zoomIn(1.2);
+    }
+    function zoomOut() {
+        lbl.zoomOut(0.8);
+    }
+    function zoomFit() {
+        lbl.zoomFit();
     }
 </script>
 
