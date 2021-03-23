@@ -42,9 +42,12 @@
                 <el-button type="info" onclick="zoomOut()" icon="alifont ali-icon-zoomout" title="缩小"></el-button>
                 <el-button type="info" onclick="zoomFit()" icon="alifont ali-icon-zoom" title="适应窗口大小"></el-button>
             </el-button-group>
+            <!-- example/help/etc. -->
             <el-button-group>
                 <el-button type="info" onclick="btnExampleLabel_click();" icon="alifont ali-icon-label" title="样例标签"></el-button>
                 <el-button type="success" :disabled="true" icon="alifont ali-icon-help" title="帮助"></el-button>
+                <el-button type="danger" onclick="exit();" icon="alifont ali-icon-exit" title="退出"></el-button>
+                <el-button type="danger" onclick="testCross()" v-show="true" icon="alifont ali-icon-test-ts" title="测试"></el-button>
             </el-button-group>
         </el-row>
         <div style="height:5px;"></div>
@@ -745,6 +748,16 @@
     function zoomFit() {
         lbl.zoomFit();
     }
+
+    // -- exit/help ---------------------------------------
+    function exit() {
+        if (window.win) {
+            win.close();
+        }
+        else {
+
+        }
+    }
 </script>
 
 <!-- 属性区 -->
@@ -915,5 +928,22 @@
 
         }
         lbl.compute(true);
+    }
+
+    function testCross() {
+        let url0 = "http://127.0.0.1:9988/DoYsSV/test/AjaxCross/test1";
+        let url = "http://124.71.181.137:5555/DoYsSV/test/AjaxCross/test1";
+        let dataPost = {
+            p1: "abc"
+        };
+
+        ajax.send(url, dataPost).then((res) => {
+            if (res.ok) {
+                topWin.message("当前操作成功，收到后台返回数据 result = " + res.result, "success");
+            }
+            else {
+                topWin.alert("系统信息 ...", "error");
+            }
+        })
     }
 </script>

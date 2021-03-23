@@ -32,7 +32,7 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
                         return;
                     }
                     else {
-                        if (option && option.autoShowErr) {
+                        if (option.autoShowErr) {
                             if (topWin) {
                                 topWin.alert(response.data.error, "error");
                                 return;

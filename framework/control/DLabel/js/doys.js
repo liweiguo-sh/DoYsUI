@@ -2,15 +2,31 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-02-24
- * Modify Date: 2021-03-20
+ * Modify Date: 2021-03-23
  * Copyright 2021, doys-next.com
  * DLabel doys.js
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-03-23";
+    window.jsVer = top.jsVer || "2021-03-23.1";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
+    }
+
+    window.g = {
+        prefix: "",
+        cfg: {
+            ajaxType: "axios"
+        },
+        c: {
+            CHAR1: "\1",
+            CHAR2: "\2",
+            CHAR3: "\3",
+            CHAR4: "\4",
+            CHAR5: "\5",
+            CHAR6: "\6",
+            CHAR7: "\7"
+        }
     }
 
     importFrameworkRes("doys");
@@ -27,11 +43,14 @@ function importFrameworkRes(fileRes) {
     if (fileRes == "doys") {
         arrRes.push(resRootPath + "/plugin/element/index.css");
 
+        arrRes.push(resRootPath + "/plugin/axios.min.js");
         arrRes.push(resRootPath + "/plugin/vue.js");
         arrRes.push(resRootPath + "/plugin/element/index.js");
 
         arrRes.push(resRootPath + "/framework/core/prototype.js");
         arrRes.push(resRootPath + "/framework/core/core.js");
+        arrRes.push(resRootPath + "/framework/core/ajax.js");
+        arrRes.push(resRootPath + "/framework/core/datatable.js");        
     }
     // -- 2. 按需资源 ------------------------------------------
     else if (fileRes.equals("designer")) {

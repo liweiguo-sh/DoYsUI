@@ -30,5 +30,5 @@
     }
 
     document.write("<script src='" + jsBootPath + "runtime.js?v=" + jsVer + "'></script>");
-    document.write("<script src='" + jsBootPath + "doys.js?v=" + jsVer + "'></script>");    
+    document.write("<script src='" + jsBootPath + "doys.js?v=" + jsVer + "'></script>");
 })()
