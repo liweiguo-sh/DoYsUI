@@ -1,11 +1,11 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>标签设计页面</title> 
+    <title>标签设计页面</title>
     <script src="../js/boot.js"></script>
     <script>
         importFrameworkRes("designer");
-    </script> 
+    </script>
 </head>
 <body>
     <div id="app"></div>
@@ -23,8 +23,8 @@
                 <el-button type="info" :disabled="true" icon="alifont ali-icon-preview" title="预览"></el-button>
             </el-button-group>
             <el-button-group>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-copy" title="复制元素"></el-button>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-paste" title="粘贴元素"></el-button>
+                <el-button type="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
+                <el-button type="info" onclick="pasteElements()" icon="alifont ali-icon-paste" title="粘贴元素"></el-button>
                 <el-button type="success" :disabled="true" icon="alifont ali-icon-back" title="撤销"></el-button>
                 <el-button type="info" :disabled="true" icon="alifont ali-icon-redo" title="重做"></el-button>
             </el-button-group>
@@ -479,7 +479,7 @@
                 let element;
                 let propGroupName = name.split(".")[0];
                 let propName = name.split(".")[1];
-
+                let propValue;
                 // ----------------------------------------
                 if (propGroupName.equals("labelHead")) {
                     lbl.head[propName] = this.labelHead[propName];
@@ -501,7 +501,21 @@
                     }
                     else {
                         element = lbl.activatedElement;
-                        element[propGroupName][propName] = this[propGroupName][propName];
+                        propValue = this[propGroupName][propName];
+                        if (propGroupName.equals("head")) {
+                            if (propName.equals("name")) {
+                                for (let i = 0; i < lbl.elements.length; i++) {
+                                    if (lbl.elements[i]._canvasId != lbl.activatedElement._canvasId) {
+                                        if (lbl.elements[i].head.name.equals(propValue)) {
+                                            topWin.alert("已存在名称为 " + propValue + " 的元素，请检查。", "error");
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        element[propGroupName][propName] = propValue;
 
                         UtilElement.computeProp({ element: element });
                         UtilElement.computeValue({ element: element, fields: lbl.fields });
@@ -538,7 +552,7 @@
                     parent: window.win,
                     modal: true
                 };
-                let para = {                    
+                let para = {
                     scriptAfterCompute: lbl.head.scriptAfterCompute,
                     callback: function (jsp) {
                         if (jsp.saveAction) {
@@ -565,6 +579,7 @@
 
     let labelId = 0, labelContent = "";
     let lbl;
+    let elementsCopy = [];
 
     window.addEventListener("load", init, false);
     // ------------------------------------------------------------------------
@@ -620,12 +635,10 @@
 <script>
     function btnBlankLabel_click() {
         if (lbl.elements.length > 0) {
-            if (!confirm("当前标签已存在内容，确定要清空为空白标签吗？")) {
-                return;
-            }
+            topWin.confirm("当前标签已存在内容，确定要清空为空白标签吗？", "", () => {
+                lbl.loadLabel("", { width: 80, height: 60 });
+            });
         }
-
-        lbl.loadLabel("", { width: 80, height: 60 });
     }
     function btnAddElement_click(elementType) {
         lbl.addBlankTextElement(elementType);
@@ -688,6 +701,32 @@
         catch (e) {
             topWin.alert(e, "error");
         }
+    }
+
+    // -- 复制、黏贴 ----------------------------------------
+    function copyElements() {
+        if (vmProp.multiCount == 0 && lbl.activatedElement == null) {
+            topWin.message("请先选中要复制的元素。", "error");
+            return;
+        }
+
+        elementsCopy = [];
+        for (let i = 0; i < lbl.elements.length; i++) {
+            if (lbl.elements[i].head._selected) {
+                elementsCopy.push(lbl.elements[i]);
+            }
+        }
+        if (elementsCopy.length == 0) {
+            elementsCopy.push(lbl.activatedElement);
+        }
+        topWin.message("已复制 " + elementsCopy.length + " 个标签元素", "success");
+    }
+    function pasteElements() {
+        if (elementsCopy.length == 0) {
+            topWin.message("请先复制要粘贴的元素。", "error");
+            return;
+        }
+        lbl.pasteElements(elementsCopy);
     }
 </script>
 
@@ -827,14 +866,16 @@
                 vmProp.activeNames = vmProp.lastActiveNames;
             }
 
-            if (lbl.activatedElement.head.elementType.equals("image")) {
-                if (vmProp.activeNames.equals("font")) {
-                    vmProp.activeNames = "image";
+            if (lbl.activatedElement) {
+                if (lbl.activatedElement.head.elementType.equals("image")) {
+                    if (vmProp.activeNames.equals("font")) {
+                        vmProp.activeNames = "image";
+                    }
                 }
-            }
-            else {
-                if (vmProp.activeNames.equals("image")) {
-                    vmProp.activeNames = "head";
+                else {
+                    if (vmProp.activeNames.equals("image")) {
+                        vmProp.activeNames = "head";
+                    }
                 }
             }
         }

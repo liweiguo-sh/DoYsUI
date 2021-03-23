@@ -18,6 +18,24 @@ UtilElement.getAI = function () {
     }
     return UtilElement.__ai;
 }
+UtilElement.getJson = function (element) {
+    try {
+        return JSON.stringify(element,
+            (k, v) => {
+                if (k.startsWith("_") || k.startsWith("$")) {    // -- _this, _canvas --                        
+                    return undefined;
+                }
+                else {
+                    // -- console.log(k); --
+                }
+                return v;
+            }, "  "
+        );
+    }
+    catch (e) {
+        topWin.alert(e, "error");
+    }
+}
 
 UtilElement.computeProp = function (jsp) {
     let element = jsp.element;

@@ -97,7 +97,7 @@ class Label {
         if (jsp.imageBaseUrl) this.label.head.imageBaseUrl = jsp.imageBaseUrl;
         this.labelId = jsp.labelId || "";
         this.head = this.label.head;
-        this.head.id = this.head.id || 1;
+        this.head.element_id = this.head.element_id || this.label.elements.length + 1;
         this.fields = this.label.fields;
         this.elements = this.label.elements;
         this.multiCount = 0;                    // -- 多选选中的元素数量 --
@@ -257,13 +257,13 @@ class Label {
     }
     // -- element base --------------------------------------------------------
     addBlankTextElement(elementType) {
-        this.clearMultiSelect();    
+        this.clearMultiSelect();
 
         let element = DLbelExample.getElement(elementType);
         element.env = this.env;
-        element._this = this;        
+        element._this = this;
         element._labelHead = this.head;
-        element.head.name = "element_" + this.head.id++;
+        element.head.name = "element_" + this.head.element_id++;
         element.position.top = (this.head.height * Math.random() / 2).toFixed(2);
         element.position.left = (this.head.width * Math.random() / 2).toFixed(2);
 
@@ -276,6 +276,46 @@ class Label {
 
         this.activatedElement = element;
         this.showResize();
+        this.raiseEvent("on-select");
+    }
+    pasteElements(elementsCopy) {
+        this.clearMultiSelect();
+        this.activatedElement = null;
+        this.hideResize();
+        this.hideHover();
+
+        let element, elementString;
+        let count = elementsCopy.length;
+        // ------------------------------------------------
+        for (let i = 0; i < count; i++) {
+            elementString = UtilElement.getJson(elementsCopy[i]);
+            element = JSON.parse(elementString);
+
+            element.env = this.env;
+            element._this = this;
+            element._labelHead = this.head;
+            element.head.name = "element_" + this.head.element_id++;
+            element.head._selected = (count > 1);
+            
+            element.position.top = parseFloat(elementsCopy[i].position.top) + 5;
+            element.position.left = parseFloat(elementsCopy[i].position.left) + 10;
+
+            this.elements.push(element);
+            this.createElement(element);
+
+            UtilElement.computeProp({ element: element });
+            UtilElement.computeValue({ element: element, fields: this.fields });
+            UtilElement.draw({ element: element });
+        }
+
+        // ------------------------------------------------
+        if (count == 1) {
+            this.activatedElement = element;
+            this.showResize();
+        }
+        else {
+            this.multiCount = count;
+        }
         this.raiseEvent("on-select");
     }
     delElement(element) {
@@ -296,6 +336,7 @@ class Label {
 
         this.activatedElement = null;
         this.hideResize();
+        this.hideHover();
     }
     getElementByName(elementName) {
         for (let i = 0; i < this.elements.length; i++) {
@@ -458,6 +499,8 @@ class Label {
                     _this.delElement(_this.elements[i]);
                 }
             }
+            _this.multiCount = 0;
+            _this.raiseEvent("on-select");
         }
     }
     // -- element event: click and hover --------------------------------------
