@@ -29,6 +29,7 @@
 <body>
     <div id="divButtons">
         <input id="btnLoadExample" type="button" value="加载样例标签" onclick="btnLoadExample_click();" />
+        <input id="btnSetValue" type="button" value="变量赋值" onclick="btnSetValue_click();" />
         <input id="btnBatchPrint" type="button" value="批量打印" onclick="bntBatchPrint_click();" />
     </div>
     <iframe id="ifrDesigner"></iframe>
@@ -70,6 +71,101 @@
         lbl.setValue("price", "$1234.56");
         lbl.compute(true);
     }
+    function btnSetValue_click() {
+        let price = "$" + ((100 + Math.round(Math.random() * 10000)) / 100).toFixed(2);
+
+        lbl.setValue("name", "一次性使用血浆胆红素吸附器");
+        lbl.setValue("price", price);
+        lbl.compute(true);
+    }    
+
+    function onSave(jsp) {
+        let labelString = lbl.toJson();
+        
+        txtJson.value = labelString;
+        txtJson.style.display = "";
+
+        console.log(labelString);
+        console.log(jsp);
+
+        // TODO: 此处添加代码，将标签文件字符串(labelString)发送到服务端存储。
+    }
+
+    function bntBatchPrint_click() {
+        let datas = [];
+
+        // --------------------------------------------
+        lbl.setValue("name", "一次性使用血浆胆红素吸附器");
+        lbl.setValue("price", "$5,678");
+        lbl.setValue("img01", "http://biosunmed.com/upload/2020/7/61552460.jpg");
+
+        for (let i = 0; i < 5; i++) {
+            lbl.setValue("sn", "1234000" + (i + 1));
+            lbl.compute(false);
+
+            datas.push(lbl.getData());
+        }
+        lbl.compute(true);
+
+        // --------------------------------------------
+        let dataString = JSON.stringify(datas, null, " ");
+        let para = {
+            protocol: "2.0",
+            action: "printDLabel",
+            labelString: lbl.toJson(),
+            dataString: dataString,
+            copies: 2
+        }
+        top.invokeEdge(para);
+    }
+</script>
+
+<!-- top -->
+<script>
+    function invokeEdge(jsp) {
+        try {
+            if (!chrome || !chrome.webview) {
+                alert("当前操作需要客户端支持，请在客户端中使用。");
+                return;
+            }
+
+            chrome.webview.postMessage(jsp);
+        }
+        catch (e) {
+            alert(e.toString());
+        }
+    }
+
+    function commonShellInvokeJs(para) {
+        try {
+            if (para.action == "setPrinterList") {
+                topWin.printers = para.printers;
+            }
+            else if (para.action == "setBarcodeBase64") {
+                setBarcodeBase64(para);
+            }
+            else if (para.action == "saveLabelContent") {
+                saveMasoLabel(para);
+            }
+            else if (para.action == "downloadLabelContent") {
+                downloadLabelContent(para);
+            }
+            else {
+                alert("尚未实现的 action：" + para.action + "，请检查。");
+            }
+        }
+        catch (e) {
+            alert(e.toString());
+        }
+    }
+
+    function setBarcodeBase64(para) {
+        top.EdgeJsSwapArea.DLabel[para.base64Key] = para.base64;
+    }
+</script>
+
+<!-- sample label -->
+<script>
     function getExampleLabelContent() {
         return `
 {
@@ -93,7 +189,7 @@
   "elements": [
     {
       "head": {
-        "name": "doys_label_element_1",
+        "name": "element_1",
         "elementType": "barcode",
         "barcodeType": "CODE_128",
         "gs1": true
@@ -283,7 +379,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_2",
+        "name": "element_2",
         "elementType": "barcode",
         "barcodeType": "QR_CODE"
       },
@@ -393,7 +489,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_3",
+        "name": "element_3",
         "elementType": "text"
       },
       "sections": [
@@ -479,7 +575,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_4",
+        "name": "element_4",
         "elementType": "text"
       },
       "sections": [
@@ -562,7 +658,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_5",
+        "name": "element_5",
         "elementType": "text"
       },
       "sections": [
@@ -654,7 +750,7 @@
     },
     {
       "head": {
-        "name": "doys_label_element_6",
+        "name": "element_6",
         "elementType": "image"
       },
       "font": {
@@ -733,89 +829,5 @@
   ]
 }
         `;
-    }
-
-    function onSave(jsp) {
-        let labelString = lbl.toJson();
-        
-        txtJson.value = labelString;
-        txtJson.style.display = "";
-
-        console.log(labelString);
-        console.log(jsp);
-
-        // TODO: 此处添加代码，将标签文件字符串(labelString)发送到服务端存储。
-    }
-
-    function bntBatchPrint_click() {
-        let datas = [];
-
-        // --------------------------------------------
-        lbl.setValue("name", "一次性使用血浆胆红素吸附器");
-        lbl.setValue("price", "$5,678");
-        lbl.setValue("img01", "http://biosunmed.com/upload/2020/7/61552460.jpg");
-
-        for (let i = 0; i < 5; i++) {
-            lbl.setValue("sn", "1234000" + (i + 1));
-            lbl.compute(false);
-
-            datas.push(lbl.getData());
-        }
-        lbl.compute(true);
-
-        // --------------------------------------------
-        let dataString = JSON.stringify(datas, null, " ");
-        let para = {
-            protocol: "2.0",
-            action: "printDLabel",
-            labelString: lbl.toJson(),
-            dataString: dataString,
-            copies: 2
-        }
-        top.invokeEdge(para);
-    }
-</script>
-
-<!-- top -->
-<script>
-    function invokeEdge(jsp) {
-        try {
-            if (!chrome || !chrome.webview) {
-                alert("当前操作需要客户端支持，请在客户端中使用。");
-                return;
-            }
-
-            chrome.webview.postMessage(jsp);
-        }
-        catch (e) {
-            alert(e.toString());
-        }
-    }
-
-    function commonShellInvokeJs(para) {
-        try {
-            if (para.action == "setPrinterList") {
-                topWin.printers = para.printers;
-            }
-            else if (para.action == "setBarcodeBase64") {
-                setBarcodeBase64(para);
-            }
-            else if (para.action == "saveLabelContent") {
-                saveMasoLabel(para);
-            }
-            else if (para.action == "downloadLabelContent") {
-                downloadLabelContent(para);
-            }
-            else {
-                alert("尚未实现的 action：" + para.action + "，请检查。");
-            }
-        }
-        catch (e) {
-            alert(e.toString());
-        }
-    }
-
-    function setBarcodeBase64(para) {
-        top.EdgeJsSwapArea.DLabel[para.base64Key] = para.base64;
     }
 </script>

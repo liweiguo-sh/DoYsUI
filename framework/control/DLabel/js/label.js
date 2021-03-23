@@ -238,7 +238,7 @@ class Label {
                 }
             }
         }
-        else if (name.equals("on-select") && this.onSelectEvents) {
+        else if (name.equals("on-select")) {
             if (this.onSelectEvents) {
                 for (let i = 0; i < this.onSelectEvents.length; i++) {
                     evt = this.onSelectEvents[i];
@@ -460,6 +460,8 @@ class Label {
 
         x = evt.clientX - _this.dragOffsetX;
         y = evt.clientY - _this.dragOffsetY;
+        if (x < -domDrag.offsetWidth + 50) return;
+        if (y < -domDrag.offsetHeight + 50) return;
 
         domDrag.style.left = x + "px";
         domDrag.style.top = y + "px";
