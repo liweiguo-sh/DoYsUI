@@ -34,7 +34,7 @@
                 <el-button type="primary" onclick="btnAddElement_click('barcode1D');" icon="alifont ali-icon-barcode" title="一维码"></el-button>
                 <el-button type="primary" onclick="btnAddElement_click('barcode2D');" icon="alifont ali-icon-qrcode" title="二维码"></el-button>
                 <el-button type="primary" onclick="btnAddElement_click('image');" icon="alifont ali-icon-image" title="图片"></el-button>
-                <el-button type="primary" onclick="btnAddElement_click('sharp');" icon="alifont ali-icon-rectangle" title="形状"></el-button>
+                <el-button type="primary" onclick="btnAddElement_click('shape');" icon="alifont ali-icon-rectangle" title="形状"></el-button>
                 <el-button type="primary" :disabled="true" onclick="btnAddElement_click('line');" icon="alifont ali-icon-line" title="直线"></el-button>
             </el-button-group>
             <!-- zoom -->
@@ -45,7 +45,8 @@
             </el-button-group>
             <!-- example/help/etc. -->
             <el-button-group>
-                <el-button type="info" onclick="btnExampleLabel_click();" icon="alifont ali-icon-label" title="样例标签"></el-button>
+                <el-button type="info" onclick="btnDemoLabel_click();" icon="alifont ali-icon-label" title="演示标签"></el-button>
+                <el-button type="info" onclick="btnDebugLabel_click();" icon="alifont ali-icon-label" title="调试标签"></el-button>
                 <el-button type="success" :disabled="true" icon="alifont ali-icon-help" title="帮助"></el-button>
                 <el-button type="danger" onclick="exit();" icon="alifont ali-icon-exit" title="退出"></el-button>
                 <el-button type="danger" onclick="testCross()" v-show="true" icon="alifont ali-icon-test-ts" title="测试"></el-button>
@@ -936,18 +937,25 @@
 <!-- debug and test -->
 <script>
     // -- 加载样例标签 --
-    function btnExampleLabel_click() {
-        let labelKey = "debug1";
+    function btnDemoLabel_click() {
+        let labelKey = "demo1";
         let labelContent = DLbelExample.getExample(labelKey);
 
         lbl.loadLabel(labelContent);
-        if (labelKey.equals("debug1")) {
+        if (labelKey.equals("demo1")) {
             lbl.setValue("name", "一次性使用血浆胆红素吸附器");
             lbl.setValue("price", "$1234.56");
         }
         else {
 
         }
+        lbl.compute(true);
+    }
+    function btnDebugLabel_click() {
+        let labelKey = "debug1";
+        let labelContent = DLbelExample.getExample(labelKey);
+
+        lbl.loadLabel(labelContent);
         lbl.compute(true);
     }
 
