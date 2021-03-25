@@ -159,6 +159,7 @@ function importFrameworkRes(fileRes) {
     // -- 3. doys组件 --
     else if (fileRes.equals("d-label")) {
         arrRes.push(g.path.framework + "/control/DLabel/css/designer.css");
+        arrRes.push(g.path.framework + "/control/DLabel/css/label.css");
 
         arrRes.push(g.path.framework + "/control/DLabel/js/font.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/util.js");

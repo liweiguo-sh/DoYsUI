@@ -249,7 +249,7 @@
                 let postData = { labelId: this.labelId, copies: this.copies };
                 ajax.send("/aprint/lvkemen/savePrintRecord", postData).then(res => {
                     if (res.ok) {
-                        topWin.message("记录成功");
+                        // -- topWin.message("记录成功");
                     }
                     else {
                     }
