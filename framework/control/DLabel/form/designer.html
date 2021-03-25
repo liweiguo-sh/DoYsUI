@@ -11,6 +11,7 @@
     <div id="app"></div>
     <div id="vmToolbar">
         <el-row class="row-toolbar">
+            <!-- new/open/save/saveAs -->
             <el-button-group>
                 <el-button type="info" onclick="btnBlankLabel_click();" icon="alifont ali-icon-new" title="新建空白标签"></el-button>
                 <el-button type="info" :disabled="true" icon="alifont ali-icon-blank" title="打开标签"></el-button>
@@ -18,7 +19,7 @@
                 <el-button type="info" :disabled="true" icon="alifont ali-icon-saveas" title="另存为"></el-button>
             </el-button-group>
             <el-button-group>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-grid" title="页面设置"></el-button>
+                <el-button type="info" onclick="pageSetup();" icon="alifont ali-icon-grid" title="页面设置"></el-button>
                 <el-button type="info" onclick="btnPrint_click();" icon="alifont ali-icon-print" title="打印样张"></el-button>
                 <el-button type="info" :disabled="true" icon="alifont ali-icon-preview" title="预览"></el-button>
             </el-button-group>
@@ -710,6 +711,26 @@
         catch (e) {
             topWin.alert(e, "error");
         }
+    }
+
+    // -- page\printer\preview ----------------------------
+    function pageSetup() {
+        let prop = {
+            topWin: topWin,
+            url: g.x.getPath("/") + "page_setup.html",
+            parent: window.win,
+            modal: true
+        };
+        let para = {
+            page: lbl.label.page,
+            callback: function (jsp) {
+                if (jsp.saveAction) {
+                    lbl.label.page = g.x.extendJSON(lbl.label.page, jsp.page);
+                }
+            }
+        };
+
+        cWin.openWindow(prop, para);
     }
 
     // -- 复制、黏贴 ----------------------------------------

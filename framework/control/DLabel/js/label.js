@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-03-19
+ * Modify Date: 2021-03-25
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -102,6 +102,7 @@ class Label {
         this.fields = this.label.fields;
         this.elements = this.label.elements;
         this.multiCount = 0;                    // -- 多选选中的元素数量 --
+        if (!this.label.page) this.label.page = { width: this.head.width, height: this.head.height, marginLeft: 0, marginTop: 0, marginRight: 0, marginBottom: 0, rows: 1, cols: 1, horizontalSpace: 0, verticalSpace: 0 };
 
         // -- 3. 计算标签换算系数(毫米|像素) --
         let mmW = this.head.width, mmH = this.head.height, mmWH = mmW / mmH;

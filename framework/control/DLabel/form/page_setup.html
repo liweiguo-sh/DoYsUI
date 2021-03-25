@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签页面设置</title>
+    <script src="../js/boot.js"></script>
+    <style type="text/css">
+        .el-col {
+            padding-right: 20px;
+        }
+
+            .el-col:last-child {
+                padding-right: 10px;
+            }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:960px;">
+        <el-row style="margin-bottom:10px;">
+            <el-button-group>
+                <el-button @click="save" icon="el-icon-check">确定</el-button>
+                <el-button @click="abandon" icon="el-icon-close">取消</el-button>
+            </el-button-group>
+        </el-row>
+        <div style="height:5px;border-top:1px solid #e0e0e0;margin-top:8px;margin-bottom:8px;"></div>
+        <el-row>
+            <el-col :span="12">
+                <el-form :model="page" ref="form" label-width="100px" label-position="left">
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="纸张宽度">
+                                <el-input v-model="page.width" @change="preview" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="纸张高度">
+                                <el-input v-model="page.height" @change="preview" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="纸张左边距">
+                                <el-input v-model="page.marginLeft" @change="preview" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="纸张右边距">
+                                <el-input v-model="page.marginRight" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="纸张上边距">
+                                <el-input v-model="page.marginTop" @change="preview" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="纸张下边距">
+                                <el-input v-model="page.marginBottom" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <!-- 标签行数、列数，水平间距、垂直间距 -->
+                    <div style="height:5px;border-top:1px solid #e0e0e0;margin-top:8px;margin-bottom:8px;"></div>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="标签行数">
+                                <el-input v-model="page.rows" @change="preview" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="标签列数">
+                                <el-input v-model="page.cols" @change="preview" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="水平间距">
+                                <el-input v-model="page.horizontalSpace" @change="preview" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="垂直间距">
+                                <el-input v-model="page.verticalSpace" @change="preview" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+            </el-col>
+            <el-col :span="12">
+                <div style="background-color:lightgray;text-align:center;vertical-align:middle;height:500px;">页面布局预览区</div>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            page: {
+                width: 80, height: 60,
+                marginLeft: 0, marginTop: 0, marginRight: 0, marginBottom: 0,
+
+                rows: 1, cols: 1,
+                horizontalSpace: 0, verticalSpace: 0
+            },
+
+            saveAction: false                   // -- 是否保存修改 --
+        },
+        methods: {
+            save() {
+                this.saveAction = true;
+                win.close();
+            },
+            abandon() {
+                this.saveAction = false;
+                win.close();
+            },
+            preview() {
+                console.log("标签页面设置，预览功能开发中...");
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.page = g.x.extendJSON(app.page, win.para.page);
+        // ------------------------------------------------
+        win.addEventListener("afterClose", () => {
+            if (win.para.callback) {
+                win.para.callback({
+                    saveAction: app.saveAction,
+                    page: g.x.extendJSON({}, app.page)
+                });
+            }
+            app.$destroy();
+        });
+    }
+</script>
