@@ -11,6 +11,18 @@ DLbelExample.getExample = function (labelKey) {
 DLbelExample.debug1 = function () {
     return `
 {
+  "page": {
+    "width": 200,
+    "height": 150,
+    "marginLeft": 0,
+    "marginTop": 0,
+    "marginRight": 0,
+    "marginBottom": 0,
+    "rows": 2,
+    "cols": 2,
+    "horizontalSpace": 0,
+    "verticalSpace": 0
+  },
   "head": {
     "width": 80,
     "height": 60,
@@ -50,7 +62,7 @@ DLbelExample.debug1 = function () {
       },
       "position": {
         "layer": 1,
-        "top": 44.95934959349595,
+        "top": 44.95,
         "left": "3.90",
         "width": "73.74",
         "height": "12.66",
@@ -100,7 +112,7 @@ DLbelExample.debug1 = function () {
         "offsetY": 0,
         "leftText": 36.87,
         "topText": 12.66,
-        "heightBarcode": 9.837777777777777,
+        "heightBarcode": 9.8378,
         "widthBarcode": 73.74,
         "leftBarcode": 0,
         "topBarcode": 0
