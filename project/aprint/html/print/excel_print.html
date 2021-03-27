@@ -374,7 +374,7 @@
                         printerName: this.printerName,
                         copies: this.copies
                     }
-                    top.invokeEdge(para);
+                    top.edge.invokeEdge(para);
                     return;
                 }
 
@@ -417,7 +417,7 @@
                         copies: this.copies
                     }
 
-                    top.invokeEdge(para);
+                    top.edge.invokeEdge(para);
                 });
             },
             onPrinterChange() {

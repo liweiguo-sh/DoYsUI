@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>药品申领单</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:930px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="110px" label-position="left">
+            <!-- 名称、规格、价格-->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="申请单号" required>
+                        <el-input v-model="form.pk" ref="pk" placeholder="申请单号" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="申请日期">
+                        <el-input v-model="form.bus_date" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 备注 -->
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {},
+            ds: {}
+        },
+
+        methods: {
+             
+        }
+    });
+</script>

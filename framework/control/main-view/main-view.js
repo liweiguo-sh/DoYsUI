@@ -406,6 +406,7 @@
                 prop.noTitle = true;
             }
             let para = {
+                menuPk: win.para.menuPk,
                 viewPk: this.viewPk,
                 flowPks: this.flowPks,
                 controller: this.controller,

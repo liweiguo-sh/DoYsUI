@@ -11,12 +11,12 @@
     <div id="app"></div>
     <div id="vmToolbar">
         <el-row class="row-toolbar">
-            <!-- new/open/save/saveAs -->
+            <!-- new/import/save/export -->
             <el-button-group>
-                <el-button type="info" onclick="btnBlankLabel_click();" icon="alifont ali-icon-new" title="新建空白标签"></el-button>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-blank" title="打开标签"></el-button>
-                <el-button type="success" onclick="btnSaveLabel_click();" icon="alifont ali-icon-save" title="保存标签"></el-button>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-saveas" title="另存为"></el-button>
+                <el-button type="info" onclick="blankLabel();" icon="alifont ali-icon-new" title="新建空白标签"></el-button>
+                <el-button type="info" onclick="importLabel();" icon="alifont ali-icon-blank" title="打开标签"></el-button>
+                <el-button type="success" onclick="saveLabel();" icon="alifont ali-icon-save" title="保存标签"></el-button>
+                <el-button type="info" onclick="exportLabel();" icon="alifont ali-icon-saveas" title="导出标签 ..."></el-button>
             </el-button-group>
             <el-button-group>
                 <el-button type="info" onclick="pageSetup();" icon="alifont ali-icon-grid" title="页面设置"></el-button>
@@ -29,13 +29,15 @@
                 <el-button type="success" :disabled="true" icon="alifont ali-icon-back" title="撤销"></el-button>
                 <el-button type="info" :disabled="true" icon="alifont ali-icon-redo" title="重做"></el-button>
             </el-button-group>
+
+            <!-- add element -->
             <el-button-group>
-                <el-button type="primary" onclick="btnAddElement_click('text');" icon="alifont ali-icon-a" title="文本"></el-button>
-                <el-button type="primary" onclick="btnAddElement_click('barcode1D');" icon="alifont ali-icon-barcode" title="一维码"></el-button>
-                <el-button type="primary" onclick="btnAddElement_click('barcode2D');" icon="alifont ali-icon-qrcode" title="二维码"></el-button>
-                <el-button type="primary" onclick="btnAddElement_click('image');" icon="alifont ali-icon-image" title="图片"></el-button>
-                <el-button type="primary" onclick="btnAddElement_click('shape');" icon="alifont ali-icon-rectangle" title="形状"></el-button>
-                <el-button type="primary" :disabled="true" onclick="btnAddElement_click('line');" icon="alifont ali-icon-line" title="直线"></el-button>
+                <el-button type="primary" onclick="addElement('text');" icon="alifont ali-icon-a" title="文本"></el-button>
+                <el-button type="primary" onclick="addElement('barcode1D');" icon="alifont ali-icon-barcode" title="一维码"></el-button>
+                <el-button type="primary" onclick="addElement('barcode2D');" icon="alifont ali-icon-qrcode" title="二维码"></el-button>
+                <el-button type="primary" onclick="addElement('image');" icon="alifont ali-icon-image" title="图片"></el-button>
+                <el-button type="primary" onclick="addElement('shape');" icon="alifont ali-icon-rectangle" title="形状"></el-button>
+                <el-button type="primary" :disabled="true" onclick="addElement('line');" icon="alifont ali-icon-line" title="直线"></el-button>
             </el-button-group>
             <!-- zoom -->
             <el-button-group>
@@ -43,14 +45,19 @@
                 <el-button type="info" onclick="zoomOut()" icon="alifont ali-icon-zoomout" title="缩小"></el-button>
                 <el-button type="info" onclick="zoomFit()" icon="alifont ali-icon-zoom" title="适应窗口大小"></el-button>
             </el-button-group>
-            <!-- example/help/etc. -->
+            <!-- help/etc. -->
             <el-button-group>
-                <el-button type="info" onclick="btnDemoLabel_click();" icon="alifont ali-icon-label" title="演示标签"></el-button>
-                <el-button type="info" onclick="btnDebugLabel_click();" icon="alifont ali-icon-label" title="调试标签"></el-button>
                 <el-button type="success" :disabled="true" icon="alifont ali-icon-help" title="帮助"></el-button>
                 <el-button type="danger" onclick="exit();" icon="alifont ali-icon-exit" title="退出"></el-button>
-                <el-button type="danger" onclick="testCross()" v-show="true" icon="alifont ali-icon-test-ts" title="测试"></el-button>
             </el-button-group>
+
+            <!-- example and debug -->
+            <el-button-group v-show="showDebugToolbar">
+                <el-button type="info" onclick="btnDemoLabel_click();" icon="alifont ali-icon-label" title="演示标签"></el-button>
+                <el-button type="info" onclick="btnDebugLabel_click();" icon="alifont ali-icon-label" title="调试标签"></el-button>
+                <el-button type="danger" onclick="testCross()" v-show="true" icon="alifont ali-icon-test-ts" title="cross测试"></el-button>
+            </el-button-group>
+
         </el-row>
         <div style="height:5px;"></div>
     </div>
@@ -427,7 +434,9 @@
     });
     var vmTollbar = new Vue({
         el: '#vmToolbar',
-        data: {},
+        data: {
+            showDebugToolbar: true
+        },
         methods: {
             method1() {
                 ajax.send("/", {}).then((res) => {
@@ -592,26 +601,10 @@
 
     window.addEventListener("load", init, false);
     // ------------------------------------------------------------------------
-    function winLoad() {
-        if (win.para.menuPk && win.para.menuPk.equals("001094")) {
-            gId("btnExampleLabel").style.display = "";
+    function winLoad() {        
+        if (win.para.menuPk && win.para.menuPk.equals("001005001")) {
+            vmTollbar.showDebugToolbar = false;
         }
-    }
-
-    function init() {
-        if (window.topWin && topWin.cWin) {
-            window.cWin = topWin.cWin;
-        }
-        else {
-            window.cWin = new window.xwf_window({
-                jsVer: jsVer,
-                zIndex: 1000
-            });
-        }
-
-        winResize();
-
-        lbl = getLabel();
     }
     function winResize() {
         let hMax = document.documentElement.clientHeight;
@@ -624,6 +617,21 @@
         divContainerParent.style.height = (tdCanvas.offsetHeight - g.x.getStyleValue(tdCanvas, "paddingLeft") - g.x.getStyleValue(tdCanvas, "paddingRight")) + "px";
     }
 
+    function init() {
+        if (window.topWin && topWin.cWin) {
+            window.cWin = topWin.cWin;
+        }
+        else {
+            window.cWin = new window.xwf_window({
+                jsVer: jsVer,
+                zIndex: 1000
+            });
+        }
+        top.edge.addEventListener("importDLabel", onImportLabel, { p1: "abc", p2: "def" });
+        winResize();
+
+        lbl = getLabel();
+    }
     function getLabel() {
         if (lbl == null) {
             lbl = new Label({ container: divCanvas, env: "design" });
@@ -640,27 +648,60 @@
             lbl.addEventListener("on-select", onSelect);
         }
         return lbl;
-    }
+    }    
 </script>
 <!-- toolbar -->
 <script>
-    function btnBlankLabel_click() {
+    // -- blankLabel\import\save\export -------------------
+    function blankLabel() {
         if (lbl.elements.length > 0) {
             topWin.confirm("当前标签已存在内容，确定要清空为空白标签吗？", "", () => {
                 lbl.loadLabel("", { width: 80, height: 60 });
             });
         }
     }
-    function btnAddElement_click(elementType) {
-        lbl.addBlankTextElement(elementType);
+    function importLabel() {
+        let para = {
+            protocol: "2.0",
+            action: "importDLabel"
+        }
+        top.edge.invokeEdge(para);
     }
-    function btnDelElement_click() {
-        lbl.delElement();
+    function onImportLabel(para, jsp) {
+        lbl.loadLabel(para.labelString);
+        lbl.compute(true);
     }
-    function btnSaveLabel_click() {
+    function saveLabel() {
         lbl.save();
     }
+    function exportLabel() {
+        let para = {
+            protocol: "2.0",
+            action: "exportDLabel",
+            labelString: lbl.toJson()
+        }
+        top.edge.invokeEdge(para);
+    }    
 
+    // -- page\printer\preview ----------------------------
+    function pageSetup() {
+        let prop = {
+            topWin: topWin,
+            url: g.x.getPath("/") + "page_setup.html",
+            parent: window.win,
+            modal: true
+        };
+        let para = {
+            page: lbl.label.page,
+            callback: function (jsp) {
+                if (jsp.saveAction) {
+                    lbl.label.page = g.x.extendJSON(lbl.label.page, jsp.page);
+                }
+            }
+        };
+
+        cWin.openWindow(prop, para);
+    }
     function btnPrint_click() {
         let page = 0, pages = 2;
         let datas = [], dataString;
@@ -707,31 +748,11 @@
                 copies: 1
             }
 
-            top.invokeEdge(para);
+            top.edge.invokeEdge(para);
         }
         catch (e) {
             topWin.alert(e, "error");
         }
-    }
-
-    // -- page\printer\preview ----------------------------
-    function pageSetup() {
-        let prop = {
-            topWin: topWin,
-            url: g.x.getPath("/") + "page_setup.html",
-            parent: window.win,
-            modal: true
-        };
-        let para = {
-            page: lbl.label.page,
-            callback: function (jsp) {
-                if (jsp.saveAction) {
-                    lbl.label.page = g.x.extendJSON(lbl.label.page, jsp.page);
-                }
-            }
-        };
-
-        cWin.openWindow(prop, para);
     }
 
     // -- 复制、黏贴 ----------------------------------------
@@ -758,6 +779,11 @@
             return;
         }
         lbl.pasteElements(elementsCopy);
+    }
+
+    // -- addElement(text\barcode\image etc.) -------------
+    function addElement(elementType) {
+        lbl.addBlankTextElement(elementType);
     }
 
     // -- zoom --------------------------------------------

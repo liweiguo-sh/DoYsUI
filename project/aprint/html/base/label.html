@@ -373,7 +373,9 @@
                         parent: win,
                         modal: false
                     };
-                    let para = {};
+                    let para = {
+                        menuPk: win.para.menuPk
+                    };
                     let jspLabel = {
                         fields: variables,
                         width: dtbLabel.rows[0]["width"].value,

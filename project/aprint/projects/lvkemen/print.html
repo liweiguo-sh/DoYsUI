@@ -243,7 +243,7 @@
                     printerName: this.printerName,
                     copies: this.copies
                 }
-                top.invokeEdge(para);
+                top.edge.invokeEdge(para);
 
                 // -- 登记打印记录 --
                 let postData = { labelId: this.labelId, copies: this.copies };

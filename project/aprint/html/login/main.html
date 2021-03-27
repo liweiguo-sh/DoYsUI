@@ -3,9 +3,10 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "V2021_0326";</script>
+    <script>var jsVer = "V2021_0327";</script>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
+        importFrameworkRes("edge");
         importFrameworkRes("window");
         importFrameworkRes("taskbar");
         importFrameworkRes("main-menu");
@@ -239,7 +240,7 @@
             protocol: "2.0",
             action: "getPrinterList"
         }
-        top.invokeEdge(para);
+        top.edge.invokeEdge(para);
     }
 </script>
 

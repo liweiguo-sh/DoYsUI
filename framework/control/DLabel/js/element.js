@@ -808,22 +808,20 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
     let hashcode = JSON.getHashCode(para);
     let base64Key = "base64_" + hashcode;
 
-    if (!top.EdgeJsSwapArea) top.EdgeJsSwapArea = {};
-    if (!top.EdgeJsSwapArea.DLabel) top.EdgeJsSwapArea.DLabel = {};
-    if (top.EdgeJsSwapArea.DLabel[base64Key]) {
-        return top.EdgeJsSwapArea.DLabel[base64Key];
+    if (top.edge.EdgeJsSwapArea.DLabel[base64Key]) {
+        return top.edge.EdgeJsSwapArea.DLabel[base64Key];
     }
     else {
         para["base64Key"] = base64Key;
-        top.invokeEdge(para);
+        top.edge.invokeEdge(para);
     }
 
     // -- 3. 延时获取weview外壳生成的图片 --
     let count = 0, maxCount = 10;
     while (count++ < maxCount) {
         await sleep(50);    // -- 测试结果: 平均 <= 5ms --
-        if (top.EdgeJsSwapArea.DLabel[base64Key]) {
-            return top.EdgeJsSwapArea.DLabel[base64Key];
+        if (top.edge.EdgeJsSwapArea.DLabel[base64Key]) {
+            return top.edge.EdgeJsSwapArea.DLabel[base64Key];
         }
     }
 

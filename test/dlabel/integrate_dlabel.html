@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>D-Label Example</title>
+    <script src="../../framework/core/edge.js"></script>
 
     <style type="text/css">
         #divButtons input[type='button'] {
@@ -56,13 +57,22 @@
             lbl = ifr.contentWindow.getLabel();
 
             // -- 注册并监听标签保存事件 --
-            lbl.addEventListener("onSave", onSave, { a: "123", b: "456" });
+            lbl.addEventListener("on-save", onSave, { a: "123", b: "456" });
         }, false);
-    }, false);
+    }, false);    
 </script>
 
-<!-- label -->
+<!-- DLabel -->
 <script>
+    function onSave(jsp) {
+        txtJson.value = jsp.labelString;
+        txtJson.style.display = "";
+
+        console.log(jsp);
+
+        // TODO: 此处添加代码，将标签文件字符串(jsp.labelString)发送到服务端存储。
+    }
+
     function btnLoadExample_click() {
         let labelContent = getExampleLabelContent();
 
@@ -77,20 +87,7 @@
         lbl.setValue("name", "一次性使用血浆胆红素吸附器");
         lbl.setValue("price", price);
         lbl.compute(true);
-    }    
-
-    function onSave(jsp) {
-        let labelString = lbl.toJson();
-        
-        txtJson.value = labelString;
-        txtJson.style.display = "";
-
-        console.log(labelString);
-        console.log(jsp);
-
-        // TODO: 此处添加代码，将标签文件字符串(labelString)发送到服务端存储。
     }
-
     function bntBatchPrint_click() {
         let datas = [];
 
@@ -116,51 +113,7 @@
             dataString: dataString,
             copies: 2
         }
-        top.invokeEdge(para);
-    }
-</script>
-
-<!-- top -->
-<script>
-    function invokeEdge(jsp) {
-        try {
-            if (!chrome || !chrome.webview) {
-                alert("当前操作需要客户端支持，请在客户端中使用。");
-                return;
-            }
-
-            chrome.webview.postMessage(jsp);
-        }
-        catch (e) {
-            alert(e.toString());
-        }
-    }
-
-    function commonShellInvokeJs(para) {
-        try {
-            if (para.action == "setPrinterList") {
-                topWin.printers = para.printers;
-            }
-            else if (para.action == "setBarcodeBase64") {
-                setBarcodeBase64(para);
-            }
-            else if (para.action == "saveLabelContent") {
-                saveMasoLabel(para);
-            }
-            else if (para.action == "downloadLabelContent") {
-                downloadLabelContent(para);
-            }
-            else {
-                alert("尚未实现的 action：" + para.action + "，请检查。");
-            }
-        }
-        catch (e) {
-            alert(e.toString());
-        }
-    }
-
-    function setBarcodeBase64(para) {
-        top.EdgeJsSwapArea.DLabel[para.base64Key] = para.base64;
+        top.edge.invokeEdge(para);
     }
 </script>
 

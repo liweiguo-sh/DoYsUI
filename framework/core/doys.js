@@ -130,6 +130,9 @@ function importFrameworkRes(fileRes) {
     if (fileRes.equals("topwin")) {
         arrRes.push(g.path.framework + "/core/topwin.js");
     }
+    else if (fileRes.equals("edge")) {
+        arrRes.push(g.path.framework + "/core/edge.js");
+    }
     else if (fileRes.equals("main")) {
         arrRes.push(g.path.framework + "/system/main.js");
     }

@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-03-25
+ * Modify Date: 2021-03-27
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -205,18 +205,30 @@ class Label {
         }
     }
 
-    addEventListener(name, callback, jsp) {
+    addEventListener(name, callback, jsp = {}) {
         if (name.equals("after-label-load")) {
             if (!this.afterLabelLoadEvents) {
                 this.afterLabelLoadEvents = [];
             }
             this.afterLabelLoadEvents.push({ callback: callback, jsp: jsp });
         }
-        else if (name.equals("onSave")) {
+        else if (name.equals("on-save") || name.equals("onSave")) {
             if (!this.onSaveEvents) {
                 this.onSaveEvents = [];
             }
             this.onSaveEvents.push({ callback: callback, jsp: jsp });
+        }
+        else if (name.equals("on-export")) {
+            if (!this.onExportEvents) {
+                this.onExportEvents = [];
+            }
+            this.onExportEvents.push({ callback: callback, jsp: jsp });
+        }
+        else if (name.equals("on-import")) {
+            if (!this.onImportEvents) {
+                this.onImportEvents = [];
+            }
+            this.onImportEvents.push({ callback: callback, jsp: jsp });
         }
         else if (name.equals("on-select")) {
             if (!this.onSelectEvents) {
@@ -255,6 +267,26 @@ class Label {
         if (this.onSaveEvents) {
             for (let i = 0; i < this.onSaveEvents.length; i++) {
                 let evt = this.onSaveEvents[i];
+                evt.callback(
+                    g.x.extendJSON(evt.jsp, {
+                        labelString: this.toJson()
+                    })
+                );
+            }
+        }
+    }
+    exportLabel() {
+        if (this.onExportEvents) {
+            for (let i = 0; i < this.onExportEvents.length; i++) {
+                let evt = this.onExportEvents[i];
+                evt.callback(evt.jsp);
+            }
+        }
+    }
+    importLabel() {
+        if (this.onImportEvents) {
+            for (let i = 0; i < this.onImportEvents.length; i++) {
+                let evt = this.onImportEvents[i];
                 evt.callback(evt.jsp);
             }
         }

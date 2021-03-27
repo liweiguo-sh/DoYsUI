@@ -2,13 +2,13 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-02-24
- * Modify Date: 2021-03-25
+ * Modify Date: 2021-03-27
  * Copyright 2021, doys-next.com
  * DLabel doys.js
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-03-25";
+    window.jsVer = top.jsVer || "2021-03-27";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }
@@ -54,9 +54,10 @@ function importFrameworkRes(fileRes) {
     }
     // -- 2. 按需资源 ------------------------------------------
     else if (fileRes.equals("designer")) {
+        arrRes.push(resRootPath + "/framework/core/edge.js");
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.css");
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.js");
-        arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");        
 
         arrRes.push(resRootPath + "/framework/css/ali-icon-font.css");
 
