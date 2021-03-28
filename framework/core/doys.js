@@ -160,12 +160,9 @@ function importFrameworkRes(fileRes) {
         arrRes.push(g.path.framework + "/control/main-view/main-view.js");
     }
     // -- 3. doys组件 --
-    else if (fileRes.equals("d-label")) {
-        arrRes.push(g.path.framework + "/control/DLabel/css/designer.css");
+    else if (fileRes.equals("DLabel")) {
         arrRes.push(g.path.framework + "/control/DLabel/css/label.css");
 
-        arrRes.push(g.path.framework + "/control/DLabel/js/font.js");
-        arrRes.push(g.path.framework + "/control/DLabel/js/util.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/element.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/label.js");
     }

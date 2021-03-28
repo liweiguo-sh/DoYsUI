@@ -24,6 +24,7 @@ body {
     font-size: large;
     color: darkgreen;
 }
+
 .divPropName {
     line-height: 36px;
     padding-left: 8px;
@@ -32,10 +33,6 @@ body {
 /* -- container -- */
 .doys_label_container {
     position: relative;
-    background-color: white;
     box-shadow: 2px 2px 15px black;
     border-radius: 5px;
-    --margin-left: 80px;
-    --padding-left: 70px;
-    --border-left: 200px solid lightgreen;
 }

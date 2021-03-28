@@ -45,19 +45,18 @@ edge.invokeEdge = function (jsp) {
 }
 
 // -- edge shell invoke js ----------------------------------------------------
-edge.commonShellInvokeJs = function (para) {
+edge.commonShellInvokeJs = function (jsp) {
     try {
-        debugger
-        let action = para.action;
+        let action = jsp.action;
         if (action == "setBarcodeBase64") {
             // -- DLabel专用 --
-            edge.setBarcodeBase64(para);
+            edge.setBarcodeBase64(jsp);
         }
         else {
             for (let i = 0; i < edge.shellEventCallback.length; i++) {
                 let sec = edge.shellEventCallback[i];
-                if (sec.eventName == para.action) {
-                    sec.callback(para, sec.jsp);
+                if (sec.eventName == jsp.action) {
+                    sec.callback(jsp, sec.jsp);
                 }
             }
         }

@@ -4,18 +4,22 @@
     <title>绿客门标签打印窗口</title>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
-        importFrameworkRes("d-label");
+        importFrameworkRes("DLabel");
     </script>
 
     <style type="text/css">
-        .divPreview {
-            border: dotted 0px green;
-            width: 700px;
-            height: 500px;
-            padding-top: 48px;
-            padding-left: 100px;
-            text-align: center;
-            vertical-align: middle;
+        body {
+        }
+        #divCanvasParent {
+            width: 100px;
+            height: 100px;
+            padding: 48px;
+        }
+
+        #divCanvas {
+            position: relative;
+            box-shadow: 2px 2px 15px black;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -101,8 +105,8 @@
                 </el-form>
             </el-col>
             <el-col :span="16">
-                <div class="divPreview">
-                    <div id="divCanvas" class="doys_label_container"></div>
+                <div id="divCanvasParent">
+                    <div id="divCanvas"></div>
                 </div>
             </el-col>
         </el-row>
@@ -266,17 +270,28 @@
 <!-- winLoad -->
 <script>
     var ckLatestPrinter = "lvkemen_print_latest_printer";
-
-    var lbl;
-
+    var divCanvasParent = gId("divCanvasParent");
     var divCanvas = gId("divCanvas");
+    var lbl;
     // ------------------------------------------------------------------------
     function winLoad() {
+        winResize();
+
         for (let i = 0; i < topWin.printers.length; i++) {
             app.printers.push(topWin.printers[i]);
         }
         app.printerName = getLocalItem(ckLatestPrinter);
 
         lbl = new Label({ container: divCanvas });
+    }
+    function winResize() {
+        let width = divCanvasParent.parentElement.offsetWidth;
+        let height = win.p.maxHeight;
+
+        width -= g.x.getStyleValue(divCanvasParent, "paddingLeft") + g.x.getStyleValue(divCanvasParent, "paddingRight");
+        height -= g.x.getStyleValue(divCanvasParent, "paddingTop") + g.x.getStyleValue(divCanvasParent, "paddingBottom");
+
+        divCanvasParent.style.width = width + "px";
+        divCanvasParent.style.height = height + "px";
     }
 </script>

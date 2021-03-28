@@ -303,7 +303,17 @@
                         this.openDLabelDesign();
                     }
                     else if (this.form.type.equals("MASO")) {
-                        top.openMasoDesigner({ labelId: this.form.id });
+                        ajax.send("/aprint/label/getLabelContentById", { labelId: this.form.id }).then(res => {
+                            let jsp = {
+                                action: 'designLabel',
+                                labelCode: res.id,
+                                labelVersion: res.version,
+                                labelContent: res.content,
+                                labelName: res.name,
+                                labelType: res.type
+                            }
+                            top.edge.invokeEdge(jsp);
+                        });
                     }
                     else if (this.form.type.equals("BarTender")) {
                         topWin.message("请使用BarTender软件设计标签。");

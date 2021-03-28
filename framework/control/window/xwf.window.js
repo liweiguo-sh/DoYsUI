@@ -246,7 +246,6 @@ window.xwf_window.prototype.onFormLoad = function (event) {
 
     _this.autoSize(_this, win);
     win.setTitle(contentWindow.document.title || win.p.title);
-    // -- win.setTitle(this.zIndex);
 };
 window.xwf_window.prototype.iframe_onreadystatechange = function (win) {
     var winId = win.id;
@@ -450,7 +449,6 @@ window.xwf_window.prototype.autoSize = function (_this, win) {
     if (win.p.windowState.equals("maximized")) return;
 
     var divWin = win.divWin;
-    var tbWin = win.tbWin;
     var iframe = win.iframe;
     var contentWindow = iframe.contentWindow;
     var contentDocument = contentWindow.document;

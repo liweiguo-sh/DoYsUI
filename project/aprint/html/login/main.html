@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "V2021_0327";</script>
+    <script>var jsVer = "V2021_0328";</script>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("edge");
@@ -236,6 +236,11 @@
         };
         topWin.cWin = new window.xwf_window(jsonProp);
 
+        // -- edge ----------------------------------------
+        top.edge.addEventListener("setPrinterList", setPrinterList, { p1: "abc", p2: "def" });
+        top.edge.addEventListener("saveLabelContent", saveMasoLabel);
+        top.edge.addEventListener("downloadLabelContent", downloadLabelContent);
+
         let para = {
             protocol: "2.0",
             action: "getPrinterList"
@@ -244,96 +249,10 @@
     }
 </script>
 
-<!-- js invoke shell -->
-<script>
-    function invokeEdge(jsp) {
-        if (!chrome || !chrome.webview) {
-            if (!g.debug) {
-                topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "error");
-            }
-            return;
-        }
-        try {
-            return chrome.webview.postMessage(jsp);
-        }
-        catch (e) {
-            topWin.alert(e.toString(), "error");
-        }
-    }
-
-    function jsInvokeCommonShell(para) {
-        if (!chrome || !chrome.webview) {
-            if (!g.debug) {
-                topWin.message("当前操作需要客户端支持，请在码尚客户端中使用。", "error");
-            }
-            return;
-        }
-        try {
-            if (para.action.equals("designLabel")) {
-                return chrome.webview.postMessage(para);
-            }
-            else if (para.action.equals("initLabel")) {
-                return chrome.webview.postMessage(para);
-            }
-            else if (para.action.equals("previewLabel") || para.action.equals("printLabel")) {
-                return chrome.webview.postMessage(para);
-            }
-            else if (para.action.equals("downloadLabelContent_callback")) {
-                return chrome.webview.postMessage(para);
-            }
-            else {
-                topWin.alert("尚未实现的 action：" + para.action + "，请检查。", "error");
-            }
-        }
-        catch (e) {
-            topWin.alert(e.toString(), "error");
-        }
-    }
-
-    function openMasoDesigner(para) {
-        ajax.send("/aprint/label/getLabelContentById", para).then(res => {
-            let para = {
-                action: 'designLabel',
-                labelCode: res.id,
-                labelVersion: res.version,
-                labelContent: res.content,
-                labelName: res.name,
-                labelType: res.type
-            }
-            jsInvokeCommonShell(para);
-        });
-    }
-    function printLabel(para) {
-        jsInvokeCommonShell(para);
-    }
-
-    function initLabel(para) {
-        jsInvokeCommonShell(para);
-    }
-</script>
 <!-- shell invoke js -->
 <script>
-    function commonShellInvokeJs(para) {
-        try {
-            if (para.action.equals("setPrinterList")) {
-                topWin.printers = para.printers;
-            }
-            else if (para.action.equals("setBarcodeBase64")) {
-                setBarcodeBase64(para);
-            }
-            else if (para.action.equals("saveLabelContent")) {
-                saveMasoLabel(para);
-            }
-            else if (para.action.equals("downloadLabelContent")) {
-                downloadLabelContent(para);
-            }
-            else {
-                topWin.alert("尚未实现的 action：" + para.action + "，请检查。", "error");
-            }
-        }
-        catch (e) {
-            topWin.alert(e.toString(), "error");
-        }
+    function setPrinterList(jsp) {
+        topWin.printers = jsp.printers;
     }
 
     function saveMasoLabel(para) {
@@ -347,6 +266,7 @@
         });
     }
     function downloadLabelContent(para) {
+        alert('debug here ???');
         let post = {
             code: para.labelCode,
             version: para.labelVersion
@@ -358,12 +278,8 @@
                 para.labelContent = dtbLabel.rows[0]["content"].value;
                 para.labelMVersion = dtbLabel.rows[0]["mdate"].value;
 
-                jsInvokeCommonShell(para);
+                top.edge.invokeEdge(para);
             }
         });
-    }
-
-    function setBarcodeBase64(para) {
-        top.EdgeJsSwapArea.DLabel[para.base64Key] = para.base64;
     }
 </script>

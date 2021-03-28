@@ -101,13 +101,14 @@ class Label {
         this.head.element_id = this.head.element_id || this.label.elements.length + 1;
         this.fields = this.label.fields;
         this.elements = this.label.elements;
-        this.multiCount = 0;                    // -- 多选选中的元素数量 --
+        this.multiCount = 0;                                        // -- 多选选中的元素数量 --
+        this.container.style.backgroundColor = "white";             // -- 标签底色(暂时设为白色，后续有需要再加配置参数) --
         if (!this.label.page) this.label.page = { width: this.head.width, height: this.head.height, marginLeft: 0, marginTop: 0, marginRight: 0, marginBottom: 0, rows: 1, cols: 1, horizontalSpace: 0, verticalSpace: 0 };
 
         // -- 3. 计算标签换算系数(毫米|像素) --
         let mmW = this.head.width, mmH = this.head.height, mmWH = mmW / mmH;
-        let pxW = this.parentContainer.offsetWidth - g.x.getStyleValue(this.parentContainer, "padding-left") - g.x.getStyleValue(this.parentContainer, "padding-right")
-        let pxH = this.parentContainer.offsetHeight - g.x.getStyleValue(this.parentContainer, "padding-top") - g.x.getStyleValue(this.parentContainer, "padding-bottom")
+        let pxW = this.parentContainer.offsetWidth - g.x.getStyleValue(this.parentContainer, "padding-left") - g.x.getStyleValue(this.parentContainer, "padding-right") - (this.env.equals("design") ? 12 : 0);   // -- 如果有矩形元素(宽高等于标签的宽高)，设计环境下hover时会出现不必要的滚动条，所以减12 --
+        let pxH = this.parentContainer.offsetHeight - g.x.getStyleValue(this.parentContainer, "padding-top") - g.x.getStyleValue(this.parentContainer, "padding-bottom") - (this.env.equals("design") ? 12 : 0);
         let pxWH = pxW / pxH;
 
         if (mmWH >= pxWH) {

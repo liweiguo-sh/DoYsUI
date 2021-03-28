@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-02-24
- * Modify Date: 2021-03-27
+ * Modify Date: 2021-03-28
  * Copyright 2021, doys-next.com
  * DLabel doys.js
  */
@@ -50,14 +50,14 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/framework/core/prototype.js");
         arrRes.push(resRootPath + "/framework/core/core.js");
         arrRes.push(resRootPath + "/framework/core/ajax.js");
-        arrRes.push(resRootPath + "/framework/core/datatable.js");        
+        arrRes.push(resRootPath + "/framework/core/datatable.js");
     }
     // -- 2. 按需资源 ------------------------------------------
     else if (fileRes.equals("designer")) {
         arrRes.push(resRootPath + "/framework/core/edge.js");
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.css");
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.js");
-        arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");        
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");
 
         arrRes.push(resRootPath + "/framework/css/ali-icon-font.css");
 
@@ -74,7 +74,6 @@ function importFrameworkRes(fileRes) {
     else if (fileRes.equals("preview")) {
         arrRes.push(resRootPath + "/framework/control/DLabel/css/label.css");
 
-        arrRes.push(resRootPath + "/framework/control/DLabel/js/util.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/element.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/label.js");
     }
