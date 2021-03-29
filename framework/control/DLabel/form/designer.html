@@ -440,7 +440,7 @@
     var vmTollbar = new Vue({
         el: '#vmToolbar',
         data: {
-            edgeWV: window.chrome && window.chrome.webview,      // -- 是否edge webview环境 --
+            edgeWV: top.chrome && top.chrome.webview,      // -- 是否edge webview环境 --
             showDebugToolbar: true
         },
         methods: {
