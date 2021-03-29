@@ -7,16 +7,18 @@
         importFrameworkRes("designer");
     </script>
 </head>
-<body>
+<body>    
     <div id="app"></div>
     <div id="vmToolbar">
         <el-row class="row-toolbar">
             <!-- new/import/save/export -->
             <el-button-group>
                 <el-button type="info" onclick="blankLabel();" icon="alifont ali-icon-new" title="新建空白标签"></el-button>
-                <el-button type="info" onclick="importLabel();" icon="alifont ali-icon-blank" title="打开标签"></el-button>
+                <el-button type="info" onclick="importLabel();" v-show="edgeWV" icon="alifont ali-icon-blank" title="打开标签"></el-button>
+                <el-button type="info" onclick="fileImport.click();" v-show="!edgeWV" icon="alifont ali-icon-blank" title="打开标签"></el-button>
                 <el-button type="success" onclick="saveLabel();" icon="alifont ali-icon-save" title="保存标签"></el-button>
-                <el-button type="info" onclick="exportLabel();" icon="alifont ali-icon-saveas" title="导出标签 ..."></el-button>
+                <el-button type="info" onclick="exportLabel();" v-show="edgeWV" icon="alifont ali-icon-saveas" title="导出标签 ..."></el-button>
+                <el-button type="info" onclick="exportLabelByWeb();" v-show="!edgeWV" icon="alifont ali-icon-saveas" title="导出标签 ..."></el-button>
             </el-button-group>
             <el-button-group>
                 <el-button type="info" onclick="pageSetup();" icon="alifont ali-icon-grid" title="页面设置"></el-button>
@@ -422,6 +424,9 @@
             </td>
         </tr>
     </table>
+    <div style="display:none;">
+        <input type="file" id="fileImport" onchange="importLabelByWeb()" accept="text/dlb" />
+    </div>
 </body>
 </html>
 
@@ -435,6 +440,7 @@
     var vmTollbar = new Vue({
         el: '#vmToolbar',
         data: {
+            edgeWV: window.chrome && window.chrome.webview,      // -- 是否edge webview环境 --
             showDebugToolbar: true
         },
         methods: {
@@ -660,6 +666,7 @@
             });
         }
     }
+
     function importLabel() {
         let para = {
             protocol: "2.0",
@@ -671,6 +678,21 @@
         lbl.loadLabel(para.labelString);
         lbl.compute(true);
     }
+    function importLabelByWeb() {
+        const objFile = document.getElementById("fileImport");
+        if (objFile.value === "") {
+            return
+        }
+        const files = objFile.files;
+        const reader = new FileReader();        
+        reader.onload = function (e) {
+            const labelString = e.target.result;
+            lbl.loadLabel(labelString);
+            lbl.compute(true);
+        }
+        reader.readAsText(files[0], "UTF-8");
+    }
+    
     function saveLabel() {
         lbl.save();
     }
@@ -681,7 +703,20 @@
             labelString: lbl.toJson()
         }
         top.edge.invokeEdge(para);
-    }    
+    }
+    function exportLabelByWeb() {
+        let labelString = lbl.toJson();
+
+        let blob = new Blob([labelString], { type: 'application/json' });
+        let url = window.URL.createObjectURL(blob);
+        let link = document.createElement("a");
+
+        link.href = url;
+        link.setAttribute("download", "标签文件.dlb");
+        link.click();
+
+        //window.open(url, "_blank");
+    }   
 
     // -- page\printer\preview ----------------------------
     function pageSetup() {

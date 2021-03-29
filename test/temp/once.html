@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>once.html</title>
+
+    <style type="text/css">
+        #divMessage {
+            width: 600px;
+            height: 300px;
+            overflow: auto;
+            margin: 20px 0px 0px 20px;
+            border: solid 1px green;
+        }
+    </style>
+</head>
+<body>
+    <div> 
+        <input type="button" value="测试" onclick="downloadFile();" />
+        <div id="divMessage"></div>
+    </div>
+</body>
+</html>
+
+<script>
+    function downloadFile() {               
+        var saveDatas = "哈哈";
+        var blob = new Blob([saveDatas], { type: 'application/json' })
+        // 创建一个blob的对象，把Json转化为字符串作为我们的值
+
+        var url = window.URL.createObjectURL(blob);;
+        var link = document.createElement("a");
+
+        link.href = url;
+        link.setAttribute('download', "lbl.dlb")
+        //link.click();
+
+        window.open(url, "_blank");
+    }
+
+</script> 
