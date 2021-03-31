@@ -18,7 +18,7 @@
             <el-button-group>
                 <el-button @click="save" icon="el-icon-check">保存</el-button>
                 <el-button @click="abandon" icon="el-icon-close">放弃</el-button>
-                <el-button @click="check"type="success" icon="el-icon-check">检查</el-button>
+                <el-button @click="check" v-show="false" type="success" icon="el-icon-check">检查</el-button>
             </el-button-group>
         </el-row>
         <el-tabs v-model="activeTabName" type="card">
@@ -56,6 +56,7 @@
                 win.close();
             },
             check() {
+                return true;
                 try {
                     this.scriptAfterCompute = this.scriptAfterCompute.trim();
                     eval(this.scriptAfterCompute);

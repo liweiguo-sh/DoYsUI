@@ -8,7 +8,7 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:1300px;">
+    <div id="app" style="width:1360px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-tabs ref="tab" v-model="activeTabName" @tab-click="onTabClick">
             <el-tab-pane name="main" :key="0" label="基本信息">
@@ -127,7 +127,14 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane name="viewFields" :key="1" label="视图字段">
-                <sub-view id="divFields" ref="gridFields" view-height="540"></sub-view>
+                <el-row>
+                    <el-col :span="23">
+                        <sub-view id="divFields" ref="gridFields" view-height="540"></sub-view>
+                    </el-col>
+                    <el-col :span="1">
+                        ext
+                    </el-col>
+                </el-row>                
             </el-tab-pane>
         </el-tabs>
     </div>
