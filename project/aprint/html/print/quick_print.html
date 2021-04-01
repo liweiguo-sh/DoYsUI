@@ -128,7 +128,7 @@
                 </el-form>
             </el-col>
             <el-col :span="16">
-                <sub-view id="grid" ref="grid" @ondetailclick="onDetailClick"></sub-view>
+                <sub-view id="grid" ref="grid"></sub-view>
             </el-col>
         </el-row>
     </div>
@@ -219,7 +219,7 @@
                     this.labelType = this.dtbLabel.rows[0]["type"].value;
                     this.labelContent = this.dtbLabel.rows[0]["content"].value;
 
-                    // -- 加载标签脚本 --                    
+                    // -- 加载标签脚本 --
                     let jsAfterCompute = this.dtbLabel.rows[0]["js_after_compute"].value;
                     if (jsAfterCompute) {
                         try {
@@ -235,7 +235,7 @@
                         this.afterCompute = null;
                     }
 
-                    // -- 检查是否引用客户或产品参数 --               
+                    // -- 检查是否引用客户或产品参数 --
                     this.hasCustomerRef = false;
                     this.hasProductRef = false;
                     let quoteFrom;
@@ -294,17 +294,18 @@
                         let name = this.dtbLabelVariable.rows[i]["name"].value;
                         let value = this.dtbLabelVariable.rows[i]["value"].value;
                         let type = this.dtbLabelVariable.rows[i]["type"].value;
+                        let quoteFrom = this.dtbLabelVariable.rows[i]["quote_from"].value;                        
                         let dateFormat = this.dtbLabelVariable.rows[i]["rule_date_format"].value;
                         let disabled = (this.dtbLabelVariable.rows[i]["flag_manual_modify"].value == 0);
                         let js = this.dtbLabelVariable.rows[i]["js_after_input"].value;
 
                         // -- 代入客户变量或产品变量(如果有) --
-                        if (type.equals("quote")) {
-                            let quoteFrom = this.dtbLabelVariable.rows[i]["quote_from"].value;
+                        if (!quoteFrom.equals("")) {                            
+                            let quoteName = this.dtbLabelVariable.rows[i]["quote_name"].value || name;
                             if (quoteFrom.equals("customer") && this.dtbCustomerPara) {
                                 for (let j = 0; j < this.dtbCustomerPara.rowCount; j++) {
                                     let paraCode = this.dtbCustomerPara.rows[j]["para_code"].value;
-                                    if (paraCode.equals(name)) {
+                                    if (paraCode.equals(quoteName)) {
                                         value = this.dtbCustomerPara.rows[j]["para_value"].value;
                                         disabled = true;
                                         break;
@@ -314,30 +315,37 @@
                             else if (quoteFrom.equals("product") && this.dtbProductPnPara) {
                                 for (let j = 0; j < this.dtbProductPnPara.rowCount; j++) {
                                     let paraCode = this.dtbProductPnPara.rows[j]["para_code"].value;
-                                    if (paraCode.equals(name)) {
+                                    if (paraCode.equals(quoteName)) {
                                         value = this.dtbProductPnPara.rows[j]["para_value"].value;
+                                        if (this.dtbProductPnPara.rows[j]["para_type"].value.equals("image")) {
+                                            if (!value.startsWith("http")) {
+                                                value = topWin.cfg.productPnParaImageBaseUrl + value;
+                                            }
+                                        }
                                         disabled = true;
                                         break;
                                     }
                                 }
                             }
                         }
-                        else if (type.equals("date")) {
-                            let offset = this.dtbLabelVariable.rows[i]["rule_date_offset"].value;
-                            let offset_unit = this.dtbLabelVariable.rows[i]["rule_date_offset_unit"].value;
+                        else {
+                            if (type.equals("date")) {
+                                let offset = this.dtbLabelVariable.rows[i]["rule_date_offset"].value;
+                                let offset_unit = this.dtbLabelVariable.rows[i]["rule_date_offset_unit"].value;
 
-                            if (offset && offset_unit) {
-                                value = (new Date()).add(offset, offset_unit).toStr();
-                                if (offset_unit.equals("YEAR") || offset_unit.equals("MONTH")) {
-                                    // -- 少一天，一般用于到期日期。将来改为是否要扣减一天的选项 --
-                                    value = (new Date()).add(offset, offset_unit).add(-1, "DAY").toStr();
+                                if (offset && offset_unit) {
+                                    value = (new Date()).add(offset, offset_unit).toStr();
+                                    if (offset_unit.equals("YEAR") || offset_unit.equals("MONTH")) {
+                                        // -- 少一天，一般用于到期日期。将来改为是否要扣减一天的选项 --
+                                        value = (new Date()).add(offset, offset_unit).add(-1, "DAY").toStr();
+                                    }
+                                    else {
+                                        value = (new Date()).add(offset, offset_unit).toStr();
+                                    }
                                 }
                                 else {
-                                    value = (new Date()).add(offset, offset_unit).toStr();
+                                    value = (new Date()).toStr();
                                 }
-                            }
-                            else {
-                                value = (new Date()).toStr();
                             }
                         }
 
@@ -359,8 +367,8 @@
                     if ((variable.type.equals("string") || variable.type.equals("date"))
                         && !variable.disabled) {
                         variables[key].value = this.variables[key].value;
-                    } 
-                } 
+                    }
+                }
 
                 // -- 输出变量 --
                 this.variables = variables;
@@ -396,7 +404,7 @@
                 return arr.join("    ");
             },
 
-            createTask() {                
+            createTask() {
                 if (!this.labelId) {
                     topWin.alert("请先选择要打印的标签。");
                     return;
@@ -416,9 +424,9 @@
                     labelId: this.labelId,
                     variables: variables,
                     qty: this.qty,
-                    copies: this.copies                    
+                    copies: this.copies
                 };
-                
+
                 ajax.send("/aprint/quick_print/createTask", postData).then(res => {
                     if (res.ok) {
                         this.dtbTask = res.dtbTask;
@@ -439,7 +447,8 @@
             deleteTask() {
                 if (!this.taskId) return;
 
-                topWin.confirm("确定要删除当前已生成的打印数据吗？", "", () => {
+                topWin.confirm("确定要删除当前已生成的打印数据吗？").then((ok) => {
+                    if (!ok) return;
                     let postData = {
                         taskId: this.taskId
                     };
@@ -498,7 +507,7 @@
                 if (!this.taskId) {
                     this.preview({ printNow: true });
                     return;
-                } 
+                }
 
                 let postData = {
                     labelId: this.labelId,
@@ -565,13 +574,14 @@
 
             DLabelPreview() {
                 let fields = {}, variable, name, value;
-                for (let key in this.variables ) {
+                for (let key in this.variables) {
                     variable = this.variables[key];
                     name = key;
                     value = variable.valueFormat;
 
                     fields[name] = value;
                 }
+                
                 // ----------------------------------------
                 if (winPreview) {
                     if (!this.labelId.equals(winPreview.window.labelId)) {
@@ -684,10 +694,6 @@
                     }
                 }
                 this.$refs.grid.init(para);
-            },
-            onDetailClick: function (dataRow, callback) {
-                callback(true);
-                topWin.alert(dataRow["id"].value);
             }
         }
     });
@@ -701,12 +707,12 @@
     // ------------------------------------------------------------------------
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
-        
+
         for (let i = 0; i < topWin.printers.length; i++) {
             app.printers.push(topWin.printers[i]);
         }
         app.printerName = getLocalItem(ckLatestPrinter);
 
-        app.initGrid();        
+        app.initGrid();
     }
 </script>

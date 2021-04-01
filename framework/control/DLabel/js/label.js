@@ -91,7 +91,12 @@ class Label {
         else {
             this.label = JSON.parse(labelString);
         }
-        if (jsp.fields) this.label.fields = g.x.extendJSON(this.label.fields, jsp.fields);
+
+        if (jsp.fields) {
+            // -- 以传进来的fields为准，便于外部管理fields --
+            // -- this.label.fields = g.x.extendJSON(this.label.fields, jsp.fields);
+            this.label.fields = jsp.fields;
+        }
         if (jsp.width) this.label.head.width = jsp.width;
         if (jsp.height) this.label.head.height = jsp.height;
         if (jsp.point) this.label.head.point = jsp.point;

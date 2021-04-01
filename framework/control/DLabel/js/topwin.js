@@ -39,15 +39,13 @@
             type: type              // -- success、warning、error --
         });
     };
-    topWin.confirm = function (message, type = "warning", callbackOk, callbackCancel) {
-        app.$confirm(message, "系统提示...", {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: type || "warning"
+    topWin.confirm = async function (message, jsp = { title: "系统提示...", type: "warning", confirmText: "确定", cancelText: "取消" }) {
+        return app.$confirm(message, jsp.title, {
+            confirmButtonText: jsp.confirmText, cancelButtonText: jsp.cancelText, type: jsp.type
         }).then(() => {
-            if (callbackOk) callbackOk();
+            return true;
         }).catch(() => {
-            if (callbackCancel) callbackCancel();
-        });
+            return false;
+        })
     };
 })() 

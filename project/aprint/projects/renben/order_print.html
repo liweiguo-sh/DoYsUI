@@ -310,7 +310,8 @@
             deleteTask() {
                 if (!this.taskId) return;
 
-                topWin.confirm("确定要删除当前已生成的打印数据吗？", "", () => {
+                topWin.confirm("确定要删除当前已生成的打印数据吗？").then((ok) => {
+                    if (!ok) return;
                     let postData = {
                         taskId: this.taskId
                     };

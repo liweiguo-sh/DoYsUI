@@ -310,7 +310,7 @@
             this.getViewData(pageNum);
         },
 
-        onViewClick(scope, columnType) {
+        onCellButtonClick(scope, columnType) {            
             if (columnType.equals("edit")) {
                 this.setCurrentRow(scope.$index);
                 this.openEditForm("view");
@@ -402,13 +402,19 @@
             this.afterVfDelete();
         },
 
-        onCurrentChange(val) {
-            if (val == null) {
+        onCurrentChange(currentRow, oldCurrentRow) {            
+            if (currentRow == null) {
                 this.currentRowIdx = -1;
             }
             else {
-                this.currentRowIdx = val.$idx;
+                this.currentRowIdx = currentRow.$idx;
             }
+
+            this.$emit("row-change", {
+                currentRow: currentRow,
+                rowIndex: this.currentRowIdx,                
+                dataRow: this.currentRowIdx >= 0 ? this.dtbViewData.rows[this.currentRowIdx] : null
+            });
         },
         onVfMove(moveAction) {
             let rowIdxNew = this.currentRowIdx;
@@ -505,17 +511,17 @@
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
                             <template slot-scope="scope">
-                                <el-button @click="onViewClick(scope, 'edit')" type="text" size="small">查看</el-button>
+                                <el-button @click="onCellButtonClick(scope, 'edit')" type="text" size="small">查看</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-if="showDeleteColumn" width="60" align="center" label="删除" fixed="left">
                             <template slot-scope="scope">
-                                <el-button @click="onViewClick(scope, 'delete')" type="text" size="small">删除</el-button>
+                                <el-button @click="onCellButtonClick(scope, 'delete')" type="text" size="small">删除</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-if="showSingleColumn" width="60" align="center" label="单选" fixed="left">
                             <template slot-scope="scope" >
-                                <el-button @click="onViewClick(scope, 'single')" type="text" size="small">选择</el-button>
+                                <el-button @click="onCellButtonClick(scope, 'single')" type="text" size="small">选择</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>

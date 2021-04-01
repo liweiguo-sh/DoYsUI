@@ -376,12 +376,13 @@
             this.$message("数据导出");
         },
 
-        onViewClick(scope) {
+        onCellButtonClick(scope) {
             this.setCurrentRow(scope.$index);
 
             let cancel = false;
-            this.$emit("ondetailclick", this.dtbViewData.rows[this.currentRowIdx], (val) => { cancel = val; });
-
+            this.$emit("ondetailclick", this.dtbViewData.rows[this.currentRowIdx], (val) => {
+                cancel = val;
+            });
             if (!cancel) {
                 this.openEditForm("view");
             }
@@ -514,7 +515,7 @@
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
                             <template slot-scope="scope">
-                                <el-button @click="onViewClick(scope)" type="text" size="small">{{detailAlise}}</el-button>
+                                <el-button @click="onCellButtonClick(scope)" type="text" size="small">{{detailAlise}}</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>

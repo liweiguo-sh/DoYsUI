@@ -14,7 +14,7 @@
             <!-- 名称、规格、价格-->
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="申请单1号">
+                    <el-form-item label="申请单号">
                         <el-input v-model="form.pk" :disabled="true" />
                     </el-form-item>
                 </el-col>
@@ -31,10 +31,19 @@
             </el-row>
             <!-- 备注 -->
             <el-row>
-                <el-col :span="span[0]">
+                <el-col :span="span[1]+span[2]">
                     <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                        <el-input v-model="form.remark" />
                     </el-form-item>
+                </el-col>
+                <el-col style="width:90px;">
+                    &nbsp;
+                </el-col>
+                <el-col style="width:10px;">
+                    &nbsp;
+                </el-col>
+                <el-col style="width:150px;border:solid 0px red;padding-right:0px;">
+                    <el-button type="primary" icon="el-icon-shopping-cart-full" @click="autoGenerate" style="width:100%;">一键生成</el-button>
                 </el-col>
             </el-row>
         </el-form>
@@ -48,10 +57,10 @@
                     </el-option>
                 </el-select>
             </el-col>
-            <el-col style="width:75px;padding-right:0;border:solid 0px red;">
+            <el-col style="width:70px;padding-right:0;border:solid 0px red;">
                 <el-input v-model="qty" placeholder="数量" style="text-align:right;" />
             </el-col>
-            <el-col style="width:10px;">
+            <el-col style="width:40px;">
                 &nbsp;
             </el-col>
             <el-col style="width:150px;border:solid 0px red;padding-right:0px;">
@@ -60,7 +69,7 @@
         </el-row>
         <!-- 明细网格 -->
         <el-row>
-            <sub-view id="grid" ref="grid" style="height:420px;" @before-delete="beforeItemDelete" @after-delete="afterItemDelete"></sub-view>
+            <sub-view id="grid" ref="grid" style="height:420px;" @after-delete="afterItemDelete" @row-change="onRowChange"></sub-view>
         </el-row>
     </div>
 </body>
@@ -82,13 +91,10 @@
             drugId: null,
             //idxDrug: 0,
 
-            units: [],
-            unit: "",
-            qty: 1,
-            expDate: null
+            qty: 1
         },
         mounted() {
-            ajax.send("/fdxyy/wi/drug_in/getDrug", {}).then(res => {
+            ajax.send("/fdxyy/core/drug_apply/getDrug", {}).then(res => {
                 this.dtbDrug = res.dtbDrug;
 
                 let drugs = [];
@@ -100,25 +106,38 @@
                         id: dataRow["id"].value,
                         label: label,
                         itemText: itemText,
+                        unit: dataRow["unit"].value,
                         price: dataRow["price_buy"].value,
-                        pack: dataRow["pack"].value,
-                        rate: dataRow["rate"].value,
-                        unit: dataRow["unit"].value
+                        qtyApply: dataRow["qty_apply"].value
                     });
                 }
                 this.drugs = drugs;
             });
         },
         methods: {
-            onDrugSelect: function (a, b, c) {
+            async autoGenerate() {
+                let result;
+                if (!this.form.id) {
+                    result = await this.$refs.vf.save();
+                    if (!result) return;
+                }
+                if (this.form.amount) {
+                    result = await topWin.confirm("当前已存在请领明细，确定要重新生成吗？");
+                    if (!result) return;
+                }
+
+                let para = {
+                    drugApplyId: this.form.id
+                }
+                ajax.send("/fdxyy/core/drug_apply/autoGenerate", para).then(res => {
+                    this.$refs.grid.setFilter("drug_apply_id = " + this.form.id);
+                    this.form.amount = res.amount;
+                });
+            },
+            onDrugSelect: function (drugId) {
                 for (let i = 0; i < this.drugs.length; i++) {
                     if (this.drugs[i].id == this.drugId) {
-                        let units = [];
-                        units.push(this.drugs[i].pack);
-                        units.push(this.drugs[i].unit);
-                        this.units = units;
-
-                        this.unit = this.drugs[i].pack;
+                        this.qty = this.drugs[i].qtyApply;
                         break;
                     }
                 }
@@ -127,46 +146,6 @@
             afterMove: function () {
                 this.showGrid();
             },
-            afterAddnew: function () {
-                for (let i = 0; i < this.ds.warehouse_id.length; i++) {
-                    if (this.ds.warehouse_id[i]["flag_default"].equals("true")) {
-                        this.form.warehouse_id = this.ds.warehouse_id[i]["id"];
-                    }
-                }
-                this.form.bus_date = (new Date()).toStr();
-                this.form.consignee = topWin.userName;
-                this.form.astatus = "0";
-            },
-            beforeSave: function () {
-                console.log(this.form.astatus);
-                return true;
-            },
-
-            addItem: async function () {
-                let result;
-                if (!this.form.id) {
-                    result = await this.$refs.vf.save();
-                    if (!result) return;
-                }
-
-                let para = {
-                    drugInId: this.form.id,
-                    drugId: this.drugId,
-                    unit: this.unit,
-                    qty: this.qty,
-                    expDate: this.expDate
-                }
-
-                ajax.send("/fdxyy/wi/drug_apply/addDrugInItem", para).then(res => {
-                    this.form.amount = res.amount;
-                    this.$refs.grid.setFilter("drug_apply_id = " + this.form.id);
-
-                })
-            },
-            delItem: function () {
-
-            },
-
             async showGrid() {
                 let drugApplyId = this.form.id.toInt();
                 let filter = "drug_apply_id = " + drugApplyId;
@@ -184,11 +163,52 @@
                     this.$refs.grid.setFilter(filter, { showDeleteColumn: showDeleteColumn });
                 }
             },
-            beforeItemDelete: function (jsp, callback) {
-                callback({ cancel: false });
+            afterAddnew: function () {
+                this.form.bus_date = (new Date()).toStr();
+                this.form.astatus = "0";
+            },
+            beforeSave: function () {
+                return true;
+            },
+            onClick(button) {
+                if (button.name.equals("print")) {
+                    topWin.message("功能开发中...", "success");
+                }
+                else {
+                    topWin.message("button.name = " + button.name);
+                }
+                return false;
+            },
+
+            addItem: async function () {
+                let result;
+                if (!this.form.id) {
+                    result = await this.$refs.vf.save();
+                    if (!result) return;
+                }
+
+                let para = {
+                    drugApplyId: this.form.id,
+                    drugId: this.drugId,
+                    qty: this.qty
+                }
+                ajax.send("/fdxyy/core/drug_apply/addItem", para).then(res => {
+                    this.$refs.grid.setFilter("drug_apply_id = " + this.form.id);
+                    this.form.amount = res.amount;
+                })
             },
             afterItemDelete: function (jsp) {
                 this.form.amount = jsp.amount;
+            },
+            onRowChange(jsp) {
+                if (jsp.currentRow) {
+                    this.drugId = jsp.currentRow.drug_id;
+                    this.qty = jsp.currentRow.qty;
+                }
+                else {
+                    this.drugId = null;
+                    this.qty = "";
+                }
             }
         }
     });

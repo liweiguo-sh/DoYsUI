@@ -52,6 +52,25 @@
             <!-- 单位、厂商、条码 -->
             <el-row>
                 <el-col :span="span[1]">
+                    <el-form-item label="低库存预警">
+                        <el-input v-model="form.qty_low" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="请领上限">
+                        <el-input v-model="form.qty_high" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[3]">
+                    <el-form-item label="门诊单位" required>
+                        <el-select v-model="form.unit" ref="unit" filterable allow-create>
+                            <el-option v-for="item in ds.unit" :key="item.name" :value="item.name" :label="item.name"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row v-show="false">
+                <el-col :span="span[1]">
                     <el-form-item label="库房单位" required>
                         <el-select v-model="form.pack" filterable allow-create>
                             <el-option v-for="item in ds.unit" :key="item.name" :value="item.name" :label="item.name"></el-option>
@@ -64,11 +83,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[3]">
-                    <el-form-item label="门诊单位" required>
-                        <el-select v-model="form.unit" ref="unit" filterable allow-create>
-                            <el-option v-for="item in ds.unit" :key="item.name" :value="item.name" :label="item.name"></el-option>
-                        </el-select>
-                    </el-form-item>
+                    &nbsp;
                 </el-col>
             </el-row>
             <el-row>
@@ -86,19 +101,17 @@
                 </el-col>
             </el-row>
             <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="剂型">
-                        <el-input v-model="form.dosage" />
-                    </el-form-item>
-                </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="禁用">
                         <el-checkbox v-model="form.flag_inactive">禁用</el-checkbox>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[3]">
-                    <el-form-item label="低库存预警">
-                        <el-input v-model="form.qty_low" placeholder="低库存报警线(门诊单位)" />
+                    &nbsp;
+                </el-col>
+                <el-col :span="span[1]">
+                    <el-form-item label="剂型">
+                        <el-input v-model="form.dosage" />
                     </el-form-item>
                 </el-col>
             </el-row>

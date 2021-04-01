@@ -24,7 +24,7 @@
                             <el-option value="date" label="日期"></el-option>
                             <el-option value="image" label="图片"></el-option>
                             <el-option value="seq" label="序列"></el-option>
-                            <el-option value="quote" label="引用"></el-option>
+                            <!--<el-option value="quote" label="引用"></el-option>-->
                             <el-option value="fixed" label="固定值" :disabled="true"></el-option>
                             <el-option value="ai" label="特殊字符" :disabled="true"></el-option>
                             <el-option value="js" label="JavaScript 脚本" :disabled="true"></el-option>
@@ -221,7 +221,7 @@
                 else {
                     topWin.alert(res.error, "error");
                 }
-            },
+            }
         }
     });
 </script>

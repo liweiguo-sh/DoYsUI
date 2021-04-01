@@ -1,48 +1,95 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-	<title>产品料号参数维护</title>
-	<script src="../../../../framework/core/boot.js"></script>
-	<script>
-		importFrameworkRes("view-form-bar");
-	</script>
+    <title>产品料号参数维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
 </head>
 <body>
-	<div id="app" style="width:650px;">
-		<view-form-bar ref="vf"></view-form-bar>
-		<el-form :model="form" ref="form" label-width="145px" label-position="left">
-			<el-row>
-				<el-col>
-					<el-form-item label="参数代码" required>
-						<el-input v-model="form.para_code" :disabled="true" />
-					</el-form-item>
-				</el-col>
-			</el-row>
-			<el-row>
-				<el-col>
-					<el-form-item label="参数名称" required>
-						<el-input v-model="form.para_name" :disabled="true" />
-					</el-form-item>
-				</el-col>
-			</el-row>
-			<el-row>
-				<el-col>
-					<el-form-item label="参数值" required>
-						<el-input v-model="form.para_value" placeholder="参数值" />
-					</el-form-item>
-				</el-col>
-			</el-row>
-		</el-form>
-	</div>
+    <div id="app" style="width:650px;">
+        <view-form-bar ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col>
+                    <el-form-item label="参数代码" required>
+                        <el-input v-model="form.para_code" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col>
+                    <el-form-item label="参数名称" required>
+                        <el-input v-model="form.para_name" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col>
+                    <el-form-item label="参数值" required>
+                        <el-input v-model="form.para_value" placeholder="参数值" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row v-show="form.para_type.equals('image')">
+                <el-col :span="9">
+                    <el-upload class="upload-demo"
+                               accept=".png,.jpg,.jpeg,.bmp"
+                               :action="actionUploadVariableImage"
+                               :on-success="afterUploadVariableImage"
+                               :with-credentials="true"
+                               :show-file-list="false">
+                        <el-button type="primary">上传图片(png/jpg/jpeg/bmp)</el-button>
+                    </el-upload>
+                </el-col>
+                <el-col :span="15">
+                    <el-image style="width:100%;height:150px;" :src="imageUrl" fit="contain"></el-image>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
 </body>
 </html>
 
 <!-- vue.init -->
 <script type="text/javascript">
-	var app = new Vue({
-		el: '#app',
-		data: {
-			form: {}
-		}
-	});
+    var app = new Vue({
+        el: '#app',
+        data: {
+            form: {
+                para_type: "image"
+            },
+
+            imageUrl: "",
+            actionUploadVariableImage: ""
+        },
+        methods: {
+            afterMove: function () {
+                let productPnParaId = this.$refs.vf.getId();
+                this.actionUploadVariableImage = g.prefix + "/aprint/dlabel/uploadProductPnParaImage?productPnParaId=" + productPnParaId;
+                if (this.form.para_type.equals("image")) {
+                    if (this.form.para_value.startsWith("http")) {
+                        this.imageUrl = this.form.para_value;
+                    }
+                    else {
+                        this.imageUrl = topWin.cfg.productPnParaImageBaseUrl + this.form.para_value;
+                    }
+                }
+                else {
+                    this.imageUrl = "";
+                }
+            },
+            afterUploadVariableImage: function (res, b, c) {
+                if (res.ok) {
+                    this.form.para_value = res.filename;
+                    this.imageUrl = topWin.cfg.productPnParaImageBaseUrl + this.form.para_value + "?rnd" + (new Date()).getTime();
+                    win.flashTitle("标签变量图片上传成功", "success");
+                }
+                else {
+                    topWin.alert(res.error, "error");
+                }
+            },
+        }
+    });
 </script>

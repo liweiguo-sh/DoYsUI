@@ -666,7 +666,7 @@ UtilElement.draw_image = function (context, element) {
 
         UtilElement.drawMultiSelect(context, element);
     }
-    img.onerror = function () {
+    img.onerror = function (a) {
         UtilElement._drawError(context, element, "404");
     }
 }

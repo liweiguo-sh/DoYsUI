@@ -661,9 +661,11 @@
     // -- blankLabel\import\save\export -------------------
     function blankLabel() {
         if (lbl.elements.length > 0) {
-            topWin.confirm("当前标签已存在内容，确定要清空为空白标签吗？", "", () => {
-                lbl.loadLabel("", { width: 80, height: 60 });
-            });
+            topWin.confirm("当前标签已存在内容，确定要清空为空白标签吗？").then((ok) => {
+                if (!ok) return;
+
+                lbl.loadLabel("", { width: 80, height: 60 });                
+            })
         }
     }
 
@@ -1020,20 +1022,19 @@
         lbl.compute(true);
     }
 
-    function testCross() {
-        let url0 = "http://127.0.0.1:9988/DoYsSV/test/AjaxCross/test1";
-        let url = "http://124.71.181.137:5555/DoYsSV/test/AjaxCross/test1";
+    async function testCross() {
+        let url = "http://127.0.0.1:4195/PrintWorker/PrintLabel";
         let dataPost = {
-            p1: "abc"
+            action: "printLabel"
         };
-
-        ajax.send(url, dataPost).then((res) => {
-            if (res.ok) {
-                topWin.message("当前操作成功，收到后台返回数据 result = " + res.result, "success");
-            }
-            else {
-                topWin.alert("系统信息 ...", "error");
-            }
-        })
+        
+        let res = await ajax.send(url, dataPost);
+        debugger
+        if (res.ok) {
+            topWin.message("当前操作成功，收到后台返回数据 result = " + res.result, "success");
+        }
+        else {
+            topWin.alert("系统信息 ...", "error");
+        }
     }
 </script>
