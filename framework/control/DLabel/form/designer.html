@@ -7,7 +7,7 @@
         importFrameworkRes("designer");
     </script>
 </head>
-<body>    
+<body>
     <div id="app"></div>
     <div id="vmToolbar">
         <el-row class="row-toolbar">
@@ -22,7 +22,7 @@
             </el-button-group>
             <el-button-group>
                 <el-button type="info" onclick="pageSetup();" icon="alifont ali-icon-grid" title="页面设置"></el-button>
-                <el-button type="info" onclick="btnPrint_click();" icon="alifont ali-icon-print" title="打印样张"></el-button>
+                <el-button type="info" onclick="printSample();" icon="alifont ali-icon-print" title="打印样张"></el-button>
                 <el-button type="info" v-show="false" icon="alifont ali-icon-preview" title="预览"></el-button>
             </el-button-group>
             <el-button-group>
@@ -57,7 +57,10 @@
             <el-button-group v-show="showDebugToolbar">
                 <el-button type="info" onclick="btnDemoLabel_click();" icon="alifont ali-icon-label" title="演示标签"></el-button>
                 <el-button type="info" onclick="btnDebugLabel_click();" icon="alifont ali-icon-label" title="调试标签"></el-button>
-                <el-button type="danger" onclick="testCross()" v-show="true" icon="alifont ali-icon-test-ts" title="cross测试"></el-button>
+            </el-button-group>
+            <el-button-group v-show="showDebugToolbar">
+                <el-button type="success" onclick="testCross1()" v-show="true" icon="alifont ali-icon-test-ts" title="远程跨域测试1"></el-button>
+                <el-button type="warning" onclick="webPrintSample()" v-show="true" icon="alifont ali-icon-print" title="打印样张(WEB模式)"></el-button>
             </el-button-group>
 
         </el-row>
@@ -607,7 +610,7 @@
 
     window.addEventListener("load", init, false);
     // ------------------------------------------------------------------------
-    function winLoad() {        
+    function winLoad() {
         if (win.para.menuPk && win.para.menuPk.equals("001005001")) {
             vmTollbar.showDebugToolbar = false;
         }
@@ -618,7 +621,7 @@
 
         tdProp.style.width = "300px";
         gId("vmProp").style.height = height + "px";
-        
+
         divContainerParent.style.width = (tdCanvas.offsetWidth - g.x.getStyleValue(tdCanvas, "paddingLeft") - g.x.getStyleValue(tdCanvas, "paddingRight")) + "px";
         divContainerParent.style.height = (tdCanvas.offsetHeight - g.x.getStyleValue(tdCanvas, "paddingTop") - g.x.getStyleValue(tdCanvas, "paddingBottom")) + "px";
     }
@@ -654,7 +657,7 @@
             lbl.addEventListener("on-select", onSelect);
         }
         return lbl;
-    }    
+    }
 </script>
 <!-- toolbar -->
 <script>
@@ -664,7 +667,7 @@
             topWin.confirm("当前标签已存在内容，确定要清空为空白标签吗？").then((ok) => {
                 if (!ok) return;
 
-                lbl.loadLabel("", { width: 80, height: 60 });                
+                lbl.loadLabel("", { width: 80, height: 60 });
             })
         }
     }
@@ -686,7 +689,7 @@
             return
         }
         const files = objFile.files;
-        const reader = new FileReader();        
+        const reader = new FileReader();
         reader.onload = function (e) {
             const labelString = e.target.result;
             lbl.loadLabel(labelString);
@@ -694,7 +697,7 @@
         }
         reader.readAsText(files[0], "UTF-8");
     }
-    
+
     function saveLabel() {
         lbl.save();
     }
@@ -718,7 +721,7 @@
         link.click();
 
         //window.open(url, "_blank");
-    }   
+    }
 
     // -- page\printer\preview ----------------------------
     function pageSetup() {
@@ -739,7 +742,7 @@
 
         cWin.openWindow(prop, para);
     }
-    function btnPrint_click() {
+    function printSample() {
         let page = 0, pages = 2;
         let datas = [], dataString;
         // ------------------------------------------------
@@ -1022,19 +1025,49 @@
         lbl.compute(true);
     }
 
-    async function testCross() {
-        let url = "http://127.0.0.1:4195/PrintWorker/PrintLabel";
+    // -- 跨域测试 --
+    async function testCross1() {
+        let url = "http://124.71.181.137:5555/DoYsSV/test/AjaxCross/test1";
         let dataPost = {
-            action: "printLabel"
+            p1: "abc中文"
         };
-        
-        let res = await ajax.send(url, dataPost);
-        debugger
-        if (res.ok) {
-            topWin.message("当前操作成功，收到后台返回数据 result = " + res.result, "success");
+
+        ajax.send(url, dataPost).then((res) => {
+            if (res.ok) {
+                topWin.message("当前操作成功，收到后台返回数据 result = " + res.result, "success");
+            }
+            else {
+                topWin.alert("系统信息 ...", "error");
+            }
+        })
+    }
+    function webPrintSample() {
+        let url = "http://127.0.0.1:4195/PrintWorker/PrintLabel";
+        let datas = [];
+        // ------------------------------------------------
+        try {
+            datas.push(lbl.getData());
+
+            let dataString = JSON.stringify(datas, null, " ");
+            let dataPost = {
+                protocol: "2.0",
+                action: "printDLabel",
+                labelString: lbl.toJson(),
+                dataString: dataString,
+                copies: 1
+            }
+
+            ajax.send(url, dataPost, { autoShowErr: false }).then((res) => {    // -- top.edge.invokeEdge(para); --
+                if (res.ok) {
+                    topWin.message(res.msg, "success");
+                }
+                else {
+                    topWin.alert("系统信息 ...", "error");
+                }
+            })
         }
-        else {
-            topWin.alert("系统信息 ...", "error");
+        catch (e) {
+            topWin.alert(e, "error");
         }
     }
 </script>
