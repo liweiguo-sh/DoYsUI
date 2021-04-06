@@ -1042,7 +1042,7 @@
         })
     }
     function webPrintSample() {
-        let url = "http://127.0.0.1:4195/PrintWorker/PrintLabel";
+        let url = "http://127.0.0.1:4195/WebPrint/PrintDLabel";
         let datas = [];
         // ------------------------------------------------
         try {
@@ -1050,10 +1050,9 @@
 
             let dataString = JSON.stringify(datas, null, " ");
             let dataPost = {
-                protocol: "2.0",
-                action: "printDLabel",
                 labelString: lbl.toJson(),
                 dataString: dataString,
+                printerName: "",
                 copies: 1
             }
 

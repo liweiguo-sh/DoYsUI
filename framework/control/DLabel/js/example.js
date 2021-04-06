@@ -166,14 +166,14 @@ DLbelExample.demo1 = function () {
     return `
 {
   "page": {
-    "width": 200,
-    "height": 150,
+    "width": 80,
+    "height": 60,
     "marginLeft": 0,
     "marginTop": 0,
     "marginRight": 0,
     "marginBottom": 0,
-    "rows": 2,
-    "cols": 2,
+    "rows": 1,
+    "cols": 1,
     "horizontalSpace": 0,
     "verticalSpace": 0
   },

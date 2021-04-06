@@ -36,7 +36,7 @@ edge.invokeEdge = function (jsp) {
             }
             return;
         }
-
+        debugger
         chrome.webview.postMessage(jsp);
     }
     catch (e) {
