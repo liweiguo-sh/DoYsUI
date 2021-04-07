@@ -1,5 +1,4 @@
-﻿var topWin = {                          // -- 全局对象，此处不能用 let 定义，否则无法通过 top.topWin 访问 --    
-    os: urlPara.os,                     // -- 客户端操作系统 --
+﻿var topWin = {                          // -- 全局对象，此处不能用 let 定义，否则无法通过 top.topWin 访问 --
     systemName: "",                     // -- 子系统名称(例如：xpas，即项目目录) --
     serverName: "",                     // -- 服务端部署实例名称 --
     loginUrl: urlPara["loginUrl"] || (g.appPath + "project/xpas/html/login.html"),   // -- 登录来源url --
@@ -13,20 +12,25 @@
 
     win: window,
     doc: document,
-    cWin: null,                 // -- 窗口集合类实例 --    
-    cMenu: null,                // -- 主菜单类实例 --
-    cStatusBar: null,           // -- 状态栏类实例 --
+    cWin: null,                         // -- 窗口集合类实例 --    
+    cMenu: null,                        // -- 主菜单类实例 --
 
-    dtbMenu: null,                          // -- 菜单记录集 --
+    dtbMenu: null,                      // -- 菜单记录集 --
 
-    technicalSupport: "",   // -- 技术支持 --
-    logo: "",               // -- 左上角LOGO --
+    technicalSupport: "",               // -- 技术支持 --
+    logo: "",                           // -- 左上角LOGO --
 
     printers: [
         "需要外壳程序支持获取打印机列表",
         "打印功能需要外壳程序支持"
     ],
-    remark: ""
+    // ----------------------------------------------------
+    cfg: {
+        needEdgeHttpShell: false        // -- 需要edgeSheelHttp客户端 --
+    },
+    ERR: {
+        edgeHttpShellUnstart: "当前操作需要客户端支持，请在客户端中使用。"
+    }
 };
 
 topWin.sessionTimeout = function () {

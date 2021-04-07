@@ -13,15 +13,16 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
         // -- axios --
         if (ajaxType.equals("axios")) {
             if (window.win) win.setDisabled(true, "waiting ...");
+            if (!url.startsWith("http")) url = g.prefix + url;
             let axiosCfg = {
                 method: "GET",
-                url: g.prefix + url
+                url: url
             }
             if (data) {
                 axiosCfg.method = "POST";
                 axiosCfg.data = data;
             }
-            axios.defaults.withCredentials = true;
+            axios.defaults.withCredentials = true;            
             axios(axiosCfg).then((response) => {
                 if (window.win) win.setDisabled();
 
@@ -56,12 +57,17 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
                     }
                 }
                 else {
-                    app.$message({
-                        showClose: true,
-                        message: e.message,
-                        dangerouslyUseHTMLString: true,
-                        type: "error"
-                    });
+                    if (option.autoShowErr) {
+                        app.$message({
+                            showClose: true,
+                            message: e.message,
+                            dangerouslyUseHTMLString: true,
+                            type: "error"
+                        });
+                    }
+                    else {
+                        reject(e);
+                    }
                 }
             })
         }

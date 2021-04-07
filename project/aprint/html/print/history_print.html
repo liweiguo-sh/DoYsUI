@@ -62,7 +62,7 @@
 
             taskId: 0,
             labelId: 0,
-            labelType: "",   
+            labelType: "",
             labelContent: "",
 
             rowNoFrom: 1,
@@ -94,7 +94,10 @@
                 }
             },
             onClick: function (button) {
-                if (button.name.equals("task_print")) {
+                if (button.name.equals("preview")) {
+                    this.print({ previewOnly: true });
+                }
+                else if (button.name.equals("print")) {
                     this.print();
                 }
                 else {
@@ -102,7 +105,7 @@
                 }
             },
 
-            print() {
+            async print(jsp = { previewOnly: false }) {
                 if (this.rowNoFrom.toInt() < 1 || this.rowNoTo.toInt() < 1 || this.rowNoTo.toInt() < this.rowNoFrom.toInt()) {
                     topWin.alert("请输入正确的起始行号。");
                     return;
@@ -118,21 +121,100 @@
                     rowNoFrom: this.rowNoFrom,
                     rowNoTo: this.rowNoTo
                 };
-                ajax.send("/aprint/print/print_query/getForPrint", para).then(res => {
-                    this.dtbLabel = res.dtbLabel;
-                    this.dtbTaskData = res.dtbTaskData;
+                let res = await ajax.send("/aprint/print/print_query/getForPrint", para);
+                this.dtbLabel = res.dtbLabel;
+                this.dtbTaskData = res.dtbTaskData;
+                this.labelContent = this.dtbLabel.rows[0]["content"].value;
 
-                    this.labelContent = this.dtbLabel.rows[0]["content"].value;
+                // ----------------------------------------
+                para = {
+                    labelType: this.labelType,
+                    previewOnly: jsp.previewOnly,
+                    printerName: this.printerName,
+                    copies: this.copies
+                }
+                if (this.labelType.equals("BarTender")) {
+                    para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+                    para.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                    para.dataString = this.getPrintData_BarTender();
+                }
+                else {
+                    await this.previewDLabel();
+                    if (para.previewOnly) {
+                        return;
+                    }
 
-                    if (this.labelType.equals("DLabel")) {
-                        this.DLabelPrint();
-                    }
-                    else {
-                        this.BtOrMasoLabelPrint();
-                    }
-                });
+                    para.labelString = this.labelContent;
+                    para.dataString = this.getPrintData();
+                }
+
+                // ----------------------------------------
+                top.edge.printLabel(para);
             },
-            BtOrMasoLabelPrint() {                
+            async previewDLabel() {
+                if (winPreview) {
+                    if (!this.labelId.equals(winPreview.window.labelId)) {
+                        winPreview.close({ callerIsParent: true });
+                        winPreview = null;
+                    }
+                }
+
+                if (winPreview == null) {
+                    let prop = {
+                        url: g.path.framework + "/control/DLabel/form/preview.html",
+                        left: win.p.maxWidth / 2,
+                        parent: win,
+                        modal: false
+                    };
+                    let para = {
+                        labelWidth: this.dtbLabel.rows[0]["width"].value,
+                        labelHeight: this.dtbLabel.rows[0]["height"].value
+                    };
+                    winPreview = topWin.openWindow(prop, para);
+                    while (!winPreview.window) {
+                        await sleep(50);
+                    }
+                }
+                else {
+                    winPreview.show();
+                }
+
+                // -- 加载标签 --
+                winPreview.window.labelId = this.labelId;
+                winPreview.window.lbl.loadLabel(this.labelContent, {
+                    imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+                    labelId: this.labelId,
+                    readonly: true
+                });
+                winPreview.window.lbl.compute(true);
+            },
+
+            getPrintData() {
+                let data = [], dataString;
+                let lbl = winPreview.window.lbl;
+
+                let rowCount = this.dtbTaskData.rowCount;
+                let columnCount = this.dtbTaskData.columnCount;
+                // ----------------------------------------
+                for (let i = 0; i < rowCount; i++) {
+                    for (let j = 0; j < columnCount; j++) {
+                        name = this.dtbTaskData.columns[j].name;
+                        if (name.equals("task_id") || name.equals("id")
+                            || name.equals("$row_no") || name.equals("$cdate")) {
+                            continue;
+                        }
+                        value = this.dtbTaskData.rows[i][j].value;
+
+                        lbl.setValue(name, value);
+                    }
+                    lbl.compute(i == rowCount - 1);
+                    data.push(lbl.getData());
+                }
+                // ----------------------------------------
+                dataString = JSON.stringify(data, null, " ");
+                return dataString;
+            },
+            getPrintData_BarTender() {
                 let DATA = [];
                 let rowCount = this.dtbTaskData.rowCount;
                 let columnCount = this.dtbTaskData.columnCount;
@@ -150,143 +232,7 @@
                     }
                     DATA.push(arr.join(g.c.CHAR2));
                 }
-
-                let para = {
-                    action: "printLabel",
-                    labelId: this.labelId,
-                    labelType: this.labelType,
-                    labelContent: this.labelContent,                    
-                    labelSummary: this.getLabelSummary(),
-                    taskId: this.taskId,
-                    dataString: DATA.join(g.c.CHAR1),
-                    printerName: this.printerName,
-                    copies: this.copies
-                }
-
-                if (this.labelType.equals("BarTender")) {
-                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
-                        return;
-                    }
-                    para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
-
-                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
-                        return;
-                    }
-                    para.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
-                }
-                top.edge.invokeEdge(para);
-            },
-            async DLabelPrint() {
-                this.DLabelPreview();
-
-                while (!winPreview.window) {
-                    await sleep(50)
-                }
-                let lbl = winPreview.window.lbl;
-                let datas = [], dataString, name, value;
-                // -- 打印样张 --------------------------------
-                if (!this.taskId) {
-                    datas.push(lbl.getData());
-                    dataString = JSON.stringify(datas, null, " ");
-
-                    let para = {
-                        protocol: "2.0",
-                        action: "printDLabel",
-                        labelString: lbl.toJson(),
-                        dataString: dataString,
-                        printerName: this.printerName,
-                        copies: this.copies
-                    }
-                    top.edge.invokeEdge(para);
-                    return;
-                }
-
-                // -- 打印任务单数据 -----------------------------
-                let postData = {
-                    labelId: this.labelId,
-                    taskId: this.taskId,
-                    rowNoFrom: this.rowNoFrom,
-                    rowNoTo: this.rowNoTo
-                };
-                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
-                    let dtbTaskData = res.dtbTaskData;
-                    let rowCount = dtbTaskData.rowCount;
-                    let columnCount = dtbTaskData.columnCount;
-                    // ------------------------------------
-                    for (let i = 0; i < rowCount; i++) {
-                        for (let j = 0; j < columnCount; j++) {
-                            name = dtbTaskData.columns[j].name;
-                            if (name.equals("task_id") || name.equals("id")
-                                || name.equals("$row_no") || name.equals("$cdate")) {
-                                continue;
-                            }
-                            value = dtbTaskData.rows[i][j].value;
-
-                            lbl.setValue(name, value);
-                        }
-                        lbl.compute(i == rowCount - 1);
-                        datas.push(lbl.getData());
-                    }
-                    dataString = JSON.stringify(datas, null, " ");
-
-                    // --------------------------------------------
-                    let para = {
-                        protocol: "2.0",
-                        action: "printDLabel",
-                        labelString: lbl.toJson(),
-                        dataString: dataString,
-                        printerName: this.printerName,
-                        copies: this.copies
-                    }
-
-                    top.edge.invokeEdge(para);
-                });
-            },
-            DLabelPreview() {
-                let fields = {}, variable, name, value;
-                for (let key in this.variables) {
-                    variable = this.variables[key];
-                    name = key;
-                    value = variable.valueFormat;
-
-                    fields[name] = value;
-                }
-                // ----------------------------------------
-                if (winPreview) {
-                    if (!this.labelId.equals(winPreview.window.labelId)) {
-                        winPreview.close({ callerIsParent: true });
-                        winPreview = null;
-                    }
-                }
-
-                if (winPreview == null) {
-                    let prop = {
-                        url: g.path.framework + "/control/DLabel/form/preview.html",
-                        left: win.p.maxWidth / 2,
-                        parent: win,
-                        modal: false
-                    };
-                    let para = {
-                        labelId: this.labelId,
-                        labelContent: this.labelContent,
-                        labelFields: fields,
-                        labelWidth: this.dtbLabel.rows[0]["width"].value,
-                        labelHeight: this.dtbLabel.rows[0]["height"].value
-                    };
-                    winPreview = topWin.openWindow(prop, para);
-                }
-                else {
-                    winPreview.show();
-                    winPreview.window.lbl.loadLabel(this.labelContent, {
-                        labelId: this.labelId,
-                        imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
-                        fields: fields,
-                        readonly: true
-                    });
-                    winPreview.window.lbl.compute(true);
-                }
+                return DATA.join(g.c.CHAR1);
             },
 
             getLabelSummary() {

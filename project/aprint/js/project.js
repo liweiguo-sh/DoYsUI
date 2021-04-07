@@ -8,10 +8,18 @@
 (function () {
     ajax.send("/framework/TopWin/getTopWin", {}).then(res => {
         topWin.tenantId = res.tenantId;
-        topWin.cfg = {};
+        topWin.cfg = g.x.extendJSON(topWin.cfg, {
+            needEdgeHttpShell1: true,
 
-        // -- 标签变量图片基准URL --
-        topWin.cfg.labelVariableImageBaseUrl = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_variable_image/";
-        topWin.cfg.productPnParaImageBaseUrl = g.path.resRun + "/" + topWin.tenantId + "/aprint/product_pn_para_image/";
+            // -- 标签变量图片基准URL --
+            labelVariableImageBaseUrl: g.path.resRun + "/" + topWin.tenantId + "/aprint/label_variable_image/",
+            productPnParaImageBaseUrl: g.path.resRun + "/" + topWin.tenantId + "/aprint/product_pn_para_image/"
+        });
+        topWin.ERR = g.x.extendJSON(topWin.ERR, {
+            edgeHttpShellUnstart: "检测到打印工作站尚未启动，请检查。"
+        });
+
+        // -- 获取打印机列表 --
+        edge.getPrinterList();
     });
 })()

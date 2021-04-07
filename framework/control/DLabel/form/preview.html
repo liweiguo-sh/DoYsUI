@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>标签预览窗口1</title>
+    <title>标签预览窗口</title>
     <script src="../js/boot.js"></script>
     <script>
         importFrameworkRes("preview");
@@ -23,15 +23,12 @@
 
 <!-- winLoad -->
 <script>
-    var labelId, labelContent, labelFields, labelWidth, labelHeight;
-
     var divParent = gId("divParent"), divCanvas = gId("divCanvas");
+
+    var labelId, labelWidth, labelHeight;
     var lbl;
     // ------------------------------------------------------------------------
     function winLoad() {
-        labelId = win.para.labelId;
-        labelContent = win.para.labelContent;
-        labelFields = win.para.labelFields;
         labelWidth = win.para.labelWidth;
         labelHeight = win.para.labelHeight;
 
@@ -42,13 +39,6 @@
         });
 
         lbl = new Label({ container: divCanvas });
-        lbl.loadLabel(labelContent, {
-            labelId: labelId,
-            imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
-            fields: labelFields,
-            readonly: true
-        });
-        lbl.compute(true);
     }
 
     function winResize() {

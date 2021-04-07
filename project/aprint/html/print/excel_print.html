@@ -10,8 +10,8 @@
             <el-col :span="8" style="padding-right:20px;">
                 <el-row>
                     <el-button @click="deleteTask" :disabled="!taskId">删除数据</el-button>
-                    <el-button @click="preview({restorePreviewWindow: 'restore'})" :disabled="!labelId">预览</el-button>
-                    <el-button @click="print" type="danger" :disabled="!labelId">打印</el-button>
+                    <el-button @click="print({previewOnly: true})" :disabled="!labelId">预览</el-button>
+                    <el-button @click="print({})" type="danger" :disabled="!labelId">打印</el-button>
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
@@ -148,7 +148,7 @@
                     this.labelType = this.dtbLabel.rows[0]["type"].value;
                     this.labelContent = this.dtbLabel.rows[0]["content"].value;
 
-                    this.preview();
+                    this.print({ previewOnly: true });
                     this.initGrid();
                 });
             },
@@ -182,10 +182,7 @@
                     this.rowNoFrom = 1;
                     this.rowNoTo = res.qty;
 
-                    if (this.labelType.equals("DLabel")) {
-                        this.dataPreview = res.dataPreview;
-                        this.DLabelPreview();
-                    }
+                    this.print({ previewOnly: true });
                 }
                 else {
                     topWin.alert(res.error);
@@ -209,122 +206,44 @@
                 });
             },
 
-            preview(para = {}) {
-                if (!this.labelId) return;
+            async print(jsp = { previewOnly: false }) {                
+                let para = {
+                    taskId: this.taskId,
+                    labelId: this.labelId,
+                    rowNoFrom: this.rowNoFrom,
+                    rowNoTo: jsp.previewOnly ? this.rowNoFrom : this.rowNoTo
+                };
+                let res = await ajax.send("/aprint/print/print_query/getForPrint", para);
+                this.dtbLabel = res.dtbLabel;
+                this.dtbTaskData = res.dtbTaskData;
+                this.labelContent = this.dtbLabel.rows[0]["content"].value;
 
-                let dataString;
-                let heards = [], records = [];
-
-                for (let i = 0; i < this.variables.length; i++) {
-                    let type = this.variables[i].type;
-                    let varValue = this.variables[i].value;
-                    let dateFormat = this.variables[i].dateFormat;
-
-                    if (type.equals("date") && dateFormat) {
-                        this.variables[i].valueFormat = varValue.toDate().toString(dateFormat);
-                    }
-                    else {
-                        this.variables[i].valueFormat = varValue;
-                    }
-
-                    heards.push(this.variables[i].name);
-                    records.push(this.variables[i].valueFormat)
+                // ----------------------------------------
+                para = {
+                    labelType: this.labelType,
+                    previewOnly: jsp.previewOnly,
+                    printerName: this.printerName,
+                    copies: this.copies
                 }
-                dataString = heards.join(g.c.CHAR2) + g.c.CHAR1 + records.join(g.c.CHAR2)
-
-                para.action = "previewLabel";
-                para.dataString = dataString;
-                para.printerName = this.printerName;
-
-                if (this.labelType.equals("DLabel")) {
-                    this.DLabelPreview();
+                if (this.labelType.equals("BarTender")) {
+                    para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+                    para.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+                    para.dataString = this.getPrintData_BarTender();
                 }
                 else {
-                    this.printLabel(para);
-                }
-            },
-            print() {
-                if (this.labelType.equals("DLabel")) {
-                    this.DLabelPrint();
-                    return;
-                }
+                    await this.previewDLabel();
 
-                let postData = {
-                    labelId: this.labelId,
-                    taskId: this.taskId,
-                    rowNoFrom: this.rowNoFrom,
-                    rowNoTo: this.rowNoTo
-                };
-                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
-                    let DATA = [];
-                    let dtbTaskData = res.dtbTaskData;
-
-                    let rowCount = dtbTaskData.rowCount;
-                    let columnCount = dtbTaskData.columnCount;
-
-                    let arr = [];
-                    for (let i = 0; i < columnCount; i++) {
-                        arr.push(dtbTaskData.columns[i].name);
-                    }
-                    DATA.push(arr.join(g.c.CHAR2));
-
-                    for (let i = 0; i < rowCount; i++) {
-                        let arr = [];
-                        for (let j = 0; j < columnCount; j++) {
-                            arr.push(dtbTaskData.rows[i][j].value);
-                        }
-                        DATA.push(arr.join(g.c.CHAR2));
-                    }
-
-                    this.printLabel({ action: "printLabel", quickPrint: false, dataString: DATA.join(g.c.CHAR1) });
-                });
-            },
-            printLabel(para) {
-                if (!this.labelId) return;
-
-                // ----------------------------------------
-                let paraInvoke = {
-                    action: para.action || "previewLabel",
-                    labelId: this.labelId,
-                    labelContent: this.dtbLabel.rows[0]["content"].value,
-                    labelType: this.dtbLabel.rows[0]["type"].value,
-                    labelSummary: this.getLabelSummary(),
-                    taskId: this.taskId,
-                    dataString: para.dataString,
-                    printerName: this.printerName
-                }
-                paraInvoke = g.x.extendJSON(paraInvoke, para);
-
-                if (this.dtbLabel.rows[0]["type"].value.equals("BarTender")) {
-                    if (this.dtbLabel.rows[0]["label_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签文件，请检查。", "warning");
+                    para.labelString = this.labelContent;                    
+                    para.dataString = this.getPrintData();
+                    if (para.previewOnly) {
                         return;
                     }
-                    paraInvoke.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
-
-                    if (this.dtbLabel.rows[0]["data_file_name"].value.equals("")) {
-                        topWin.alert("尚未上传BarTender标签数据源模板文件，请检查。", "warning");
-                        return;
-                    }
-                    paraInvoke.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
                 }
-                top.edge.invokeEdge(paraInvoke);
-            },
 
-            DLabelPreview() {
-                let fields = null;
-                if (this.dataPreview) {
-                    let columnCount = this.dataPreview[0].length;
-                    let name, value;
-
-                    fields = {};
-                    for (let iCol = 0; iCol < columnCount; iCol++) {
-                        name = this.dataPreview[0][iCol];
-                        value = this.dataPreview[1][iCol];
-                        fields[name] = value;
-                    }
-                }
                 // ----------------------------------------
+                top.edge.printLabel(para);
+            },
+            async previewDLabel() {
                 if (winPreview) {
                     if (!this.labelId.equals(winPreview.window.labelId)) {
                         winPreview.close({ callerIsParent: true });
@@ -340,89 +259,71 @@
                         modal: false
                     };
                     let para = {
-                        labelId: this.labelId,
-                        labelContent: this.labelContent,
-                        labelFields: fields,
                         labelWidth: this.dtbLabel.rows[0]["width"].value,
                         labelHeight: this.dtbLabel.rows[0]["height"].value
                     };
                     winPreview = topWin.openWindow(prop, para);
-                }
-                else {
-                    winPreview.show();
+                    while (!winPreview.window) {
+                        await sleep(50);
+                    }
+
+                    // -- 加载标签 --
+                    winPreview.window.labelId = this.labelId;
                     winPreview.window.lbl.loadLabel(this.labelContent, {
-                        labelId: this.labelId,
                         imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
-                        fields: fields,
+                        labelId: this.labelId,
                         readonly: true
                     });
                     winPreview.window.lbl.compute(true);
                 }
-            },
-            DLabelPrint() {
-                let lbl = winPreview.window.lbl;
-                let datas = [], dataString, name, value;
-                // -- 打印样张 --------------------------------
-                if (!this.taskId) {
-                    datas.push(lbl.getData());
-                    dataString = JSON.stringify(datas, null, " ");
-
-                    let para = {
-                        protocol: "2.0",
-                        action: "printDLabel",
-                        labelString: lbl.toJson(),
-                        dataString: dataString,
-                        printerName: this.printerName,
-                        copies: this.copies
-                    }
-                    top.edge.invokeEdge(para);
-                    return;
+                else {
+                    winPreview.show();
                 }
-
-                // -- 打印任务单数据 -----------------------------
-                let postData = {
-                    labelId: this.labelId,
-                    taskId: this.taskId,
-                    rowNoFrom: this.rowNoFrom,
-                    rowNoTo: this.rowNoTo
-                };
-                ajax.send("/aprint/quick_print/getTaskData", postData).then(res => {
-                    let dtbTaskData = res.dtbTaskData;
-                    let rowCount = dtbTaskData.rowCount;
-                    let columnCount = dtbTaskData.columnCount;
-                    // ------------------------------------
-                    for (let i = 0; i < rowCount; i++) {
-                        for (let j = 0; j < columnCount; j++) {
-                            name = dtbTaskData.columns[j].name;
-                            if (name.equals("task_id") || name.equals("id")
-                                || name.equals("$row_no") || name.equals("$cdate")
-                                || ("," + this.uploadFields + ",").indexOf("," + name + ",") < 0) {
-                                continue;
-                            }
-                            value = dtbTaskData.rows[i][j].value;
-
-                            lbl.setValue(name, value);
-                        }
-                        lbl.compute(i == rowCount - 1);
-                        datas.push(lbl.getData());
-                    }
-                    dataString = JSON.stringify(datas, null, " ");
-
-                    // --------------------------------------------
-                    let para = {
-                        protocol: "2.0",
-                        action: "printDLabel",
-                        labelString: lbl.toJson(),
-                        dataString: dataString,
-                        printerName: this.printerName,
-                        copies: this.copies
-                    }
-
-                    top.edge.invokeEdge(para);
-                });
             },
-            onPrinterChange() {
-                setLocalItem(ckLatestPrinter, this.printerName);
+
+            getPrintData() {
+                let data = [], dataString;
+                let lbl = winPreview.window.lbl;
+
+                let rowCount = this.dtbTaskData.rowCount;
+                let columnCount = this.dtbTaskData.columnCount;
+                // ----------------------------------------
+                for (let i = 0; i < rowCount; i++) {
+                    for (let j = 0; j < columnCount; j++) {
+                        name = this.dtbTaskData.columns[j].name;
+                        if (name.equals("task_id") || name.equals("id")
+                            || name.equals("$row_no") || name.equals("$cdate")) {
+                            continue;
+                        }
+                        value = this.dtbTaskData.rows[i][j].value;
+                        lbl.setValue(name, value);
+                    }                    
+                    lbl.compute(i == rowCount - 1);
+                    data.push(lbl.getData());                    
+                }
+                // ----------------------------------------
+                dataString = JSON.stringify(data, null, " ");
+                return dataString;
+            },
+            getPrintData_BarTender() {
+                let DATA = [];
+                let rowCount = this.dtbTaskData.rowCount;
+                let columnCount = this.dtbTaskData.columnCount;
+
+                let arr = [];
+                for (let i = 0; i < columnCount; i++) {
+                    arr.push(this.dtbTaskData.columns[i].name);
+                }
+                DATA.push(arr.join(g.c.CHAR2));
+
+                for (let i = 0; i < rowCount; i++) {
+                    let arr = [];
+                    for (let j = 0; j < columnCount; j++) {
+                        arr.push(this.dtbTaskData.rows[i][j].value);
+                    }
+                    DATA.push(arr.join(g.c.CHAR2));
+                }
+                return DATA.join(g.c.CHAR1);
             },
 
             initGrid() {
@@ -435,7 +336,10 @@
                     }
                 }
                 this.$refs.grid.init(para);
-            }
+            },
+            onPrinterChange() {
+                setLocalItem(ckLatestPrinter, this.printerName);
+            },
         }
     });
 </script>

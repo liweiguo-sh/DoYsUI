@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "V2021_0331";</script>
+    <script>var jsVer = "V2021_0407";</script>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("edge");
@@ -14,7 +14,7 @@
         importFrameworkRes("topwin");
         importFrameworkRes("main");
     </script>
-    <script src="../../js/project.js?v=V2021_0331"></script>
+    <script src="../../js/project.js?v=V2021_0407"></script>
 
     <!-- layout-main -->
     <style type="text/css">
@@ -228,58 +228,12 @@
     })
 
     function winLoad() {
-        var jsonProp = {
+        let jsonProp = {
             jsVer: g.cfg.jsVer,
             zIndex: g.c.zIndexWin,
             rangeContainer: gId("ifrHome"),
             taskbar: null
         };
         topWin.cWin = new window.xwf_window(jsonProp);
-
-        // -- edge ----------------------------------------
-        top.edge.addEventListener("setPrinterList", setPrinterList, { p1: "abc", p2: "def" });
-        top.edge.addEventListener("saveLabelContent", saveMasoLabel);
-        top.edge.addEventListener("downloadLabelContent", downloadLabelContent);
-
-        let para = {
-            protocol: "2.0",
-            action: "getPrinterList"
-        }
-        top.edge.invokeEdge(para);
-    }
-</script>
-
-<!-- shell invoke js -->
-<script>
-    function setPrinterList(jsp) {
-        topWin.printers = jsp.printers;
-    }
-
-    function saveMasoLabel(para) {
-        let postData = {
-            id: para.labelCode,
-            content: para.labelContent,
-            vars: para.labelVars
-        };
-        ajax.send("/aprint/labels/maso/MasoFile/saveLabelContent", postData).then(res => {
-            topWin.message("标签保存成功。", "success");
-        });
-    }
-    function downloadLabelContent(para) {
-        alert('debug here ???');
-        let post = {
-            code: para.labelCode,
-            version: para.labelVersion
-        };
-        ajax.send("/aprint/labels/maso/MasoFile/getLabelContent", post).then(res => {
-            let dtbLabel = res.dtbLabel;
-            if (dtbLabel.rowCount == 1) {
-                para.action = "downloadLabelContent_callback";
-                para.labelContent = dtbLabel.rows[0]["content"].value;
-                para.labelMVersion = dtbLabel.rows[0]["mdate"].value;
-
-                top.edge.invokeEdge(para);
-            }
-        });
     }
 </script>

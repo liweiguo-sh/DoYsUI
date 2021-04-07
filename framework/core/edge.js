@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-27
- * Modify Date: 2021-03-27
+ * Modify Date: 2021-04-07
  * Copyright 2021, doys-next.com
  * edge shell util
  */
@@ -13,7 +13,7 @@
         EdgeJsSwapArea: {               // -- edgeShell 回调数据暂存区 --
             DLabel: {}                  // -- DLabel专用 --
         }
-    }
+    };    
 })()
 
 edge.addEventListener = function (eventName, callback, jsp = {}) {
@@ -68,4 +68,56 @@ edge.commonShellInvokeJs = function (jsp) {
 
 edge.setBarcodeBase64 = function (para) {
     edge.EdgeJsSwapArea.DLabel[para.base64Key] = para.base64;
+}
+
+
+// -- invoke edge shell by http channel ---------------------------------------
+edge.invokeHttpShell = async function (controller, jsp) {
+    let domain = "127.0.0.1", port = 4195;
+    let url, dataPost;
+    // ----------------------------------------------------
+    try {
+        url = "http://" + domain + ":" + port + controller;
+        dataPost = g.x.extendJSON({
+            protocol: "3.0"
+        }, jsp);
+
+        let res = await ajax.send(url, dataPost, { autoShowErr: false });
+        if (res.ok) {
+            return res;
+        }
+        else {
+            topWin.alert("系统信息 ...", "error");
+            return null;
+        }
+    }
+    catch (e) {
+        if (e.message.equals("Network Error")) {
+            topWin.message(topWin.ERR.edgeHttpShellUnstart, "error");
+        }
+        else {
+            topWin.alert(e, "error");
+        }
+    }
+}
+
+edge.getPrinterList = async function () {
+    let controller = "/WebPrint/GetPrinterList";
+    let res = await edge.invokeHttpShell(controller, {});
+    if (res && res.ok) {
+        topWin.printers = res.data.printers;
+    }
+}
+
+edge.printLabel = async function (jsp) {
+    let controller = "/WebPrint/Print";
+    let dataPost;
+    // ----------------------------------------------------
+    controller += jsp.labelType || "DLabel";
+    dataPost = g.x.extendJSON({
+        labelType: "DLabel"
+    }, jsp);
+
+    let res = await edge.invokeHttpShell(controller, dataPost);
+    topWin.message(res.msg, "success");
 }
