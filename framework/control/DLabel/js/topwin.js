@@ -17,7 +17,11 @@
             window.topWin = top.topWin;
             return;
         }
-        window.topWin = {};
+        window.topWin = {
+            ERR: {
+                edgeHttpShellUnstart: "检测到打印工作站尚未启动，请检查。"
+            }
+        };
     }
 
     // ----------------------------------------------------

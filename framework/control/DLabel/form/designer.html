@@ -743,56 +743,18 @@
         cWin.openWindow(prop, para);
     }
     function printSample() {
-        let page = 0, pages = 2;
-        let datas = [], dataString;
-        // ------------------------------------------------
-        try {
-            if (labelId) {
-                datas.push(lbl.getData());
-            }
-            else {
-                // -- 模拟数据 --
-                if (false) {
-                    if (page++ < pages) {
-                        lbl.setValue("零售价", "$138.00");
-                        lbl.setValue("会员价", "$110.40");
-                        lbl.setValue("图片01", "https://cn.vuejs.org/images/imooc-sponsor2.png");
-                        lbl.setValue("条码", "888-" + page);
+        let datas = [];
+        datas.push(lbl.getData());
 
-                        lbl.computeElements();
-                        datas.push(lbl.getData());
-                    }
-                    if (page++ < pages) {
-                        lbl.setValue("零售价", "$138.00");
-                        lbl.setValue("会员价", "$110.40");
-                        lbl.setValue("图片01", "http://www.masocloud.com/DoYsUI/project/aprint/image/main/doys.png");
-                        lbl.setValue("条码", "888-" + page);
-
-                        lbl.computeElements();
-                        datas.push(lbl.getData());
-                    }
-                    lbl.computeElements(true);
-                }
-                else {
-                    datas.push(lbl.getData());
-                }
-            }
-            dataString = JSON.stringify(datas, null, " ");
-
-            // --------------------------------------------
-            let para = {
-                protocol: "2.0",
-                action: "printDLabel",
-                labelString: lbl.toJson(),
-                dataString: dataString,
-                copies: 1
-            }
-
-            top.edge.invokeEdge(para);
+        let labelString = lbl.toJson();
+        let dataString = JSON.stringify(datas, null, " ");
+        let para = {
+            labelString: labelString,
+            dataString: dataString,
+            printerName: "",
+            copies: 1
         }
-        catch (e) {
-            topWin.alert(e, "error");
-        }
+        top.edge.printLabel(para);
     }
 
     // -- 复制、黏贴 ----------------------------------------

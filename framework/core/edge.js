@@ -119,5 +119,5 @@ edge.printLabel = async function (jsp) {
     }, jsp);
 
     let res = await edge.invokeHttpShell(controller, dataPost);
-    topWin.message(res.msg, "success");
+    return res;
 }
