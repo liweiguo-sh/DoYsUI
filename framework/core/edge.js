@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-27
- * Modify Date: 2021-04-07
+ * Modify Date: 2021-04-08
  * Copyright 2021, doys-next.com
  * edge shell util
  */
@@ -13,7 +13,7 @@
         EdgeJsSwapArea: {               // -- edgeShell 回调数据暂存区 --
             DLabel: {}                  // -- DLabel专用 --
         }
-    };    
+    };
 })()
 
 edge.addEventListener = function (eventName, callback, jsp = {}) {
@@ -72,7 +72,7 @@ edge.setBarcodeBase64 = function (para) {
 
 
 // -- invoke edge shell by http channel ---------------------------------------
-edge.invokeHttpShell = async function (controller, jsp) {
+edge.invokeHttpShell = async function (controller, jsp, option = { autoShowErr: true }) {
     let domain = "127.0.0.1", port = 4195;
     let url, dataPost;
     // ----------------------------------------------------
@@ -92,11 +92,16 @@ edge.invokeHttpShell = async function (controller, jsp) {
         }
     }
     catch (e) {
-        if (e.message.equals("Network Error")) {
-            topWin.message(topWin.ERR.edgeHttpShellUnstart, "error");
+        if (option.autoShowErr) {
+            if (e.message.equals("Network Error")) {
+                topWin.message(topWin.ERR.edgeHttpShellUnstart, "error");
+            }
+            else {
+                topWin.alert(e, "error");
+            }
         }
         else {
-            topWin.alert(e, "error");
+            throw e;
         }
     }
 }
@@ -107,6 +112,18 @@ edge.getPrinterList = async function () {
     if (res && res.ok) {
         topWin.printers = res.data.printers;
     }
+}
+edge.getBarcodeBase64 = async function (jsp) {
+    let controller = "/BarcodeGenerator/GetBarcodeBase64";
+    let res = await edge.invokeHttpShell(controller, jsp, { autoShowErr: false });
+    let ret = {
+        base64: ""
+    };
+
+    if (res && res.ok) {
+        ret.base64 = res.data.base64;
+    }
+    return ret;
 }
 
 edge.printLabel = async function (jsp) {

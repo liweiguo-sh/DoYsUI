@@ -2,8 +2,8 @@
  * DoYs.ajax.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2020-04-11
- * Copyright 2020, doys-next.com 
+ * Modify Date: 2021-04-08
+ * Copyright 2020-2021, doys-next.com 
  */
 
 var ajax = {};

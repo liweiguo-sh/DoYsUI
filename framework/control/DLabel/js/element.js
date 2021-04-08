@@ -694,8 +694,8 @@ UtilElement.draw_barcode1D = async function (context, element) {
     }
 
     // -- 2. 通过weview获取条码图片(base64格式) --
-    let srcImg = await UtilElement._getBarcodeBase64({
-        env: element.env,
+    await UtilElement._getBarcodeBase64({
+        element: element,
         barcodeType: head.barcodeType,
         barcodeValue: head._segmentsText,
         width: position.width,
@@ -703,14 +703,13 @@ UtilElement.draw_barcode1D = async function (context, element) {
         point: element._labelHead.point,
         gs1: head.gs1
     });
-    if (!srcImg) return;
 
     // -- 3. 输出条码部分 --
     let x = position.leftBarcode * pxmm;
     let y = position.topBarcode * pxmm;
     let img = new Image();
 
-    img.src = srcImg;
+    img.src = element._base64Barcode;
     img.onload = function () {
         let w = position.widthBarcode * pxmm;
         let h = position.heightBarcode * pxmm;
@@ -740,8 +739,8 @@ UtilElement.draw_barcode2D = async function (context, element) {
     }
 
     // -- 2. 通过weview获取条码图片(base64格式) --
-    let srcImg = await UtilElement._getBarcodeBase64({
-        env: element.env,
+    srcImg = await UtilElement._getBarcodeBase64({
+        element: element,
         barcodeType: head.barcodeType,
         barcodeValue: head._segmentsText,
         width: position.widthBarcode,
@@ -749,14 +748,13 @@ UtilElement.draw_barcode2D = async function (context, element) {
         point: element._labelHead.point,
         gs1: head.gs1
     });
-    if (!srcImg) return;
 
     // -- 3. 输出条码部分 --   
     let x = position.leftBarcode * pxmm;
     let y = position.topBarcode * pxmm;
     let img = new Image();
 
-    img.src = srcImg;
+    img.src = element._base64Barcode;
     img.onload = function () {
         let w = position.widthBarcode * pxmm;
         let h = position.heightBarcode * pxmm;
@@ -776,55 +774,60 @@ UtilElement.draw_barcode2D = async function (context, element) {
     }
 }
 UtilElement._getBarcodeBase64 = async function (jsp) {
-    // -- 1. 特殊处理，条码没有内容 --
-    if (!jsp.barcodeValue) {
-        if (jsp.env.equals("design")) {
-            // -- 1.1 显示条码占位图片(设计状态，但没有条码内容) --
-            return "../image/" + jsp.barcodeType + ".png";
+    let minChange = 1;              // -- 最小尺寸变化，小于该数值，条码图片不重取 --
+    let element = jsp.element;
+    let typeEquals = true, sizeEquals = true;
+
+    // -- 1. 智能判断是否需要重新生成条码图片 --
+    if (!element._imgType) {
+        element._imgType = {
+            barcodeType: "",
+            barcodeValue: "",
+            point: 0,
+            isGS1: false
         }
-        else {
-            // -- 1.2 非设计状态不显示条码占位图片 --
-            return "";
-        }
-    }
-    else {
-        if (!top.chrome || !top.chrome.webview) {
-            // -- 1.3 显示条码占位图片(设计状态，但不是在webview环境) --
-            return "../image/" + jsp.barcodeType + ".png";
+        element._imgSize = {
+            width: 0,
+            height: 0
         }
     }
 
-    // -- 2. 通过webview外壳生成图片 --
-    let para = {
-        protocol: "2.0",
-        action: "getBarcodeBase64",
+    let imgType = {
         barcodeType: jsp.barcodeType,
         barcodeValue: jsp.barcodeValue,
-        width: jsp.width,
-        height: jsp.height,
         point: jsp.point,
         isGS1: jsp.gs1 ? true : false
     }
-    let hashcode = JSON.getHashCode(para);
-    let base64Key = "base64_" + hashcode;
-
-    if (top.edge.EdgeJsSwapArea.DLabel[base64Key]) {
-        return top.edge.EdgeJsSwapArea.DLabel[base64Key];
+    let hashTypeOld = JSON.getHashCode(element._imgType);
+    let hashTypeNew = JSON.getHashCode(imgType);
+    if (hashTypeOld != hashTypeNew) {
+        typeEquals = false;
+        element._imgType = imgType;
     }
-    else {
-        para["base64Key"] = base64Key;
-        top.edge.invokeEdge(para);
+    if (Math.abs(element._imgSize.width - jsp.width) > minChange || Math.abs(element._imgSize.height - jsp.height) > minChange) {
+        sizeEquals = false;
+        element._imgSize.width = jsp.width;
+        element._imgSize.height = jsp.height;
     }
+    if (typeEquals && sizeEquals) return;
 
-    // -- 3. 延时获取weview外壳生成的图片 --
-    let count = 0, maxCount = 10;
-    while (count++ < maxCount) {
-        await sleep(50);    // -- 测试结果: 平均 <= 5ms --
-        if (top.edge.EdgeJsSwapArea.DLabel[base64Key]) {
-            return top.edge.EdgeJsSwapArea.DLabel[base64Key];
+    // -- 2. 获取条码图片 --
+    console.log("getBarcodeBase64");
+    try {
+        let para = {
+            barcodeType: jsp.barcodeType,
+            barcodeValue: jsp.barcodeValue,
+            width: jsp.width,
+            height: jsp.height,
+            point: jsp.point,
+            isGS1: jsp.gs1 ? true : false
         }
-    }
+        let res = await top.edge.getBarcodeBase64(para);
 
-    // -- 4. 超时显示错误图片 --
-    return "../image/error.png";
+        element._base64Barcode = res.base64;
+    }
+    catch (e) {
+        // -- 返回样例条码图片 --
+        element._base64Barcode = "../image/" + jsp.barcodeType + ".png";
+    }
 }

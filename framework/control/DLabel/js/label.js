@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-03-27
+ * Modify Date: 2021-04-08
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
