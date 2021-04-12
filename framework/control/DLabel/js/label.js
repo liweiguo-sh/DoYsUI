@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-04-08
+ * Modify Date: 2021-04-12
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -1107,6 +1107,17 @@ class Label {
         for (let i = 0; i < this.elements.length; i++) {
             UtilElement.draw({ element: this.elements[i] });
         }
+    }
+    print(jsp) {
+        let labelString = this.toJson();
+        let dataString = JSON.stringify(jsp.data, null, " ");
+        let para = {
+            labelString: labelString,
+            dataString: dataString,
+            printerName: jsp.printerName || "",
+            copies: jsp.copies || 1
+        }
+        edge.printLabel(para);
     }
 
     // -- temporary script debug --

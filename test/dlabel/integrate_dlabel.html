@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8" />
     <title>D-Label Example</title>
-    <script src="../../framework/core/edge.js"></script>
 
     <style type="text/css">
         #divButtons input[type='button'] {
@@ -89,8 +88,7 @@
         lbl.compute(true);
     }
     function bntBatchPrint_click() {
-        let datas = [];
-
+        let data = [];
         // --------------------------------------------
         lbl.setValue("name", "一次性使用血浆胆红素吸附器");
         lbl.setValue("price", "$5,678");
@@ -100,20 +98,16 @@
             lbl.setValue("sn", "1234000" + (i + 1));
             lbl.compute(false);
 
-            datas.push(lbl.getData());
+            data.push(lbl.getData());
         }
         lbl.compute(true);
 
         // --------------------------------------------
-        let dataString = JSON.stringify(datas, null, " ");
-        let para = {
-            protocol: "2.0",
-            action: "printDLabel",
-            labelString: lbl.toJson(),
-            dataString: dataString,
+        lbl.print({
+            data: data,
+            printerName: "",
             copies: 2
-        }
-        top.edge.invokeEdge(para);
+        });
     }
 </script>
 

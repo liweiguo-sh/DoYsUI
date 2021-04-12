@@ -826,7 +826,7 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
             point: jsp.point,
             isGS1: jsp.gs1 ? true : false
         }
-        let res = await top.edge.getBarcodeBase64(para);
+        let res = await edge.getBarcodeBase64(para);
 
         element._base64Barcode = res.base64;
     }

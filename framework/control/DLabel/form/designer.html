@@ -636,7 +636,7 @@
                 zIndex: 1000
             });
         }
-        top.edge.addEventListener("importDLabel", onImportLabel, { p1: "abc", p2: "def" });
+        edge.addEventListener("importDLabel", onImportLabel, { p1: "abc", p2: "def" });
         winResize();
 
         lbl = getLabel();
@@ -677,7 +677,7 @@
             protocol: "2.0",
             action: "importDLabel"
         }
-        top.edge.invokeEdge(para);
+        edge.invokeEdge(para);
     }
     function onImportLabel(para, jsp) {
         lbl.loadLabel(para.labelString);
@@ -707,7 +707,7 @@
             action: "exportDLabel",
             labelString: lbl.toJson()
         }
-        top.edge.invokeEdge(para);
+        edge.invokeEdge(para);
     }
     function exportLabelByWeb() {
         let labelString = lbl.toJson();
@@ -754,7 +754,7 @@
             printerName: "",
             copies: 1
         }
-        top.edge.printLabel(para);
+        edge.printLabel(para);
     }
 
     // -- 复制、黏贴 ----------------------------------------
@@ -1015,6 +1015,6 @@
             printerName: "",
             copies: 1
         }        
-        top.edge.printLabel(para);
+        edge.printLabel(para);
     }
 </script>
