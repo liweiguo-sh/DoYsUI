@@ -8,7 +8,7 @@
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-03-31";
+    window.jsVer = top.jsVer || "2021-04-12";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }

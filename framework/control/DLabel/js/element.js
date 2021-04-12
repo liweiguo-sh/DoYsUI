@@ -603,12 +603,17 @@ UtilElement._getContextLineHeight = function (font) {
 UtilElement.draw_image = function (context, element) {
     let urlImg = element.image.url || "";
     // ----------------------------------------------------
-    if (!urlImg.equals("") && !urlImg.startsWith("http:") && !urlImg.startsWith("https:")) {
-        if (!element._labelHead.imageBaseUrl) {
-            alert("配置标签参数 (imageBaseUrl) 未配置, 请检查。");
-            return;
+    if (urlImg.equals("")) {
+        urlImg = "../image/placeholder.png";
+    }
+    else {
+        if (!urlImg.equals("") && !urlImg.startsWith("http:") && !urlImg.startsWith("https:")) {
+            if (!element._labelHead.imageBaseUrl) {
+                alert("配置标签参数 (imageBaseUrl) 未配置, 请检查。");
+                return;
+            }
+            urlImg = element._labelHead.imageBaseUrl + urlImg;
         }
-        urlImg = element._labelHead.imageBaseUrl + urlImg;
     }
 
     let img = new Image();
@@ -812,7 +817,6 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
     if (typeEquals && sizeEquals) return;
 
     // -- 2. 获取条码图片 --
-    console.log("getBarcodeBase64");
     try {
         let para = {
             barcodeType: jsp.barcodeType,

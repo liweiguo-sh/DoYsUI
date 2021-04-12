@@ -121,7 +121,7 @@ DLbelExample._getElement_image = function (elementProp = {}) {
         image: {
             "value": "",
             "deformation": "zoom",
-            "url": "http://biosunmed.com/upload/2020/7/61552460.jpg"
+            "url": ""
         }
     }
 
