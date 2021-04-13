@@ -165,47 +165,34 @@ DLbelExample.getExample = function (labelKey) {
 DLbelExample.demo1 = function () {
     return `
 {
-  "page": {
-    "width": 80,
-    "height": 60,
-    "marginLeft": 0,
-    "marginTop": 0,
-    "marginRight": 0,
-    "marginBottom": 0,
-    "rows": 1,
-    "cols": 1,
-    "horizontalSpace": 0,
-    "verticalSpace": 0
-  },
   "head": {
     "width": 80,
     "height": 60,
     "point": 600,
     "imageBaseUrl": "http://127.0.0.1/DoYsUI/framework/control/DLabel/image/",
-    "scriptAfterCompute": "console.log(\\"Script:AfterComputer debug infomation ...\\")"
+    "element_id": 10
   },
   "fields": {
     "gtin": "06938450873308",
     "mfg_date": "201016",
     "exp_date": "231015",
     "lot": "231015",
-    "name": "一次性使用血浆胆红素吸附器",
-    "price": "$5,678",
-    "img01": "http://biosunmed.com/upload/2020/7/61552460.jpg",
-    "img02": "02.png",
-    "sn": "12340005"
+    "price": "$1234.56",
+    "img01": "http://biosunmed.com/upload/2020/4/1410510871.jpg",
+    "img02": "http://biosunmed.com/upload/2020/4/1410510871.jpg",
+    "img08": "08.png"
   },
   "elements": [
     {
       "head": {
-        "name": "doys_label_element_1",
+        "name": "barcode_1d",
         "elementType": "barcode",
         "barcodeType": "CODE_128",
         "gs1": true
       },
       "font": {
         "lineHeight": 0,
-        "size": "8",
+        "size": "7",
         "name": "宋体",
         "color": "#3300FF"
       },
@@ -216,8 +203,8 @@ DLbelExample.demo1 = function () {
       },
       "position": {
         "layer": 1,
-        "top": 44.95,
-        "left": "3.90",
+        "top": 44.95934959349595,
+        "left": "3",
         "width": "73.74",
         "height": "12.66",
         "angle": 0,
@@ -266,10 +253,16 @@ DLbelExample.demo1 = function () {
         "offsetY": 0,
         "leftText": 36.87,
         "topText": 12.66,
-        "heightBarcode": 9.8378,
+        "heightBarcode": 9.837777777777777,
         "widthBarcode": 73.74,
         "leftBarcode": 0,
-        "topBarcode": 0
+        "topBarcode": 0,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 73.74,
+        "clientHeight": 12.66
       },
       "env": "design",
       "point": 600,
@@ -388,7 +381,7 @@ DLbelExample.demo1 = function () {
     },
     {
       "head": {
-        "name": "doys_label_element_2",
+        "name": "barcode_2d",
         "elementType": "barcode",
         "barcodeType": "QR_CODE"
       },
@@ -396,7 +389,7 @@ DLbelExample.demo1 = function () {
         {
           "pos": 0,
           "type": "field",
-          "value": "sn",
+          "value": "lot",
           "format": ""
         },
         {
@@ -418,10 +411,10 @@ DLbelExample.demo1 = function () {
       },
       "position": {
         "layer": 1,
-        "top": "3.41",
-        "left": "52.76",
-        "width": 20,
-        "height": "22.20",
+        "top": "1.45",
+        "left": "51.70",
+        "width": "22.03",
+        "height": "24.64",
         "angle": 270,
         "angleR": 4.71238898038469,
         "textAlign": "center",
@@ -430,60 +423,66 @@ DLbelExample.demo1 = function () {
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 22.200000000000003,
-        "hC": 20.000000000000004,
+        "wC": 24.640000000000004,
+        "hC": 22.030000000000005,
         "P1": {
-          "x": 3.673940397442059e-15,
-          "y": 20.000000000000004
+          "x": 4.046845347782428e-15,
+          "y": 22.030000000000005
         },
         "P2": {
           "x": 0,
-          "y": 4.0780738411606855e-15
+          "y": 4.526294569648617e-15
         },
         "P3": {
-          "x": 22.2,
+          "x": 24.64,
           "y": 0
         },
         "P4": {
-          "x": 22.200000000000003,
-          "y": 20
+          "x": 24.640000000000004,
+          "y": 22.03
         },
         "P15": {
-          "x": 1.8369701987210296e-15,
-          "y": 10.000000000000004
+          "x": 2.023422673891214e-15,
+          "y": 11.015000000000004
         },
         "P25": {
-          "x": 11.1,
-          "y": 2.0390369205803427e-15
+          "x": 12.32,
+          "y": 2.2631472848243086e-15
         },
         "P35": {
-          "x": 22.200000000000003,
-          "y": 10
+          "x": 24.64,
+          "y": 11.015
         },
         "P45": {
-          "x": 11.100000000000003,
-          "y": 20
+          "x": 12.320000000000004,
+          "y": 22.03
         },
-        "offsetX": 3.673940397442059e-15,
-        "offsetY": 20.000000000000004,
-        "leftText": 10,
-        "topText": 22.2,
-        "heightBarcode": 19.377777777777776,
-        "widthBarcode": 19.377777777777776,
-        "leftBarcode": 0.3111111111111118,
-        "topBarcode": 0
+        "offsetX": 4.046845347782428e-15,
+        "offsetY": 22.030000000000005,
+        "leftText": 11.015,
+        "topText": 24.64,
+        "heightBarcode": 21.817777777777778,
+        "widthBarcode": 21.817777777777778,
+        "leftBarcode": 0.10611111111111171,
+        "topBarcode": 0,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 22.03,
+        "clientHeight": 24.64
       },
       "segments": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "http://www.abc.com/?sn=",
+          "value": "http://www.abc.com/?lot=",
           "format": ""
         },
         {
           "pos": 1,
           "type": "field",
-          "value": "sn",
+          "value": "lot",
           "format": ""
         },
         {
@@ -498,7 +497,7 @@ DLbelExample.demo1 = function () {
     },
     {
       "head": {
-        "name": "doys_label_element_3",
+        "name": "element_1",
         "elementType": "text"
       },
       "sections": [
@@ -528,70 +527,76 @@ DLbelExample.demo1 = function () {
       },
       "position": {
         "layer": 1,
-        "top": "23.82",
-        "left": "31.71",
+        "top": "23.11",
+        "left": "40.51",
         "width": 20,
         "height": 8,
         "angle": 330,
-        "angleR": 0,
+        "angleR": 5.759586531581287,
         "textAlign": "center",
         "verticalAlign": "middle",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 20,
-        "hC": 8,
+        "wC": 21.32050807568877,
+        "hC": 16.928203230275514,
         "P1": {
           "x": 0,
-          "y": 0
+          "y": 10.000000000000009
         },
         "P2": {
-          "x": 20,
+          "x": 17.320508075688767,
           "y": 0
         },
         "P3": {
-          "x": 20,
-          "y": 8
+          "x": 21.32050807568877,
+          "y": 6.928203230275507
         },
         "P4": {
-          "x": 0,
-          "y": 8
+          "x": 4.0000000000000036,
+          "y": 16.928203230275514
         },
         "P15": {
-          "x": 10,
-          "y": 0
+          "x": 8.660254037844384,
+          "y": 5.000000000000004
         },
         "P25": {
-          "x": 20,
-          "y": 4
+          "x": 19.32050807568877,
+          "y": 3.4641016151377535
         },
         "P35": {
-          "x": 10,
-          "y": 8
+          "x": 12.660254037844387,
+          "y": 11.92820323027551
         },
         "P45": {
-          "x": 0,
-          "y": 4
+          "x": 2.0000000000000018,
+          "y": 13.46410161513776
         },
         "offsetX": 0,
-        "offsetY": 0,
+        "offsetY": 10.000000000000009,
         "leftText": 10,
-        "topText": 4
+        "topText": 4,
+        "offsetLeft": 0.3,
+        "offsetRight": 0.3,
+        "offsetTop": 0.3,
+        "offsetBottom": 0.3,
+        "clientWidth": 19.4,
+        "clientHeight": 7.4
       },
       "env": "design",
       "point": 600
     },
     {
       "head": {
-        "name": "doys_label_element_4",
+        "name": "name",
         "elementType": "text"
       },
       "sections": [
         {
           "pos": 0,
-          "type": "field",
-          "value": "name",
+          "type": "fixed",
+          "value": "一次性使用血浆胆红素吸附器",
           "format": ""
         },
         {
@@ -603,7 +608,8 @@ DLbelExample.demo1 = function () {
       ],
       "font": {
         "lineHeight": 0,
-        "size": "10"
+        "size": "9",
+        "name": "微软雅黑"
       },
       "frame": {
         "type": "",
@@ -614,7 +620,7 @@ DLbelExample.demo1 = function () {
         "top": "3.90",
         "left": "3",
         "width": "47.57",
-        "height": 8,
+        "height": "5.93",
         "angle": 0,
         "angleR": 0,
         "textAlign": "left",
@@ -624,7 +630,7 @@ DLbelExample.demo1 = function () {
         "marginTop": 0,
         "marginBottom": 0,
         "wC": 47.57,
-        "hC": 8,
+        "hC": 5.93,
         "P1": {
           "x": 0,
           "y": 0
@@ -635,11 +641,11 @@ DLbelExample.demo1 = function () {
         },
         "P3": {
           "x": 47.57,
-          "y": 8
+          "y": 5.93
         },
         "P4": {
           "x": 0,
-          "y": 8
+          "y": 5.93
         },
         "P15": {
           "x": 23.785,
@@ -647,27 +653,33 @@ DLbelExample.demo1 = function () {
         },
         "P25": {
           "x": 47.57,
-          "y": 4
+          "y": 2.965
         },
         "P35": {
           "x": 23.785,
-          "y": 8
+          "y": 5.93
         },
         "P45": {
           "x": 0,
-          "y": 4
+          "y": 2.965
         },
         "offsetX": 0,
         "offsetY": 0,
         "leftText": 0,
-        "topText": 0
+        "topText": 0,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 47.57,
+        "clientHeight": 5.93
       },
       "env": "design",
       "point": 600
     },
     {
       "head": {
-        "name": "doys_label_element_5",
+        "name": "price",
         "elementType": "text"
       },
       "sections": [
@@ -694,73 +706,79 @@ DLbelExample.demo1 = function () {
         "lineHeight": 0,
         "size": "9",
         "name": "微软雅黑",
-        "italic": true
+        "italic": true,
+        "color": "#DC1A1A"
       },
       "frame": {
         "type": "rectangle",
-        "width": 0.5,
-        "color": "#EA5C5C",
-        "fillColor": "#E7E580"
+        "width": 0,
+        "fillColor": "#E2E780"
       },
       "position": {
         "layer": 1,
-        "top": "12",
-        "left": "3",
-        "width": "37.31",
-        "height": "7.87",
+        "top": "11.11",
+        "left": 10.95,
+        "width": "38",
+        "height": "8.38",
         "angle": 0,
         "angleR": 0,
-        "textAlign": "left",
+        "textAlign": "right",
         "verticalAlign": "middle",
         "marginLeft": 0,
-        "marginRight": 0,
+        "marginRight": 1,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 37.31,
-        "hC": 7.87,
+        "wC": 38,
+        "hC": 8.38,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 37.31,
+          "x": 38,
           "y": 0
         },
         "P3": {
-          "x": 37.31,
-          "y": 7.87
+          "x": 38,
+          "y": 8.38
         },
         "P4": {
           "x": 0,
-          "y": 7.87
+          "y": 8.38
         },
         "P15": {
-          "x": 18.655,
+          "x": 19,
           "y": 0
         },
         "P25": {
-          "x": 37.31,
-          "y": 3.935
+          "x": 38,
+          "y": 4.19
         },
         "P35": {
-          "x": 18.655,
-          "y": 7.87
+          "x": 19,
+          "y": 8.38
         },
         "P45": {
           "x": 0,
-          "y": 3.935
+          "y": 4.19
         },
         "offsetX": 0,
         "offsetY": 0,
-        "leftText": 0,
-        "topText": 3.935
+        "leftText": 37,
+        "topText": 4.19,
+        "offsetLeft": 0,
+        "offsetRight": 1,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 37,
+        "clientHeight": 8.38
       },
       "env": "design",
       "point": 600
     },
     {
       "head": {
-        "name": "doys_label_element_6",
+        "name": "image",
         "elementType": "image"
       },
       "font": {
@@ -776,7 +794,7 @@ DLbelExample.demo1 = function () {
       "position": {
         "layer": 1,
         "top": 21.05691056910569,
-        "left": 2.93,
+        "left": "3",
         "width": "24.79",
         "height": "22.52",
         "angle": 0,
@@ -826,17 +844,105 @@ DLbelExample.demo1 = function () {
         "leftText": 2,
         "topText": 2,
         "imgWidth": 20.79,
-        "imgHeight": 20.79
+        "imgHeight": 20.79,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 24.79,
+        "clientHeight": 22.52
       },
       "image": {
         "value": "img01",
         "deformation": "zoom",
-        "url": "http://biosunmed.com/upload/2020/7/61552460.jpg"
+        "url": "http://biosunmed.com/upload/2020/4/1410510871.jpg"
       },
       "env": "design",
       "point": 600
+    },
+    {
+      "head": {
+        "elementType": "shape",
+        "name": "element_2"
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0,
+        "color": "#000000",
+        "fillColor": "#809AE7"
+      },
+      "position": {
+        "layer": 1,
+        "width": "45.95",
+        "height": "0.5",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "top": "20.21",
+        "left": "3",
+        "angle": 0,
+        "angleR": 0,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 45.95,
+        "hC": 0.5,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 45.95,
+          "y": 0
+        },
+        "P3": {
+          "x": 45.95,
+          "y": 0.5
+        },
+        "P4": {
+          "x": 0,
+          "y": 0.5
+        },
+        "P15": {
+          "x": 22.975,
+          "y": 0
+        },
+        "P25": {
+          "x": 45.95,
+          "y": 0.25
+        },
+        "P35": {
+          "x": 22.975,
+          "y": 0.5
+        },
+        "P45": {
+          "x": 0,
+          "y": 0.25
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 45.95,
+        "clientHeight": 0.5
+      },
+      "env": "design"
     }
-  ]
+  ],
+  "page": {
+    "width": 80,
+    "height": 60,
+    "marginLeft": 0,
+    "marginTop": 0,
+    "marginRight": 0,
+    "marginBottom": 0,
+    "rows": 1,
+    "cols": 1,
+    "horizontalSpace": 0,
+    "verticalSpace": 0
+  }
 }
         `;
 }

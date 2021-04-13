@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-04-12
+ * Modify Date: 2021-04-13
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -1061,6 +1061,31 @@ class Label {
             throw new Error("The label variable (" + name + ") was not found, please check.");
         }
         this.fields[name] = value;
+    }
+    setElementValue(name, value) {        
+        let element = this.getElementByName(name);
+        if (!element) {
+            throw new Error("No element named " + name + " was found");
+        }
+        let elementType = element.head.elementType;
+        if (elementType.equals("text")) {
+            if (element.sections[0].type.equals("fixed")) {
+                element.sections[0].value = value;
+            }
+            else {
+                throw new Error("对元素直接赋值，元素必须是固定值，请检查。");
+            }
+        }
+        else {
+            throw new Error("不支持对类型为" + elementType + " 的元素赋值，请检查。");
+        }
+    }
+    getElementByName(name) {
+        for (let i = 0; i < this.elements.length; i++) {
+            if (this.elements[i].head.name.equals(name)) {
+                return this.elements[i];
+            }
+        }
     }
     compute(redraw = false) {
         // -- 1. before compute --
