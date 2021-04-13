@@ -178,7 +178,7 @@ DLbelExample.demo1 = function () {
     "exp_date": "231015",
     "lot": "231015",
     "price": "$1234.56",
-    "img01": "http://biosunmed.com/upload/2020/4/1410510871.jpg",
+    "img01": "http://biosunmed.com/upload/2020/7/61552460.jpg",
     "img02": "http://biosunmed.com/upload/2020/4/1410510871.jpg",
     "img08": "08.png"
   },

@@ -1062,7 +1062,7 @@ class Label {
         }
         this.fields[name] = value;
     }
-    setElementValue(name, value) {        
+    setElementValue(name, value) {
         let element = this.getElementByName(name);
         if (!element) {
             throw new Error("No element named " + name + " was found");
@@ -1073,7 +1073,37 @@ class Label {
                 element.sections[0].value = value;
             }
             else {
-                throw new Error("对元素直接赋值，元素必须是固定值，请检查。");
+                throw new Error("对元素直接赋值，元素数据类型必须是固定值，请检查。");
+            }
+        }
+        else if (elementType.equals("barcode")) {
+            if (element.segments[0].type.equals("fixed")) {
+                element.segments[0].value = value;
+            }
+            else {
+                throw new Error("对元素直接赋值，元素数据类型必须是固定值，请检查。");
+            }
+        }
+        else if (elementType.equals("image")) {
+            element.image.value = "";
+            element.image.url = value;
+        }
+        else {
+            throw new Error("不支持对类型为" + elementType + " 的元素赋值，请检查。");
+        }
+    }
+    setElementText(name, value) {
+        let element = this.getElementByName(name);
+        if (!element) {
+            throw new Error("No element named " + name + " was found");
+        }
+        let elementType = element.head.elementType;
+        if (elementType.equals("barcode")) {
+            if (element.sections[0].type.equals("fixed")) {
+                element.sections[0].value = value;
+            }
+            else {
+                throw new Error("对元素直接赋值，元素数据类型必须是固定值，请检查。");
             }
         }
         else {
