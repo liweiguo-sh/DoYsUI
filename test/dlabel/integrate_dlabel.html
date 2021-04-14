@@ -10,7 +10,11 @@
             height: 32px;
             line-height: 32px;
         }
-
+        #selPrinters {
+            min-width: 80px;
+            height: 32px;
+            line-height: 32px;
+        }
         .spanSpace {
             margin-left: 15px;
         }
@@ -32,6 +36,7 @@
         <input id="btnSetValue" type="button" value="变量赋值(推荐)" onclick="btnSetValue_click();" />
         <input id="btnSetElementValue" type="button" value="元素赋值" onclick="btnSetElementValue_click();" />
         <input id="btnBatchPrint" type="button" value="批量打印" onclick="bntBatchPrint_click();" />
+        <select id="selPrinters" onchange="printerChange()"></select>
     </div>
     <iframe id="ifrDesigner"></iframe>
     <textarea id="txtJson" spellcheck="false" style="display:none;"></textarea>
@@ -42,6 +47,7 @@
 <script>
     var width = screen.availWidth, height = screen.availHeight;
     var ifr = window.document.getElementById("ifrDesigner");
+    var printers = window.document.getElementById("selPrinters");
     var txtJson = window.document.getElementById("txtJson");
     var lbl;
 
@@ -58,8 +64,19 @@
 
             // -- 注册并监听标签保存事件 --
             lbl.addEventListener("on-save", onSave, { a: "123", b: "456" });
+
+            lbl.getPrinterList().then((data) => {
+                for (let i = 0; i < data.length; i++) {
+                    printers.add(new Option(data[i], data[i]));
+                }
+
+            })
         }, false);
     }, false);
+
+    printerChange = function () {        
+        lbl.setPrinterName(printers.value);
+    }
 </script>
 
 <!-- DLabel -->
@@ -102,7 +119,7 @@
         }
     }
 
-    function bntBatchPrint_click() {
+    function bntBatchPrint_click() {        
         let data = [];
         // --------------------------------------------
         lbl.setElementValue("name", "一次性使用血浆胆红素吸附器(批)");
@@ -120,7 +137,7 @@
         // --------------------------------------------
         lbl.print({
             data: data,
-            printerName: "",
+            printerName: printers.value,
             copies: 2
         });
     }

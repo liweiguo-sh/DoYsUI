@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-27
- * Modify Date: 2021-04-08
+ * Modify Date: 2021-04-13
  * Copyright 2021, doys-next.com
  * edge shell util
  */
@@ -23,53 +23,6 @@ edge.addEventListener = function (eventName, callback, jsp = {}) {
         jsp: jsp
     });
 }
-
-edge.invokeEdge = function (jsp) {
-    try {
-        if (!chrome || !chrome.webview) {
-            let message = "当前操作需要客户端支持，请在客户端中使用。";
-            if (top.topWin) {
-                topWin.message(message, "warning");
-            }
-            else {
-                alert(message);
-            }
-            return;
-        }
-        debugger
-        chrome.webview.postMessage(jsp);
-    }
-    catch (e) {
-        alert(e.toString());
-    }
-}
-
-// -- edge shell invoke js ----------------------------------------------------
-edge.commonShellInvokeJs = function (jsp) {
-    try {
-        let action = jsp.action;
-        if (action == "setBarcodeBase64") {
-            // -- DLabel专用 --
-            edge.setBarcodeBase64(jsp);
-        }
-        else {
-            for (let i = 0; i < edge.shellEventCallback.length; i++) {
-                let sec = edge.shellEventCallback[i];
-                if (sec.eventName == jsp.action) {
-                    sec.callback(jsp, sec.jsp);
-                }
-            }
-        }
-    }
-    catch (e) {
-        alert(e.toString());
-    }
-}
-
-edge.setBarcodeBase64 = function (para) {
-    edge.EdgeJsSwapArea.DLabel[para.base64Key] = para.base64;
-}
-
 
 // -- invoke edge shell by http channel ---------------------------------------
 edge.invokeHttpShell = async function (controller, jsp, option = { autoShowErr: true }) {
@@ -112,6 +65,7 @@ edge.getPrinterList = async function () {
     if (res && res.ok) {
         topWin.printers = res.data.printers;
     }
+    return res.data.printers;
 }
 edge.getBarcodeBase64 = async function (jsp) {
     let controller = "/BarcodeGenerator/GetBarcodeBase64";
@@ -137,4 +91,48 @@ edge.printLabel = async function (jsp) {
 
     let res = await edge.invokeHttpShell(controller, dataPost);
     return res;
+}
+
+
+// -- 集成外壳模式 --------------------------------------------------------------
+edge.invokeEdge = function (jsp) {
+    alert("???-1");
+    try {
+        if (!chrome || !chrome.webview) {
+            let message = "当前操作需要客户端支持，请在客户端中使用。";
+            if (top.topWin) {
+                topWin.message(message, "warning");
+            }
+            else {
+                alert(message);
+            }
+            return;
+        }
+        chrome.webview.postMessage(jsp);
+    }
+    catch (e) {
+        alert(e.toString());
+    }
+}
+edge.commonShellInvokeJs = function (jsp) {
+    alert("???-2");
+    try {
+        let action = jsp.action;
+        if (action == "setBarcodeBase64") {
+            // -- DLabel专用 --
+            edge.setBarcodeBase64(jsp);
+            edge.EdgeJsSwapArea.DLabel[para.base64Key] = jsp.base64;
+        }
+        else {
+            for (let i = 0; i < edge.shellEventCallback.length; i++) {
+                let sec = edge.shellEventCallback[i];
+                if (sec.eventName == jsp.action) {
+                    sec.callback(jsp, sec.jsp);
+                }
+            }
+        }
+    }
+    catch (e) {
+        alert(e.toString());
+    }
 }

@@ -696,6 +696,8 @@
             lbl.compute(true);
         }
         reader.readAsText(files[0], "UTF-8");
+
+        objFile.value = "";
     }
 
     function saveLabel() {
@@ -751,7 +753,7 @@
         let para = {
             labelString: labelString,
             dataString: dataString,
-            printerName: "",
+            printerName: lbl.getPrinterName(),
             copies: 1
         }
         edge.printLabel(para);
@@ -1013,7 +1015,7 @@
             dataString: dataString,
             printerName: "",
             copies: 1
-        }        
+        }
         edge.printLabel(para);
     }
 </script>

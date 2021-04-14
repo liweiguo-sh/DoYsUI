@@ -1163,6 +1163,18 @@ class Label {
             UtilElement.draw({ element: this.elements[i] });
         }
     }
+
+    // -- print and printer ---------------------------------------------------
+    async getPrinterList() {
+        let printers = await edge.getPrinterList();
+        return printers;
+    }
+    getPrinterName() {
+        return this.printerName || "";
+    }
+    setPrinterName(printerName) {
+        this.printerName = printerName;
+    }    
     print(jsp) {
         let labelString = this.toJson();
         let dataString = JSON.stringify(jsp.data, null, " ");
