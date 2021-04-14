@@ -950,14 +950,14 @@ DLbelExample.debug1 = function () {
     return `
 {
   "page": {
-    "width": 200,
-    "height": 150,
+    "width": 80,
+    "height": 60,
     "marginLeft": 0,
     "marginTop": 0,
     "marginRight": 0,
     "marginBottom": 0,
-    "rows": 2,
-    "cols": 2,
+    "rows": 1,
+    "cols": 1,
     "horizontalSpace": 0,
     "verticalSpace": 0
   },
@@ -967,89 +967,20 @@ DLbelExample.debug1 = function () {
     "point": 600,
     "imageBaseUrl": "",
     "scriptAfterCompute": "",
-    "element_id": 9
+    "element_id": 10
   },
   "fields": {},
   "elements": [
     {
       "head": {
-        "elementType": "shape",
-        "name": "element_8"
-      },
-      "frame": {
-        "type": "rectangle",
-        "width": 0.5,
-        "color": "#F42929"
-      },
-      "position": {
-        "layer": "0",
-        "width": "78",
-        "height": "58",
-        "textAlign": "center",
-        "verticalAlign": "middle",
-        "top": "1",
-        "left": "1",
-        "angle": 0,
-        "angleR": 0,
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0,
-        "wC": 78,
-        "hC": 58,
-        "P1": {
-          "x": 0,
-          "y": 0
-        },
-        "P2": {
-          "x": 78,
-          "y": 0
-        },
-        "P3": {
-          "x": 78,
-          "y": 58
-        },
-        "P4": {
-          "x": 0,
-          "y": 58
-        },
-        "P15": {
-          "x": 39,
-          "y": 0
-        },
-        "P25": {
-          "x": 78,
-          "y": 29
-        },
-        "P35": {
-          "x": 39,
-          "y": 58
-        },
-        "P45": {
-          "x": 0,
-          "y": 29
-        },
-        "offsetX": 0,
-        "offsetY": 0,
-        "offsetLeft": 0.5,
-        "offsetRight": 0.5,
-        "offsetTop": 0.5,
-        "offsetBottom": 0.5,
-        "clientWidth": 77,
-        "clientHeight": 57
-      },
-      "env": "design"
-    },
-    {
-      "head": {
-        "name": "element_1",
-        "elementType": "text"
+        "elementType": "text",
+        "name": "element_1"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "样张水印",
+          "value": "你以为食品包装上的配料表里所有的成分都是无序堆放的吗？不！它们其实都是有序排列的。根据GB 7718-2011《食品安全国家标准预包装食品标签通则》的规定，包装食品中的各种配料应按制造或加工时的加入量进行递减排列。也就是说，在配料表中排名越靠前的，添加的量就越大。",
           "format": ""
         },
         {
@@ -1060,78 +991,77 @@ DLbelExample.debug1 = function () {
         }
       ],
       "font": {
+        "name": "宋体",
+        "size": "9",
         "lineHeight": 0,
-        "size": 12,
-        "name": "楷体",
-        "color": "#00FF48",
-        "bold": true
+        "wordWrap": true,
+        "fontHeight": 3.175
       },
       "frame": {
         "type": "rectangle",
         "width": 0.3,
-        "color": "#FFD000"
+        "color": "#FF8C00"
       },
       "position": {
         "layer": 1,
-        "top": "20",
-        "left": "20",
-        "width": "25",
-        "height": "8",
-        "angle": "330",
-        "angleR": 5.759586531581287,
-        "textAlign": "center",
+        "width": "50.74",
+        "height": "32.06",
+        "textAlign": "left",
         "verticalAlign": "middle",
+        "top": "1.85",
+        "left": 1.53,
+        "angle": 0,
+        "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 25.650635094610962,
-        "hC": 19.428203230275518,
+        "wC": 50.74,
+        "hC": 32.06,
         "P1": {
           "x": 0,
-          "y": 12.50000000000001
+          "y": 0
         },
         "P2": {
-          "x": 21.65063509461096,
+          "x": 50.74,
           "y": 0
         },
         "P3": {
-          "x": 25.650635094610962,
-          "y": 6.928203230275507
+          "x": 50.74,
+          "y": 32.06
         },
         "P4": {
-          "x": 4.0000000000000036,
-          "y": 19.428203230275518
+          "x": 0,
+          "y": 32.06
         },
         "P15": {
-          "x": 10.82531754730548,
-          "y": 6.250000000000005
+          "x": 25.37,
+          "y": 0
         },
         "P25": {
-          "x": 23.650635094610962,
-          "y": 3.4641016151377535
+          "x": 50.74,
+          "y": 16.03
         },
         "P35": {
-          "x": 14.825317547305483,
-          "y": 13.178203230275512
+          "x": 25.37,
+          "y": 32.06
         },
         "P45": {
-          "x": 2.0000000000000018,
-          "y": 15.964101615137764
+          "x": 0,
+          "y": 16.03
         },
         "offsetX": 0,
-        "offsetY": 12.50000000000001,
-        "leftText": 12.5,
-        "topText": 4,
+        "offsetY": 0,
         "offsetLeft": 0.3,
         "offsetRight": 0.3,
         "offsetTop": 0.3,
         "offsetBottom": 0.3,
-        "clientWidth": 24.4,
-        "clientHeight": 7.4
+        "clientWidth": 50.14000000000001,
+        "clientHeight": 31.46,
+        "leftText": 0.3,
+        "topText": 16.03
       },
-      "env": "design",
-      "point": 600
+      "env": "design"
     }
   ]
 }

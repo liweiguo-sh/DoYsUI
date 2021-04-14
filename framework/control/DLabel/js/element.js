@@ -65,8 +65,11 @@ UtilElement.computeProp = function (jsp) {
         }
     }
     font = element.font || {};
-    font.lineHeight = parseFloat(font.lineHeight || 0);
-    font.size = font.size || 12;
+    font.name = font.name || "宋体";
+    font.size = font.size || 10.5;
+    font.fontHeight = UtilElement._getContextFontHeight(font);
+    font.lineHeight = parseFloat(font.lineHeight);
+    font._lineHeightDraw = font.lineHeight || font.fontHeight;          // -- 字体行高 --
 
     frame.type = frame.type || "";
     frame.width = frame.type.equals("") ? 0 : parseFloat(frame.width || 0);
@@ -97,8 +100,6 @@ UtilElement.computeProp = function (jsp) {
     if (head.elementType.equals("text") || head.elementType.equals("barcode")) {
         font._fontDraw = UtilElement._getContextFont(font, pxmm);
         font._fillStyleDraw = UtilElement._getContextFillStyle({ color: font.color });
-        font._fontHeight = UtilElement._getContextLineHeight(font);
-        font._lineHeightDraw = element.font.lineHeight || font._fontHeight;
 
         // -- 水平位置 --
         if (P.textAlign.equals("center")) {
@@ -128,15 +129,15 @@ UtilElement.computeProp = function (jsp) {
     // -- 3. 条码(条码的图片部分) --
     if (head.elementType.equals("barcode")) {
         if (head.pureBarcode || P.verticalAlign.equals("middle")) {
-            font._fontHeight = 0;
+            font.fontHeight = 0;
         }
-        P.heightBarcode = P.height - 2 * frame.width - P.marginTop - P.marginBottom - font._fontHeight;
+        P.heightBarcode = P.height - 2 * frame.width - P.marginTop - P.marginBottom - font.fontHeight;
         P.widthBarcode = P.width - 2 * frame.width - P.marginLeft - P.marginRight;
         P.leftBarcode = frame.width + P.marginLeft;
 
         // -- 垂直位置 --
         if (P.verticalAlign.equals("top")) {
-            P.topBarcode = frame.width + P.marginTop + font._fontHeight;
+            P.topBarcode = frame.width + P.marginTop + font.fontHeight;
         }
         else {
             P.topBarcode = frame.width + P.marginTop;
@@ -490,6 +491,7 @@ UtilElement._drawSingleLine = function (context, element) {
     context.fillText(text, x, y);
 }
 UtilElement._drawMultiLine = function (context, element) {
+    let pxmm = element._this.pxmm;
     let font = element.font;
     let position = element.position;
 
@@ -498,8 +500,8 @@ UtilElement._drawMultiLine = function (context, element) {
     let chars = txtString.split("");
     let length = chars.length, pos = 0;
 
-    let lineHeight = font._lineHeightDraw;
-    let width = position.width;
+    let lineHeight = font._lineHeightDraw * pxmm;
+    let width = position.width * pxmm;
     let top = position.marginTop, left;
 
     // -- 1. style ----------------------------------------
@@ -595,7 +597,7 @@ UtilElement._getContextFillStyle = function (jsp) {
 
     return arr.join(" ");
 }
-UtilElement._getContextLineHeight = function (font) {
+UtilElement._getContextFontHeight = function (font) {
     return (font.size / 72) * 25.4;
 }
 
