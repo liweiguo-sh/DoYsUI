@@ -644,7 +644,7 @@
     }
     function getLabel() {
         if (lbl == null) {
-            lbl = new Label({ container: divCanvas, env: "design" });
+            lbl = new Label({ container: divCanvas, designMode: true });
             lbl.loadLabel("", {
                 labelId: 0,
                 fields: {},
@@ -972,7 +972,7 @@
         let labelKey = "demo1";
         let labelContent = DLbelExample.getExample(labelKey);
 
-        lbl.loadLabel(labelContent);
+        lbl.loadLabel(labelContent, { designMode: true });
         if (labelKey.equals("demo1")) {
             lbl.setValue("price", "$1234.88");
         }
@@ -985,7 +985,7 @@
         let labelKey = "debug1";
         let labelContent = DLbelExample.getExample(labelKey);
 
-        lbl.loadLabel(labelContent);
+        lbl.loadLabel(labelContent, { designMode: true });
         lbl.compute(true);
     }
 

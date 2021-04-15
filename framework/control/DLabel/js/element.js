@@ -479,7 +479,7 @@ UtilElement._drawSingleLine = function (context, element) {
     let position = element.position;
     let x = position.leftText * pxmm;
     let y = position.topText * pxmm;
-    let text = element.head._sectionsText || element.head._segmentsText || (element.env.equals("design") ? "<空>" : "");
+    let text = element.head._sectionsText || element.head._segmentsText || (element._designMode ? "<空>" : "");
 
     if (position.verticalAlign.equals("top")) {
         y += 4;     // -- 补4个像素，解决中文字体削顶问题，C#中没有这个问题 --
@@ -496,7 +496,7 @@ UtilElement._drawMultiLine = function (context, element) {
     let position = element.position;
 
     let txts = new Array();
-    let txtString = element.head._sectionsText || (element.env.equals("design") ? "<空>" : "");
+    let txtString = element.head._sectionsText || (element._designMode ? "<空>" : "");
     let chars = txtString.split("");
     let length = chars.length, pos = 0;
 

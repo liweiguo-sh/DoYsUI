@@ -2,13 +2,13 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-02-24
- * Modify Date: 2021-04-12
+ * Modify Date: 2021-04-15
  * Copyright 2021, doys-next.com
  * DLabel doys.js
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-04-14";
+    window.jsVer = top.jsVer || "2021-04-15";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }
@@ -72,8 +72,16 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/framework/control/DLabel/js/example.js");
     }
     else if (fileRes.equals("preview")) {
+        arrRes.push(resRootPath + "/framework/core/edge.js");
+        arrRes.push(resRootPath + "/framework/control/window/xwf.window.css");
+        arrRes.push(resRootPath + "/framework/control/window/xwf.window.js");
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");
+
+        arrRes.push(resRootPath + "/framework/control/DLabel/css/designer.css");
         arrRes.push(resRootPath + "/framework/control/DLabel/css/label.css");
 
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/font.js");
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/util.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/element.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/label.js");
     }

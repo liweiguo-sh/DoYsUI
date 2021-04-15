@@ -1007,7 +1007,7 @@ DLbelExample.debug1 = function () {
         "width": "50.74",
         "height": "32.06",
         "textAlign": "left",
-        "verticalAlign": "middle",
+        "verticalAlign": "top",
         "top": "1.85",
         "left": 1.53,
         "angle": 0,

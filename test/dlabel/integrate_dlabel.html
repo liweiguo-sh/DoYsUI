@@ -10,11 +10,13 @@
             height: 32px;
             line-height: 32px;
         }
+
         #selPrinters {
             min-width: 80px;
             height: 32px;
             line-height: 32px;
         }
+
         .spanSpace {
             margin-left: 15px;
         }
@@ -50,31 +52,42 @@
     var printers = window.document.getElementById("selPrinters");
     var txtJson = window.document.getElementById("txtJson");
     var lbl;
-
+    var designMode = true;              // -- true: 设计模式，false: 预览模式 --
+    // ------------------------------------------------------------------------
     window.addEventListener("load", function () {
-        ifr.style.width = 0.9 * width + "px";
-        ifr.style.height = 0.8 * height + "px";
-
         txtJson.style.width = ifr.offsetWidth / 2 + "px";
         txtJson.style.height = ifr.offsetHeight + "px";
 
-        ifr.src = "../../framework/control/DLabel/form/designer.html?v=" + Math.random();
+        if (designMode) {
+            ifr.style.width = 0.9 * width + "px";
+            ifr.style.height = 0.8 * height + "px";
+            ifr.src = "../../framework/control/DLabel/form/designer.html?v=" + Math.random();
+        }
+        else {
+            ifr.style.width = 0.4 * width + "px";
+            ifr.style.height = 0.5 * height + "px";
+            ifr.src = "../../framework/control/DLabel/form/preview.html?v=" + Math.random();
+        }
+
         ifr.addEventListener("load", function (evt) {
+            // -- 获取 Label控件 实例 --
             lbl = ifr.contentWindow.getLabel();
 
-            // -- 注册并监听标签保存事件 --
+            // -- 注册并监听标签保存事件(预览模式不需要) --
             lbl.addEventListener("on-save", onSave, { a: "123", b: "456" });
 
+            // -- 获取打印机列表 --
             lbl.getPrinterList().then((data) => {
                 for (let i = 0; i < data.length; i++) {
                     printers.add(new Option(data[i], data[i]));
                 }
 
-            })
+            });
         }, false);
     }, false);
 
-    printerChange = function () {        
+    printerChange = function () {
+        // -- 指定打印机 --
         lbl.setPrinterName(printers.value);
     }
 </script>
@@ -93,7 +106,7 @@
     function btnLoadExample_click() {
         let labelContent = getExampleLabelContent();
 
-        lbl.loadLabel(labelContent);
+        lbl.loadLabel(labelContent, { designMode: designMode });
         lbl.compute(true);
     }
     function btnSetValue_click() {
@@ -119,7 +132,7 @@
         }
     }
 
-    function bntBatchPrint_click() {        
+    function bntBatchPrint_click() {
         let data = [];
         // --------------------------------------------
         lbl.setElementValue("name", "一次性使用血浆胆红素吸附器(批)");

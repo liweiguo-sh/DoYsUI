@@ -15,7 +15,7 @@ class Label {
         // -- 1. init --
         this.prefix = "doys_label_";
         this.doc = window.document;
-        this.env = jsp.env || "preview";                            // -- design:设计环境;preview:预览环境 --
+        this._designMode = jsp.designMode || false;                  // -- true:设计环境;false:预览环境 --
         this.id = 1;
 
         // -- 2. label container --
@@ -28,7 +28,7 @@ class Label {
             console.log("可以考虑设计为当前缩放比例和100%比例之间切换");
         }
         this.parentContainer.onclick = function (evt) {
-            if (_this.readonly) return;
+            if (!_this._designMode) return;
 
             _this.activatedElement = null;
             _this.hideResize();
@@ -79,7 +79,7 @@ class Label {
         if (this.elements) this.clearLabel();
 
         // -- 1. 初始化参数 --        
-        this.readonly = jsp.readonly;
+        this._designMode = this._designMode || jsp.designMode;
         this.zIndexCanvas = 100;
         this.zIndexResize = 200;
         this.zIndexHover = 210;
@@ -112,8 +112,8 @@ class Label {
 
         // -- 3. 计算标签换算系数(毫米|像素) --
         let mmW = this.head.width, mmH = this.head.height, mmWH = mmW / mmH;
-        let pxW = this.parentContainer.offsetWidth - g.x.getStyleValue(this.parentContainer, "padding-left") - g.x.getStyleValue(this.parentContainer, "padding-right") - (this.env.equals("design") ? 12 : 0);   // -- 如果有矩形元素(宽高等于标签的宽高)，设计环境下hover时会出现不必要的滚动条，所以减12 --
-        let pxH = this.parentContainer.offsetHeight - g.x.getStyleValue(this.parentContainer, "padding-top") - g.x.getStyleValue(this.parentContainer, "padding-bottom") - (this.env.equals("design") ? 12 : 0);
+        let pxW = this.parentContainer.offsetWidth - g.x.getStyleValue(this.parentContainer, "padding-left") - g.x.getStyleValue(this.parentContainer, "padding-right") - (this._designMode ? 12 : 0);   // -- 如果有矩形元素(宽高等于标签的宽高)，设计环境下hover时会出现不必要的滚动条，所以减12 --
+        let pxH = this.parentContainer.offsetHeight - g.x.getStyleValue(this.parentContainer, "padding-top") - g.x.getStyleValue(this.parentContainer, "padding-bottom") - (this._designMode ? 12 : 0);
         let pxWH = pxW / pxH;
 
         if (mmWH >= pxWH) {
@@ -142,7 +142,7 @@ class Label {
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
-            element.env = this.env;
+            element._designMode = this._designMode;
             element._labelHead = this.head;
 
             this.createElement(element);
@@ -321,7 +321,7 @@ class Label {
         this.clearMultiSelect();
 
         let element = DLbelExample.getElement(elementType);
-        element.env = this.env;
+        element._designMode = this._designMode;
         element._this = this;
         element._labelHead = this.head;
         element.head.name = "element_" + this.head.element_id++;
@@ -352,7 +352,7 @@ class Label {
             elementString = UtilElement.getJson(elementsCopy[i]);
             element = JSON.parse(elementString);
 
-            element.env = this.env;
+            element._designMode = this._designMode;
             element._this = this;
             element._labelHead = this.head;
             element.head.name = "element_" + this.head.element_id++;
@@ -425,7 +425,7 @@ class Label {
         element._canvas = cvsElement;
         element._canvasId = canvasId;
 
-        if (!this.readonly) {
+        if (this._designMode) {
             cvsElement.draggable = true;
             cvsElement.ondragstart = function (evt) {
                 let _dom = evt.srcElement;
@@ -1174,7 +1174,7 @@ class Label {
     }
     setPrinterName(printerName) {
         this.printerName = printerName;
-    }    
+    }
     print(jsp) {
         let labelString = this.toJson();
         let dataString = JSON.stringify(jsp.data, null, " ");
