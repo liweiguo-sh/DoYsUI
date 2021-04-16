@@ -21,7 +21,7 @@
             margin-left: 15px;
         }
 
-        #ifrDesigner {
+        #iframeLabel {
             border: solid 1px green;
             margin-top: 10px;
             margin-bottom: 20px;
@@ -40,7 +40,7 @@
         <input id="btnBatchPrint" type="button" value="批量打印" onclick="bntBatchPrint_click();" />
         <select id="selPrinters" onchange="printerChange()"></select>
     </div>
-    <iframe id="ifrDesigner"></iframe>
+    <iframe id="iframeLabel"></iframe>
     <textarea id="txtJson" spellcheck="false" style="display:none;"></textarea>
 </body>
 </html>
@@ -48,7 +48,7 @@
 <!-- formLoad -->
 <script>
     var width = screen.availWidth, height = screen.availHeight;
-    var ifr = window.document.getElementById("ifrDesigner");
+    var ifr = window.document.getElementById("iframeLabel");
     var printers = window.document.getElementById("selPrinters");
     var txtJson = window.document.getElementById("txtJson");
     var lbl;

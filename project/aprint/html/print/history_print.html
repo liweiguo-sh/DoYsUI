@@ -181,17 +181,18 @@
 
                 // -- 加载标签 --
                 winPreview.window.labelId = this.labelId;
-                winPreview.window.lbl.loadLabel(this.labelContent, {
+                let lbl = winPreview.window.getLabel();
+                lbl.loadLabel(this.labelContent, {
                     imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
                     labelId: this.labelId,
                     readonly: true
                 });
-                winPreview.window.lbl.compute(true);
+                lbl.compute(true);
             },
 
             getPrintData() {
                 let data = [], dataString;
-                let lbl = winPreview.window.lbl;
+                let lbl = winPreview.window.getLabel();
 
                 let rowCount = this.dtbTaskData.rowCount;
                 let columnCount = this.dtbTaskData.columnCount;

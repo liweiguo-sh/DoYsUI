@@ -507,7 +507,6 @@
                         winPreview = null;
                     }
                 }
-
                 if (winPreview == null) {
                     let prop = {
                         url: g.path.framework + "/control/DLabel/form/preview.html",
@@ -525,17 +524,19 @@
                     }
                 }
                 else {
-                    winPreview.show();                    
+                    winPreview.show();
                 }
 
+                // ----------------------------------------
                 winPreview.window.labelId = this.labelId;
-                winPreview.window.lbl.loadLabel(this.labelContent, {
+                let lbl = winPreview.window.getLabel();
+                lbl.loadLabel(this.labelContent, {
                     imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
-                    labelId: this.labelId,                    
+                    labelId: this.labelId,
                     fields: fields,
                     readonly: true
                 });
-                winPreview.window.lbl.compute(true);
+                lbl.compute(true);
             },
             async print(jsp = { previewOnly: false }) {
                 let para = {
@@ -544,10 +545,9 @@
                     printerName: this.printerName,
                     copies: this.copies
                 }
-
                 if (this.labelType.equals("DLabel")) {
-                    this.previewDLabel();
-                    let lbl = winPreview.window.lbl;
+                    await this.previewDLabel();                    
+                    let lbl = winPreview.window.getLabel();
 
                     para.labelString = lbl.toJson();
                     para.dataString = await this.getPrintData();
@@ -556,7 +556,7 @@
                     para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
                     para.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
 
-                    if (jsp.previewOnly || !this.taskId) {                        
+                    if (jsp.previewOnly || !this.taskId) {
                         para.dataString = this.getPreviewData_BarTender();
                     }
                     else {
@@ -591,7 +591,7 @@
                 return dataString;
             },
             async getPrintData() {
-                let lbl = winPreview.window.lbl;
+                let lbl = winPreview.window.getLabel();
                 let dataString, data = [];
                 // ----------------------------------------
                 if (!this.taskId) {
@@ -621,7 +621,7 @@
 
                             lbl.setValue(name, value);
                         }
-                        lbl.compute(i == rowCount - 1);
+                        lbl.compute(i == rowCount - 1);                        
                         data.push(lbl.getData());
                     }
                 }

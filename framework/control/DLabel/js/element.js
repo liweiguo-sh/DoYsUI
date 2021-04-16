@@ -816,7 +816,9 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
         element._imgSize.width = jsp.width;
         element._imgSize.height = jsp.height;
     }
-    if (typeEquals && sizeEquals) return;
+    if (typeEquals && sizeEquals && element._base64Barcode) {
+        return;
+    }
 
     // -- 2. 获取条码图片 --
     try {
@@ -829,11 +831,10 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
             isGS1: jsp.gs1 ? true : false
         }
         let res = await edge.getBarcodeBase64(para);
-
         element._base64Barcode = res.base64;
     }
     catch (e) {
-        // -- 返回样例条码图片 --
+        // -- 返回样例条码图片 --       
         element._base64Barcode = "../image/" + jsp.barcodeType + ".png";
     }
 }

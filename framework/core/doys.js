@@ -95,7 +95,7 @@ function initGlobalJs() {
         arrJS.push(g.path.plugin + "/axios.min.js");
     }
     arrJS.push(g.path.plugin + "/vue.js");
-    arrJS.push(g.path.plugin + "/element/index.js");    
+    arrJS.push(g.path.plugin + "/element/index.js");
 
     // -- core --
     arrJS.push(g.path.framework + "/core/" + "prototype.js");
@@ -160,9 +160,10 @@ function importFrameworkRes(fileRes) {
         arrRes.push(g.path.framework + "/control/main-view/main-view.js");
     }
     // -- 3. doys组件 --
-    else if (fileRes.equals("DLabel")) {
+    else if (fileRes.equals("DLabelPreview")) {
         arrRes.push(g.path.framework + "/control/DLabel/css/label.css");
 
+        arrRes.push(g.path.framework + "/core/" + "edge.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/element.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/label.js");
     }

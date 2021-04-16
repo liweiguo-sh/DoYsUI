@@ -555,7 +555,7 @@ class Label {
         let _dom = evt.srcElement;
         let _this = _dom._this;
 
-        if (evt.code.equals("Delete")) {
+        if (evt.code.equals("Delete") || evt.code.equals("Backspace")) {
             _this.delElement();
             for (let i = _this.elements.length - 1; i >= 0; i--) {
                 if (_this.elements[i].head._selected) {
@@ -1175,7 +1175,7 @@ class Label {
     setPrinterName(printerName) {
         this.printerName = printerName;
     }
-    print(jsp) {
+    print(jsp) {        
         let labelString = this.toJson();
         let dataString = JSON.stringify(jsp.data, null, " ");
         let para = {

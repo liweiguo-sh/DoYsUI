@@ -102,7 +102,7 @@
             uploadFields: "",           // -- 当前导入的Excel列集合 --
             dataPreview: null,          // -- 当前导入的数据集(仅预览部分) --
 
-            labelType: "",              // -- 标签类型(DLabel/MASO/BarTender/NiceLabel etc.) --
+            labelType: "",              // -- 标签类型(DLabel/BarTender/NiceLabel etc.) --
             taskId: null,
             labelContent: "",           // -- 标签内容 --
 
@@ -206,7 +206,7 @@
                 });
             },
 
-            async print(jsp = { previewOnly: false }) {                
+            async print(jsp = { previewOnly: false }) {
                 let para = {
                     taskId: this.taskId,
                     labelId: this.labelId,
@@ -233,7 +233,7 @@
                 else {
                     await this.previewDLabel();
 
-                    para.labelString = this.labelContent;                    
+                    para.labelString = this.labelContent;
                     para.dataString = this.getPrintData();
                     if (para.previewOnly) {
                         return;
@@ -242,6 +242,14 @@
 
                 // ----------------------------------------
                 top.edge.printLabel(para);
+            },
+            async preview() {
+                if (this.labelType.equals("BarTender")) {
+                    await this.print({ previewOnly: true });
+                }
+                else {
+                    await this.previewDLabel();
+                }
             },
             async previewDLabel() {
                 if (winPreview) {
@@ -269,12 +277,13 @@
 
                     // -- 加载标签 --
                     winPreview.window.labelId = this.labelId;
-                    winPreview.window.lbl.loadLabel(this.labelContent, {
+                    let lbl = winPreview.window.getLabel();
+                    lbl.loadLabel(this.labelContent, {
                         imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
                         labelId: this.labelId,
                         readonly: true
                     });
-                    winPreview.window.lbl.compute(true);
+                    lbl.compute(true);
                 }
                 else {
                     winPreview.show();
@@ -283,7 +292,7 @@
 
             getPrintData() {
                 let data = [], dataString;
-                let lbl = winPreview.window.lbl;
+                let lbl = winPreview.window.getLabel();
 
                 let rowCount = this.dtbTaskData.rowCount;
                 let columnCount = this.dtbTaskData.columnCount;
@@ -297,9 +306,9 @@
                         }
                         value = this.dtbTaskData.rows[i][j].value;
                         lbl.setValue(name, value);
-                    }                    
+                    }
                     lbl.compute(i == rowCount - 1);
-                    data.push(lbl.getData());                    
+                    data.push(lbl.getData());
                 }
                 // ----------------------------------------
                 dataString = JSON.stringify(data, null, " ");

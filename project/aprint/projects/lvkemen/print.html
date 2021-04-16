@@ -4,7 +4,7 @@
     <title>绿客门标签打印窗口</title>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
-        importFrameworkRes("DLabel");
+        importFrameworkRes("DLabelPreview");
     </script>
 
     <style type="text/css">
@@ -29,7 +29,7 @@
             <el-col :span="8">
                 <el-row>
                     <el-button @click="print()" type="primary" :disabled="!labelId">打印</el-button>
-                    <el-button @click="preview()" :disabled="!labelId">预览</el-button>
+                    <!--<el-button @click="preview()" :disabled="!labelId">预览</el-button>-->
                     <el-button onclick="win.close();">关闭</el-button>
                 </el-row>
                 <hr />
@@ -234,20 +234,14 @@
             },
             print() {
                 if (!this.food.unitKey) return;
-                let datas = [], dataString;
 
-                datas.push(lbl.getData());
-                dataString = JSON.stringify(datas, null, " ");
-
-                let para = {
-                    protocol: "2.0",
-                    action: "printDLabel",
-                    labelString: lbl.toJson(),
-                    dataString: dataString,
+                let data = [];
+                data.push(lbl.getData());
+                lbl.print({
+                    data: data,
                     printerName: this.printerName,
                     copies: this.copies
-                }
-                top.edge.invokeEdge(para);
+                });
 
                 // -- 登记打印记录 --
                 let postData = { labelId: this.labelId, copies: this.copies };
