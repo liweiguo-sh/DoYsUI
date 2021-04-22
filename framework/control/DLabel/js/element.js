@@ -83,6 +83,8 @@ UtilElement.computeProp = function (jsp) {
     P.marginRight = parseFloat(P.marginRight || 0);
     P.marginTop = parseFloat(P.marginTop || 0);
     P.marginBottom = parseFloat(P.marginBottom || 0);
+    P.width = Math.max(P.width, 1);                                    // -- 最小宽高 --
+    P.height = Math.max(P.height, 0.2);
 
     UtilElement.computePropAngle(element);
 

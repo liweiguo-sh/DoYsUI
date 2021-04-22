@@ -18,6 +18,9 @@ DLbelExample.getElement = function (elementType = "text", elementProp = {}) {
     else if (elementType.equals("shape")) {
         element = DLbelExample._getElement_shape(elementProp);
     }
+    else if (elementType.equals("line")) {
+        element = DLbelExample._getElement_line(elementProp);
+    }
     else {
         alert("debug here");
     }
@@ -47,7 +50,6 @@ DLbelExample._getElement_text = function (elementProp = {}) {
             verticalAlign: "middle"
         }
     }
-
     return element;
 }
 DLbelExample._getElement_barcode1D = function (elementProp = {}) {
@@ -74,7 +76,6 @@ DLbelExample._getElement_barcode1D = function (elementProp = {}) {
             verticalAlign: "bottom"
         }
     }
-
     return element;
 }
 DLbelExample._getElement_barcode2D = function (elementProp = {}) {
@@ -101,7 +102,6 @@ DLbelExample._getElement_barcode2D = function (elementProp = {}) {
             verticalAlign: "bottom"
         }
     }
-
     return element;
 }
 
@@ -124,7 +124,6 @@ DLbelExample._getElement_image = function (elementProp = {}) {
             "url": ""
         }
     }
-
     return element;
 }
 DLbelExample._getElement_shape = function (elementProp = {}) {
@@ -143,6 +142,24 @@ DLbelExample._getElement_shape = function (elementProp = {}) {
             height: 18,
             textAlign: "center",
             verticalAlign: "middle"
+        }
+    }
+    return element;
+}
+DLbelExample._getElement_line = function (elementProp = {}) {
+    let element = {
+        head: {
+            elementType: "shape"
+        },
+        frame: {
+            "type": "rectangle",
+            "width": 0,
+            "fillColor": "#000000"
+        },
+        position: {
+            "layer": 1,
+            width: 30,
+            height: 0.5
         }
     }
 
