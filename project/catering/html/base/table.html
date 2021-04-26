@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>桌号定义</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;height:330px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="桌号" required>
+                        <el-input v-model="form.code" ref="code" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="区域">
+                        <el-select v-model="form.table_area_code" placeholder="请选择" filterable :popper-append-to-body="false">
+                            <el-option v-for="item in ds.table_area_code" :key="item.code" :value="item.code" :label="item.code"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[2]">
+                    <el-form-item label="人数">
+                        <el-input v-model="form.qty_customer" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[1]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="3" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {},
+            ds: {}
+        },
+
+        methods: {
+            afterAddnew: function (jsp) {
+                this.form.code = "";
+                if (!jsp.copy) {
+                    this.form.qty_customer = "1";
+                    this.form.table_area_code = win.para.table_area_code;
+                }
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        
+    }
+</script>

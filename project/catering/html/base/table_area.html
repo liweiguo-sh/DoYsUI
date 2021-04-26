@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>菜品分类</title>
+    <title>区域定义</title>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -13,8 +13,8 @@
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="分类名称" required>
-                        <el-input v-model="form.name" ref="name" />
+                    <el-form-item label="区域代码" required>
+                        <el-input v-model="form.code" ref="code" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">

@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>菜品定义</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;height:330px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-tabs v-model="activeTabName">
+                <el-tab-pane label="基本信息" name="base">
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="菜品代码" required>
+                                <el-input v-model="form.code" ref="code" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="序号">
+                                <el-input v-model="form.sequence" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="菜品名称" required>
+                                <el-input v-model="form.name" ref="name" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="价格" required>
+                                <el-input v-model="form.price" ref="price" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            &nbsp;
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="简介">
+                                <el-input v-model="form.brief" type="textarea" :rows="4" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="备注">
+                                <el-input v-model="form.remark" type="textarea" :rows="6" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-tab-pane>
+                <el-tab-pane label="图片" name="image">
+                    <el-row>
+                        <el-col :span="12">
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-image style="width:150px;height:150px"
+                                              src="http://biosunmed.com/upload/2020/7/61552460.jpg"
+                                              fit="contain">
+                                    </el-image>
+                                </el-col>
+                                <el-col :span="12">
+                                    &nbsp;
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-image style="width:300px;height:300px"
+                                          src="http://biosunmed.com/upload/2020/7/61552460.jpg"
+                                          fit="contain">
+                                </el-image>
+                            </el-row>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-image style="width:450px;height:450px"
+                                      src="http://biosunmed.com/upload/2020/7/61552460.jpg"
+                                      fit="contain">
+                            </el-image>
+                        </el-col>
+                    </el-row>
+                </el-tab-pane>
+            </el-tabs>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            activeTabName: "base",
+            form: {},
+            ds: {}
+        },
+
+        methods: {
+            afterAddnew: function (jsp) {
+                this.form.code = "";
+                this.form.name = "";
+                this.form.price = "0";
+                this.form.sequence = "999";
+                if (!jsp.copy) {
+
+                }
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+
+    }
+</script>
