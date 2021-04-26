@@ -29,6 +29,8 @@
 
         #txtJson {
             border: solid 1px red;
+            width: 600px;
+            height: 900px;
         }
     </style>
 </head>
@@ -40,7 +42,7 @@
         <input id="btnBatchPrint" type="button" value="批量打印" onclick="bntBatchPrint_click();" />
         <select id="selPrinters" onchange="printerChange()"></select>
     </div>
-    <iframe id="iframeLabel"></iframe>
+    <iframe id="iframeLabel"></iframe><br />
     <textarea id="txtJson" spellcheck="false" style="display:none;"></textarea>
 </body>
 </html>
@@ -55,9 +57,6 @@
     var designMode = true;              // -- true: 设计模式，false: 预览模式 --
     // ------------------------------------------------------------------------
     window.addEventListener("load", function () {
-        txtJson.style.width = ifr.offsetWidth / 2 + "px";
-        txtJson.style.height = ifr.offsetHeight + "px";
-
         if (designMode) {
             ifr.style.width = 0.9 * width + "px";
             ifr.style.height = 0.8 * height + "px";
