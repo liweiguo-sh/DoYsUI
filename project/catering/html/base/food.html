@@ -6,6 +6,14 @@
     <script>
         importFrameworkRes("view-form-bar");
     </script>
+
+    <style>
+        .imgFood {
+            background-color: white;
+            width: 450px;
+            height: 450px;
+        }
+    </style>
 </head>
 <body>
     <div id="app" style="width:800px;height:330px;">
@@ -59,31 +67,19 @@
                 </el-tab-pane>
                 <el-tab-pane label="图片" name="image">
                     <el-row>
-                        <el-col :span="12">
-                            <el-row>
-                                <el-col :span="12">
-                                    <el-image style="width:150px;height:150px"
-                                              src="http://biosunmed.com/upload/2020/7/61552460.jpg"
-                                              fit="contain">
-                                    </el-image>
-                                </el-col>
-                                <el-col :span="12">
-                                    &nbsp;
-                                </el-col>
-                            </el-row>
-                            <el-row>
-                                <el-image style="width:300px;height:300px"
-                                          src="http://biosunmed.com/upload/2020/7/61552460.jpg"
-                                          fit="contain">
-                                </el-image>
-                            </el-row>
+                        <el-col :span="18">
+                            <el-image class="imgFood" fit="contain" :src="imgOriginal"
+                                      placeholder="请上传菜品图片"></el-image>
                         </el-col>
-                        <el-col :span="12">
-                            <el-image style="width:450px;height:450px"
-                                      src="http://biosunmed.com/upload/2020/7/61552460.jpg"
-                                      fit="contain">
-                            </el-image>
+                        <el-col :span="6">
+                            <el-upload :action="actionUploadImg"
+                                       :with-credentials="true" :show-file-list="false"
+                                       :before-upload="beforeUpload"
+                                       :on-success="afterUpload">
+                                <el-button type="primary" plain>上传图片</el-button>
+                            </el-upload>
                         </el-col>
+
                     </el-row>
                 </el-tab-pane>
             </el-tabs>
@@ -99,10 +95,21 @@
         data: {
             span: [24, 12, 12],
             activeTabName: "base",
+
             form: {},
-            ds: {}
+            ds: {},
+            foodCategoryList: [],
+
+            actionUploadImg: "",
+            imgOriginal: ""
         },
 
+        mounted() {
+            ajax.send("/catering/base/food_category/getFoodCategoryList", {}).then(res => {
+                debugger;
+                this.foodCategoryList = res.foodCategoryList;
+            });
+        },
         methods: {
             afterAddnew: function (jsp) {
                 this.form.code = "";
@@ -111,6 +118,40 @@
                 this.form.sequence = "999";
                 if (!jsp.copy) {
 
+                }
+            },
+            afterMove: function () {
+                let foodId = this.$refs.vf.getId();
+                let imgOriginal = this.$refs.vf.getValue("img_original");
+
+                this.actionUploadImg = g.prefix + "/catering/base/food/uploadImage?foodId=" + foodId;
+                if (imgOriginal) {
+                    this.imgOriginal = g.path.resRun + "/" + topWin.tenantId + "/catering/food_image/" + imgOriginal;
+                }
+                else {
+                    this.imgOriginal = "";
+                }
+            },
+
+            beforeUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPG) {
+                    this.$message.error('上传头像图片只能是 JPG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isJPG && isLt2M;
+            },
+            afterUpload(res, file) {
+                if (res.ok) {
+                    win.flashTitle("菜品图片上传成功", "success");
+                    this.imgOriginal = g.path.resRun + "/" + topWin.tenantId + "/catering/food_image/" + res.filename + "?rnd=" + Math.random();
+                }
+                else {
+                    topWin.alert(res.error, "error");
                 }
             }
         }

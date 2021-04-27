@@ -96,7 +96,6 @@ edge.printLabel = async function (jsp) {
 
 // -- 集成外壳模式 --------------------------------------------------------------
 edge.invokeEdge = function (jsp) {
-    alert("???-1");
     try {
         if (!chrome || !chrome.webview) {
             let message = "当前操作需要客户端支持，请在客户端中使用。";
@@ -115,7 +114,6 @@ edge.invokeEdge = function (jsp) {
     }
 }
 edge.commonShellInvokeJs = function (jsp) {
-    alert("???-2");
     try {
         let action = jsp.action;
         if (action == "setBarcodeBase64") {
