@@ -18,9 +18,9 @@
 <body>
     <div id="app" style="width:800px;height:330px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
-        <el-form :model="form" ref="form" label-width="145px" label-position="left">
-            <el-tabs v-model="activeTabName">
-                <el-tab-pane label="基本信息" name="base">
+        <el-tabs v-model="activeTabName">
+            <el-tab-pane label="基本信息" name="base">
+                <el-form :model="form" ref="form" label-width="145px" label-position="left">
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="菜品代码" required>
@@ -40,6 +40,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
+                    <!-- 价格 -->
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="价格" required>
@@ -47,8 +48,21 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
-                            &nbsp;
+                            <el-form-item label="更多价格">
+                                <el-button v-show="form.id" @click="morePrice" type="success" icon="el-icon-plus" circle></el-button>
+                            </el-form-item>
                         </el-col>
+                    </el-row>
+                    <!-- 分类 -->
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="分类" required>
+                                <el-checkbox-group v-model="foodCategoryIds">
+                                    <el-checkbox-button v-for="item in foodCategoryList" :label="item.id" :key="item.name">{{item.name}}</el-checkbox-button>
+                                </el-checkbox-group>
+                            </el-form-item>
+                        </el-col>
+
                     </el-row>
                     <el-row>
                         <el-col :span="span[0]">
@@ -60,30 +74,32 @@
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="备注">
-                                <el-input v-model="form.remark" type="textarea" :rows="6" />
+                                <el-input v-model="form.remark" type="textarea" :rows="3" />
                             </el-form-item>
                         </el-col>
                     </el-row>
-                </el-tab-pane>
-                <el-tab-pane label="图片" name="image">
-                    <el-row>
-                        <el-col :span="18">
-                            <el-image class="imgFood" fit="contain" :src="imgOriginal"
-                                      placeholder="请上传菜品图片"></el-image>
-                        </el-col>
-                        <el-col :span="6">
-                            <el-upload :action="actionUploadImg"
-                                       :with-credentials="true" :show-file-list="false"
-                                       :before-upload="beforeUpload"
-                                       :on-success="afterUpload">
-                                <el-button type="primary" plain>上传图片</el-button>
-                            </el-upload>
-                        </el-col>
+                    <el-input v-model="form.food_category_ids" v-show="false"></el-input>
+                    <el-input v-model="form.more_price" v-show="false"></el-input>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="图片" name="image">
+                <el-row>
+                    <el-col :span="18">
+                        <el-image class="imgFood" fit="contain" :src="imgOriginal"
+                                  placeholder="请上传菜品图片"></el-image>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-upload :action="actionUploadImg"
+                                   :with-credentials="true" :show-file-list="false"
+                                   :before-upload="beforeUpload"
+                                   :on-success="afterUpload">
+                            <el-button type="primary" plain>上传图片</el-button>
+                        </el-upload>
+                    </el-col>
+                </el-row>
+            </el-tab-pane>
+        </el-tabs>
 
-                    </el-row>
-                </el-tab-pane>
-            </el-tabs>
-        </el-form>
     </div>
 </body>
 </html>
@@ -99,6 +115,7 @@
             form: {},
             ds: {},
             foodCategoryList: [],
+            foodCategoryIds: [],
 
             actionUploadImg: "",
             imgOriginal: ""
@@ -106,7 +123,6 @@
 
         mounted() {
             ajax.send("/catering/base/food_category/getFoodCategoryList", {}).then(res => {
-                debugger;
                 this.foodCategoryList = res.foodCategoryList;
             });
         },
@@ -117,13 +133,26 @@
                 this.form.price = "0";
                 this.form.sequence = "999";
                 if (!jsp.copy) {
-
+                    this.form.food_category_ids = foodCategoryId;
+                    if (foodCategoryId) {
+                        this.foodCategoryIds = [foodCategoryId];
+                    }
+                    else {
+                        this.foodCategoryIds = [];
+                    }
                 }
             },
             afterMove: function () {
                 let foodId = this.$refs.vf.getId();
                 let imgOriginal = this.$refs.vf.getValue("img_original");
+                let foodCategoryIds = this.form.food_category_ids;
 
+                if (foodCategoryIds) {
+                    this.foodCategoryIds = foodCategoryIds.split(";");
+                }
+                else {
+                    this.foodCategoryIds = [];
+                }
                 this.actionUploadImg = g.prefix + "/catering/base/food/uploadImage?foodId=" + foodId;
                 if (imgOriginal) {
                     this.imgOriginal = g.path.resRun + "/" + topWin.tenantId + "/catering/food_image/" + imgOriginal;
@@ -131,6 +160,15 @@
                 else {
                     this.imgOriginal = "";
                 }
+            },
+
+            beforeSave: function (jsp) {
+                if (this.foodCategoryIds.length == 0) {
+                    topWin.alert("请选择菜品分类。", "error");
+                    return false;
+                }
+                this.form.food_category_ids = this.foodCategoryIds.join(";");
+                return true;
             },
 
             beforeUpload(file) {
@@ -153,6 +191,24 @@
                 else {
                     topWin.alert(res.error, "error");
                 }
+            },
+
+            morePrice() {
+                let prop = {
+                    url: g.x.getPath("/") + "food_more_price.html",
+                    parent: win,
+                    modal: true
+                };
+                let para = {
+                    morePrice: this.form.more_price,
+                    callback: (jsp) => {                        
+                        this.form.more_price = jsp.morePrice;
+                    },
+                    callback1: function(jsp) {
+                        this.form.more_price = jsp.morePrice;
+                    }
+                };
+                topWin.openWindow(prop, para);
             }
         }
     });
@@ -160,7 +216,10 @@
 
 <!-- winLoad -->
 <script>
+    var foodCategoryId = "";
     function winLoad() {
-
+        if (win.para.food_category_id) {
+            foodCategoryId = win.para.food_category_id + "";
+        }
     }
 </script>
