@@ -997,7 +997,7 @@ DLbelExample.debug1 = function () {
         {
           "pos": 0,
           "type": "fixed",
-          "value": "你以为食品包装上的配料表里所有的成分都是无序堆放的吗？不！它们其实都是有序排列的。根据GB 7718-2011《食品安全国家标准预包装食品标签通则》的规定，包装食品中的各种配料应按制造或加工时的加入量进行递减排列。也就是说，在配料表中排名越靠前的，添加的量就越大。",
+          "value": "你以为食品包装\\n上的配料表里所有的成分都是无序堆放的吗？\\n不！它们其实都是有序排列的。根据GB 7718-2011《食品安全国家标准预包装食品标签通则》的规定，包装食品中的各种配料应按制造或加工时的加入量进行递减排列。也就是说，在配料表中排名越靠前的，添加的量就越大。",
           "format": ""
         },
         {
@@ -1021,8 +1021,8 @@ DLbelExample.debug1 = function () {
       },
       "position": {
         "layer": 1,
-        "width": "50.74",
-        "height": "32.06",
+        "width": 44,
+        "height": 35,
         "textAlign": "left",
         "verticalAlign": "top",
         "top": "1.85",
@@ -1033,39 +1033,39 @@ DLbelExample.debug1 = function () {
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 50.74,
-        "hC": 32.06,
+        "wC": 44,
+        "hC": 35,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 50.74,
+          "x": 44,
           "y": 0
         },
         "P3": {
-          "x": 50.74,
-          "y": 32.06
+          "x": 44,
+          "y": 35
         },
         "P4": {
           "x": 0,
-          "y": 32.06
+          "y": 35
         },
         "P15": {
-          "x": 25.37,
+          "x": 22,
           "y": 0
         },
         "P25": {
-          "x": 50.74,
-          "y": 16.03
+          "x": 44,
+          "y": 17.5
         },
         "P35": {
-          "x": 25.37,
-          "y": 32.06
+          "x": 22,
+          "y": 35
         },
         "P45": {
           "x": 0,
-          "y": 16.03
+          "y": 17.5
         },
         "offsetX": 0,
         "offsetY": 0,
@@ -1073,10 +1073,10 @@ DLbelExample.debug1 = function () {
         "offsetRight": 0.3,
         "offsetTop": 0.3,
         "offsetBottom": 0.3,
-        "clientWidth": 50.14000000000001,
-        "clientHeight": 31.46,
+        "clientWidth": 43.400000000000006,
+        "clientHeight": 34.400000000000006,
         "leftText": 0.3,
-        "topText": 16.03
+        "topText": 0.3
       },
       "env": "design"
     }

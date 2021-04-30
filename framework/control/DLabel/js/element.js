@@ -506,16 +506,25 @@ UtilElement._drawMultiLine = function (context, element) {
     let width = position.width * pxmm;
     let top = position.marginTop, left;
 
+    let maxWidth = width - position.marginLeft - position.marginRight;      // -- 单行文本可用区域宽度(单位：像素) --
+
     // -- 1. style ----------------------------------------
     context.font = font._fontDraw;
     context.fillStyle = font._fillStyleDraw;
 
     // -- 2. 先做简单拆分，将来优化为考虑中文，完整英文单词，标点符号以及空格等因素 --
     while (pos < length) {
-        let txt = "";
+        let txt = "", char;        
         for (let i = pos; i < length; i++) {
-            txt += chars[i];
-            if (context.measureText(txt).width > (width - position.marginLeft - position.marginRight)) {
+            char = chars[i];
+            txt += char;
+            if (char == "\n") {                
+                txt = txt.substring(0, txt.length - 1);
+                txts.push(txt);
+                pos = i + 1;
+                break;
+            }
+            else if (context.measureText(txt).width > maxWidth) {                
                 if (i > pos) {
                     txt = txt.substring(0, txt.length - 1);
                 }

@@ -29,7 +29,7 @@
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :segment="segment"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="9">
+                    <el-col :span="14">
                         <el-input v-model="segment.value" v-if="segment.type=='fixed'" type="textarea" @change="segmentValueChange(segment.pos)" autosize></el-input>
                         <el-select v-model="segment.value" v-if="segment.type=='field'" @change="segmentValueChange(segment.pos)" style="width:100%">
                             <el-option v-for="f in fields" :value="f.k" :label="f.k" :key="f.k" :segment="segment"></el-option>
@@ -38,7 +38,7 @@
                             <el-option v-for="s in symbols" :value="s.k" :label="s.v" :key="s.k" :segment="segment"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="5">
+                    <el-col :span="5" v-show="false">
                         <el-input v-model="segment.format" @change="segmentValueChange(segment.pos)"></el-input>
                     </el-col>
                     <el-col :span="5">
@@ -62,7 +62,7 @@
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :section="section"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="9">
+                    <el-col :span="14">
                         <el-input v-model="section.value" v-if="section.type=='fixed'" type="textarea" @change="sectionValueChange(section.pos)" autosize></el-input>
                         <el-select v-model="section.value" v-if="section.type=='field'" @change="sectionValueChange(section.pos)" style="width:100%">
                             <el-option v-for="f in fields" :value="f.k" :label="f.k" :key="f.k" :section="section"></el-option>
@@ -71,7 +71,7 @@
                             <el-option v-for="s in symbols" :value="s.k" :label="s.v" :key="s.k" :section="section"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="5">
+                    <el-col :span="5" v-show="false">
                         <el-input v-model="section.format" @change="sectionValueChange(section.pos)"></el-input>
                     </el-col>
                     <el-col :span="5">
