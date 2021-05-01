@@ -484,8 +484,9 @@ UtilElement._drawSingleLine = function (context, element) {
     let text = element.head._sectionsText || element.head._segmentsText || (element._designMode ? "<空>" : "");
 
     if (position.verticalAlign.equals("top")) {
-        y += 4;     // -- 补4个像素，解决中文字体削顶问题，C#中没有这个问题 --
+        // y += 4;     // -- 补4个像素，解决中文字体(微软雅黑)削顶问题，C#中没有这个问题 --
     }
+
     context.font = element.font._fontDraw;
     context.fillStyle = element.font._fillStyleDraw;
     context.textAlign = position.textAlign;
@@ -495,6 +496,7 @@ UtilElement._drawSingleLine = function (context, element) {
 UtilElement._drawMultiLine = function (context, element) {
     let pxmm = element._this.pxmm;
     let font = element.font;
+    let frame = element.frame;
     let position = element.position;
 
     let txts = new Array();
@@ -502,29 +504,30 @@ UtilElement._drawMultiLine = function (context, element) {
     let chars = txtString.split("");
     let length = chars.length, pos = 0;
 
+    let top;    // -- top不能提前计算，和left不同，top对于垂直不是居上的情况，top的值与内容的多少相关，需要动态计算 --
+    let left = position.leftText * pxmm;
     let lineHeight = font._lineHeightDraw * pxmm;
-    let width = position.width * pxmm;
-    let top = position.marginTop, left;
+    let maxWidth = (position.width - 2 * frame.width - position.marginLeft - position.marginRight) * pxmm;    // -- 单行文本可用区域宽度(单位：像素) --
 
-    let maxWidth = width - position.marginLeft - position.marginRight;      // -- 单行文本可用区域宽度(单位：像素) --
-
-    // -- 1. style ----------------------------------------
+    // -- 1. 字体样式 ---------------------------------------
     context.font = font._fontDraw;
     context.fillStyle = font._fillStyleDraw;
+    context.textAlign = position.textAlign;
+    context.textBaseline = position.verticalAlign;
 
-    // -- 2. 先做简单拆分，将来优化为考虑中文，完整英文单词，标点符号以及空格等因素 --
+    // -- 2. 多行拆分(简单拆分，将来优化为考虑中文，完整英文单词，标点符号以及空格等因素) --
     while (pos < length) {
-        let txt = "", char;        
+        let txt = "", char;
         for (let i = pos; i < length; i++) {
             char = chars[i];
             txt += char;
-            if (char == "\n") {                
+            if (char == "\n") {
                 txt = txt.substring(0, txt.length - 1);
                 txts.push(txt);
                 pos = i + 1;
                 break;
             }
-            else if (context.measureText(txt).width > maxWidth) {                
+            else if (context.measureText(txt).width > maxWidth) {
                 if (i > pos) {
                     txt = txt.substring(0, txt.length - 1);
                 }
@@ -543,29 +546,25 @@ UtilElement._drawMultiLine = function (context, element) {
         }
     }
 
-    // -- 3. 垂直位置计算 -----------------------------------
-    context.textAlign = position.textAlign;
-    left = element.position.leftText;
+    // -- 2. 计算top值 -------------------------------------
 
-    context.textBaseline = "top";   // -- 固定设置为top，通过计算top位置实现垂直居中 --
-    if (position.verticalAlign.equals("top")) {
+
+    if (position.verticalAlign.equals("bottom")) {
+        top = position.height - (frame.width + position.marginBottom + (txts.length - 1) * font._lineHeightDraw);
+    }
+    else if (position.verticalAlign.equals("middle")) {
+        top = frame.width + position.marginTop
+            + (position.height - 2 * frame.width - position.marginTop - position.marginBottom - txts.length * font._lineHeightDraw) / 2
+            + font._lineHeightDraw / 2;
     }
     else {
-        if (position.height / txts.length > font._lineHeightDraw) {
-            if (position.verticalAlign.equals("middle")) {
-                top = (position.height - (txts.length * font._lineHeightDraw)) / 2;
-            }
-            else if (position.verticalAlign.equals("bottom")) {
-                top = position.height - (txts.length * font._lineHeightDraw) - position.marginBottom;
-            }
-        }
-        top = Math.max(top, 0);
+        top = frame.width + position.marginTop;
     }
+    top = top * pxmm;
 
-    // -- 4. draw -----------------------------------------
+    // -- 3. draw -----------------------------------------
     for (let i = 0; i < txts.length; i++) {
-        let txt = txts[i];
-        context.fillText(txt, left, top + i * lineHeight);
+        context.fillText(txts[i], left, top + i * lineHeight);
     }
 }
 UtilElement._drawError = function (context, element, message) {

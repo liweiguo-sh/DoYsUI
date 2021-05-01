@@ -984,20 +984,20 @@ DLbelExample.debug1 = function () {
     "point": 600,
     "imageBaseUrl": "",
     "scriptAfterCompute": "",
-    "element_id": 10
+    "element_id": 3
   },
   "fields": {},
   "elements": [
     {
       "head": {
         "elementType": "text",
-        "name": "element_1"
+        "name": "element_2"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "你以为食品包装\\n上的配料表里所有的成分都是无序堆放的吗？\\n不！它们其实都是有序排列的。根据GB 7718-2011《食品安全国家标准预包装食品标签通则》的规定，包装食品中的各种配料应按制造或加工时的加入量进行递减排列。也就是说，在配料表中排名越靠前的，添加的量就越大。",
+          "value": "你以为食品包装\\n上的配料表里所有的成分都是无序堆放的吗？\\n不！它们其实都是有序排列的。",
           "format": ""
         },
         {
@@ -1010,73 +1010,73 @@ DLbelExample.debug1 = function () {
       "font": {
         "name": "宋体",
         "size": "9",
-        "lineHeight": 0,
+        "lineHeight": 6,
         "wordWrap": true,
         "fontHeight": 3.175
       },
       "frame": {
         "type": "rectangle",
-        "width": 0.3,
+        "width": 2,
         "color": "#FF8C00"
       },
       "position": {
         "layer": 1,
-        "width": 44,
-        "height": 35,
+        "width": 70,
+        "height": 30.6,
         "textAlign": "left",
-        "verticalAlign": "top",
-        "top": "1.85",
-        "left": 1.53,
+        "verticalAlign": "bottom",
+        "top": "3.95",
+        "left": "1.69",
         "angle": 0,
         "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 44,
-        "hC": 35,
+        "wC": 70,
+        "hC": 30.6,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 44,
+          "x": 70,
           "y": 0
         },
         "P3": {
-          "x": 44,
-          "y": 35
+          "x": 70,
+          "y": 30.6
         },
         "P4": {
           "x": 0,
-          "y": 35
+          "y": 30.6
         },
         "P15": {
-          "x": 22,
+          "x": 35,
           "y": 0
         },
         "P25": {
-          "x": 44,
-          "y": 17.5
+          "x": 70,
+          "y": 15.3
         },
         "P35": {
-          "x": 22,
-          "y": 35
+          "x": 35,
+          "y": 30.6
         },
         "P45": {
           "x": 0,
-          "y": 17.5
+          "y": 15.3
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 0.3,
-        "offsetRight": 0.3,
-        "offsetTop": 0.3,
-        "offsetBottom": 0.3,
-        "clientWidth": 43.400000000000006,
-        "clientHeight": 34.400000000000006,
-        "leftText": 0.3,
-        "topText": 0.3
+        "offsetLeft": 2,
+        "offsetRight": 2,
+        "offsetTop": 2,
+        "offsetBottom": 2,
+        "clientWidth": 66,
+        "clientHeight": 26.6,
+        "leftText": 2,
+        "topText": 28.6
       },
       "env": "design"
     }
