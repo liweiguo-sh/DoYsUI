@@ -718,7 +718,8 @@ UtilElement.draw_barcode1D = async function (context, element) {
         width: position.width,
         height: position.height,
         point: element._labelHead.point,
-        gs1: head.gs1
+        gs1: head.gs1,
+        elementFont: JSON.stringify(element.font)
     });
 
     // -- 3. 输出条码部分 --
@@ -795,13 +796,14 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
     let element = jsp.element;
     let typeEquals = true, sizeEquals = true;
 
-    // -- 1. 智能判断是否需要重新生成条码图片 --
+    // -- 1. 智能判断是否需要重新生成条码图片 --    
     if (!element._imgType) {
         element._imgType = {
             barcodeType: "",
             barcodeValue: "",
             point: 0,
-            isGS1: false
+            isGS1: false,
+            elementFont: ""
         }
         element._imgSize = {
             width: 0,
@@ -813,7 +815,8 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
         barcodeType: jsp.barcodeType,
         barcodeValue: jsp.barcodeValue,
         point: jsp.point,
-        isGS1: jsp.gs1 ? true : false
+        isGS1: jsp.gs1 ? true : false,
+        elementFont: jsp.elementFont
     }
     let hashTypeOld = JSON.getHashCode(element._imgType);
     let hashTypeNew = JSON.getHashCode(imgType);
@@ -838,7 +841,8 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
             width: jsp.width,
             height: jsp.height,
             point: jsp.point,
-            isGS1: jsp.gs1 ? true : false
+            isGS1: jsp.gs1 ? true : false,
+            elementFont: jsp.elementFont
         }
         let res = await edge.getBarcodeBase64(para);
         element._base64Barcode = res.base64;

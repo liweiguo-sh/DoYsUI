@@ -984,20 +984,22 @@ DLbelExample.debug1 = function () {
     "point": 600,
     "imageBaseUrl": "",
     "scriptAfterCompute": "",
-    "element_id": 3
+    "element_id": 5
   },
   "fields": {},
   "elements": [
     {
       "head": {
-        "elementType": "text",
-        "name": "element_2"
+        "elementType": "barcode",
+        "barcodeType": "EAN_13_D",
+        "name": "element_3",
+        "pureBarcode": true
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "你以为食品包装\\n上的配料表里所有的成分都是无序堆放的吗？\\n不！它们其实都是有序排列的。",
+          "value": "692204970020",
           "format": ""
         },
         {
@@ -1009,76 +1011,183 @@ DLbelExample.debug1 = function () {
       ],
       "font": {
         "name": "宋体",
-        "size": "9",
-        "lineHeight": 6,
-        "wordWrap": true,
-        "fontHeight": 3.175
+        "size": "10.5",
+        "fontHeight": 0,
+        "lineHeight": null
       },
       "frame": {
         "type": "rectangle",
-        "width": 2,
-        "color": "#FF8C00"
+        "width": 0,
+        "fillColor": "#D1F7D5"
       },
       "position": {
         "layer": 1,
-        "width": 70,
-        "height": 30.6,
-        "textAlign": "left",
+        "width": 30,
+        "height": 10,
+        "textAlign": "center",
         "verticalAlign": "bottom",
-        "top": "3.95",
-        "left": "1.69",
+        "top": "10",
+        "left": 3.39,
         "angle": 0,
         "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 70,
-        "hC": 30.6,
+        "wC": 30,
+        "hC": 10,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 70,
+          "x": 30,
           "y": 0
         },
         "P3": {
-          "x": 70,
-          "y": 30.6
+          "x": 30,
+          "y": 10
         },
         "P4": {
           "x": 0,
-          "y": 30.6
+          "y": 10
         },
         "P15": {
-          "x": 35,
+          "x": 15,
           "y": 0
         },
         "P25": {
-          "x": 70,
-          "y": 15.3
+          "x": 30,
+          "y": 5
         },
         "P35": {
-          "x": 35,
-          "y": 30.6
+          "x": 15,
+          "y": 10
         },
         "P45": {
           "x": 0,
-          "y": 15.3
+          "y": 5
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 2,
-        "offsetRight": 2,
-        "offsetTop": 2,
-        "offsetBottom": 2,
-        "clientWidth": 66,
-        "clientHeight": 26.6,
-        "leftText": 2,
-        "topText": 28.6
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 30,
+        "clientHeight": 10,
+        "leftText": 15,
+        "topText": 10,
+        "heightBarcode": 10,
+        "widthBarcode": 30,
+        "leftBarcode": 0,
+        "topBarcode": 0,
+        "hidden": false
       },
-      "env": "design"
+      "segments": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "692204970020",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ]
+    },
+    {
+      "head": {
+        "elementType": "text",
+        "name": "element_4"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "6 922049 700205 ",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "name": "宋体",
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
+        "lineHeight": null
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0,
+        "fillColor": "#D1F7D5"
+      },
+      "position": {
+        "layer": 1,
+        "width": 30,
+        "height": 10,
+        "textAlign": "left",
+        "verticalAlign": "bottom",
+        "top": "10",
+        "left": "36.85",
+        "angle": 0,
+        "angleR": 0,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 30,
+        "hC": 10,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 30,
+          "y": 0
+        },
+        "P3": {
+          "x": 30,
+          "y": 10
+        },
+        "P4": {
+          "x": 0,
+          "y": 10
+        },
+        "P15": {
+          "x": 15,
+          "y": 0
+        },
+        "P25": {
+          "x": 30,
+          "y": 5
+        },
+        "P35": {
+          "x": 15,
+          "y": 10
+        },
+        "P45": {
+          "x": 0,
+          "y": 5
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 30,
+        "clientHeight": 10,
+        "leftText": 0,
+        "topText": 10
+      }
     }
   ]
 }
