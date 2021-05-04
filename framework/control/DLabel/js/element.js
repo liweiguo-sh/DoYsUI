@@ -385,7 +385,7 @@ UtilElement.getFixedSection = function (jsp) {
     let section = {
         pos: -1,
         type: "fixed",
-        value: "12345678",
+        value: "",      // -- 默认为空，以segment为准 --
         format: ""
     }
     section = g.x.extendJSON(section, jsp);
