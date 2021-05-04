@@ -62,3 +62,6 @@ UtilFont.getSizes = function () {
     UtilFont.__sizes = sizes;
     return UtilFont.__sizes;
 }
+UtilFont.getFontHeight = function (font) {
+    return (font.size / 72) * 25.4;
+}

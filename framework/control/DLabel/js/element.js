@@ -67,9 +67,9 @@ UtilElement.computeProp = function (jsp) {
     font = element.font || {};
     font.name = font.name || "宋体";
     font.size = font.size || 10.5;
-    font.fontHeight = UtilElement._getContextFontHeight(font);
-    font.lineHeight = parseFloat(font.lineHeight);
-    font._lineHeightDraw = font.lineHeight || font.fontHeight;          // -- 字体行高 --
+    font.fontHeight = UtilFont.getFontHeight(font);                 // -- 字体高度(实际高度，没有边距，C#中有边距) --
+    font.lineHeight = parseFloat(font.lineHeight);                  // -- 行高(用户设定)
+    font.textHeight = font.lineHeight || font.fontHeight;           // -- 运行时采用的行高 --
 
     frame.type = frame.type || "";
     frame.width = frame.type.equals("") ? 0 : parseFloat(frame.width || 0);
@@ -131,22 +131,28 @@ UtilElement.computeProp = function (jsp) {
     // -- 3. 条码(条码的图片部分) --
     if (head.elementType.equals("barcode")) {
         if (head.pureBarcode || P.verticalAlign.equals("middle")) {
-            font.fontHeight = 0;
+            font.textHeight = 0;
         }
-        P.heightBarcode = P.height - 2 * frame.width - P.marginTop - P.marginBottom - font.fontHeight;
+        P.heightBarcode = P.height - 2 * frame.width - P.marginTop - P.marginBottom - font.textHeight;
         P.widthBarcode = P.width - 2 * frame.width - P.marginLeft - P.marginRight;
         P.leftBarcode = frame.width + P.marginLeft;
 
+        // - EAN_13_D 特殊处理 --        
+        if (head.barcodeType.equals("EAN_13_D")) {
+            P.heightBarcode = P.height - 2 * frame.width - P.marginTop - P.marginBottom - font.textHeight * 0.6; // -- 此处的0.6须和C#端保持一致 --
+            P.leftText = frame.width + P.marginLeft;
+        }
+
         // -- 垂直位置 --
         if (P.verticalAlign.equals("top")) {
-            P.topBarcode = frame.width + P.marginTop + font.fontHeight;
+            P.topBarcode = frame.width + P.marginTop + font.textHeight;
         }
         else {
             P.topBarcode = frame.width + P.marginTop;
         }
         // -- 水平位置 --
         if (UtilElement.Is1D(head.barcodeType)) {
-            // -- 一维码宽度是最大化填充，所以水平永远是居左的 --
+            // -- 一维码图片宽度是最大化填充，所以水平永远是居左的 --
         }
         else {
             P.widthBarcode = Math.min(P.widthBarcode, P.heightBarcode);
@@ -506,7 +512,7 @@ UtilElement._drawMultiLine = function (context, element) {
 
     let top;    // -- top不能提前计算，和left不同，top对于垂直不是居上的情况，top的值与内容的多少相关，需要动态计算 --
     let left = position.leftText * pxmm;
-    let lineHeight = font._lineHeightDraw * pxmm;
+    let textHeightPx = font.textHeight * pxmm;
     let maxWidth = (position.width - 2 * frame.width - position.marginLeft - position.marginRight) * pxmm;    // -- 单行文本可用区域宽度(单位：像素) --
 
     // -- 1. 字体样式 ---------------------------------------
@@ -547,15 +553,13 @@ UtilElement._drawMultiLine = function (context, element) {
     }
 
     // -- 2. 计算top值 -------------------------------------
-
-
     if (position.verticalAlign.equals("bottom")) {
-        top = position.height - (frame.width + position.marginBottom + (txts.length - 1) * font._lineHeightDraw);
+        top = position.height - (frame.width + position.marginBottom + (txts.length - 1) * font.textHeight);
     }
     else if (position.verticalAlign.equals("middle")) {
         top = frame.width + position.marginTop
-            + (position.height - 2 * frame.width - position.marginTop - position.marginBottom - txts.length * font._lineHeightDraw) / 2
-            + font._lineHeightDraw / 2;
+            + (position.height - 2 * frame.width - position.marginTop - position.marginBottom - txts.length * font.textHeight) / 2
+            + font.textHeight / 2;
     }
     else {
         top = frame.width + position.marginTop;
@@ -564,7 +568,7 @@ UtilElement._drawMultiLine = function (context, element) {
 
     // -- 3. draw -----------------------------------------
     for (let i = 0; i < txts.length; i++) {
-        context.fillText(txts[i], left, top + i * lineHeight);
+        context.fillText(txts[i], left, top + i * textHeightPx);
     }
 }
 UtilElement._drawError = function (context, element, message) {
@@ -606,9 +610,6 @@ UtilElement._getContextFillStyle = function (jsp) {
     }
 
     return arr.join(" ");
-}
-UtilElement._getContextFontHeight = function (font) {
-    return (font.size / 72) * 25.4;
 }
 
 // -- draw image --------------------------------------------------------------
@@ -707,7 +708,12 @@ UtilElement.draw_barcode1D = async function (context, element) {
 
     // -- 1. 输出文本部分 --
     if (!head.pureBarcode) {
-        UtilElement._drawSingleLine(context, element);
+        if (head.barcodeType.equals("EAN_13_D")) {
+            UtilElement._drawEAN_13_D_TEXT(context, element);
+        }
+        else {
+            UtilElement._drawSingleLine(context, element);
+        }
     }
 
     // -- 2. 通过weview获取条码图片(base64格式) --
@@ -850,5 +856,40 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
     catch (e) {
         // -- 返回样例条码图片 --       
         element._base64Barcode = "../image/" + jsp.barcodeType + ".png";
+    }
+}
+
+// -- EAN_13_D ----------------------------------------------------------------
+UtilElement._drawEAN_13_D_TEXT = function (context, element) {
+    let pxmm = element._this.pxmm;
+    let position = element.position;
+    let dpiY = element._labelHead.point || 600;
+    let w = parseInt(position.width / 25.4 * dpiY);     // -- 打印机像素宽度(取决于打印机点数) --
+    let x, x0 = position.leftText * pxmm;
+    let y = position.topText * pxmm;
+    let text = element.head._sectionsText || element.head._segmentsText || (element._designMode ? "<空>" : "");
+    let texts = text.split("");
+
+    context.font = element.font._fontDraw;
+    context.fillStyle = element.font._fillStyleDraw;
+    context.textAlign = "center";                       // -- 强制左右居中 --
+    context.textBaseline = position.verticalAlign;
+
+    let len = 11 + (3 + 42 + 5 + 42 + 3);               // -- 此处11须与C#端保持一致 --
+    let lineWidthPX = (w - w % len) / len;
+    let lineWidthMM = lineWidthPX / dpiY * 25.4;        // -- 线宽(单位：mm，模拟打印机端的处理反算得到) --
+    let lineWidth = lineWidthMM * pxmm;
+
+    // ----------------------------------------------------
+    x = x0 + (11 * lineWidth) / 2;
+    context.fillText(texts[0], x, y);                   // -- 输出首字符 --
+
+    x0 += (11 + 3) * lineWidth;                         // -- 调整至左侧警戒线右侧位置 --
+    for (let i = 1; i < 13; i++) {
+        if (i == 7) {
+            x0 += 5 * lineWidth;                        // -- 调整至中间警戒线右侧位置 --
+        }
+        x = x0 + ((i - 1) * 7 + 3.5) * lineWidth;
+        context.fillText(texts[i], x, y);
     }
 }
