@@ -1,5 +1,6 @@
 ﻿var Util = {};
 
+// ----------------------------------------------------------------------------
 Util.inPolygon = function (x, y, points) {
     let tf = false;
     let n, count = points.length;
@@ -42,4 +43,30 @@ Util.getTriangleHeight = function (p1, p2, p3) {
     s = Util.getTriangleAreaByPoint(p1, p2, p3);
     h = 2 * s / a;
     return h;
+}
+
+// ----------------------------------------------------------------------------
+Util.GetChecksumEAN13 = function (code) {    
+    let len = code.length;
+    let sum = 0, num;
+
+    if (len != 12) {
+        throw Error("EAN code length must be 12");
+    }
+
+    for (let i = 1; i <= len; i++) {
+        num = parseInt(code.substr(len - i, 1));
+        if (i % 2 == 0) {
+            sum += num;
+        }
+        else {
+            sum += 3 * num;
+        }
+    }
+    sum = 10 - sum % 10;
+
+    if (sum == 10) {
+        return "0";
+    }
+    return sum.toString();
 }

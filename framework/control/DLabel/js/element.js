@@ -251,7 +251,7 @@ UtilElement.computeValue = function (jsp) {
     let segments = element.segments;
     let sections = element.sections;
     let image = element.image;
-    let values;
+    let values, valueString;
     // ----------------------------------------------------
     if (head.elementType.equals("barcode")) {
         values = new Array();
@@ -275,7 +275,19 @@ UtilElement.computeValue = function (jsp) {
                 }
             }
         }
-        head._segmentsText = values.join("");
+        valueString = values.join("");
+
+        if (head.barcodeType.startsWith("EAN_13")) {            
+            if (valueString.length < 12) {
+                valueString = valueString.padEnd(12, "0");
+            }
+            else if (valueString.length > 12) {
+                valueString = valueString.substring(0, 12);
+            }
+            valueString += Util.GetChecksumEAN13(valueString);
+        }
+
+        head._segmentsText = valueString;
     }
     // ----------------------------------------------------
     if (head.elementType.equals("barcode") || head.elementType.equals("text")) {
@@ -300,7 +312,11 @@ UtilElement.computeValue = function (jsp) {
                 }
             }
         }
-        head._sectionsText = values.join("");
+        valueString = values.join("");        
+        if (valueString.equals("")) {
+            valueString = head._segmentsText;
+        }
+        head._sectionsText = valueString;
     }
     // ----------------------------------------------------
     if (head.elementType.equals("image")) {

@@ -966,25 +966,11 @@ DLbelExample.demo1 = function () {
 DLbelExample.debug1 = function () {
     return `
 {
-  "page": {
-    "width": 80,
-    "height": 60,
-    "marginLeft": 0,
-    "marginTop": 0,
-    "marginRight": 0,
-    "marginBottom": 0,
-    "rows": 1,
-    "cols": 1,
-    "horizontalSpace": 0,
-    "verticalSpace": 0
-  },
   "head": {
     "width": 80,
     "height": 60,
     "point": 600,
-    "imageBaseUrl": "",
-    "scriptAfterCompute": "",
-    "element_id": 6
+    "element_id": 2
   },
   "fields": {},
   "elements": [
@@ -992,14 +978,13 @@ DLbelExample.debug1 = function () {
       "head": {
         "elementType": "barcode",
         "barcodeType": "EAN_13_D",
-        "name": "element_3",
-        "pureBarcode": false
+        "name": "element_1"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "6922049700205",
+          "value": "",
           "format": ""
         },
         {
@@ -1013,17 +998,18 @@ DLbelExample.debug1 = function () {
         "name": "宋体",
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
-        "lineHeight": null
+        "lineHeight": null,
+        "textHeight": 3.7041666666666666
       },
       "frame": {
         "type": "rectangle",
-        "width": 0.1,
-        "fillColor": null,
-        "color": "#9EA490"
+        "width": 0,
+        "color": "#ED9191",
+        "fillColor": "#E8BEBE"
       },
       "position": {
         "layer": 1,
-        "width": 50,
+        "width": 40,
         "height": 10,
         "textAlign": "center",
         "verticalAlign": "bottom",
@@ -1035,18 +1021,18 @@ DLbelExample.debug1 = function () {
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 50,
+        "wC": 40,
         "hC": 10,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 50,
+          "x": 40,
           "y": 0
         },
         "P3": {
-          "x": 50,
+          "x": 40,
           "y": 10
         },
         "P4": {
@@ -1054,15 +1040,15 @@ DLbelExample.debug1 = function () {
           "y": 10
         },
         "P15": {
-          "x": 25,
+          "x": 20,
           "y": 0
         },
         "P25": {
-          "x": 50,
+          "x": 40,
           "y": 5
         },
         "P35": {
-          "x": 25,
+          "x": 20,
           "y": 10
         },
         "P45": {
@@ -1071,25 +1057,24 @@ DLbelExample.debug1 = function () {
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 0.1,
-        "offsetRight": 0.1,
-        "offsetTop": 0.1,
-        "offsetBottom": 0.1,
-        "clientWidth": 49.8,
-        "clientHeight": 9.8,
-        "leftText": 25,
-        "topText": 9.9,
-        "heightBarcode": 6.095833333333334,
-        "widthBarcode": 49.8,
-        "leftBarcode": 0.1,
-        "topBarcode": 0.1,
-        "hidden": false
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 40,
+        "clientHeight": 10,
+        "leftText": 0,
+        "topText": 10,
+        "heightBarcode": 7.7775,
+        "widthBarcode": 40,
+        "leftBarcode": 0,
+        "topBarcode": 0
       },
       "segments": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "692204970020",
+          "value": "7501031311308",
           "format": ""
         },
         {
@@ -1100,7 +1085,19 @@ DLbelExample.debug1 = function () {
         }
       ]
     }
-  ]
+  ],
+  "page": {
+    "width": 80,
+    "height": 60,
+    "marginLeft": 0,
+    "marginTop": 0,
+    "marginRight": 0,
+    "marginBottom": 0,
+    "rows": 1,
+    "cols": 1,
+    "horizontalSpace": 0,
+    "verticalSpace": 0
+  }
 }
         `;
 }
