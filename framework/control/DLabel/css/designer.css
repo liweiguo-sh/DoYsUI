@@ -5,34 +5,26 @@ body {
 
 .tbMain {
     width: 100%;
-    --table-layout: fixed;
+    table-layout: fixed;
     border-collapse: collapse;
-}
-
-.tdMain {
-    padding: 0px;
-    vertical-align: top;
     background-color: gray;
-    --border: dotted 1px green;
 }
 
-/** --属性区 -- */
-.divPropGrouName {
-    padding-left: 3px;
-    padding-right: 5px;
-    font-weight: bold;
-    font-size: large;
-    color: darkgreen;
+.tdProp {
+    width: 300px;
+    padding: 10px 0px 0px 10px;
+    vertical-align: top;
+    --background-color: gray;
 }
 
-.divPropName {
-    line-height: 36px;
-    padding-left: 8px;
+.tdCanvas {
+    padding: 10px 0px 0px 10px;
+    vertical-align: top;
+    --background-color: gray;
 }
 
-/* -- container -- */
-.doys_label_container {
-    position: relative;
-    box-shadow: 2px 2px 15px black;
-    border-radius: 5px;
+.tdAux {
+    width: 52px;
+    vertical-align: top;
+    overflow: hidden;
 }

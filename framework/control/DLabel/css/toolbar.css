@@ -1,5 +1,10 @@
-﻿/* -- dlabel.toolbar.css -- */
+﻿/* -- 覆盖ali-icon-font.css -- */
+.alifont {
+    font-size: 24px !important;
+}
 
+
+/* -- 顶部(toolbar)顶部工具栏区 -- */
 .row-toolbar {
     --background-color: red;
 }
@@ -8,7 +13,44 @@
         padding: 8px;
     }
 
-/** 覆盖ali-icon-font.css */
-.alifont {
-    font-size: 24px !important;     
+
+
+/** -- 左侧属性区 -- */
+.divPropGrouName {
+    padding-left: 3px;
+    padding-right: 5px;
+    font-weight: bold;
+    font-size: large;
+    color: darkgreen;
+}
+
+.divPropName {
+    line-height: 36px;
+    padding-left: 8px;
+}
+
+/* -- container -- */
+.doys_label_container {
+    position: relative;
+    box-shadow: 2px 2px 15px black;
+    border-radius: 5px;
+}
+
+
+/** -- 右侧Aux辅助设计区 -- */
+.vmAux {
+    --background-color: pink;
+    margin-top: 8px;
+}
+
+.row-aux {
+    --background-color: red;
+}
+
+    .row-aux .el-button {
+        padding: 8px;
+    }
+.el-row-aux-space {
+    height: 20px;
+    --background-color: red;
 }

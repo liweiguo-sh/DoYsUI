@@ -68,7 +68,7 @@
     </div>
     <table id="tbMain" class="tbMain">
         <tr>
-            <td id="tdProp" class="tdMain" style="padding-top:10px;padding-left:10px;">
+            <td id="tdProp" class="tdProp">
                 <div id="vmProp" style="overflow-y:auto;">
                     <el-row v-show="false"><span style="color:yellow">元素选中数量：{{multiCount}}</span></el-row>
                     <el-collapse v-model="activeNames" @change="propGroupChange" accordion>
@@ -148,7 +148,7 @@
                                 <el-col :span="span[2]">
                                     <el-select v-model="head.barcodeType" @change="elementPropChange('head.barcodeType')" filterable>
                                         <el-option-group label="一维码">
-                                            <el-option value="CODE_128" key="CODE_128" label="Code 128"></el-option>                                            
+                                            <el-option value="CODE_128" key="CODE_128" label="Code 128"></el-option>
                                             <el-option value="CODE_39" key="CODE_39" label="Code 39"></el-option>
                                             <el-option value="EAN_13" key="EAN_13" label="EAN13"></el-option>
                                             <el-option value="EAN_13_D" key="EAN_13_D" label="EAN_13"></el-option>
@@ -422,9 +422,38 @@
                     </el-collapse>
                 </div>
             </td>
-            <td id="tdCanvas" class="tdMain" style="padding:10px 0px 0px 10px;--background-color:yellow;">
+            <td id="tdCanvas" class="tdCanvas">
                 <div id="divContainerParent" style="--background-color:blue;overflow:auto;">
                     <div id="divCanvas" class="doys_label_container"></div>
+                </div>
+            </td>
+            <td id="tdAux" class="tdAux">
+                <div id="vmAux" class="vmAux" v-show="false">
+                    <el-row class="row-aux">
+                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="居上对齐"></el-button>
+                    </el-row>
+                    <el-row class="row-toolbar">
+                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="居左对齐"></el-button>
+                    </el-row>
+                    <el-row class="row-toolbar">
+                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="居右对齐"></el-button>
+                    </el-row>
+                    <el-row class="row-toolbar">
+                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="居下对齐"></el-button>
+                    </el-row>
+                    <el-row class="el-row-aux-space"></el-row>
+                    <el-row class="row-aux">
+                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
+                    </el-row>
+                    <el-row class="row-toolbar">
+                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
+                    </el-row>
+                    <el-row class="row-aux">
+                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
+                    </el-row>
+                    <el-row class="row-toolbar">
+                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
+                    </el-row>
                 </div>
             </td>
         </tr>
@@ -448,18 +477,7 @@
             edgeWV: top.chrome && top.chrome.webview,      // -- 是否外壳(edge.webview2)环境 --
             showDebugToolbar: true
         },
-        methods: {
-            method1() {
-                ajax.send("/", {}).then((res) => {
-                    if (res.ok) {
-                        topWin.message("当前操作成功");
-                    }
-                    else {
-                        topWin.alert("系统信息 ...", "error");
-                    }
-                })
-            }
-        }
+        methods: {}
     });
     var vmProp = new Vue({
         el: '#vmProp',
@@ -595,6 +613,12 @@
             }
         }
     });
+    var vmAux = new Vue({
+        el: '#vmAux',
+        data: {
+        },
+        methods: {}
+    });
 </script>
 
 <!-- winLoad -->
@@ -621,8 +645,7 @@
         let hMax = document.documentElement.clientHeight;
         let height = (hMax - tbMain.offsetTop - 20);
 
-        tdProp.style.width = "300px";
-        gId("vmProp").style.height = height + "px";
+        gId("vmProp").style.height = height + "px";        
 
         divContainerParent.style.width = (tdCanvas.offsetWidth - g.x.getStyleValue(tdCanvas, "paddingLeft") - g.x.getStyleValue(tdCanvas, "paddingRight")) + "px";
         divContainerParent.style.height = (tdCanvas.offsetHeight - g.x.getStyleValue(tdCanvas, "paddingTop") - g.x.getStyleValue(tdCanvas, "paddingBottom")) + "px";

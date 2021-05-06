@@ -164,8 +164,9 @@ function importFrameworkRes(fileRes) {
         arrRes.push(g.path.framework + "/control/DLabel/css/label.css");
 
         arrRes.push(g.path.framework + "/core/" + "edge.js");
+        arrRes.push(g.path.framework + "/control/DLabel/js/font.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/element.js");
-        arrRes.push(g.path.framework + "/control/DLabel/js/label.js");
+        arrRes.push(g.path.framework + "/control/DLabel/js/label.js");        
     }
     // -- 4. plugin组件 --
     else if (fileRes.equals("echarts")) {
