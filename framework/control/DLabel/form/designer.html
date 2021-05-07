@@ -428,32 +428,20 @@
                 </div>
             </td>
             <td id="tdAux" class="tdAux">
-                <div id="vmAux" class="vmAux" v-show="false">
+                <div id="vmAux" class="vmAux" v-show="true">
                     <el-row class="row-aux">
-                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="居上对齐"></el-button>
+                        <el-button type="info" onclick="alignElements('top')" icon="alifont ali-icon-align-top" title="上对齐"></el-button>
                     </el-row>
                     <el-row class="row-toolbar">
-                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="居左对齐"></el-button>
+                        <el-button type="info" onclick="alignElements('bottom')" icon="alifont ali-icon-align-bottom" title="下对齐"></el-button>
                     </el-row>
                     <el-row class="row-toolbar">
-                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="居右对齐"></el-button>
+                        <el-button type="info" onclick="alignElements('left')" icon="alifont ali-icon-align-left" title="左对齐"></el-button>
                     </el-row>
                     <el-row class="row-toolbar">
-                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="居下对齐"></el-button>
+                        <el-button type="info" onclick="alignElements('right')" icon="alifont ali-icon-align-right" title="右对齐"></el-button>
                     </el-row>
                     <el-row class="el-row-aux-space"></el-row>
-                    <el-row class="row-aux">
-                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
-                    </el-row>
-                    <el-row class="row-toolbar">
-                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
-                    </el-row>
-                    <el-row class="row-aux">
-                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
-                    </el-row>
-                    <el-row class="row-toolbar">
-                        <el-button type1="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
-                    </el-row>
                 </div>
             </td>
         </tr>
@@ -645,7 +633,7 @@
         let hMax = document.documentElement.clientHeight;
         let height = (hMax - tbMain.offsetTop - 20);
 
-        gId("vmProp").style.height = height + "px";        
+        gId("vmProp").style.height = height + "px";
 
         divContainerParent.style.width = (tdCanvas.offsetWidth - g.x.getStyleValue(tdCanvas, "paddingLeft") - g.x.getStyleValue(tdCanvas, "paddingRight")) + "px";
         divContainerParent.style.height = (tdCanvas.offsetHeight - g.x.getStyleValue(tdCanvas, "paddingTop") - g.x.getStyleValue(tdCanvas, "paddingBottom")) + "px";
@@ -834,6 +822,12 @@
         else {
 
         }
+    }
+</script>
+<!-- aux -->
+<script>
+    function alignElements(align) {
+        topWin.message(align, "success");
     }
 </script>
 

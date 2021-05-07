@@ -1,0 +1,139 @@
+@font-face {
+  font-family: "alifont"; /* Project id 2419950 */
+  src: url('iconfont.woff2?t=1620351974024') format('woff2'),
+       url('iconfont.woff?t=1620351974024') format('woff'),
+       url('iconfont.ttf?t=1620351974024') format('truetype');
+}
+
+.alifont {
+  font-family: "alifont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ali-icon-align-bottom:before {
+  content: "\ea1e";
+}
+
+.ali-icon-align-left:before {
+  content: "\e957";
+}
+
+.ali-icon-align-right:before {
+  content: "\ea20";
+}
+
+.ali-icon-align-top:before {
+  content: "\ea1d";
+}
+
+.ali-icon-exit:before {
+  content: "\e659";
+}
+
+.ali-icon-test-ts:before {
+  content: "\e6a8";
+}
+
+.ali-icon-label:before {
+  content: "\e6b2";
+}
+
+.ali-icon-help:before {
+  content: "\e618";
+}
+
+.ali-icon-saveas:before {
+  content: "\e7e5";
+}
+
+.ali-icon-image:before {
+  content: "\e6d5";
+}
+
+.ali-icon-barcode:before {
+  content: "\e641";
+}
+
+.ali-icon-line:before {
+  content: "\e66b";
+}
+
+.ali-icon-a:before {
+  content: "\e602";
+}
+
+.ali-icon-ellipse:before {
+  content: "\e7b8";
+}
+
+.ali-icon-rectangle:before {
+  content: "\e6b1";
+}
+
+.ali-icon-qrcode:before {
+  content: "\e872";
+}
+
+.ali-icon-redo:before {
+  content: "\e627";
+}
+
+.ali-icon-grid:before {
+  content: "\e8b4";
+}
+
+.ali-icon-back:before {
+  content: "\e617";
+}
+
+.ali-icon-preview:before {
+  content: "\ea1c";
+}
+
+.ali-icon-zoomout:before {
+  content: "\e630";
+}
+
+.ali-icon-print:before {
+  content: "\e622";
+}
+
+.ali-icon-paste:before {
+  content: "\e70d";
+}
+
+.ali-icon-copy:before {
+  content: "\e72f";
+}
+
+.ali-icon-del:before {
+  content: "\e6ac";
+}
+
+.ali-icon-zoomin:before {
+  content: "\e612";
+}
+
+.ali-icon-zoom:before {
+  content: "\e748";
+}
+
+.ali-icon-add:before {
+  content: "\e64d";
+}
+
+.ali-icon-blank:before {
+  content: "\e629";
+}
+
+.ali-icon-new:before {
+  content: "\e61d";
+}
+
+.ali-icon-save:before {
+  content: "\e605";
+}
+

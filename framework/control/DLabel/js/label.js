@@ -138,13 +138,17 @@ class Label {
             }
         }
 
-        // -- 4. 加载标签元素 --
+        // -- 4. 加载标签元素 --        
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
             element._designMode = this._designMode;
             element._labelHead = this.head;
 
+            if (!element.head.name) {   // -- 估计是历史版本原因 --
+                debugger
+                element.head.name = "element_" + this.head.element_id++;
+            }
             this.createElement(element);
             UtilElement.computeProp({ element: element });
         }
@@ -1044,7 +1048,11 @@ class Label {
                 }
             }
             else if (head.elementType.equals("image")) {
-                if (element.image.url.startsWith("http")) {
+                if (!element.image.url) {
+                    debugger
+                    data[head.name] = "";
+                }
+                else if (element.image.url.startsWith("http")) {
                     data[head.name] = element.image.url;
                 }
                 else {

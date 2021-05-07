@@ -8,7 +8,7 @@
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-05-06";
+    window.jsVer = top.jsVer || "2021-05-067";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }
@@ -59,7 +59,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");
 
-        arrRes.push(resRootPath + "/framework/css/ali-icon-font.css");
+        arrRes.push(resRootPath + "/framework/css/ali-icon/iconfont.css");
 
         arrRes.push(resRootPath + "/framework/control/DLabel/css/designer.css");
         arrRes.push(resRootPath + "/framework/control/DLabel/css/toolbar.css");
