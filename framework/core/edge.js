@@ -67,6 +67,14 @@ edge.getPrinterList = async function () {
     }
     return res.data.printers;
 }
+edge.getFontList = async function () {    
+    let controller = "/WebPrint/GetFontList";
+    let res = await edge.invokeHttpShell(controller, {});
+    if (res && res.ok) {
+        topWin.fonts = res.data.fonts;
+    }
+    return res.data.fonts;
+}
 edge.getBarcodeBase64 = async function (jsp) {
     let controller = "/BarcodeGenerator/GetBarcodeBase64";
     let res = await edge.invokeHttpShell(controller, jsp, { autoShowErr: false });

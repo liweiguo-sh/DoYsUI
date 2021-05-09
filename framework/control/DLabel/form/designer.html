@@ -58,7 +58,7 @@
                 <el-button type="info" onclick="btnDemoLabel_click();" icon="alifont ali-icon-label" title="演示标签"></el-button>
                 <el-button type="info" onclick="btnDebugLabel_click();" icon="alifont ali-icon-label" title="调试标签"></el-button>
             </el-button-group>
-            <el-button-group v-show="showDebugToolbar">
+            <el-button-group v-show="false">
                 <el-button type="success" onclick="testCross1()" v-show="true" icon="alifont ali-icon-test-ts" title="远程跨域测试1"></el-button>
                 <el-button type="warning" onclick="webPrintSample()" v-show="true" icon="alifont ali-icon-print" title="打印样张(WEB模式)"></el-button>
             </el-button-group>
@@ -334,7 +334,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">字体</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="font.name" @change="elementPropChange('font.name')">
+                                    <el-select v-model="font.name" @change="elementPropChange('font.name')" filterable default-first-option>
                                         <el-option v-for="name in fontNames" :value="name" :label="name" :key="name">
                                             <slot>
                                                 <div style="width:350px;">
@@ -428,7 +428,7 @@
                 </div>
             </td>
             <td id="tdAux" class="tdAux">
-                <div id="vmAux" class="vmAux" v-show="true">
+                <div id="vmAux" class="vmAux" v-show="false">
                     <el-row class="row-aux">
                         <el-button type="info" onclick="alignElements('top')" icon="alifont ali-icon-align-top" title="上对齐"></el-button>
                     </el-row>
@@ -469,6 +469,11 @@
     });
     var vmProp = new Vue({
         el: '#vmProp',
+        mounted() {            
+            edge.getFontList().then((fonts) => {                
+                this.fontNames = fonts;                
+            })            
+        },
         data: {
             span: [24, 7, 17],
             activeNames: "labelHead",
@@ -680,7 +685,7 @@
             topWin.confirm("当前标签已存在内容，确定要清空为空白标签吗？").then((ok) => {
                 if (!ok) return;
 
-                lbl.loadLabel("", { width: 80, height: 60 });
+                lbl.loadLabel("", { width: 80, height: 60, point: 600 });
             })
         }
     }
