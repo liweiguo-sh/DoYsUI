@@ -5,17 +5,17 @@
     <script src="../../../../framework/core/boot.js"></script>
 </head>
 <body>
-    <div id="app" style="width:600px;height:400px;">
-        <el-row>
-            <el-col :span="4">
-                <el-button @click="method1">测试操作A</el-button>
-            </el-col>
-            <el-col :span="4">
-                <el-button onclick="win.close();">关闭</el-button>
-            </el-col>
+    <div id="app" style="width:500px;height:360px;">
+        <el-row style="margin-bottom:10px;">
+            <el-button onclick="win.close();">关闭</el-button>
         </el-row>
-        <el-row>
-            <el-input v-model="morePrice"></el-input>
+        <el-row v-for="item in prices">
+            <el-col :span="18">
+                <el-input v-model="item.name" @input="nameInput(item)"></el-input>
+            </el-col>
+            <el-col :span="6">
+                <el-input v-model="item.price" style="text-align:right;"></el-input>
+            </el-col>
         </el-row>
     </div>
 </body>
@@ -26,19 +26,30 @@
     var app = new Vue({
         el: '#app',
         data: {
-            morePrice: "",
             prices: []
         },
         methods: {
-            method1() {
-                ajax.send("/", {}).then((res) => {
-                    if (res.ok) {
-                        topWin.message("当前操作成功");
+            setMorePrice(morePrice) {
+                this.prices = JSON.parse(morePrice || "[]");
+                this.prices.push({
+                    "name": "",
+                    "price": 0
+                });
+            },
+            nameInput(item) {
+                if (this.prices[this.prices.length - 1].name) {
+                    this.prices.push({
+                        "name": "",
+                        "price": 0
+                    });
+                }
+                else {
+                    for (let i = this.prices.length - 2; i >= 0; i--) {
+                        if (!this.prices[i].name) {
+                            this.prices.splice(i, 1);
+                        }
                     }
-                    else {                        
-                        topWin.alert("系统信息 ...", "error");
-                    }
-                })
+                }
             }
         }
     });
@@ -47,12 +58,25 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
-        app.morePrice = win.para.morePrice;
+        app.setMorePrice(win.para.morePrice);
 
-        win.addEventListener("afterClose", () => {
-            win.para.callback({ "morePrice": app.morePrice });
+        win.addEventListener("afterClose", () => {            
+            app.prices.pop();
+            app.prices.sort(function (item1, item2) {
+                try {
+                    let price1 = parseFloat(item1.price);
+                    let price2 = parseFloat(item2.price);
+                    return price2 - price1;
+                }
+                catch (e) {
+                    return 0;
+                }
+            });
+            let morePrice = JSON.stringify(app.prices);
+
+            win.para.callback({ "morePrice": morePrice });
             return true;
         });
     }
-    
+
 </script>

@@ -49,7 +49,7 @@
                         </el-col>
                         <el-col :span="span[2]">
                             <el-form-item label="更多价格">
-                                <el-button v-show="form.id" @click="morePrice" type="success" icon="el-icon-plus" circle></el-button>
+                                <el-button v-show="form.id" @click="morePrice" type="success" icon="el-icon-edit" circle></el-button>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -193,7 +193,7 @@
                 }
             },
 
-            morePrice() {
+            morePrice() {                
                 let prop = {
                     url: g.x.getPath("/") + "food_more_price.html",
                     parent: win,
@@ -201,10 +201,11 @@
                 };
                 let para = {
                     morePrice: this.form.more_price,
-                    callback: (jsp) => {                        
-                        this.form.more_price = jsp.morePrice;
-                    },
-                    callback1: function(jsp) {
+                    callback: (jsp) => {
+                        let prices = JSON.parse(jsp.morePrice || "[]");
+                        if (prices.length > 0) {
+                            this.form.price = prices[0].price;
+                        }
                         this.form.more_price = jsp.morePrice;
                     }
                 };
