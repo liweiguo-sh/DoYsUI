@@ -1033,23 +1033,22 @@ class Label {
     getData() {
         let data = {};
         let element, head;
-        // ------------------------------------------------
+        // ------------------------------------------------        
         for (let i = 0; i < this.elements.length; i++) {
             element = this.elements[i];
             head = element.head;
 
             if (head.elementType.equals("text")) {
-                data[head.name] = head._sectionsText;
+                data[head.name] = head._sectionsText || "";
             }
             else if (head.elementType.equals("barcode")) {
                 data[head.name] = {
-                    text: head._sectionsText,
-                    value: head._segmentsText
+                    text: head._sectionsText || "",
+                    value: head._segmentsText || ""
                 }
             }
             else if (head.elementType.equals("image")) {
                 if (!element.image.url) {
-                    debugger
                     data[head.name] = "";
                 }
                 else if (element.image.url.startsWith("http")) {
@@ -1183,7 +1182,7 @@ class Label {
     setPrinterName(printerName) {
         this.printerName = printerName;
     }
-    print(jsp) {        
+    print(jsp) {
         let labelString = this.toJson();
         let dataString = JSON.stringify(jsp.data, null, " ");
         let para = {
