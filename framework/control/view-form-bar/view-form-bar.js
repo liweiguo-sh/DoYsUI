@@ -9,6 +9,7 @@
             dtbViewField: null,         // -- dtbViewField --
             dtbViewData: null,          // -- 视图数据记录集 --
             dataRowView: null,          // -- 视图行数据 --
+            id: 0,                      // -- 主键ID --
 
             moveButtons: [],
             vfButtons: [],
@@ -39,18 +40,25 @@
         init() {
             this.controller = win.para.controller;
             this.view = win.para.view;
-            this.view.vf = this;
             this.viewPk = win.para.viewPk;
             this.flowPks = win.para.flowPks;
             this.dtbView = win.para.dtbView;
             this.dtbViewField = win.para.dtbViewField;
             this.dtbViewData = win.para.dtbViewData;
             this.dataRowView = win.para.dataRowView;
+            this.id = win.para.id;
 
             this.firstAction = win.para.firstAction;
-            this.allowAddnew = win.para.allowAddnew && (win.para.dtbView.rows[0]["allow_addnew"].value == 1);
-            this.allowDelete = (win.para.dtbView.rows[0]["allow_delete"].value == 1);   // -- 视图允许删除 --
-            this.allowUpdate = (win.para.dtbView.rows[0]["allow_update"].value == 1);   // -- 视图允许修改 --            
+            if (this.view) {
+                this.view.vf = this;
+                this.allowAddnew = win.para.allowAddnew && (win.para.dtbView.rows[0]["allow_addnew"].value == 1);
+                this.allowDelete = (win.para.dtbView.rows[0]["allow_delete"].value == 1);   // -- 视图允许删除 --
+                this.allowUpdate = (win.para.dtbView.rows[0]["allow_update"].value == 1);   // -- 视图允许修改 --   
+            }
+            else {
+                this.allowUpdate = win.para.allowUpdate;
+                this.allowDelete = win.para.allowDelete;
+            }
 
             this.getFormSchema();
         },
@@ -114,7 +122,7 @@
             })
         },
         getFormData() {
-            let id = this.dataRowView["id"].value;
+            let id = this.view ? this.dataRowView["id"].value : win.para.id;
             let postData = { viewPk: this.viewPk, id: id };
             ajax.send(this.controller + "/getFormData", postData).then(res => {
                 if (res.ok) {
@@ -337,30 +345,35 @@
                 }
             }
 
-            let id = this.status.equals("addnew") ? 0 : this.dataRowView["id"].value;
+            let id = this.status.equals("addnew") ? 0 : (this.view ? this.dataRowView["id"].value : this.id);
             let postData = { viewPk: this.viewPk, id: id, idCopy: this.idCopy, form: this.$parent.form };
             await ajax.send(this.controller + "/save", postData).then(res => {
                 if (res.ok) {
                     let addnew = this.status.equals("addnew");
                     let dtbViewData = res.dtbViewData;
 
-                    this.dtbFormData = res.dtbFormData;
-                    if (dtbViewData.rowCount == 0) {
-                        this.dataRowView = null;
-                        topWin.alert("数据已保存，但不符合网格显示条件，请刷新网格。", "warning");
-                    }
-                    else {
-                        this.dataRowView = dtbViewData.rows[0];
+                    this.dtbFormData = res.dtbFormData;                    
+                    this.id = this.dtbFormData.rows[0]["id"].value;
+                    if (this.view) {
+                        if (dtbViewData.rowCount == 0) {
+                            this.dataRowView = null;
+                            topWin.alert("数据已保存，但不符合网格显示条件，请刷新网格。", "warning");
+                        }
+                        else {
+                            this.dataRowView = dtbViewData.rows[0];
+                        }
                     }
 
                     this.fillFormData();
                     this.firstAction = "view";
 
-                    if (id == 0) {
-                        this.view.afterVfInsert(this.dataRowView);
-                    }
-                    else {
-                        this.view.afterVfUpdate(this.dataRowView);
+                    if (this.view) {
+                        if (id == 0) {
+                            this.view.afterVfInsert(this.dataRowView);
+                        }
+                        else {
+                            this.view.afterVfUpdate(this.dataRowView);
+                        }
                     }
 
                     if (this.$parent.afterSave) {
@@ -425,12 +438,14 @@
             }
         },
         delete() {
-            let id = this.dataRowView["id"].value;
-            let idNext = this.view.getNextId();
+            let id = this.view ? this.dataRowView["id"].value : this.id;
+            let idNext = this.view ? this.view.getNextId() : 0;
             let postData = { viewPk: this.viewPk, id: id, idNext: idNext, form: this.$parent.form };
             ajax.send(this.controller + "/delete", postData).then(res => {
                 if (res.ok) {
-                    this.dataRowView = this.view.afterVfDelete();
+                    if (this.view) {
+                        this.dataRowView = this.view.afterVfDelete();
+                    }
 
                     if (this.dataRowView) {
                         this.dtbFormData = res.dtbFormData;

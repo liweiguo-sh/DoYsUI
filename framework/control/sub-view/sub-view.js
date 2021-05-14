@@ -148,14 +148,16 @@
             this.showSingleColumn = (this.dtbView.rows[0]["show_single"].value == 1);
 
             for (let i = 0; i < this.dtbViewField.rowCount; i++) {
-                let dataRow = this.dtbViewField.rows[i];
-                let column = {
-                    name: dataRow["name"].value,
-                    text: dataRow["text"].value,
-                    align: dataRow["align"].value,
-                    width: dataRow["width"].value
-                }
-                if (dataRow["sequence"].value > 0) {
+                let dataRow = this.dtbViewField.rows[i];                
+                if (dataRow["sequence"].value > 0) {                    
+                    let column = {
+                        name: dataRow["name"].value,
+                        text: dataRow["text"].value,
+                        align: dataRow["align"].value,
+                        width: dataRow["width"].value,
+                        datatype: dataRow["datatype"].value
+                    }
+
                     if (dataRow["fixed"].value.equals("left")) {
                         columnsL.push(column);
                     }
@@ -187,8 +189,7 @@
                     if (pageNum == 0) {
                         this.pageNum = 1;
                         this.totalRows = res.totalRows;
-                    }
-
+                    }                    
                     this.viewData = this.getTableData();
                 }
                 else {
@@ -197,7 +198,6 @@
                 }
                 this.loading = false;
             });
-
         },
         getFilter() {
             let arrFilter = new Array();
@@ -525,7 +525,13 @@
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>
-                        <el-table-column v-for="column in columns"  :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width"></el-table-column>
+                        <el-table-column v-for="column in columns"  :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width">                             
+                            <template slot-scope="scope" >
+                                <i v-if="column.datatype=='tinyint' && scope.row[column.name]" class="el-icon-check"></i>
+                                <span v-else-if="column.datatype=='tinyint' && !scope.row[column.name]"></span>
+                                <span v-else>{{scope.row[column.name]}}</span>
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </el-main>
                 <el-footer height="50px" style="padding-left:0px;border-bottom:solid 2px #ebeef5;border-left:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">

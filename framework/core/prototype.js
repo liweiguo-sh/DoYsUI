@@ -2,8 +2,8 @@
  * DoYs.prototype.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2020-12-14
- * Copyright 2020, doys-next.com
+ * Modify Date: 2021-05-14
+ * Copyright 2020-2021, doys-next.com
  */
 
 // -- global function ---------------------------------------------------------
@@ -18,6 +18,13 @@ window.sleep = function (milliseconds) {
 String.prototype.equals = function (str) {
     ///<summary>判断字符串是否相等，忽略大小写。如果想要区分大小写，使用compare()。</summary>
     if (str == null) return false;
+
+    let a = this.toLowerCase().trim();
+    let b = str.toLowerCase().trim();
+    let result = a.localeCompare(b);
+    return (result == 0);
+
+    return;
     str = str.toString();
     return (this.toUpperCase().trim() === str.toUpperCase());
 
@@ -26,7 +33,7 @@ String.prototype.equals = function (str) {
         return (this.toUpperCase().trim() === str.toUpperCase());
     }
     else {
-        return (this.toUpperCase().trim().localeCompare(str.toUpperCase()) == 0);
+        return (this.toUpperCase().trim().localeCompare(str.toUpperCase().trim) == 0);
     }
 };
 String.prototype.right = function (len) {
@@ -172,7 +179,7 @@ Date.prototype.diffDay = function (dateEarly) {
 
 // -- Number ------------------------------------------------------------------
 Number.prototype.toInt = function () {
-    return this;
+    return parseInt(this);
 }
 
 // -- JSON --------------------------------------------------------------------

@@ -16,26 +16,27 @@
 </head>
 <body>
     <div> 
-        <input type="button" value="测试" onclick="downloadFile();" />
+        <input type="button" value="测试1" onclick="test1();" />
         <div id="divMessage"></div>
     </div>
 </body>
 </html>
 
 <script>
-    function downloadFile() {               
-        var saveDatas = "哈哈";
-        var blob = new Blob([saveDatas], { type: 'application/json' })
-        // 创建一个blob的对象，把Json转化为字符串作为我们的值
+    function test1() {
+        debugger
 
-        var url = window.URL.createObjectURL(blob);;
-        var link = document.createElement("a");
+        let a = "你好", b = "你好";
 
-        link.href = url;
-        link.setAttribute('download', "lbl.dlb")
-        //link.click();
-
-        window.open(url, "_blank");
+        for (let i = 0; i < 1; i++) {
+            let result = a.localeCompare(b);
+            if (result == 0) {
+                console.log("相等");
+            }
+            else {
+                console.log("不相等");
+            }
+        }
     }
 
 </script> 

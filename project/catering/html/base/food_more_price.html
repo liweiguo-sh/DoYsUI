@@ -3,11 +3,51 @@
 <head>
     <title>菜品价格维护</title>
     <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+
+    <style type="text/css">
+        body1 {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
-    <div id="app" style="width:500px;height:360px;">
+    <div id="app" style="width:500px;height:450px;padding-left:18px;padding-right:21px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-row style="margin-bottom:10px;">
-            <el-button onclick="win.close();">关闭</el-button>
+            <el-button-group>
+                <el-button onclick="win.close();">保存</el-button>
+                <el-button onclick="win.close();">放弃</el-button>
+            </el-button-group>
+        </el-row>
+        <el-row>
+            <el-form :model="form" ref="form" label-width="100px" label-position="right">
+                <el-row>
+                    <el-col :span="24">
+                        <el-form-item label="选配项名称" required>
+                            <el-input v-model="form.group_name" ref="name" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="16">
+                        <el-form-item label="">
+                            <el-checkbox v-model="form.flag_select" ref="name">允许多选</el-checkbox>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="序号">
+                            <el-input v-model="form.sequence" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+        </el-row>
+        <el-row style="padding-bottom:5px;">
+            选配项：
         </el-row>
         <el-row v-for="item in prices">
             <el-col :span="18">
@@ -26,6 +66,13 @@
     var app = new Vue({
         el: '#app',
         data: {
+            form: {
+                group_name: "",
+                flag_base_price: false,
+                flag_select: false,
+                sequence: 1
+            },
+
             prices: []
         },
         methods: {

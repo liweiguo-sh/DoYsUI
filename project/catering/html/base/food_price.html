@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>菜品价格维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+
+    <style type="text/css">
+        bodyyy {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:600px;height:550px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-row>
+            <el-form :model="form" ref="form" label-width="110px" label-position="right">
+                <el-row v-show="!flagBasePrice">
+                    <el-col :span="24">
+                        <el-form-item label="选配项组名称" required>
+                            <el-input v-model="form.group_name" ref="group_name" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row v-show="!flagBasePrice">
+                    <el-col :span="16">
+                        <el-form-item label="">
+                            <el-checkbox v-model="form.flag_multiple">允许多选</el-checkbox>
+                            <el-checkbox v-model="form.flag_required">必选</el-checkbox>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="序号">
+                            <el-input v-model="form.sequence" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-divider content-position="left">选配项列表：</el-divider>
+                <el-row v-for="item in prices">
+                    <el-col :span="16">
+                        <el-form-item label="名称">
+                            <el-input v-model="item.name" @input="nameInput(item)" />
+
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="价格">
+                            <el-input v-model="item.price" style="text-align:right;" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            foodId: 0,
+            flagBasePrice: false,
+
+            form: {
+                food_id: 0,
+                group_name: "",
+                flag_base_price: false,
+                flag_multiple: false,
+                sequence: 1
+            },
+
+            prices: []
+        },
+        methods: {
+            afterMove() {
+                let prices = [];
+                if (this.form.id) {
+                    prices = JSON.parse(this.form.prices || "[]");
+                }
+                prices.push({
+                    "name": "",
+                    "price": 0
+                });
+                this.prices = prices;
+            },
+            afterAddnew() {
+                this.form.food_id = this.foodId;
+                if (this.flagBasePrice) {
+                    this.form.group_name = "MAIN-SIZE";
+                    this.form.flag_base_price = true;
+                    this.form.flag_required = true;
+                    this.form.flag_multiple = false;
+                    this.form.sequence = 0;
+                }
+            },
+
+            beforeSave() {
+                this.prices.pop();
+                this.prices.sort(function (item1, item2) {
+                    try {
+                        let price1 = parseFloat(item1.price);
+                        let price2 = parseFloat(item2.price);
+                        return price2 - price1;
+                    }
+                    catch (e) {
+                        return 0;
+                    }
+                });
+                for (let key in this.prices) {
+                    this.prices[key].price = parseFloat(this.prices[key].price);
+                }
+                this.form.prices = JSON.stringify(this.prices);
+
+                return true;
+            },
+            afterSave() {
+                if (win.para.callback) {
+                    let price = 0;
+                    if (this.prices.length > 1) {
+                        price = this.prices[0].price;
+                    }
+                    win.para.callback({ foodPriceId: this.form.id, price: price });
+                }
+            },
+            afterDelete() {
+                if (win.para.callback) {
+                    win.para.callback({ foodPriceId: 0 });
+                }
+            },
+
+            nameInput(item) {
+                if (this.prices[this.prices.length - 1].name) {
+                    this.prices.push({
+                        "name": "",
+                        "price": 0
+                    });
+                }
+                else {
+                    for (let i = this.prices.length - 2; i >= 0; i--) {
+                        if (!this.prices[i].name) {
+                            this.prices.splice(i, 1);
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {        
+        app.foodId = win.parentWindow.app.$refs.vf.getId();
+        app.flagBasePrice = win.para.flagBasePrice;
+    }
+</script>

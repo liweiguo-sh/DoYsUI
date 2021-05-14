@@ -16,9 +16,9 @@
     </style>
 </head>
 <body>
-    <div id="app" style="width:800px;height:330px;">
+    <div id="app" style="width:800px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
-        <el-tabs v-model="activeTabName">
+        <el-tabs v-model="activeTabName" @tab-click="onTabClick">
             <el-tab-pane label="基本信息" name="base">
                 <el-form :model="form" ref="form" label-width="145px" label-position="left">
                     <el-row>
@@ -98,8 +98,10 @@
                     </el-col>
                 </el-row>
             </el-tab-pane>
+            <el-tab-pane label="选配项" name="prices">
+                <sub-view id="grid" ref="grid" view-height="440" @onaddnew="onPricesAddnew"></sub-view>
+            </el-tab-pane>
         </el-tabs>
-
     </div>
 </body>
 </html>
@@ -112,7 +114,9 @@
             span: [24, 12, 12],
             activeTabName: "base",
 
-            form: {},
+            form: {
+                food_price_id: ""
+            },
             ds: {},
             foodCategoryList: [],
             foodCategoryIds: [],
@@ -127,6 +131,10 @@
             });
         },
         methods: {
+            onTabClick: function (tab, evt) {
+                this.showGrid();
+            },
+
             afterAddnew: function (jsp) {
                 this.form.code = "";
                 this.form.name = "";
@@ -160,6 +168,9 @@
                 else {
                     this.imgOriginal = "";
                 }
+
+                // ----------------------------------------
+                this.showGrid();
             },
 
             beforeSave: function (jsp) {
@@ -193,24 +204,58 @@
                 }
             },
 
-            morePrice() {                
-                let prop = {
-                    url: g.x.getPath("/") + "food_more_price.html",
+            morePrice() {
+                let foodPriceId = this.form.food_price_id.toInt();
+                var prop1 = {
+                    url: g.x.getPath("/") + "food_price.html",
                     parent: win,
                     modal: true
                 };
-                let para = {
-                    morePrice: this.form.more_price,
+                let para1 = {
+                    viewPk: "food_price",
+                    flowPks: "'sys_crud'",
+                    controller: "/catering/base/food_price_view",
+                    id: foodPriceId,
+                    flagBasePrice: true,
+                    firstAction: foodPriceId ? "view" : "addnew",
+                    allowUpdate: true,
+                    allowDelete: true,
                     callback: (jsp) => {
-                        let prices = JSON.parse(jsp.morePrice || "[]");
-                        if (prices.length > 0) {
-                            this.form.price = prices[0].price;
+                        app.form.food_price_id = jsp.foodPriceId;
+                        if (jsp.price) {
+                            app.form.price = jsp.price;
                         }
-                        this.form.more_price = jsp.morePrice;
                     }
                 };
-                topWin.openWindow(prop, para);
-            }
+                topWin.openWindow(prop1, para1);
+            },
+
+            onPricesAddnew(callback) {
+                let foodId = this.$refs.vf.getId();
+                if (foodId == 0) {
+                    this.$refs.vf.save();
+                    callback(true);
+                    return;
+                }
+            },
+            showGrid: function () {
+                if (this.activeTabName.equals("prices")) {
+                    let foodId = this.$refs.vf.getId();
+                    let filter = "food_id = " + foodId;
+                    if (this.$refs.grid.initialized) {
+                        this.$refs.grid.setFilter(filter);
+                    }
+                    else {
+                        var para = {
+                            viewPk: "food_price",
+                            flowPks: "'sys_crud'",
+                            filter: filter,
+                            vfUrl: g.x.getPath("/") + "food_price.html"
+                        }
+                        this.$refs.grid.init(para);
+                    }
+                }
+            },
         }
     });
 </script>

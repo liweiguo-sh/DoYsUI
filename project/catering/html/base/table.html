@@ -58,7 +58,7 @@
         },
 
         methods: {
-            afterAddnew: function (jsp) {
+            afterAddnew(jsp) {
                 this.form.code = "";
                 if (!jsp.copy) {
                     this.form.qty_customer = "1";
@@ -72,6 +72,6 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
-        
+
     }
 </script>

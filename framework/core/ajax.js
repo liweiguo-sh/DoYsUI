@@ -2,7 +2,7 @@
  * DoYs.ajax.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2021-04-08
+ * Modify Date: 2021-05-12
  * Copyright 2020-2021, doys-next.com 
  */
 
@@ -22,7 +22,7 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
                 axiosCfg.method = "POST";
                 axiosCfg.data = data;
             }
-            axios.defaults.withCredentials = true;            
+            axios.defaults.withCredentials = true;
             axios(axiosCfg).then((response) => {
                 if (window.win) win.setDisabled();
 
@@ -123,15 +123,28 @@ ajax.getFetchPostPara = function (postData) {
 }
 
 ajax.parseResponseData = function (responseData) {
-    let keys, type, value;
+    let idx, type, value, obj;
 
     for (var key in responseData) {
-        keys = key.split(g.c.CHAR1);
-        if (keys.length > 1) {
-            value = responseData[key];
-            delete responseData[key];
-            type = keys[1];
-            key = keys[0];
+        value = responseData[key];
+
+        idx = key.indexOf(g.c.CHAR1);
+        if (idx < 0) {
+            try {
+                // -- 默认是JSON --
+                obj = JSON.parse(value);
+                responseData[key] = obj;
+            }
+            catch (e) {
+                // -- 出错保持原值不变 --
+                responseData[key] = value;
+            }
+        }
+        else {
+            delete responseData[key];   // -- 删除反序列化之前的值 --
+            type = key.substring(idx + 1);
+            key = key.substring(0, idx);
+
             if (type.equals("datatable")) {
                 var dtb = new datatable();
                 var arr = value.split(g.c.CHAR7);
