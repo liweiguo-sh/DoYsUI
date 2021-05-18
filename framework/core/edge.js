@@ -96,7 +96,7 @@ edge.printLabel = async function (jsp) {
     dataPost = g.x.extendJSON({
         labelType: "DLabel"
     }, jsp);
-
+    debugger
     let res = await edge.invokeHttpShell(controller, dataPost);
     return res;
 }
