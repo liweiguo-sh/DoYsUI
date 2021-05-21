@@ -22,6 +22,9 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
                 axiosCfg.method = "POST";
                 axiosCfg.data = data;
             }
+            if (option && option.headers) {                
+                axiosCfg.headers = option.headers;
+            }
             axios.defaults.withCredentials = true;
             axios(axiosCfg).then((response) => {
                 if (window.win) win.setDisabled();
@@ -123,36 +126,22 @@ ajax.getFetchPostPara = function (postData) {
 }
 
 ajax.parseResponseData = function (responseData) {
-    let idx, type, value, obj;
+    let idx, type, value;
 
     for (var key in responseData) {
-        value = responseData[key];
-
         idx = key.indexOf(g.c.CHAR1);
-        if (idx < 0) {
-            try {
-                // -- 默认是JSON --
-                obj = JSON.parse(value);
-                responseData[key] = obj;
-            }
-            catch (e) {
-                // -- 出错保持原值不变 --
-                responseData[key] = value;
-            }
-        }
-        else {
-            delete responseData[key];   // -- 删除反序列化之前的值 --
+        if (idx > 0) {
+            value = responseData[key];
+            delete responseData[key];           // -- 删除反序列化之前的值 --
+
             type = key.substring(idx + 1);
             key = key.substring(0, idx);
 
-            if (type.equals("datatable")) {
+            if (type.equals("datatable")) {     // -- 反序列化 datatable --
                 var dtb = new datatable();
                 var arr = value.split(g.c.CHAR7);
                 dtb.readFromData(arr[0], arr[1]);
                 value = dtb;
-            }
-            else if (type.equals("json")) {
-                value = JSON.parse(value);
             }
             else {
                 throw new Error("unsupport datatype: " + type + ", please check.");

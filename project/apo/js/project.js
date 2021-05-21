@@ -8,6 +8,9 @@
 (function () {
     ajax.send("/framework/TopWin/getTopWin", {}).then(res => {
         topWin.tenantId = res.tenantId;
+        topWin.userPk = res.userPk;
+        topWin.userName = res.userName;
+
         topWin.cfg = {};
 
         // -- 标签变量图片基准URL --

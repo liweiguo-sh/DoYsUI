@@ -187,7 +187,8 @@
                     name: dataRow["name"].value,
                     text: dataRow["text"].value,
                     align: dataRow["align"].value,
-                    width: dataRow["width"].value
+                    width: dataRow["width"].value,
+                    datatype: dataRow["datatype"].value
                 }
                 if (dataRow["sequence"].value > 0) {
                     if (dataRow["fixed"].value.equals("left")) {
@@ -519,7 +520,13 @@
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>
-                        <el-table-column v-for="column in columns"  :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width"></el-table-column>
+                        <el-table-column v-for="column in columns"  :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width">
+                            <template slot-scope="scope" >
+                                <i v-if="column.datatype=='tinyint' && scope.row[column.name]" class="el-icon-check"></i>
+                                <span v-else-if="column.datatype=='tinyint' && !scope.row[column.name]"></span>
+                                <span v-else>{{scope.row[column.name]}}</span>
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </el-main>
                 <el-footer height="50px" style="border-bottom:solid 2px #ebeef5;border-right:solid 1px #ebeef5;">

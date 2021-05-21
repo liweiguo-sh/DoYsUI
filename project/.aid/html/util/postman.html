@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>postman</title>
+    <script src="../../../../framework/core/boot.js"></script>
+
+    <style type="text/css">
+        body {
+            margin: 15px;
+        }
+
+        .el-row {
+            margin-bottom: 10px;
+        }
+
+        .el-col {
+            padding-right: 8px;
+        }
+
+        .response {
+            font-family: "Consolas", "Courier New", "monospace";
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="12">
+                <el-input v-model="url" onkeydown="app.urlKeydown(event);"></el-input>
+            </el-col>
+            <el-col :span="6">
+                <el-button type="primary" @click="send">Send</el-button>
+            </el-col>
+        </el-row>
+        <el-row v-for="(item,index) in headers" :key="'header-' + index">
+            <el-col :span="4"><el-input v-model="item.name"></el-input></el-col>
+            <el-col :span="8"><el-input v-model="item.value"></el-input></el-col>
+        </el-row>
+        <el-row v-for="(item,index) in parameters" :key="'parameters-' + index">
+            <el-col :span="4"><el-input v-model="item.name"></el-input></el-col>
+            <el-col :span="8"><el-input v-model="item.value"></el-input></el-col>
+        </el-row>
+        <br />
+        <el-row>
+            <el-input type="textarea" v-model="response" class="response" :rows="25" spellcheck="false"></el-input>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            url: "http://localhost:9988/DoYsSV/catering/getCategoryList",
+            headers: [
+                { name: "authorization", value: "" }
+            ],
+            parameters: [
+                { name: "token", value: "" },
+                { name: "参数1", value: "" }
+            ],
+            response: ""
+        },
+        methods: {
+            urlKeydown(evt) {
+                if (evt.key.equals("Enter")) {
+                    this.send();
+                }
+            },
+            send() {
+                let headers = {};
+                for (let i = 0; i < this.headers.length; i++) {
+                    headers[this.headers[i].name] = this.headers[i].value;
+                }
+                let dataPOST = {};
+                for (let i = 0; i < this.parameters.length; i++) {
+                    dataPOST[this.parameters[i].name] = this.parameters[i].value;
+                }
+
+                ajax.send(this.url, dataPOST, { headers: headers }).then((res) => {
+                    console.log(res);
+                    this.response = JSON.stringify(res, null, "    ");
+                })
+            }
+        }
+    });
+</script>

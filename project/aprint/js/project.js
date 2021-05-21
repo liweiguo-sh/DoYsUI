@@ -8,6 +8,9 @@
 (function () {
     ajax.send("/framework/TopWin/getTopWin", {}).then(res => {
         topWin.tenantId = res.tenantId;
+        topWin.userPk = res.userPk;
+        topWin.userName = res.userName;
+
         topWin.cfg = g.x.extendJSON(topWin.cfg, {
             needEdgeHttpShell1: true,
 

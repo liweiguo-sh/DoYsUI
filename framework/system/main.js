@@ -2,11 +2,12 @@
  * DoYs.main.js
  * Author: David.Li
  * Create Date: 2020-04-11
- * Modify Date: 2021-03-01
+ * Modify Date: 2021-05-20
  * Copyright 2020-2021, doys-next.com
  */
 
 (function () {
+    return;
     ajax.send("/framework/TopWin/getTopWin", {}).then(res => {
         topWin.tenantId = res.tenantId;
         topWin.userPk = res.userPk;
@@ -50,7 +51,7 @@ function openMenu(menu) {
 
         let prop = {
             url: url,
-            text: menu.text            
+            text: menu.text
         };
         let para = {
             menuPk: menu.pk

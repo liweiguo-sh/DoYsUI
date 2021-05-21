@@ -29,7 +29,7 @@
                 <el-row v-show="!flagBasePrice">
                     <el-col :span="16">
                         <el-form-item label="">
-                            <el-checkbox v-model="form.flag_multiple">允许多选</el-checkbox>
+                            <el-checkbox v-model="form.flag_multiple" @change="itemSelect(-1)">允许多选</el-checkbox>
                             <el-checkbox v-model="form.flag_required">必选</el-checkbox>
                         </el-form-item>
                     </el-col>
@@ -41,17 +41,26 @@
                 </el-row>
 
                 <el-divider content-position="left">选配项列表：</el-divider>
-                <el-row v-for="item in prices">
-                    <el-col :span="16">
-                        <el-form-item label="名称">
-                            <el-input v-model="item.name" @input="nameInput(item)" />
-
-                        </el-form-item>
+                <el-row style="margin-bottom:3px;">
+                    <el-col :span="span[1]">
+                        <el-tag>选配项名称</el-tag>
                     </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="价格">
-                            <el-input v-model="item.price" style="text-align:right;" />
-                        </el-form-item>
+                    <el-col :span="span[2]">
+                        <el-tag>默认选中</el-tag>
+                    </el-col>
+                    <el-col :span="span[3]">
+                        <el-tag>价格</el-tag>
+                    </el-col>
+                </el-row>
+                <el-row v-for="(item,index) in prices" :key="index" style="margin-bottom:5px;">
+                    <el-col :span="span[1]">
+                        <el-input v-model="item.name" @input="nameInput(item)" />
+                    </el-col>
+                    <el-col :span="span[2]" style="text-align:center;padding-top:5px;">
+                        <el-checkbox v-model="item.selected" @change="itemSelect(index)"></el-checkbox>
+                    </el-col>
+                    <el-col :span="span[3]">
+                        <el-input v-model="item.price" style="text-align:right;" />
                     </el-col>
                 </el-row>
             </el-form>
@@ -76,6 +85,7 @@
                 sequence: 1
             },
 
+            span: [24, 16, 4, 4],
             prices: []
         },
         methods: {
@@ -139,6 +149,7 @@
                 if (this.prices[this.prices.length - 1].name) {
                     this.prices.push({
                         "name": "",
+                        "selected": false,
                         "price": 0
                     });
                 }
@@ -149,6 +160,15 @@
                         }
                     }
                 }
+            },
+            itemSelect(idx) {
+                if (this.form.flag_multiple) return;
+                for (let i = 0; i < this.prices.length; i++) {
+                    if (i == idx) continue;
+                    if (this.prices[i].selected) {
+                        this.prices[i].selected = false;
+                    }
+                }
             }
         }
     });
@@ -156,7 +176,7 @@
 
 <!-- winLoad -->
 <script>
-    function winLoad() {        
+    function winLoad() {
         app.foodId = win.parentWindow.app.$refs.vf.getId();
         app.flagBasePrice = win.para.flagBasePrice;
     }

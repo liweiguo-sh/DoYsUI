@@ -10,8 +10,8 @@
     <style>
         .imgFood {
             background-color: white;
-            width: 450px;
-            height: 450px;
+            width: 480px;
+            height: 480px;
         }
     </style>
 </head>
@@ -53,7 +53,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <!-- 分类 -->
+                    <!-- 分类、置顶 -->
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="分类" required>
@@ -62,8 +62,15 @@
                                 </el-checkbox-group>
                             </el-form-item>
                         </el-col>
-
                     </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="置顶">
+                                <el-checkbox v-model="form.show_in_above">置顶显示</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <!-- 简介、备注 -->
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="简介">
@@ -74,7 +81,7 @@
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="备注">
-                                <el-input v-model="form.remark" type="textarea" :rows="3" />
+                                <el-input v-model="form.remark" type="textarea" :rows="2" />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -99,7 +106,7 @@
                 </el-row>
             </el-tab-pane>
             <el-tab-pane label="选配项" name="prices">
-                <sub-view id="grid" ref="grid" view-height="440" @onaddnew="onPricesAddnew"></sub-view>
+                <sub-view id="grid" ref="grid" view-height="480" @onaddnew="onPricesAddnew"></sub-view>
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -156,7 +163,7 @@
                 let foodCategoryIds = this.form.food_category_ids;
 
                 if (foodCategoryIds) {
-                    this.foodCategoryIds = foodCategoryIds.split(";");
+                    this.foodCategoryIds = foodCategoryIds.split(",");
                 }
                 else {
                     this.foodCategoryIds = [];
@@ -178,7 +185,7 @@
                     topWin.alert("请选择菜品分类。", "error");
                     return false;
                 }
-                this.form.food_category_ids = this.foodCategoryIds.join(";");
+                this.form.food_category_ids = this.foodCategoryIds.join(",");
                 return true;
             },
 

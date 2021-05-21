@@ -20,7 +20,8 @@
             <el-tab-pane v-for="tab in tabs" :label="tab.name" :name="tab.name">
                 <ul>
                     <li v-for="item in tab.list">
-                        <el-link type="primary" :href="item">{{item}}</el-link>
+                        <el-link v-if="item.indexOf(activeLink)>=0" type="danger" :href="item">{{item}}</el-link>
+                        <el-link v-else type="primary" :href="item">{{item}}</el-link>
                     </li>
                 </ul>
             </el-tab-pane>
@@ -35,7 +36,8 @@
     var app = new Vue({
         el: '#app',
         data: {
-            activeName: "DLabel",
+            activeName: "catering",
+            activeLink: "project/catering/html/login/login.html?tenantId=F100&systemKey=001&userPk=admin&autoLogin=true",
             tabs: []
         },
         mounted() {
@@ -85,6 +87,8 @@
                 {
                     name: "test",
                     list: [
+                        "project/.aid/html/util/postman.html",
+                        "",
                         "test/temp/once.html",
                         "",
                         "project/.demo/html/barcode/gs1_scan.html",
