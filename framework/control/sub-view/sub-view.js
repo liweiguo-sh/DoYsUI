@@ -148,7 +148,7 @@
             this.showSingleColumn = (this.dtbView.rows[0]["show_single"].value == 1);
 
             for (let i = 0; i < this.dtbViewField.rowCount; i++) {
-                let dataRow = this.dtbViewField.rows[i];                
+                let dataRow = this.dtbViewField.rows[i];
                 if (dataRow["sequence"].value > 0) {                    
                     let column = {
                         name: dataRow["name"].value,
@@ -189,7 +189,7 @@
                     if (pageNum == 0) {
                         this.pageNum = 1;
                         this.totalRows = res.totalRows;
-                    }                    
+                    }
                     this.viewData = this.getTableData();
                 }
                 else {
@@ -310,7 +310,7 @@
             this.getViewData(pageNum);
         },
 
-        onCellButtonClick(scope, columnType) {            
+        onCellButtonClick(scope, columnType) {
             if (columnType.equals("edit")) {
                 this.setCurrentRow(scope.$index);
                 this.openEditForm("view");
@@ -402,7 +402,7 @@
             this.afterVfDelete();
         },
 
-        onCurrentChange(currentRow, oldCurrentRow) {            
+        onCurrentChange(currentRow, oldCurrentRow) {
             if (currentRow == null) {
                 this.currentRowIdx = -1;
             }
@@ -412,7 +412,7 @@
 
             this.$emit("row-change", {
                 currentRow: currentRow,
-                rowIndex: this.currentRowIdx,                
+                rowIndex: this.currentRowIdx,
                 dataRow: this.currentRowIdx >= 0 ? this.dtbViewData.rows[this.currentRowIdx] : null
             });
         },

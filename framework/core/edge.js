@@ -67,7 +67,7 @@ edge.getPrinterList = async function () {
     }
     return res.data.printers;
 }
-edge.getFontList = async function () {    
+edge.getFontList = async function () {
     let controller = "/WebPrint/GetFontList";
     let res = await edge.invokeHttpShell(controller, {});
     if (res && res.ok) {
