@@ -486,7 +486,7 @@
 
                 // ----------------------------------------
                 if (this.labelType.equals("BarTender")) {
-                    await this.print({ previewOnly: true });
+                    await this.print({ preview: true });
                 }
                 else {
                     await this.previewDLabel();
@@ -540,15 +540,15 @@
                 });
                 lbl.compute(true);
             },
-            async print(jsp = { previewOnly: false }) {
+            async print(jsp = { preview: false }) {
                 let para = {
                     labelType: this.labelType,
-                    previewOnly: jsp.previewOnly,
+                    preview: jsp.preview,
                     printerName: this.printerName,
                     copies: this.copies
                 }
                 if (this.labelType.equals("DLabel")) {
-                    await this.previewDLabel();                    
+                    await this.previewDLabel();
                     let lbl = winPreview.window.getLabel();
 
                     para.labelString = lbl.toJson();
@@ -558,7 +558,7 @@
                     para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
                     para.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
 
-                    if (jsp.previewOnly || !this.taskId) {
+                    if (jsp.preview || !this.taskId) {
                         para.dataString = this.getPreviewData_BarTender();
                     }
                     else {
@@ -570,8 +570,7 @@
             },
 
             getPreviewData_BarTender() {
-                let dataString;
-                let heards = [], records = [];
+                let DATA = [], head = [], record = [];
                 // ----------------------------------------
                 for (let key in this.variables) {
                     let type = this.variables[key].type;
@@ -585,12 +584,14 @@
                         this.variables[key].valueFormat = varValue;
                     }
 
-                    heards.push(key);
-                    records.push(this.variables[key].valueFormat)
+                    head.push(key);
+                    record.push(this.variables[key].valueFormat)
                 }
-                dataString = heards.join(g.c.CHAR2) + g.c.CHAR1 + records.join(g.c.CHAR2);
+
+                DATA.push(head);
+                DATA.push(record);
                 // ----------------------------------------
-                return dataString;
+                return DATA;
             },
             async getPrintData() {
                 let lbl = winPreview.window.getLabel();
@@ -623,7 +624,7 @@
 
                             lbl.setValue(name, value);
                         }
-                        lbl.compute(i == rowCount - 1);                        
+                        lbl.compute(i == rowCount - 1);
                         data.push(lbl.getData());
                     }
                 }
@@ -649,16 +650,16 @@
                     for (let i = 0; i < columnCount; i++) {
                         arr.push(dtbTaskData.columns[i].name);
                     }
-                    DATA.push(arr.join(g.c.CHAR2));
+                    DATA.push(arr);
 
                     for (let i = 0; i < rowCount; i++) {
                         let arr = [];
                         for (let j = 0; j < columnCount; j++) {
                             arr.push(dtbTaskData.rows[i][j].value);
                         }
-                        DATA.push(arr.join(g.c.CHAR2));
+                        DATA.push(arr);
                     }
-                    return DATA.join(g.c.CHAR1);
+                    return DATA;
                 }
                 else {
                     return "";

@@ -10,7 +10,7 @@
             <el-col :span="8" style="padding-right:20px;">
                 <el-row>
                     <el-button @click="deleteTask" :disabled="!taskId">删除数据</el-button>
-                    <el-button @click="print({previewOnly: true})" :disabled="!labelId">预览</el-button>
+                    <el-button @click="print({preview: true})" :disabled="!labelId">预览</el-button>
                     <el-button @click="print({})" type="danger" :disabled="!labelId">打印</el-button>
                 </el-row>
                 <el-row style="margin-top:10px;">
@@ -148,7 +148,7 @@
                     this.labelType = this.dtbLabel.rows[0]["type"].value;
                     this.labelContent = this.dtbLabel.rows[0]["content"].value;
 
-                    this.print({ previewOnly: true });
+                    this.print({ preview: true });
                     this.initGrid();
                 });
             },
@@ -182,7 +182,7 @@
                     this.rowNoFrom = 1;
                     this.rowNoTo = res.qty;
 
-                    this.print({ previewOnly: true });
+                    this.print({ preview: true });
                 }
                 else {
                     topWin.alert(res.error);
@@ -206,12 +206,12 @@
                 });
             },
 
-            async print(jsp = { previewOnly: false }) {
+            async print(jsp = { preview: false }) {
                 let para = {
                     taskId: this.taskId,
                     labelId: this.labelId,
                     rowNoFrom: this.rowNoFrom,
-                    rowNoTo: jsp.previewOnly ? this.rowNoFrom : this.rowNoTo
+                    rowNoTo: jsp.preview ? this.rowNoFrom : this.rowNoTo
                 };
                 let res = await ajax.send("/aprint/print/print_query/getForPrint", para);
                 this.dtbLabel = res.dtbLabel;
@@ -221,7 +221,7 @@
                 // ----------------------------------------
                 para = {
                     labelType: this.labelType,
-                    previewOnly: jsp.previewOnly,
+                    preview: jsp.preview,
                     printerName: this.printerName,
                     copies: this.copies
                 }
@@ -235,7 +235,7 @@
 
                     para.labelString = this.labelContent;
                     para.dataString = this.getPrintData();
-                    if (para.previewOnly) {
+                    if (para.preview) {
                         return;
                     }
                 }
@@ -245,7 +245,7 @@
             },
             async preview() {
                 if (this.labelType.equals("BarTender")) {
-                    await this.print({ previewOnly: true });
+                    await this.print({ preview: true });
                 }
                 else {
                     await this.previewDLabel();
@@ -323,16 +323,16 @@
                 for (let i = 0; i < columnCount; i++) {
                     arr.push(this.dtbTaskData.columns[i].name);
                 }
-                DATA.push(arr.join(g.c.CHAR2));
+                DATA.push(arr);
 
                 for (let i = 0; i < rowCount; i++) {
                     let arr = [];
                     for (let j = 0; j < columnCount; j++) {
                         arr.push(this.dtbTaskData.rows[i][j].value);
                     }
-                    DATA.push(arr.join(g.c.CHAR2));
+                    DATA.push(arr);
                 }
-                return DATA.join(g.c.CHAR1);
+                return DATA;
             },
 
             initGrid() {

@@ -20,7 +20,7 @@
             <el-tab-pane v-for="tab in tabs" :label="tab.name" :name="tab.name">
                 <ul>
                     <li v-for="item in tab.list">
-                        <el-link v-if="item.indexOf(activeLink)>=0" type="danger" :href="item">{{item}}</el-link>
+                        <el-link v-if="item.indexOf(activeLink)==0" type="danger" :href="item">{{item}}</el-link>
                         <el-link v-else type="primary" :href="item">{{item}}</el-link>
                     </li>
                 </ul>
@@ -48,7 +48,10 @@
                         "framework/control/DLabel/form/designer.html",
                         "",
                         "test/dlabel/integrate_dlabel.html",
-                        "http://127.0.0.1/abc/test/dlabel/integrate_dlabel.html"
+                        "http://127.0.0.1/abc/test/dlabel/integrate_dlabel.html",
+                        "",
+                        "test/dlabel/integrate_bartender.html",
+                        "http://127.0.0.1/abc/test/dlabel/integrate_bartender.html"
                     ]
                 },
                 {
@@ -80,6 +83,7 @@
                     name: "apo",
                     list: [
                         "project/apo/html/login/login.html?tenantId=F100&systemKey=X99&userPk=developer&autoLogin=true",
+                        "",
                         "project/apo/html/login/login.html?tenantId=F100&systemKey=002&userPk=admin&autoLogin=true",
                         "project/apo/html/login/login.html?tenantId=F100&systemKey=002&userPk=admin"
                     ]

@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>D-Label Example (BarTender)</title>
+    <script src="../../framework/control/DLabel/js/boot.js"></script>
+    <script>
+        importFrameworkRes("designer");
+    </script>
+
+    <style type="text/css">
+        #divButtons input[type='button'] {
+            min-width: 100px;
+            height: 32px;
+            line-height: 32px;
+        }
+
+        #selPrinters {
+            min-width: 80px;
+            height: 32px;
+            line-height: 32px;
+        }
+    </style>
+</head>
+<body>
+    <H1>BarTender预览及打印示例</H1>
+    <hr />
+    <div id="divButtons">
+        <select id="selPrinters" onchange="printerChange()"></select>
+        <input id="btnPreview" type="button" value=" 预览 " onclick="printBarTender(true);" />
+        <input id="btnPrint" type="button" value=" 打印 " onclick="printBarTender(false);" />
+    </div>
+</body>
+</html>
+
+<!-- formLoad -->
+<script>
+    var printerName = "";
+    var printers = window.document.getElementById("selPrinters");
+    // ------------------------------------------------------------------------
+    window.addEventListener("load", function () {
+        edge.getPrinterList().then((data) => {
+            // -- 获取打印机列表 --
+            for (let i = 0; i < data.length; i++) {
+                printers.add(new Option(data[i], data[i]));
+            }
+        });
+    }, false);
+
+    printerChange = function () {
+        // -- 指定打印机 --
+        printerName = printers.value;
+    }
+</script>
+
+<!-- BarTender -->
+<script>
+    function printBarTender(preview) {
+        let rowCount = preview ? 1 : 5;
+        let DATA = [], head = [];
+
+        head = ["产品型号", "GTIN", "生产日期", "到期日期", "批号后2位"];                           // -- 表头字段 --
+        DATA.push(head);
+
+        for (let i = 1; i <= rowCount; i++) {
+            let record = ["BP - 253(720g)", "0697030903010", "200610", "230809", "0" + i];    // -- 行数据 --
+            DATA.push(record);
+        }
+
+        let para = {
+            labelType: "BarTender",
+            preview: preview,   // -- true：预览；false：打印 --
+            printerName: printerName,
+            urlLabelFile: "http://www.masocloud.com/DoYsSV/resRun/106/aprint/label_file/13.btw",
+            urlDataFile: "http://www.masocloud.com/DoYsSV/resRun/106/aprint/label_file/13.csv",
+            dataString: DATA,
+            copies: 1
+        }
+
+        edge.printLabel(para);
+    }
+</script>

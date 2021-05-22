@@ -95,7 +95,7 @@
             },
             onClick: function (button) {
                 if (button.name.equals("preview")) {
-                    this.print({ previewOnly: true });
+                    this.print({ preview: true });
                 }
                 else if (button.name.equals("print")) {
                     this.print();
@@ -105,7 +105,7 @@
                 }
             },
 
-            async print(jsp = { previewOnly: false }) {
+            async print(jsp = { preview: false }) {
                 if (this.rowNoFrom.toInt() < 1 || this.rowNoTo.toInt() < 1 || this.rowNoTo.toInt() < this.rowNoFrom.toInt()) {
                     topWin.alert("请输入正确的起始行号。");
                     return;
@@ -129,7 +129,7 @@
                 // ----------------------------------------
                 para = {
                     labelType: this.labelType,
-                    previewOnly: jsp.previewOnly,
+                    preview: jsp.preview,
                     printerName: this.printerName,
                     copies: this.copies
                 }
@@ -140,7 +140,7 @@
                 }
                 else {
                     await this.previewDLabel();
-                    if (para.previewOnly) {
+                    if (para.preview) {
                         return;
                     }
 
@@ -224,16 +224,16 @@
                 for (let i = 0; i < columnCount; i++) {
                     arr.push(this.dtbTaskData.columns[i].name);
                 }
-                DATA.push(arr.join(g.c.CHAR2));
+                DATA.push(arr);
 
                 for (let i = 0; i < rowCount; i++) {
                     let arr = [];
                     for (let j = 0; j < columnCount; j++) {
                         arr.push(this.dtbTaskData.rows[i][j].value);
                     }
-                    DATA.push(arr.join(g.c.CHAR2));
+                    DATA.push(arr);
                 }
-                return DATA.join(g.c.CHAR1);
+                return DATA;
             },
 
             getLabelSummary() {
