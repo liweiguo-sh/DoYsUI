@@ -23,10 +23,25 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <!-- 企业代码、账户类型 -->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="企业代码">
                         <el-input v-model="form.tenant_code" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="账户类型">
+                        <el-select v-model="form.type">
+                            <el-option value="F" label="付费企业"></el-option>
+                            <el-option value="D" label="演示账户"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row v-show="false">
+                <el-col :span="span[1]">
+                    <el-form-item label="">
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]" v-show="false">
@@ -96,7 +111,9 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {}
+            form: {
+                type: ""
+            }
         },
 
         methods: {
@@ -104,7 +121,8 @@
                 this.form.bus_date = (new Date).toStr();
                 this.form.exp_date = (new Date).add(1, "year").toStr();
 
-                this.form.tenant_code_templet = "F101";
+                this.form.type = "F";
+                this.form.tenant_code_templet = "F100";
             },
             beforeSave: function () {
                 return true;

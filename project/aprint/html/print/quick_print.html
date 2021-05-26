@@ -540,7 +540,7 @@
                 });
                 lbl.compute(true);
             },
-            async print(jsp = { preview: false }) {
+            async print(jsp = { preview: false }) {                
                 let para = {
                     labelType: this.labelType,
                     preview: jsp.preview,
@@ -564,8 +564,7 @@
                     else {
                         para.dataString = await this.getPrintData_BarTender();
                     }
-                }
-
+                }                
                 top.edge.printLabel(para);
             },
 

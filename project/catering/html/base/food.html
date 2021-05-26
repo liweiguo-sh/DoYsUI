@@ -69,6 +69,11 @@
                                 <el-checkbox v-model="form.show_in_above">置顶显示</el-checkbox>
                             </el-form-item>
                         </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="单位">
+                                <el-input v-model="form.unit"></el-input>
+                            </el-form-item>
+                        </el-col>
                     </el-row>
                     <!-- 简介、备注 -->
                     <el-row>
@@ -194,12 +199,13 @@
                 const isLt2M = file.size / 1024 / 1024 < 2;
 
                 if (!isJPG) {
-                    this.$message.error('上传头像图片只能是 JPG 格式!');
+                    //this.$message.error('上传头像图片只能是 JPG 格式!');
                 }
                 if (!isLt2M) {
                     this.$message.error('上传头像图片大小不能超过 2MB!');
                 }
-                return isJPG && isLt2M;
+                //return  isLt2M;
+                return isLt2M;
             },
             afterUpload(res, file) {
                 if (res.ok) {

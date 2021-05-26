@@ -138,7 +138,8 @@ class Label {
             }
         }
 
-        // -- 4. 加载标签元素 --        
+        // -- 4. 加载标签元素 --
+        let es = {};
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
@@ -146,11 +147,20 @@ class Label {
             element._labelHead = this.head;
 
             if (!element.head.name) {   // -- 估计是历史版本原因 --
-                debugger
+                topWin.alert("早期版本bug，需要重新保存标签文件(" + element.head.name + ")", "error");
                 element.head.name = "element_" + this.head.element_id++;
             }
             this.createElement(element);
             UtilElement.computeProp({ element: element });
+
+            if (es[element.head.name]) {
+                topWin.alert("早期版本bug，需要重新保存标签文件(" + element.head.name + ")", "error");
+                this.head.element_id += 100;
+                element.head.name = "element_" + this.head.element_id++;                
+            }
+            else {
+                es[element.head.name] = element.head.name;
+            }
         }
 
         // -- 5. 加载脚本 --
