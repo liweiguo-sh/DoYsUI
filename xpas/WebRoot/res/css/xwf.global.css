@@ -1,9 +1,0 @@
-﻿/* -- 全局通用样式(不区分style) -- */
-.xwf_select_none {
-    /* -- 禁止文本选中 -- */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-}
