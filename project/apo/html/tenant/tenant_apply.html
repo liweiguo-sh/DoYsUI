@@ -8,9 +8,9 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:800px;">
+    <div id="app" style="width:900px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
-        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+        <el-form :model="form" ref="form" label-width="125px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="申请单号">
@@ -23,7 +23,25 @@
                     </el-form-item>
                 </el-col>
             </el-row>
-            <!-- 企业代码、账户类型 -->
+            <!-- 账户类型、账户模板 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="账户类型" required>
+                        <el-select v-model="form.tenant_type">
+                            <el-option value="F" label="付费企业"></el-option>
+                            <el-option value="D" label="演示账户"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="模板" required>
+                        <el-select v-model="form.tenant_code_templet" ref="tenant_code_templet" filterable :popper-append-to-body="false">
+                            <el-option v-for="item in ds.tenant_code_templet" :key="item.tenant_id" :value="item.tenant_id" :label="item.tenant_name"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 企业代码、企业简称；企业名称-->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="企业代码">
@@ -31,22 +49,8 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="账户类型">
-                        <el-select v-model="form.type">
-                            <el-option value="F" label="付费企业"></el-option>
-                            <el-option value="D" label="演示账户"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row v-show="false">
-                <el-col :span="span[1]">
-                    <el-form-item label="">
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]" v-show="false">
-                    <el-form-item label="模板企业">
-                        <el-input v-model="form.tenant_code_templet" :disabled="true" />
+                    <el-form-item label="企业简称" required>
+                        <el-input v-model="form.tenant_shortname" ref="tenant_shortname" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -57,18 +61,8 @@
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="企业简称" required>
-                        <el-input v-model="form.tenant_shortname" ref="tenant_shortname" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="销售" required>
-                        <el-input v-model="form.salesman" ref="salesman" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
+
+            <!-- 开户费、到期日期；管理员账号、管理员密码-->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="开户费" required>
@@ -93,10 +87,23 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <!-- 销售；备注 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="销售" required>
+                        <el-input v-model="form.salesman" ref="salesman" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="">
+                        &nbsp;
+                    </el-form-item>
+                </el-col>
+            </el-row>
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="4" />
+                        <el-input v-model="form.remark" type="textarea" :rows="3" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -112,8 +119,10 @@
         data: {
             span: [24, 12, 12],
             form: {
-                type: ""
-            }
+                tenant_type: "",
+                tenant_code_templet: ""
+            },
+            ds: {}
         },
 
         methods: {
@@ -121,8 +130,8 @@
                 this.form.bus_date = (new Date).toStr();
                 this.form.exp_date = (new Date).add(1, "year").toStr();
 
-                this.form.type = "F";
-                this.form.tenant_code_templet = "F100";
+                this.form.tenant_type = "F";
+                this.form.tenant_code_templet = this.ds.tenant_code_templet[0].tenant_id;
             },
             beforeSave: function () {
                 return true;
