@@ -24,10 +24,7 @@
                             <el-option value="date" label="日期"></el-option>
                             <el-option value="image" label="图片"></el-option>
                             <el-option value="seq" label="序列"></el-option>
-                            <!--<el-option value="quote" label="引用"></el-option>-->
-                            <el-option value="fixed" label="固定值" :disabled="true"></el-option>
-                            <el-option value="ai" label="特殊字符" :disabled="true"></el-option>
-                            <el-option value="js" label="JavaScript 脚本" :disabled="true"></el-option>
+                            <el-option value="chaos" label="防伪码"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
@@ -57,8 +54,8 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="引用来源" required>
-                        <el-select v-model="form.quote_from">
+                    <el-form-item label="引用来源" required >
+                        <el-select v-model="form.quote_from" :disabled="form.type!='string' && form.type!='image'">
                             <el-option value="" label="无"></el-option>
                             <el-option value="product" label="产品参数"></el-option>
                             <el-option value="customer" label="客户参数"></el-option>
