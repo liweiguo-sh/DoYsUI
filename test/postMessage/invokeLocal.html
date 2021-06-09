@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>invokeLocal.html</title>
+    <script src="../../framework/core/crosslocal.js"></script>
+    <style type="text/css">
+        body {
+            margin: 15px;
+        }
+
+        .btn {
+            line-height: 36px;
+            min-height: 36px;
+            min-width: 100px;
+        }
+
+            .btn:hover {
+                color: red;
+            }
+
+        #divMessage {
+            width: 600px;
+            height: 300px;
+            overflow: auto;
+            margin: 20px 0px 0px 0px;
+            border: solid 1px green;
+        }
+    </style>
+</head>
+<body>
+    <input type="button" class="btn" value="跨域通讯1" onclick="crossTest1();" />
+    <div id="divMessage"></div>
+</body>
+</html>
+ 
+
+<!-- 跨域通讯测试 -->
+<script>
+    async function crossTest1() {
+        let res = await crossLocal.getPrinterList();
+
+        if (res.ok) {
+            divMessage.innerHTML = res.data.printers.join("<br /><br />");
+        }
+    }     
+</script>

@@ -23,6 +23,6 @@
         });
 
         // -- 获取打印机列表 --
-        edge.getPrinterList();
+        crossLocal.getPrinterList();
     });
 })()

@@ -44,7 +44,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/plugin/element/index.css");
 
         arrRes.push(resRootPath + "/plugin/axios.min.js");
-        arrRes.push(resRootPath + "/plugin/vue.js");
+        arrRes.push(resRootPath + "/plugin/vue.min.js");
         arrRes.push(resRootPath + "/plugin/element/index.js");
 
         arrRes.push(resRootPath + "/framework/core/prototype.js");
@@ -54,7 +54,7 @@ function importFrameworkRes(fileRes) {
     }
     // -- 2. 按需资源 ------------------------------------------
     else if (fileRes.equals("designer")) {
-        arrRes.push(resRootPath + "/framework/core/edge.js");
+        arrRes.push(resRootPath + "/framework/core/crosslocal.js");
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.css");
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");
@@ -72,7 +72,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/framework/control/DLabel/js/example.js");
     }
     else if (fileRes.equals("preview")) {
-        arrRes.push(resRootPath + "/framework/core/edge.js");
+        arrRes.push(resRootPath + "/framework/core/crosslocal.js");
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.css");
         arrRes.push(resRootPath + "/framework/control/window/xwf.window.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/topwin.js");

@@ -1183,8 +1183,10 @@ class Label {
 
     // -- print and printer ---------------------------------------------------
     async getPrinterList() {
-        let printers = await edge.getPrinterList();
-        return printers;
+        let res = await crossLocal.getPrinterList();
+        if (res.ok) {
+            return res.data.printers;
+        }
     }
     getPrinterName() {
         return this.printerName || "";
@@ -1201,7 +1203,7 @@ class Label {
             printerName: jsp.printerName || "",
             copies: jsp.copies || 1
         }
-        edge.printLabel(para);
+        crossLocal.printLabel(para);
     }
 
     // -- temporary script debug --

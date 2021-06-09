@@ -277,7 +277,7 @@ UtilElement.computeValue = function (jsp) {
         }
         valueString = values.join("");
 
-        if (head.barcodeType.startsWith("EAN_13")) {            
+        if (head.barcodeType.startsWith("EAN_13")) {
             if (valueString.length < 12) {
                 valueString = valueString.padEnd(12, "0");
             }
@@ -312,7 +312,7 @@ UtilElement.computeValue = function (jsp) {
                 }
             }
         }
-        valueString = values.join("");        
+        valueString = values.join("");
         if (valueString.equals("")) {
             valueString = head._segmentsText;
         }
@@ -866,7 +866,7 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
             isGS1: jsp.gs1 ? true : false,
             elementFont: jsp.elementFont
         }
-        let res = await edge.getBarcodeBase64(para);
+        let res = await crossLocal.getBarcodeBase64(para);
         element._base64Barcode = res.base64;
     }
     catch (e) {

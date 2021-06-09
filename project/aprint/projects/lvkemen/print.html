@@ -271,9 +271,11 @@
     function winLoad() {
         winResize();
 
-        for (let i = 0; i < topWin.printers.length; i++) {
-            app.printers.push(topWin.printers[i]);
-        }
+        top.crossLocal.getPrinterList().then((res) => {
+            if (res.ok) {
+                app.printers = res.data.printers;
+            }
+        });
         app.printerName = getLocalItem(ckLatestPrinter);
 
         lbl = new Label({ container: divCanvas });

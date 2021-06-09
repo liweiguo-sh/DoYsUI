@@ -94,7 +94,7 @@ function initGlobalJs() {
     if (g.cfg.ajaxType == "axios") {
         arrJS.push(g.path.plugin + "/axios.min.js");
     }
-    arrJS.push(g.path.plugin + "/vue.js");
+    arrJS.push(g.path.plugin + "/vue.min.js");
     arrJS.push(g.path.plugin + "/element/index.js");
 
     // -- core --
@@ -130,8 +130,8 @@ function importFrameworkRes(fileRes) {
     if (fileRes.equals("topwin")) {
         arrRes.push(g.path.framework + "/core/topwin.js");
     }
-    else if (fileRes.equals("edge")) {
-        arrRes.push(g.path.framework + "/core/edge.js");
+    else if (fileRes.equals("crossLocal")) {
+        arrRes.push(g.path.framework + "/core/crosslocal.js");
     }
     else if (fileRes.equals("main")) {
         arrRes.push(g.path.framework + "/system/main.js");
@@ -163,7 +163,7 @@ function importFrameworkRes(fileRes) {
     else if (fileRes.equals("DLabelPreview")) {
         arrRes.push(g.path.framework + "/control/DLabel/css/label.css");
 
-        arrRes.push(g.path.framework + "/core/" + "edge.js");
+        arrRes.push(g.path.framework + "/core/crosslocal.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/font.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/element.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/label.js");        
@@ -183,7 +183,8 @@ function importFrameworkRes(fileRes) {
             document.write("<link href='" + res + "?v=" + g.cfg.jsVer + "' rel='stylesheet' />");
         }
         else {
-            document.write("<script src='" + res + "?v=" + g.cfg.jsVer + "'></script>");
+            //console.log("<script src='" + res + "?v=" + g.cfg.jsVer + "'></script>");
+            document.write("<script src='" + res + "?v=" + g.cfg.jsVer + "'></script>");            
         }
     }
 }

@@ -149,7 +149,7 @@
                 }
 
                 // ----------------------------------------
-                top.edge.printLabel(para);
+                top.crossLocal.printLabel(para);
             },
             async previewDLabel() {
                 if (winPreview) {
@@ -261,9 +261,11 @@
     function winLoad() {
         gId("grid").style.height = (win.p.maxHeight - 200) + "px";
 
-        for (let i = 0; i < topWin.printers.length; i++) {
-            app.printers.push(topWin.printers[i]);
-        }
+        top.crossLocal.getPrinterList().then((res) => {
+            if (res.ok) {
+                app.printers = res.data.printers;
+            }
+        });
         app.printerName = getLocalItem(ckLatestPrinter);
     }
 </script>

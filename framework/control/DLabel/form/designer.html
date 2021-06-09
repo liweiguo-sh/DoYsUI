@@ -60,6 +60,7 @@
             </el-button-group>
             <el-button-group v-show="false">
                 <el-button type="success" onclick="testCross1()" v-show="true" icon="alifont ali-icon-test-ts" title="远程跨域测试1"></el-button>
+                <el-button type="success" onclick="testCross2()" v-show="true" icon="alifont ali-icon-test-ts" title="内网跨域测试2"></el-button>
                 <el-button type="warning" onclick="webPrintSample()" v-show="true" icon="alifont ali-icon-print" title="打印样张(WEB模式)"></el-button>
             </el-button-group>
 
@@ -469,10 +470,10 @@
     });
     var vmProp = new Vue({
         el: '#vmProp',
-        mounted() {            
-            edge.getFontList().then((fonts) => {                
-                this.fontNames = fonts;                
-            })            
+        mounted() {
+            crossLocal.getFontList().then((fonts) => {
+                this.fontNames = fonts;
+            })
         },
         data: {
             span: [24, 7, 17],
@@ -654,7 +655,7 @@
                 zIndex: 1000
             });
         }
-        edge.addEventListener("importDLabel", onImportLabel, { p1: "abc", p2: "def" });
+        crossLocal.addEventListener("importDLabel", onImportLabel, { p1: "abc", p2: "def" });
         winResize();
 
         lbl = getLabel();
@@ -695,7 +696,7 @@
             protocol: "2.0",
             action: "importDLabel"
         }
-        edge.invokeEdge(para);
+        crossLocal.invokeEdge(para);
     }
     function onImportLabel(para, jsp) {
         lbl.loadLabel(para.labelString);
@@ -727,7 +728,7 @@
             action: "exportDLabel",
             labelString: lbl.toJson()
         }
-        edge.invokeEdge(para);
+        crossLocal.invokeEdge(para);
     }
     function exportLabelByWeb() {
         let labelString = lbl.toJson();
@@ -774,7 +775,7 @@
             printerName: lbl.getPrinterName(),
             copies: 1
         }
-        edge.printLabel(para);
+        crossLocal.printLabel(para);
     }
 
     // -- 复制、黏贴 ----------------------------------------
@@ -1016,7 +1017,7 @@
     async function testCross1() {
         let url = "http://124.71.181.137:5555/DoYsSV/test/AjaxCross/test1";
         let dataPost = {
-            p1: "abc中文"
+            p1: "跨域请求外网地址 124.71.181.137:5555"
         };
 
         ajax.send(url, dataPost).then((res) => {
@@ -1028,6 +1029,24 @@
             }
         })
     }
+    async function testCross2() {
+
+        let url = "http://192.168.169.1:82/local";
+        let dataPost = {
+            protocol: "3.0"
+        }
+
+        axios({
+            method: 'post',
+            url: url,
+            data: dataPost
+        }).then((res) => {
+            let printers = res.data.data.printers;
+
+            alert(url + "<br /><br />" + printers.join("<br /><br />"));
+        });
+    }
+
     function webPrintSample() {
         let datas = [];
         datas.push(lbl.getData());
@@ -1040,6 +1059,6 @@
             printerName: "",
             copies: 1
         }
-        edge.printLabel(para);
+        crossLocal.printLabel(para);
     }
 </script>
