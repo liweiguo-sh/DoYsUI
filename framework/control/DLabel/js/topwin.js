@@ -19,7 +19,7 @@
         }
         window.topWin = {
             ERR: {
-                edgeHttpShellUnstart: "检测到打印工作站尚未启动，请检查。"
+                printWorkerUnstart: "检测到打印工作站尚未启动，请检查。"
             }
         };
     }

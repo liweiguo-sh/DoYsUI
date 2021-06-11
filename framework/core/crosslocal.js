@@ -69,7 +69,7 @@ crossLocal.getPrinterList = async function () {
     if (!res.ok) {
         let errMessage = res.error;
         if (res.error == "Network Error") {
-            errMessage = "检测到打印工作站客户端尚未启动，请检查。";
+            errMessage = topWin.ERR.printWorkerUnstart;
         }
         crossLocal.displayError(errMessage);
     }
@@ -102,6 +102,14 @@ crossLocal.printLabel = async function (jsp) {
     }, jsp);
 
     let res = await crossLocal.send(controller, dataPost, { autoShowErr: false });
+    if (!res.ok) {
+        if (res.error.equals("Network Error")) {
+            crossLocal.displayError(topWin.ERR.printWorkerUnstart);
+        }
+        else {
+            crossLocal.displayError(res.error);
+        }
+    }
     return res;
 }
 

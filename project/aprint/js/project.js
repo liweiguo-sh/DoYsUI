@@ -20,7 +20,7 @@
             productPnParaImageBaseUrl: g.path.resRun + "/" + topWin.tenantId + "/aprint/product_pn_para_image/"
         });
         topWin.ERR = g.x.extendJSON(topWin.ERR, {
-            edgeHttpShellUnstart: "检测到打印工作站尚未启动，请检查。"
+            printWorkerUnstart: "检测到打印工作站尚未启动，请检查。"
         });
 
         // -- 获取打印机列表 --
