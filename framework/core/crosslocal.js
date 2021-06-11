@@ -85,14 +85,14 @@ crossLocal.getBarcodeBase64 = async function (jsp) {
     let controller = "/BarcodeGenerator/GetBarcodeBase64";
     let res = await crossLocal.send(controller, jsp, { autoShowErr: false });
 
-    let ret = {
-        base64: ""
-    };
-
     if (res && res.ok) {
-        ret.base64 = res.data.base64;
+        return {
+            base64: res.data.base64
+        }
     }
-    return ret;
+    else {
+        throw Error(res.error);
+    }
 }
 
 crossLocal.printLabel = async function (jsp) {
@@ -155,7 +155,7 @@ crossLocal.send = async function (controller, dataPOST, option = { autoShowErr: 
     // -- 3. return --
     if (option.autoShowErr && !res.ok) {
         if (window.topWin) {
-            topWin.alert(res.error, "error");
+            topWin.message(res.error, "error");
         }
         else {
             alert(res.error);
