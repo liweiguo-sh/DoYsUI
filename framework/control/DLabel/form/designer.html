@@ -94,12 +94,20 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">打印机点数</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="labelHead.point" @change="elementPropChange('labelHead.point')">
+                                    <el-select v-model="labelHead.point" @change="elementPropChange('labelHead.point')" style="width:100%;">
                                         <el-option value="200" label="200"></el-option>
                                         <el-option value="300" label="300"></el-option>
                                         <el-option value="400" label="400"></el-option>
                                         <el-option value="600" label="600"></el-option>
                                         <el-option value="1200" label="1200"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">打印机</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="printerName" @change="printerChange" filterable style="width:100%;">
+                                        <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
                                     </el-select>
                                 </el-col>
                             </el-row>
@@ -473,12 +481,22 @@
         mounted() {
             crossLocal.getFontList().then((fonts) => {
                 this.fontNames = fonts;
+            });
+            crossLocal.getPrinterList().then((res) => {
+                if (res.ok) {
+                    this.printers = res.data.printers;
+
+                    this.printerName = getLocalItem(ckLatestPrinter);
+                    lbl.setPrinterName(this.printerName);
+                }
             })
         },
         data: {
             span: [24, 7, 17],
             activeNames: "labelHead",
             lastActiveNames: "labelHead",
+            printers: [],
+            printerName: "",
 
             labelHead: {
                 width: null, height: null, point: null,
@@ -604,6 +622,11 @@
                     _this: lbl
                 };
                 cWin.openWindow(prop, para);
+            },
+
+            printerChange() {
+                lbl.setPrinterName(this.printerName);
+                setLocalItem(ckLatestPrinter, this.printerName);
             }
         }
     });
@@ -627,6 +650,7 @@
     let labelId = 0, labelContent = "";
     let lbl;
     let elementsCopy = [];
+    let ckLatestPrinter = "design_page_latest_printer";
 
     window.addEventListener("load", init, false);
     // ------------------------------------------------------------------------

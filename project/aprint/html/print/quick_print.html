@@ -564,7 +564,8 @@
                     else {
                         para.dataString = await this.getPrintData_BarTender();
                     }
-                }                
+                }
+                para.md5Origin = topWin.cfg.md5Origin;
                 top.crossLocal.printLabel(para);
             },
 

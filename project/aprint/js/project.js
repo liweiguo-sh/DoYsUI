@@ -2,9 +2,10 @@
  * aprint project config
  * Author: David.Li
  * Create Date: 2020-11-18
- * Modify Date: 2021-03-31
+ * Modify Date: 2021-06-11
  * Copyright 2020-2021, doys-next.com
  */
+
 (function () {
     ajax.send("/framework/TopWin/getTopWin", {}).then(res => {
         topWin.tenantId = res.tenantId;
@@ -25,4 +26,26 @@
         // -- 获取打印机列表 --
         crossLocal.getPrinterList();
     });
+    verfiyPrintWorkerLicense();
 })()
+
+async function verfiyPrintWorkerLicense() {
+    while (true) {
+        try {
+            let res = await crossLocal.send("/Common/Get_DEVICE_DIGEST", {}, { autoShowErr: false });
+            if (res.ok) {
+                let device_digest = res.data.device_digest;
+
+                let res2 = await ajax.send("/aprint/cfg/print_worker/getMD5Origin", { device_digest: device_digest });
+                if (res2.ok) {
+                    topWin.cfg.md5Origin = res2.md5Origin;
+                    return;
+                }
+            }
+        }
+        catch (e) {
+            console.log(e);
+        }
+        await sleep(1000);
+    }
+}

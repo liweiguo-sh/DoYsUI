@@ -373,7 +373,6 @@
         },
 
         exportData() {
-            console.log();
             this.$message("数据导出");
         },
 

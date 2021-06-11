@@ -23,18 +23,6 @@ String.prototype.equals = function (str) {
     let b = str.toLowerCase().trim();
     let result = a.localeCompare(b);
     return (result == 0);
-
-    return;
-    str = str.toString();
-    return (this.toUpperCase().trim() === str.toUpperCase());
-
-    // -- xpas 旧代码 --
-    if (g.b.chrome) {   //-- charome.localeCompare 对中文不支持，同时有严重性能问题 --
-        return (this.toUpperCase().trim() === str.toUpperCase());
-    }
-    else {
-        return (this.toUpperCase().trim().localeCompare(str.toUpperCase().trim) == 0);
-    }
 };
 String.prototype.right = function (len) {
     var start = (this.length > len ? this.length - len : 0);

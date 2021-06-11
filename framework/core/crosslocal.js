@@ -11,8 +11,10 @@
     window.crossLocal = {
         domain: "127.0.0.1",
         port: "4195",
-        timeout: 15 * 1000,
+
         localReady: false,              // -- local.html是否已正确加载 --
+        timeout: 15 * 1000,
+        timingId: 0,                    // -- 请求时序号 --
         SWAP_AREA: {},
 
         shellEventCallback: [],         // -- 注册监听crossLocal事件的回调函数集 --
@@ -105,7 +107,7 @@ crossLocal.printLabel = async function (jsp) {
 
 // -- cross domain access -----------------------------------------------------
 crossLocal.send = async function (controller, dataPOST, option = { autoShowErr: true }) {
-    let timing = (new Date()).getTime();
+    let timing = crossLocal.timingId++;
     let obj = {
         method: "post",
         url: crossLocal.base + controller,
@@ -147,7 +149,7 @@ crossLocal.send = async function (controller, dataPOST, option = { autoShowErr: 
             res.error = "请求超时，未检测到客户端服务程序，请检查。";
             break;
         }
-        await crossLocal.sleep(50);
+        await crossLocal.sleep(10);
     }
 
     // -- 3. return --

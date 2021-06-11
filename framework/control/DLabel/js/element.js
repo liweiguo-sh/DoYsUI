@@ -851,6 +851,7 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
         element._imgSize.width = jsp.width;
         element._imgSize.height = jsp.height;
     }
+    //sizeEquals = true;
     if (typeEquals && sizeEquals && element._base64Barcode) {
         return;
     }
