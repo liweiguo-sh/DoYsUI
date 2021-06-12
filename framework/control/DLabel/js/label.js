@@ -1201,7 +1201,8 @@ class Label {
             labelString: labelString,
             dataString: dataString,
             printerName: jsp.printerName || "",
-            copies: jsp.copies || 1
+            copies: jsp.copies || 1,
+            md5Origin: jsp.md5Origin || ""
         }
         crossLocal.printLabel(para);
     }

@@ -10,6 +10,7 @@
     <style type="text/css">
         body {
         }
+
         #divCanvasParent {
             width: 100px;
             height: 100px;
@@ -240,8 +241,10 @@
                 lbl.print({
                     data: data,
                     printerName: this.printerName,
-                    copies: this.copies
+                    copies: this.copies,
+                    md5Origin: topWin.cfg.md5Origin
                 });
+
 
                 // -- 登记打印记录 --
                 let postData = { labelId: this.labelId, copies: this.copies };
