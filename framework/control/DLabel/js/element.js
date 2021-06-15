@@ -291,32 +291,37 @@ UtilElement.computeValue = function (jsp) {
     }
     // ----------------------------------------------------
     if (head.elementType.equals("barcode") || head.elementType.equals("text")) {
-        values = new Array();
-        for (let i = 0; i < sections.length - 1; i++) {
-            let section = sections[i];
-            let value = section.value;
-            let type = section.type;
+        if (head.barcodeType.startsWith("EAN_13")) {
+            head._sectionsText = head._segmentsText;
+        }
+        else {
+            values = new Array();
+            for (let i = 0; i < sections.length - 1; i++) {
+                let section = sections[i];
+                let value = section.value;
+                let type = section.type;
 
-            if (type.equals("fixed")) {
-                values.push(value);
-            }
-            else if (type.equals("field")) {
-                values.push(fields[value]);
-            }
-            else if (type.equals("symbol")) {
-                if (value.equals("GS")) {
-                    values.push(String.fromCharCode(29));
-                }
-                else {
+                if (type.equals("fixed")) {
                     values.push(value);
                 }
+                else if (type.equals("field")) {
+                    values.push(fields[value]);
+                }
+                else if (type.equals("symbol")) {
+                    if (value.equals("GS")) {
+                        values.push(String.fromCharCode(29));
+                    }
+                    else {
+                        values.push(value);
+                    }
+                }
             }
+            valueString = values.join("");
+            if (valueString.equals("")) {
+                valueString = head._segmentsText;
+            }
+            head._sectionsText = valueString;
         }
-        valueString = values.join("");
-        if (valueString.equals("")) {
-            valueString = head._segmentsText;
-        }
-        head._sectionsText = valueString;
     }
     // ----------------------------------------------------
     if (head.elementType.equals("image")) {
