@@ -37,6 +37,7 @@
     <div>
         <input type="button" class="btn" value="跨域测试1" onclick="cross1();" />
         <input type="button" class="btn" value="跨域测试2" onclick="cross2();" />
+        <input type="button" class="btn" value="跨域测试443" onclick="cross443();" />
         <div id="divMessage"></div>
     </div>
 </body>
@@ -87,5 +88,24 @@
 
             divMessage.innerHTML = url + "<br /><br />" + printers.join("<br /><br />");
         });
+    }
+
+    async function cross443() {
+        let url = "https://127.0.0.1:4195/WebPrint/GetPrinterList";
+        let dataPost = {
+            protocol: "3.0"
+        }
+        let res = await ajax.send(url, dataPost, { autoShowErr: false });
+        if (res.ok) {
+            let printers = res.data.printers;
+
+            divMessage.innerHTML = url + "<br /><br />" + printers.join("<br /><br />");
+        }
+        else {
+            alert("error, debug here");
+            debugger
+            debugger
+            console.log(res);
+        }
     }
 </script> 

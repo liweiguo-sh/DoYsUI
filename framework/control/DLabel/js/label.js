@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-04-13
+ * Modify Date: 2021-06-29
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -156,7 +156,7 @@ class Label {
             if (es[element.head.name]) {
                 topWin.alert("早期版本bug，需要重新保存标签文件(" + element.head.name + ")", "error");
                 this.head.element_id += 100;
-                element.head.name = "element_" + this.head.element_id++;                
+                element.head.name = "element_" + this.head.element_id++;
             }
             else {
                 es[element.head.name] = element.head.name;
@@ -164,6 +164,17 @@ class Label {
         }
 
         // -- 5. 加载脚本 --
+        if (this.head.scriptBeforeCompute) {
+            try {
+                eval("this.jsBeforeCompute = function() {\n" + this.head.scriptBeforeCompute + "\n}");
+            }
+            catch (e) {
+                alert("Script eval error:\n" + e.toString());
+            }
+        }
+        else {
+            this.jsBeforeCompute = null;
+        }
         if (this.head.scriptAfterCompute) {
             try {
                 eval("this.jsAfterCompute = function() {\n" + this.head.scriptAfterCompute + "\n}");
@@ -1209,9 +1220,11 @@ class Label {
 
     // -- temporary script debug --
     jsBeforeComputeDebug1() {
-        if (!this.labelId.equals("117")) return;
+        let mfgDate = this.fields["生产日期"].toDate("yyMMdd");
+        let expDate = mfgDate.add(1, "year").add(-1, "day");
+        this.fields["失效日期"] = expDate.toString("yyMMdd");
 
-        debugger
+        return;
         let imagePara = this.fields["图片参数"];
         let arr = imagePara.split("");
         for (let i = 1; i <= arr.length && i <= 6; i++) {
@@ -1229,9 +1242,20 @@ class Label {
         }
     }
     jsAfterComputeDebug1() {
-        if (!this.labelId.equals("117")) return;
+        
+
+        let mfgDate = this.fields["生产日期"].toDate("yyMMdd");
+        let expDate = mfgDate.add(1, "year").add(-1, "day");
+        let exp = expDate.toString("yyMMdd");
 
         debugger
+        debugger
+        this.setElementValue("exp_date", exp);
+
+
+        //this.fields["失效日期"] = date2.toString("yyMMdd");
+
+        return;
         let imagePara = this.fields["图片参数"];
         let arr = imagePara.split("");
         for (let i = 1; i <= arr.length && i <= 6; i++) {

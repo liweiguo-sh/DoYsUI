@@ -22,6 +22,9 @@
             </el-button-group>
         </el-row>
         <el-tabs v-model="activeTabName" type="card">
+            <el-tab-pane label="Script: BeforeCompute" name="jsBeforeCompute">
+                <el-input v-model="scriptBeforeCompute" class="inputScript" type="textarea" :rows="21" placeholder="请输入脚本" spellcheck="false"></el-input>
+            </el-tab-pane>
             <el-tab-pane label="Script: AfterCompute" name="jsAfterCompute">
                 <el-input v-model="scriptAfterCompute" class="inputScript" type="textarea" :rows="21" placeholder="请输入脚本" spellcheck="false"></el-input>
             </el-tab-pane>
@@ -39,9 +42,10 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            activeTabName: "jsAfterCompute",
+            activeTabName: "jsBeforeCompute",
 
             saveAction: false,                                  // -- 是否保存修改 --
+            scriptBeforeCompute: "",
             scriptAfterCompute: "",
             scriptExample: DLbelExample.getExampleScript("")    // -- 样例脚本 --
         },
@@ -58,8 +62,12 @@
             check() {
                 return true;
                 try {
+                    this.scriptBeforeCompute = this.scriptBeforeCompute.trim();
+                    eval(this.scriptBeforeCompute);
+
                     this.scriptAfterCompute = this.scriptAfterCompute.trim();
                     eval(this.scriptAfterCompute);
+
                     topWin.message("语法检查正确，没有发现错误。", "success");
                 }
                 catch (e) {
@@ -75,6 +83,7 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
+        app.scriptBeforeCompute = win.para.scriptBeforeCompute || "";
         app.scriptAfterCompute = win.para.scriptAfterCompute || "";
 
         // ------------------------------------------------
@@ -82,6 +91,7 @@
             if (win.para.callback) {
                 win.para.callback({   
                     saveAction: app.saveAction,
+                    scriptBeforeCompute: app.scriptBeforeCompute,
                     scriptAfterCompute: app.scriptAfterCompute
                 });
             }

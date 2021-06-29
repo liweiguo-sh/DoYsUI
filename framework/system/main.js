@@ -2,17 +2,12 @@
  * DoYs.main.js
  * Author: David.Li
  * Create Date: 2020-04-11
- * Modify Date: 2021-05-20
+ * Modify Date: 2021-06-17
  * Copyright 2020-2021, doys-next.com
  */
 
 (function () {
-    return;
-    ajax.send("/framework/TopWin/getTopWin", {}).then(res => {
-        topWin.tenantId = res.tenantId;
-        topWin.userPk = res.userPk;
-        topWin.userName = res.userName;
-    });
+   
 })()
 
 function openMenu(menu) {

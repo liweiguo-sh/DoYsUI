@@ -611,9 +611,11 @@
                     modal: true
                 };
                 let para = {
+                    scriptBeforeCompute: lbl.head.scriptBeforeCompute,
                     scriptAfterCompute: lbl.head.scriptAfterCompute,
                     callback: function (jsp) {
                         if (jsp.saveAction) {
+                            lbl.head.scriptBeforeCompute = jsp.scriptBeforeCompute;
                             lbl.head.scriptAfterCompute = jsp.scriptAfterCompute;
                             lbl.loadLabel(lbl.toJson());
                             lbl.compute(true);

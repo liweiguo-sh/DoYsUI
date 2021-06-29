@@ -61,9 +61,17 @@ String.prototype.toNumber = function () {
     if (isNaN(value)) value = 0;
     return value;
 };
-String.prototype.toDate = function () {
+String.prototype.toDate = function (format = "") {
     ///<summary>将字符串转换为Date, 假定字符串符合日期格式(yyyy-MM-dd hh:mm:ss.ms)</summary>
-    if (this == null || this == "" || this.length < 10) {
+    if (this == null || this == "") {
+        return null;
+    }
+
+    if (format) {
+        return this.toDateByFromat(format);
+    }
+
+    if (this.length < 10) {
         return null;
     }
 
@@ -79,6 +87,39 @@ String.prototype.toDate = function () {
     var dtNew = new Date(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MILLISECOND);
     return dtNew;
 };
+String.prototype.toDateByFromat = function (format = "yyyy-MM-dd") {
+    let start;
+    let year, month, day;
+
+    try {
+        start = format.indexOf("yyyy");
+        if (start >= 0) {
+            year = parseInt(this.substring(start, start + 4));
+        }
+        else {
+            start = format.indexOf("yy");
+            if (start >= 0) {
+                year = 2000 + parseInt(this.substring(start, start + 2));
+            }
+        }
+
+        start = format.indexOf("MM");
+        if (start >= 0) {
+            month = parseInt(this.substring(start, start + 2));
+        }
+
+        start = format.indexOf("dd");
+        if (start >= 0) {
+            day = parseInt(this.substring(start, start + 2));
+        }
+
+        let date1 = new Date(year, month - 1, day);
+        return date1;
+    }
+    catch (e) {
+        throw e;
+    }
+}
 
 // -- Date --------------------------------------------------------------------
 Date.prototype.toDate = function () {

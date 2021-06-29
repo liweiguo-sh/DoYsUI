@@ -291,7 +291,7 @@ UtilElement.computeValue = function (jsp) {
     }
     // ----------------------------------------------------
     if (head.elementType.equals("barcode") || head.elementType.equals("text")) {
-        if (head.barcodeType.startsWith("EAN_13")) {
+        if (head.elementType.equals("barcode") && head.barcodeType.startsWith("EAN_13")) {
             head._sectionsText = head._segmentsText;
         }
         else {
