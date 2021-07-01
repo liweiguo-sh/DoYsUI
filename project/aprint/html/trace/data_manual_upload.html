@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>手工上传数据(模拟操作)</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <style type="text/css">
+        .el-row {
+            margin-bottom: 10px;
+        }
+
+            .el-row:last-child {
+                margin-bottom: 0;
+            }
+
+        .divItemName {
+            font-family: 微软雅黑;
+            font-size: 10.5pt;
+            font-weight: 100;
+            line-height: 36px;
+        }
+
+        .divItemNameColor {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:900px;">
+        <el-row>
+            <el-button @click="uploadData">上传数据</el-button>
+            <el-button onclick="win.close();">关闭</el-button>
+        </el-row>
+        <el-row>
+            <el-col :span="6">
+                <el-tree ref="treeNode" :data="dataTree" :props="propsTree" @node-click="nodeClick"></el-tree>
+            </el-col>
+            <el-col :span="18">
+                <el-row>
+                    <el-select v-model="pn" filterable default-first-option style="width:100%;">
+                        <el-option v-for="item in productPns" :key="item.id" :value="item.pn" :label="item.productName + '    ' + item.pn">
+                            <span style="float: left">{{ item.productName }}</span>
+                            <span style="float: right;">{{ item.pn }}</span>
+                        </el-option>
+                    </el-select>
+                </el-row>
+                <el-row>
+                    <el-col :span="16">
+                        <div class="divItemName">业务日期</div>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-date-picker type="datetime" v-model="dateBus" placeholder="选择业务日期" style="width:100%"></el-date-picker>
+                    </el-col>
+                </el-row>
+                <hr />
+                <el-row v-for="item in items">
+                    <el-col :span="8">
+                        <div class="divItemName divItemNameColor">{{item.itemName}}</div>
+                    </el-col>
+                    <el-col :span="16">
+                        <el-input v-model="item.itemValue" />
+                    </el-col>
+                </el-row>
+                <hr />
+                <el-row>
+                    <el-col :span="8">
+                        <div class="divItemName">上传人/上传时间</div>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-input v-model="creator" placeholder="上传人"></el-input>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-input v-model="cdate" placeholder="上传时间"></el-input>
+                    </el-col>
+                </el-row>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            productPns: [],                 // -- SKU数组 --
+
+            dataTree: [],
+            propsTree: {
+                children: "children",
+                label: "label"
+            },
+            nodeCode: "",                   // -- 节点代码 --
+            items: [],                      // -- 节点数据项数组 --
+
+            pn: "",                         // -- SKU --
+            dateBus: new Date().toString(),
+            creator: topWin.userName,
+            cdate: new Date().toString()
+        },
+        mounted() {
+            ajax.send("/aprint/trace/getTraceNode", {}).then((res) => {
+                this.dataTree = res.dataTree;
+            });
+            ajax.send("/aprint/trace/getSku", {}).then((res) => {
+                let productPns = [];
+                let dtbProductPn = res.dtbProductPn;
+                for (let i = 0; i < dtbProductPn.rowCount; i++) {
+                    let dataRow = dtbProductPn.rows[i];
+                    productPns.push({ id: "" + dataRow["id"].value, productName: dataRow["product_name"].value, pn: dataRow["pn"].value, dataRow: dataRow });
+                }
+                this.productPns = productPns;
+            });
+        },
+        methods: {
+            nodeClick(data, node, c) {
+                let items = new Array();
+
+                if (node.level == 1) {
+                    let children = data.children;
+                    this.nodeCode = children[0]["nodeCode"];
+                    for (let i = 0; i < children.length; i++) {
+                        items.push({
+                            itemCode: children[i].itemCode,
+                            itemName: children[i].label,
+                            itemType: children[i].itemType
+                        });
+                    }
+                }
+                else {
+                    this.nodeCode = data.nodeCode;
+                    items.push({
+                        itemCode: data.itemCode,
+                        itemName: data.label,
+                        itemType: data.itemType
+                    });
+                }
+
+                this.items = items;
+            },
+            uploadData() {
+                if (!this.nodeCode) {
+                    topWin.alert("请先选中节点项或节点数据项。", "warning");
+                    return;
+                }
+
+                let items = [];
+                for (let i = 0; i < this.items.length; i++) {
+                    items.push({
+                        itemCode: this.items[i].itemCode,
+                        itemValue: this.items[i].itemValue
+                    });
+                }
+
+                let data = {};
+                data["items"] = items;
+                data["nodeCode"] = this.nodeCode;
+
+                data["pn"] = this.pn;
+                data["dateBus"] = this.dateBus;
+                data["creator"] = this.creator;
+                data["cdate"] = this.cdate;
+                
+                ajax.send("/aprint/trace/uploadData", data).then((res) => {
+                    topWin.message("数据上传成功。", "success");
+
+                    this.dateBus = (new Date()).toString();
+                    this.cdate = (new Date()).toString();
+                })
+            }
+        }
+    });
+</script>
