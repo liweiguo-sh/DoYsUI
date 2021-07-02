@@ -27,12 +27,12 @@
 <body>
     <div id="app" style="width:900px;">
         <el-row>
-            <el-button @click="uploadData">上传数据</el-button>
+            <el-button @click="uploadData" type="primary" :disabled="items.length==0 || !barcode.trim() || !pn">上传数据</el-button>
             <el-button onclick="win.close();">关闭</el-button>
         </el-row>
         <el-row>
             <el-col :span="6">
-                <el-tree ref="treeNode" :data="dataTree" :props="propsTree" @node-click="nodeClick"></el-tree>
+                <el-tree ref="treeNode" :data="dataTree" :props="propsTree" @node-click="nodeClick" default-expand-all highlight-current :expand-on-click-node="false"></el-tree>
             </el-col>
             <el-col :span="18">
                 <el-row>
@@ -48,7 +48,15 @@
                         <div class="divItemName">业务日期</div>
                     </el-col>
                     <el-col :span="8">
-                        <el-date-picker type="datetime" v-model="dateBus" placeholder="选择业务日期" style="width:100%"></el-date-picker>
+                        <el-date-picker type="datetime" v-model="busDate" placeholder="选择业务日期" style="width:100%"></el-date-picker>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <div class="divItemName">条码(唯一码)</div>
+                    </el-col>
+                    <el-col :span="16">
+                        <el-input v-model="barcode" ref="barcode" type="textarea" :rows="5" />
                     </el-col>
                 </el-row>
                 <hr />
@@ -58,18 +66,6 @@
                     </el-col>
                     <el-col :span="16">
                         <el-input v-model="item.itemValue" />
-                    </el-col>
-                </el-row>
-                <hr />
-                <el-row>
-                    <el-col :span="8">
-                        <div class="divItemName">上传人/上传时间</div>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-input v-model="creator" placeholder="上传人"></el-input>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-input v-model="cdate" placeholder="上传时间"></el-input>
                     </el-col>
                 </el-row>
             </el-col>
@@ -94,9 +90,8 @@
             items: [],                      // -- 节点数据项数组 --
 
             pn: "",                         // -- SKU --
-            dateBus: new Date().toString(),
-            creator: topWin.userName,
-            cdate: new Date().toString()
+            barcode: "",
+            busDate: new Date().toString()
         },
         mounted() {
             ajax.send("/aprint/trace/getTraceNode", {}).then((res) => {
@@ -138,11 +133,12 @@
 
                 this.items = items;
             },
+            onBarcodeChange(a,b,c) {
+                debugger
+                debugger
+            },
             uploadData() {
-                if (!this.nodeCode) {
-                    topWin.alert("请先选中节点项或节点数据项。", "warning");
-                    return;
-                }
+                this.barcode = this.barcode.trim();
 
                 let items = [];
                 for (let i = 0; i < this.items.length; i++) {
@@ -155,17 +151,16 @@
                 let data = {};
                 data["items"] = items;
                 data["nodeCode"] = this.nodeCode;
-
                 data["pn"] = this.pn;
-                data["dateBus"] = this.dateBus;
-                data["creator"] = this.creator;
-                data["cdate"] = this.cdate;
-                
-                ajax.send("/aprint/trace/uploadData", data).then((res) => {
+                data["busDate"] = this.busDate;
+                data["barcode"] = this.barcode; 
+
+                ajax.send("/aprint/trace_data_collect/uploadData", data).then((res) => {
                     topWin.message("数据上传成功。", "success");
 
-                    this.dateBus = (new Date()).toString();
-                    this.cdate = (new Date()).toString();
+                    this.busDate = (new Date()).toString();
+                    this.$refs.barcode.select();
+                    this.$refs.barcode.focus();                    
                 })
             }
         }
