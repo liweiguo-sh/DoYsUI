@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>码尚云追溯平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../../../plugin/element/index.css" rel="stylesheet" />
+
+    <script src="../../../../plugin/vue.min.js"></script>
+    <script src="../../../../plugin/axios.min.js"></script>
+    <script src="../../../../plugin/element/index.js"></script>
+
+    <!-- common -->
+    <style type="text/css">
+        .box-card {
+            margin-bottom: 15px;        
+        }
+        .cardTitle {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+    </style>
+
+    <!-- 追溯区 -->
+    <style type="text/css">
+        .nodeGroup {
+            margin-top: 10px;
+        }
+
+            .nodeGroup:first-child {
+                margin-top: 0px;
+            }
+
+        .nodeName {
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .itemName {
+            float: left;
+            color: gray;
+        }
+
+        .itemValue {
+            float: right;
+            font-weight: bold;
+            --padding-right:2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+        </el-row>
+
+        <!-- 产品信息 -->
+        <el-card class="box-card">
+            <div slot="header" class="cardTitle">
+                <span>产品信息<i class="el-icon-collection-tag"></i></span>
+            </div>
+            <el-row v-show="false">
+                <span class="itemName">代码</span>
+                <span class="itemValue">{{product.pn}}</span>
+            </el-row>
+            <el-row>
+                <span class="itemName">产品名称</span>
+                <span class="itemValue">{{product.productName}}</span>
+            </el-row>
+            <el-row v-show="product.spec">
+                <span class="itemName">规格</span>
+                <span class="itemValue">{{product.spec}}</span>
+            </el-row>
+            <el-row v-show="product.model">
+                <span class="itemName">型号</span>
+                <span class="itemValue">{{product.model}}</span>
+            </el-row>
+        </el-card>
+        <!-- 产品参数区 -->
+        <el-card class="box-card">
+            <div slot="header" class="cardTitle">
+                <span>产品参数<i class="el-icon-s-tools"></i></span>
+            </div>
+            <div v-for="para in productParas" :key="para.paraCode" class="text item">
+                <el-row style="padding-bottom:8px;">
+                    <span class="itemName">{{ para.paraName }}</span>
+                    <span class="itemValue">{{ para.paraValue }}</span>
+                </el-row>
+            </div>
+        </el-card>
+        <!-- 追溯区 -->
+        <el-card class="box-card">
+            <div slot="header" class="cardTitle">
+                <span>追溯信息<i class="el-icon-info"></i></span>
+            </div>
+            <div v-for="node in nodes" class="nodeGroup">
+                <div class="nodeName">
+                    {{node.nodeName}}
+                </div>
+                <div v-for="item in node.items" :key="item.itemName" class="text item">
+                    <el-row style="padding-bottom:8px;">
+                        <span class="itemName">{{ item.itemName }}</span>
+                        <span class="itemValue">{{ item.itemValue }}</span>
+                    </el-row>
+                </div>
+            </div>
+        </el-card>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            t: 0,
+            c: "",
+
+            product: {},                // -- 产品属性 --
+            productParas: [],           // -- 产品参数数组 --
+            nodes: []                   // -- 追溯节点数据数组 --
+        },
+        mounted() {
+            this.parseUrl();
+            this.t = parseInt(urlPara["t"]);
+            this.c = urlPara["c"];
+
+            this.query();
+        },
+        methods: {
+            query() {
+                let url = "http://192.168.50.37:9988/DoYsSV/aprint/trace?t=" + this.t + "&c=" + this.c + "&r=" + Math.random();
+                axios.get(url).then((res) => {
+                    let data = res.data;
+                    if (data.ok) {
+                        this.product = data.product;
+                        this.productParas = data.product.paras;
+                        this.nodes = data.nodes;
+                    }
+                    else {
+                        console.log(data.error);
+                    }
+                })
+            },
+            parseUrl() {
+                let url = window.location.search.substring(1);
+                let arrUrlPara = url.split('&');
+                let jsonUrlPara = {};
+                for (let i = 0; i < arrUrlPara.length; i++) {
+                    let arrPara = arrUrlPara[i].split("=");
+                    if (arrPara.length == 2) {
+                        jsonUrlPara[decodeURIComponent(arrPara[0].trim())] = decodeURIComponent(arrPara[1].trim());
+                    }
+                }
+                window.urlPara = jsonUrlPara;
+            }
+        }
+    });
+</script>
