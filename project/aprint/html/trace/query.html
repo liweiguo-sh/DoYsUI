@@ -50,13 +50,13 @@
 </head>
 <body>
     <div id="app">
-        <el-row>
+        <el-row style="margin-top:2px;margin-bottom:5px">
+            <span class="itemValue">{{c}}</span>
         </el-row>
-
         <!-- 产品信息 -->
         <el-card class="box-card">
             <div slot="header" class="cardTitle">
-                <span>产品信息<i class="el-icon-collection-tag"></i></span>
+                <span>产品信息<i class="el-icon-collection-tag" style="color:green"></i></span>
             </div>
             <el-row v-show="false">
                 <span class="itemName">代码</span>
@@ -78,28 +78,44 @@
         <!-- 产品参数区 -->
         <el-card class="box-card">
             <div slot="header" class="cardTitle">
-                <span>产品参数<i class="el-icon-s-tools"></i></span>
+                <span>产品参数<i class="el-icon-s-tools"  style="color:#409EFF"></i></span>
             </div>
             <div v-for="para in productParas" :key="para.paraCode" class="text item">
-                <el-row style="padding-bottom:8px;">
-                    <span class="itemName">{{ para.paraName }}</span>
-                    <span class="itemValue">{{ para.paraValue }}</span>
+                <el-row v-if="para.type=='link'" style="padding-bottom:8px;">
+                    <span class="itemName">{{ para.name }}</span>
+                    <el-link class="itemValue" type="primary" :href="para.value" target="_blank">链接</el-link>
+                </el-row>
+                <el-row v-else-if="para.type=='image'" style="padding-bottom:8px;">
+                    <span class="itemName">{{ para.name }}</span>
+                    <el-link class="itemValue" type="primary" :href="para.value" target="_blank">图片</el-link>
+                </el-row>
+                <el-row v-else style="padding-bottom:8px;">
+                    <span class="itemName">{{ para.name }}</span>
+                    <span class="itemValue">{{ para.value }}</span>
                 </el-row>
             </div>
         </el-card>
         <!-- 追溯区 -->
         <el-card class="box-card">
             <div slot="header" class="cardTitle">
-                <span>追溯信息<i class="el-icon-info"></i></span>
+                <span>追溯信息<i class="el-icon-info"  style="color:orange"></i></span>
             </div>
             <div v-for="node in nodes" class="nodeGroup">
                 <div class="nodeName">
                     {{node.nodeName}}
                 </div>
                 <div v-for="item in node.items" :key="item.itemName" class="text item">
-                    <el-row style="padding-bottom:8px;">
-                        <span class="itemName">{{ item.itemName }}</span>
-                        <span class="itemValue">{{ item.itemValue }}</span>
+                    <el-row v-if="item.type=='link'" style="padding-bottom:8px;">
+                        <span class="itemName">{{ item.name }}</span>
+                        <el-link class="itemValue" type="primary" :href="item.value" target="_blank">链接</el-link>
+                    </el-row>
+                    <el-row v-else-if="item.type=='image'" style="padding-bottom:8px;">
+                        <span class="itemName">{{ item.name }}</span>
+                        <el-link class="itemValue" type="primary" :href="item.value" target="_blank">图片</el-link>
+                    </el-row>
+                    <el-row v-else style="padding-bottom:8px;">
+                        <span class="itemName">{{ item.name }}</span>
+                        <span class="itemValue">{{ item.value }}</span>
                     </el-row>
                 </div>
             </div>
@@ -129,7 +145,17 @@
         },
         methods: {
             query() {
-                let url = "http://192.168.50.37:9988/DoYsSV/aprint/trace?t=" + this.t + "&c=" + this.c + "&r=" + Math.random();
+                let urlBase = window.location.protocol + "//" + window.location.host;
+                if (window.location.port) {
+                    urlBase += ":" + window.location.port;
+                }
+
+                // -- 开发机调试用 --
+                if (window.location.host == "localhost" || window.location.host == "127.0.0.1") {
+                    urlBase = "http://127.0.0.1:9988";
+                }
+
+                let url = urlBase + "/DoYsSV/aprint/trace?t=" + this.t + "&c=" + this.c + "&r=" + Math.random();
                 axios.get(url).then((res) => {
                     let data = res.data;
                     if (data.ok) {

@@ -2,7 +2,7 @@
  * DoYs.prototype.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2021-05-14
+ * Modify Date: 2021-07-05
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -17,12 +17,20 @@ window.sleep = function (milliseconds) {
 // -- String ------------------------------------------------------------------
 String.prototype.equals = function (str) {
     ///<summary>判断字符串是否相等，忽略大小写。如果想要区分大小写，使用compare()。</summary>
-    if (str == null) return false;
+    try {
+        if (str == null) return false;
+        if (typeof (str) != "string") {
+            str = str.toString();
+        }
 
-    let a = this.toLowerCase().trim();
-    let b = str.toLowerCase().trim();
-    let result = a.localeCompare(b);
-    return (result == 0);
+        let a = this.toLowerCase().trim();
+        let b = str.toLowerCase().trim();
+        let result = a.localeCompare(b);
+        return (result == 0);
+    }
+    catch (e) {
+        console.log(e);
+    }
 };
 String.prototype.right = function (len) {
     var start = (this.length > len ? this.length - len : 0);

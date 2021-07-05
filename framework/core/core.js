@@ -20,7 +20,8 @@ function _getUrlPara(url) {
         if (nIdx >= 0) {
             url = url.substring(nIdx + 1);
         }
-    } else {
+    }
+    else {
         url = window.location.search.substring(1);
     }
     // ----------------------------------------------------
