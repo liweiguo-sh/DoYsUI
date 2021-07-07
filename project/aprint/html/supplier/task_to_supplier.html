@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>分配打印任务至供应商</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        .el-row {
+            margin-bottom: 10px;
+        }
+
+            .el-row:last-child {
+                margin-bottom: 0;
+            }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:500px;height:390px;">
+        <el-row>
+            <el-col :span="12">
+                <el-button type="primary" @click="assignTask" :disabled="!supplierId">分配打印任务</el-button>
+                <el-button type="" @click="win.close();">关闭</el-button>
+            </el-col>
+            <el-col :span="12">
+                &nbsp;
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-select v-model="supplierId" filterable default-first-option style="width:100%;" placeholder="请选择接单供应商...">
+                <el-option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id" :label="supplier.name + '    ' + supplier.code">
+                    <span style="float: left">{{ supplier.name }}</span>
+                    <span style="float: right;">{{ supplier.code }}</span>
+                </el-option>
+            </el-select>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            taskId: 0,
+            taskPk: null,
+
+            suppliers: [],
+            supplierId: null
+        },
+        mounted() {
+            ajax.send("/aprint/supplier/task/getSupplier", {}).then((res) => {
+                this.suppliers = res.suppliers;
+            });
+        },
+        methods: {
+            assignTask() {
+                let para = {
+                    taskId: this.taskId,
+                    supplierId: this.supplierId
+                }
+                ajax.send("/aprint/supplier/task/assignTask", para).then((res) => {
+                    topWin.alert("当前打印任务成功分配至指定供应商。", "success");
+                });
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.taskId = win.para.taskId;
+        app.taskPk = win.para.taskPk;
+    }
+</script>

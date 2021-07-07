@@ -334,7 +334,7 @@
                         }
                         value = this.$parent.form[key];
                         if (!nullable && !value && this.$parent.$refs[key]) {
-                            topWin.alert("字段 " + text + " 的值不能为空，请检查。", "warning");
+                            topWin.message("字段值 [" + text + "] 不允许为空，请检查。", "error");
                             this.$parent.$refs[key].focus();
                             return false;
                         }
@@ -352,7 +352,7 @@
                     let addnew = this.status.equals("addnew");
                     let dtbViewData = res.dtbViewData;
 
-                    this.dtbFormData = res.dtbFormData;                    
+                    this.dtbFormData = res.dtbFormData;
                     this.id = this.dtbFormData.rows[0]["id"].value;
                     if (this.view) {
                         if (dtbViewData.rowCount == 0) {

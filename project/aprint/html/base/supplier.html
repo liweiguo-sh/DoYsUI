@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>客户资料维护</title>
+    <title>供应商资料维护</title>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -13,8 +13,8 @@
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="客户代码" required>
-                        <el-input v-model="form.code" placeholder="客户代码" />
+                    <el-form-item label="供应商代码" required>
+                        <el-input v-model="form.code" placeholder="供应商代码" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
@@ -25,8 +25,8 @@
             </el-row>
             <el-row>
                 <el-col :span="span[0]">
-                    <el-form-item label="客户名称" required>
-                        <el-input v-model="form.name" ref="name" placeholder="客户全称" />
+                    <el-form-item label="供应商名称" required>
+                        <el-input v-model="form.name" ref="name" placeholder="供应商全称" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -51,21 +51,22 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {}
+            form: {},
+            ds: {}
         },
 
         methods: {
             afterMove: function () {
-                let filter = "customer_id = " + this.$refs.vf.getId();
+                let filter = "supplier_id = " + this.$refs.vf.getId();
                 if (this.$refs.grid.initialized) {
                     this.$refs.grid.setFilter(filter);
                 }
                 else {
                     var para = {
-                        viewPk: "customer_para",
+                        viewPk: "supplier_para",
                         flowPks: "'sys_crud'",
                         filter: filter,
-                        vfUrl: g.x.getPath() + "customer_para.html"
+                        vfUrl: g.x.getPath() + "supplier_para.html"
                     }
                     this.$refs.grid.init(para);
                 }

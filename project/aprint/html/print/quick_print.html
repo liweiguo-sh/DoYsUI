@@ -8,11 +8,20 @@
     <div id="app">
         <el-row>
             <el-col :span="8" style="padding-right:20px;">
+                <!-- 生成、删除数据，预览、打印，更多... -->
                 <el-row>
-                    <el-button @click="createTask" type="primary">生成数据</el-button>
+                    <el-button @click="createTask" type="success">生成数据</el-button>
                     <el-button @click="deleteTask" v-show="taskId">删除数据</el-button>
                     <el-button @click="preview({restorePreviewWindow: 'restore'})" v-show="labelId">预览</el-button>
-                    <el-button @click="print" type="danger" v-show="labelId">打印</el-button>
+                    <el-button @click="print" type="primary" v-show="labelId">打印</el-button>
+
+                    <el-dropdown v-show1="taskId" @command="more" placement="bottom-start">
+                        <el-button type="primary" icon="el-icon-more" circle></el-button>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="toSupplier" icon="el-icon-full-screen">分发任务至供应商</el-dropdown-item>
+                            <el-dropdown-item command="exportData" icon="el-icon-full-screen">导出数据</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
                 </el-row>
                 <el-row style="margin-top:10px;">
                     <el-col :span="11">
@@ -412,7 +421,7 @@
                     return;
                 }
                 if (!this.qty || this.qty < 0) {
-                    topWin.alert("请输入打印数量。");
+                    topWin.alert("请输入打印数量。", "warning");
                     return;
                 }
 
@@ -540,7 +549,7 @@
                 });
                 lbl.compute(true);
             },
-            async print(jsp = { preview: false }) {                
+            async print(jsp = { preview: false }) {
                 let para = {
                     labelType: this.labelType,
                     preview: jsp.preview,
@@ -679,6 +688,24 @@
             },
             onPrinterChange() {
                 setLocalItem(ckLatestPrinter, this.printerName);
+            },
+
+            more(command) {
+                if (command.equals("toSupplier")) {
+                    var prop = {
+                        url: g.path.project + "/aprint/html/supplier/task_to_supplier.html",
+                        parent: win,
+                        modal: true
+                    };
+                    var para = {
+                        taskId: this.taskId,
+                        taskPk: this.taskPk
+                    };
+                    topWin.openWindow(prop, para);
+                }
+                else {
+                    topWin.message("当前功能(" + command + ")正在开发中...");
+                }
             }
         }
     });
@@ -697,7 +724,7 @@
             if (res.ok) {
                 app.printers = res.data.printers;
             }
-        }); 
+        });
         app.printerName = getLocalItem(ckLatestPrinter);
 
         app.initGrid();
