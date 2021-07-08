@@ -30,6 +30,22 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <!-- 供应商账户 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="供应商账户">
+                        <el-select v-model="form.user_pk" clearable filterable default-first-option style="width:100%;">
+                            <el-option v-for="user in ds.user_pk" :key="user.pk" :value="user.pk" :label="user.pk + '    ' + user.name">
+                                <span style="float: left">{{ user.pk }}</span>
+                                <span style="float: right;">{{ user.name }}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[1]">
+                    &nbsp;
+                </el-col>
+            </el-row>
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">

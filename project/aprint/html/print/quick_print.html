@@ -15,7 +15,7 @@
                     <el-button @click="preview({restorePreviewWindow: 'restore'})" v-show="labelId">预览</el-button>
                     <el-button @click="print" type="primary" v-show="labelId">打印</el-button>
 
-                    <el-dropdown v-show1="taskId" @command="more" placement="bottom-start">
+                    <el-dropdown v-show="taskId" @command="more" placement="bottom-start">
                         <el-button type="primary" icon="el-icon-more" circle></el-button>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="toSupplier" icon="el-icon-full-screen">分发任务至供应商</el-dropdown-item>

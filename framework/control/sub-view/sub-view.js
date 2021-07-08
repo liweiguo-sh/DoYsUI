@@ -149,7 +149,7 @@
 
             for (let i = 0; i < this.dtbViewField.rowCount; i++) {
                 let dataRow = this.dtbViewField.rows[i];
-                if (dataRow["sequence"].value > 0) {                    
+                if (dataRow["sequence"].value > 0) {
                     let column = {
                         name: dataRow["name"].value,
                         text: dataRow["text"].value,
