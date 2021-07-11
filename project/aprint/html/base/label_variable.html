@@ -19,7 +19,7 @@
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="类型" required>
-                        <el-select v-model="form.type">
+                        <el-select v-model="form.type" @change="typeChange">
                             <el-option value="string" label="字符串"></el-option>
                             <el-option value="date" label="日期"></el-option>
                             <el-option value="image" label="图片"></el-option>
@@ -54,8 +54,8 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="引用来源" required >
-                        <el-select v-model="form.quote_from" :disabled="form.type!='string' && form.type!='image'">
+                    <el-form-item label="引用来源" required>
+                        <el-select v-model="form.quote_from" @change="quoteFromChange" :disabled="form.type!='string' && form.type!='image'">
                             <el-option value="" label="无"></el-option>
                             <el-option value="product" label="产品参数"></el-option>
                             <el-option value="customer" label="客户参数"></el-option>
@@ -63,6 +63,7 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <!-- 长度、引用参数 -->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="长度">
@@ -71,7 +72,12 @@
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="引用参数">
-                        <el-input v-model="form.quote_name" />
+                        <el-select v-model="form.quote_name" filterable allow-create default-first-option style="width:100%;" :disabled="form.quote_from==''">
+                            <el-option v-for="refPara in refParas" :key="refPara.code" :value="refPara.code" :label="refPara.code + ' (' + refPara.name + ')'">
+                                <span style="float: left">{{ refPara.code }}</span>
+                                <span style="float: right;">{{ refPara.name }}</span>
+                            </el-option>
+                        </el-select>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -153,8 +159,36 @@
 
             checkedLabelVariables: [],
             labelVariables: [],
+
+            refParas: [],                       // -- 变量引用参数集 --
+            customerParas: [],                  // -- 客户参数定义集 --
+            productParas: []                    // -- 产品参数定义集 --
+        },
+        mounted() {
+            ajax.send("/aprint/label_variable/getVariableRefDataSource", {}).then(res => {
+                this.customerParas = res.customerParas;
+                this.productParas = res.productParas;
+            })
         },
         methods: {
+            typeChange() {
+                if (!this.form.type.equals("string") && !this.form.type.equals("image")) {
+                    this.form.quote_from = "";
+                    this.form.quote_name = "";
+                }
+            },
+            quoteFromChange() {
+                if (this.form.quote_from.equals("product")) {
+                    this.refParas = this.productParas;
+                }
+                else if (this.form.quote_from.equals("customer")) {
+                    this.refParas = this.customerParas;
+                }
+                else {
+                    this.refParas = [];
+                    this.form.quote_name = "";
+                }
+            },
             afterAddnew: function () {
                 this.form.label_id = labelId;
                 this.form.type = "string";
@@ -190,6 +224,8 @@
                 this.actionUploadVariableImage = g.prefix + "/aprint/dlabel/uploadLabelVariableImage?labelVariableId=" + labelVariableId;
 
                 this.checkedLabelVariables = this.form.seq_fields.split(",");
+
+                this.quoteFromChange();
             },
 
             beforeUploadVariableImage0: async function (evt) {
