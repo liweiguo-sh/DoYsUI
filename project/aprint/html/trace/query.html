@@ -47,11 +47,23 @@
             --padding-right:2px;
         }
     </style>
+    <!-- 追溯失败区 -->
+    <style type="text/css">
+        .divMessage {
+            margin-top:20px;
+            margin-bottom:20px;
+            color: red;
+            font-size: x-large;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
         <el-row style="margin-top:2px;margin-bottom:5px">
             <span class="itemValue">{{c}}</span>
+        </el-row>
+        <el-row v-show="message">
+            <div class="divMessage">{{message}}</div>            
         </el-row>
         <!-- 产品信息 -->
         <el-card class="box-card">
@@ -134,7 +146,9 @@
 
             product: {},                // -- 产品属性 --
             productParas: [],           // -- 产品参数数组 --
-            nodes: []                   // -- 追溯节点数据数组 --
+            nodes: [],                  // -- 追溯节点数据数组 --
+
+            message: ""                 // -- 查询失败信息 --
         },
         mounted() {
             this.parseUrl();
@@ -159,6 +173,12 @@
                 axios.get(url).then((res) => {
                     let data = res.data;
                     if (data.ok) {
+                        if (data.code) {
+                            this.message = data.message;
+                            return;
+                        }
+                        this.message = "";
+
                         this.product = data.product;
                         this.productParas = data.product.paras;
                         this.nodes = data.nodes;
