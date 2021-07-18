@@ -22,10 +22,29 @@
 <script>
     var app = new Vue({
         el: '#app',
-        data: {},
+        data: {
+
+        },
+        mounted() {
+            let postData = {
+
+            };
+            ajax.send("/project/module/controller/method", postData).then((res) => {
+                let dtbLabel = res.dtbLabel;
+                let labels = [];
+                for (let i = 0; i < dtbLabel.rowCount; i++) {
+                    labels.push({
+                        id: dtbLabel.rows[i]["id"].value,
+                        code: dtbLabel.rows[i]["code"].value,
+                        name: dtbLabel.rows[i]["name"].value
+                    });
+                }
+                this.labels = labels;
+            })
+        },
         methods: {
             method1() {
-                ajax.send("/", {}).then((res) => {
+                ajax.send("/project/module/controller/method", {}).then((res) => {
                     if (res.ok) {
                         topWin.message("当前操作成功");
                     }

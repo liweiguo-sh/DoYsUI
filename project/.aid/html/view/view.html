@@ -42,7 +42,7 @@
                         </el-col>
                         <el-col :span="span[2]">
                             <el-form-item label="基础表" required>
-                                <el-select v-model="form.table_pk" filterable :popper-append-to-body="false">
+                                <el-select v-model="form.table_pk" filterable default-first-option :popper-append-to-body="false">
                                     <el-option v-for="item in ds.table_pk" :key="item.pk" :value="item.pk" :label="item.name + ' (' + item.database_pk + ')'">
                                         <span style="float: left">{{ item.name }}</span>
                                         <span style="float: right;">{{ item.database_pk }}</span>

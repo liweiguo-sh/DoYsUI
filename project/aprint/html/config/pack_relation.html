@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>包装关系维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:900px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="上级标签" required>
+                        <el-select v-model="form.label_id_parent" ref="label_id_parent" @change="parentLabelChange" filterable default-first-option style="width:100%;">
+                            <el-option v-for="item in ds.label_id_parent" :key="item.id" :value="item.id" :label="item.name + ' (' + item.code + ')'">
+                                <span style="float: left">{{ item.code }}</span>
+                                <span style="float: right;">{{ item.name }}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="上级标签元素" required>
+                        <el-select v-model="form.element_name_parent" ref="element_name_parent" filterable default-first-option style="width:100%;">
+                            <el-option v-for="name in elementParents" :key="name" :value="name" :label="name"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="下级标签" required>
+                        <el-select v-model="form.label_id_child" ref="label_id_child" @change="childLabelChange" filterable default-first-option style="width:100%;">
+                            <el-option v-for="item in ds.label_id_child" :key="item.id" :value="item.id" :label="item.name + ' (' + item.code + ')'">
+                                <span style="float: left">{{ item.code }}</span>
+                                <span style="float: right;">{{ item.name }}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="下级标签元素" required>
+                        <el-select v-model="form.element_name_child" ref="element_name_child" filterable default-first-option style="width:100%;">
+                            <el-option v-for="name in elementChildren" :key="name" :value="name" :label="name"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="数量关系" required>
+                        <el-input v-model="form.qty" ref="qty" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 14, 10],
+            form: {},
+            ds: [],
+
+            elementParents: [],
+            elementChildren: []
+        },
+
+        methods: {
+            parentLabelChange() {
+                this.getElementNamesByLabelId(this.form.label_id_parent, "parent");
+            },
+            childLabelChange() {
+                this.getElementNamesByLabelId(this.form.label_id_child, "child");
+            },
+            getElementNamesByLabelId(labelId, parentOrChild) {
+                ajax.send("/aprint/cfg/pack_relation/getLabelContentByLabelId", { labelId: labelId }).then((res) => {
+                    let content = res.content;
+                    let elementNames = [];
+                    try {
+                        let label = JSON.parse(content);
+                        let elements = label.elements;
+                        for (let i = 0; i < elements.length; i++) {
+                            let head = elements[i].head;
+                            if (head.elementType.equals("barcode")) {
+                                elementNames.push(head.name);
+                            }
+                        }
+                    }
+                    catch (e) {
+                        topWin.alert(e, "error");
+                    }
+
+                    if (parentOrChild.equals("parent")) {
+                        this.elementParents = elementNames;
+                    }
+                    else {
+                        this.elementChildren = elementNames;
+                    }
+                })
+            },
+
+            afterAddnew: function () {
+                this.form.qty = 1;
+            },
+            afterMove: function () {
+            },
+            beforeSave: function () {
+                return true;
+            }
+        }
+    });
+</script>
