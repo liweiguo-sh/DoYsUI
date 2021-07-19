@@ -27,6 +27,18 @@
             dataFlowNode: [],               // -- 导航树data --
             navAllowAddnew: true,           // -- 当前导航节点允添加新纪录 --
 
+            extButtons: [
+                {
+                    name: "reprint",
+                    text: "补印",
+                    width: 60
+                },
+                {
+                    name: "ext2",
+                    text: "扩展2",
+                    width: 160
+                }
+            ],
             columnsL: [],                   // -- 左侧固定列 --
             columns: [],                    // -- 中间浮动列 --
             columnsR: [],                   // -- 右侧固定列（element-ui实现上有Bug，暂不支持） --
@@ -327,7 +339,11 @@
                 })
             }
             else {
-                topWin.message("debug here");
+                let rowData = this.viewData[scope.$index];
+                this.$emit('onextend', {
+                    name: columnType,
+                    rowData: rowData
+                });
             }
         },
         openEditForm(firstAction) {
@@ -522,6 +538,11 @@
                         <el-table-column v-if="showSingleColumn" width="60" align="center" label="单选" fixed="left">
                             <template slot-scope="scope" >
                                 <el-button @click="onCellButtonClick(scope, 'single')" type="text" size="small">选择</el-button>
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-for="button in extButtons" :width="button.width" align="center" :label="button.text" fixed="left">
+                            <template slot-scope="scope" >
+                                <el-button @click="onCellButtonClick(scope, button.name)" type="text" size="small">{{button.text}}</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>

@@ -2,7 +2,7 @@
  * DoYs.prototype.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2021-07-05
+ * Modify Date: 2021-07-19
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -168,7 +168,8 @@ Date.prototype.toString = function (format = "yyyy-MM-dd HH:mm:ss") {
     return strReturn;
 };
 Date.prototype.add = function (n1, datepart) {
-    var numAdd = 0;
+    let dateMe = new Date(this);
+    let numAdd = 0;
     if (datepart == null) {
         numAdd = n1;
     }
@@ -188,17 +189,17 @@ Date.prototype.add = function (n1, datepart) {
         numAdd = n1 * 7 * 24 * 60 * 60 * 1000;
     }
     else if (datepart.equals("month")) {
-        return new Date(this.setMonth(this.getMonth() + n1));
+        return new Date(dateMe.setMonth(dateMe.getMonth() + n1));
     }
     else if (datepart.equals("year")) {
-        return new Date(this.setFullYear(this.getFullYear() + n1));
+        return new Date(dateMe.setFullYear(dateMe.getFullYear() + n1));
     }
     else {
         alert("暂不支持的格式[" + datepart + "]。");
-        return this;
+        return dateMe;
     }
 
-    var date1 = new Date(this.getTime() + numAdd);
+    var date1 = new Date(dateMe.getTime() + numAdd);
     return date1;
 };
 Date.prototype.diffSecond = function (dateEarly) {
