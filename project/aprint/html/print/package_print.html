@@ -454,16 +454,26 @@
             onextend(jsp) {
                 let name = jsp.name;
                 let rowData = jsp.rowData;
-                if (name.equals("reprint")) {                    
-                    topWin.message("haha")
-                    console.log(rowData);
-                    //return;
-                    debugger
-                    debugger
+                if (name.equals("reprint")) {
+                    for (let key in lbl.fields) {
+                        if (rowData[key]) {
+                            lbl.setValue(key, rowData[key]);
+                        }
+                    }
+                    lbl.compute(true);
+                    lbl.print({
+                        data: [lbl.getData()],
+                        printerName: this.printerName,
+                        copies: this.copies,
+                        md5Origin: topWin.cfg.md5Origin
+                    });
+
+                    // -- 重置标签数据为当前变量值 --
+                    this.preview();
                 }
                 else {
                     topWin.message(name, "warning");
-                }                
+                }
             },
             exportData() {
                 let dataPOST = {
