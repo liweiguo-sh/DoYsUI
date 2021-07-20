@@ -36,12 +36,14 @@
             filterNavTree: "",              // -- 导航树导航条件 --
             navNodeValue: "",               // -- 导航节点值 --
 
+            columnsButton: [],              // -- 扩展按钮列 --
             columnsL: [],                   // -- 左侧固定列 --
             columns: [],                    // -- 中间浮动列 --
             columnsR: [],                   // -- 右侧固定列（element-ui实现上有Bug，暂不支持） --
             viewData: [],
             showSelectColumn: false,
             showDetailColumn: false,
+            showDeleteColumn: false,
             totalRows: 0,                   // -- 总记录数 --
             pageNum: 0,                     // -- 当前页号 --
             currentRowIdx: 0,               // -- 当前行下标 --
@@ -86,6 +88,14 @@
 
                     this.quickFields = res.dtbView.rows[0]["quick_fields"].value;
                     this.searchPlaceholder = res.dtbView.rows[0]["quick_text"].value;
+
+                    let columnsButton = res.dtbView.rows[0]["button_columns"].value;
+                    if (columnsButton) {
+                        this.columnsButton = JSON.parse(columnsButton);
+                    }
+                    else {
+                        this.columnsButton = [];
+                    }
 
                     this.initFlowTree();
                     this.initNavTree();
@@ -180,6 +190,7 @@
             let columnsL = [], columns = [];
             this.showSelectColumn = (this.dtbView.rows[0]["show_select"].value == 1);
             this.showDetailColumn = (this.dtbView.rows[0]["show_detail"].value == 1);
+            this.showDeleteColumn = (this.dtbView.rows[0]["show_delete"].value == 1);
 
             for (let i = 0; i < this.dtbViewField.rowCount; i++) {
                 let dataRow = this.dtbViewField.rows[i];
@@ -376,15 +387,30 @@
             this.$message("数据导出");
         },
 
-        onCellButtonClick(scope) {
-            this.setCurrentRow(scope.$index);
-
-            let cancel = false;
-            this.$emit("ondetailclick", this.dtbViewData.rows[this.currentRowIdx], (val) => {
-                cancel = val;
-            });
-            if (!cancel) {
+        onCellButtonClick(scope, columnType) {
+            if (columnType.equals("edit")) {
+                this.setCurrentRow(scope.$index);
                 this.openEditForm("view");
+            }
+            else if (columnType.equals("single")) {
+                let rowData = this.viewData[scope.$index];
+                this.$emit('onsingle', rowData);
+            }
+            else if (columnType.equals("delete")) {
+                this.$confirm("记录删除后不能恢复，确定要执行删除操作吗？", g.c.titleConfirm, {
+                    confirmButtonText: "确定", cancelButtonText: "取消", type: "warning"
+                }).then(() => {
+                    this.deleteRow();
+                }).catch(() => {
+                    // console.log("取消删除操作");
+                })
+            }
+            else {
+                let rowData = this.viewData[scope.$index];
+                this.$emit('oncolclick', {
+                    name: columnType,
+                    rowData: rowData
+                });
             }
         },
         openEditForm(firstAction) {
@@ -429,6 +455,33 @@
             this.winViewForm.addEventListener("afterClose", () => {
                 this.winViewForm = null;
             });
+        },
+        async deleteRow() {
+            // -- before delete --
+            let ret = {};
+            let para = {};
+            this.$emit("before-delete", para, (retJson) => {
+                ret = g.x.extendJSON({ cancel: false }, retJson);
+            });
+            if (ret.cancel) return;
+
+            // -- do delete --
+            let form = {};
+            for (let i = 0; i < this.dtbViewData.columnCount; i++) {
+                let k = this.dtbViewData.columns[i].name;
+                let v = this.dtbViewData.rows[this.currentRowIdx][k].value;
+                form[k] = v;
+            }
+            let postData = { viewPk: this.viewPk, id: form.id, idNext: -1, form: form };
+            let response = await ajax.send(this.controller + "/delete", postData);
+            if (!response.ok) return;
+
+            // -- after delete --
+            this.$emit("after-delete", response, (retJson) => {
+                ret = g.x.extendJSON({}, retJson);
+            });
+
+            this.afterVfDelete();
         },
 
         onCurrentChange(val) {
@@ -515,7 +568,17 @@
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
                             <template slot-scope="scope">
-                                <el-button @click="onCellButtonClick(scope)" type="text" size="small">{{detailAlise}}</el-button>
+                                <el-button @click="onCellButtonClick(scope, 'edit')" type="text" size="small">{{detailAlise}}</el-button>
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="showDeleteColumn" width="60" align="center" label="删除" fixed="left">
+                            <template slot-scope="scope">
+                                <el-button @click="onCellButtonClick(scope, 'delete')" type="text" size="small">删除</el-button>
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-for="button in columnsButton" :width="button.width" align="center" :label="button.text" fixed="left">
+                            <template slot-scope="scope" >
+                                <el-button @click="onCellButtonClick(scope, button.name)" type="text" size="small">{{button.text}}</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-for="column in columnsL" :key="column.name" :prop="column.name" :label="column.text" :align="column.align" :width="column.width" fixed="left"></el-table-column>

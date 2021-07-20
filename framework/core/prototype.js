@@ -72,7 +72,7 @@ String.prototype.toNumber = function () {
 String.prototype.toDate = function (format = "") {
     ///<summary>将字符串转换为Date, 假定字符串符合日期格式(yyyy-MM-dd hh:mm:ss.ms)</summary>
     if (this == null || this == "") {
-        return null;
+        return (new Date());
     }
 
     if (format) {

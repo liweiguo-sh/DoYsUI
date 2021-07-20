@@ -19,6 +19,7 @@
             filterExternal: "",             // -- 外部条件 --
             extUserDef: {},                 // -- 用户自定义参数 --
             allowAddnew: false,             // -- 视图允许添加 --
+            detailAlise: "查看",             // -- 查看 --
 
             showViewBar: true,              // -- ## 顶部工具条 ## --
 
@@ -27,18 +28,7 @@
             dataFlowNode: [],               // -- 导航树data --
             navAllowAddnew: true,           // -- 当前导航节点允添加新纪录 --
 
-            extButtons: [
-                {
-                    name: "reprint",
-                    text: "补印",
-                    width: 60
-                },
-                {
-                    name: "ext2",
-                    text: "扩展2",
-                    width: 160
-                }
-            ],
+            columnsButton: [],              // -- 扩展按钮列 --
             columnsL: [],                   // -- 左侧固定列 --
             columns: [],                    // -- 中间浮动列 --
             columnsR: [],                   // -- 右侧固定列（element-ui实现上有Bug，暂不支持） --
@@ -82,6 +72,7 @@
                     this.dtbView = res.dtbView;
                     this.controller = this.dtbView.rows[0]["controller"].value || this.controller;
                     this.allowAddnew = (this.dtbView.rows[0]["allow_addnew"].value == 1);
+                    this.detailAlise = this.dtbView.rows[0]["detail_alise"].value || this.detailAlise;
 
                     this.dtbViewField = res.dtbViewField;
                     this.dtbFlowNode = res.dtbFlowNode;
@@ -90,6 +81,15 @@
                     }
                     this.quickFields = res.dtbView.rows[0]["quick_fields"].value;
                     this.searchPlaceholder = res.dtbView.rows[0]["quick_text"].value;
+
+                    let columnsButton = res.dtbView.rows[0]["button_columns"].value;
+                    if (columnsButton && !this.hideButtonColumns) {     // -- hideButtonColumns(true:隐藏扩展按钮列) --
+                        this.columnsButton = JSON.parse(columnsButton);
+                    }
+                    else {
+                        this.columnsButton = [];
+                    }
+
 
                     this.initNavTree();
                     this.initGrid();
@@ -336,11 +336,13 @@
                     confirmButtonText: "确定", cancelButtonText: "取消", type: "warning"
                 }).then(() => {
                     this.deleteRow();
+                }).catch(() => {
+                    // console.log("取消删除操作");
                 })
             }
             else {
                 let rowData = this.viewData[scope.$index];
-                this.$emit('onextend', {
+                this.$emit('oncolclick', {
                     name: columnType,
                     rowData: rowData
                 });
@@ -511,7 +513,7 @@
         }
     },
 
-    props: ['viewHeight'],
+    props: ['viewHeight', 'hideButtonColumns'],
     template: `<el-container>
         <el-header v-show="showViewBar" style="height:45px;padding-left:0px;">
             <sub-view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></sub-view-bar>
@@ -527,7 +529,7 @@
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
                             <template slot-scope="scope">
-                                <el-button @click="onCellButtonClick(scope, 'edit')" type="text" size="small">查看</el-button>
+                                <el-button @click="onCellButtonClick(scope, 'edit')" type="text" size="small">{{detailAlise}}</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column v-if="showDeleteColumn" width="60" align="center" label="删除" fixed="left">
@@ -540,7 +542,7 @@
                                 <el-button @click="onCellButtonClick(scope, 'single')" type="text" size="small">选择</el-button>
                             </template>
                         </el-table-column>
-                        <el-table-column v-for="button in extButtons" :width="button.width" align="center" :label="button.text" fixed="left">
+                        <el-table-column v-for="button in columnsButton" :width="button.width" align="center" :label="button.text" fixed="left">
                             <template slot-scope="scope" >
                                 <el-button @click="onCellButtonClick(scope, button.name)" type="text" size="small">{{button.text}}</el-button>
                             </template>

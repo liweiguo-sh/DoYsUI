@@ -143,7 +143,7 @@
             <!-- 网格、扫码区、标签预览区 -->
             <el-col :span="16">
                 <el-row>
-                    <sub-view id="grid" ref="grid" @onextend="onextend"></sub-view>
+                    <sub-view id="grid" ref="grid" @oncolclick="oncolclick"></sub-view>
                 </el-row>
                 <el-row>
                     <el-col :span="12">
@@ -451,7 +451,7 @@
                 }
                 this.$refs.grid.init(para);
             },
-            onextend(jsp) {
+            oncolclick(jsp) {
                 let name = jsp.name;
                 let rowData = jsp.rowData;
                 if (name.equals("reprint")) {

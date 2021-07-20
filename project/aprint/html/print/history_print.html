@@ -43,7 +43,7 @@
                     </el-col>
                 </el-row>
             </el-form>
-            <sub-view id="grid" ref="grid"></sub-view>
+            <sub-view id="grid" ref="grid" :hide-button-columns="true"></sub-view>
         </div>
     </div>
 </body>
@@ -99,6 +99,16 @@
                 }
                 else if (button.name.equals("print")) {
                     this.print();
+                }
+                else if (button.name.equals("export_package_rel")) {
+                    let dataPOST = {
+                        taskId: this.taskId
+                    };
+                    ajax.send("/aprint/package_print/exportData", dataPOST).then(res => {
+                        let urlFile = g.prefix + res.urlFile;
+
+                        window.open(urlFile, "_blank");
+                    });
                 }
                 else {
                     topWin.alert("name = " + button.name + ", text = " + button.text);
