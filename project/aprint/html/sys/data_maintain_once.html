@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>一次性数据维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-button type="primary" onclick="win.close();">关闭</el-button>
+        <el-divider content-position="left">修复标签动态表的表结构</el-divider>
+        <el-row>
+            <el-button type="success" @click="labelVariableToLabelColumn">批量修复所有商户的所有标签</el-button>
+        </el-row>
+
+        <el-divider content-position="left" v-if="message">执行结果</el-divider>
+        <el-row>
+            <el-input type="textarea" v-model="message" v-show="message" autosize>
+            </el-input>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: ""
+        },
+        mounted() {
+        },
+        methods: {
+            labelVariableToLabelColumn() {
+                this.message = "";
+                ajax.send("/aprint/sys/data_maintain_once/labelVariableToLabelColumn", {}).then((res) => {
+                    topWin.message("当前操作成功", "success");
+
+                    let list = res.list;
+                    if (list.length > 0) {
+                        this.message = "下列标签执行失败：\n" + list.join("\n");
+                    }
+                })
+            }
+        }
+    });
+</script>
