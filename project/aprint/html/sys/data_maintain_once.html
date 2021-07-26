@@ -11,6 +11,10 @@
         <el-row>
             <el-button type="success" @click="labelVariableToLabelColumn">批量修复所有商户的所有标签</el-button>
         </el-row>
+        <el-divider content-position="left">企业标识解析平台</el-divider>
+        <el-row>
+            <el-button type="success" @click="uploadDataToIotPlatform">标识上传任务（手工调用）</el-button>
+        </el-row>
 
         <el-divider content-position="left" v-if="message">执行结果</el-divider>
         <el-row>
@@ -39,6 +43,17 @@
                     let list = res.list;
                     if (list.length > 0) {
                         this.message = "下列标签执行失败：\n" + list.join("\n");
+                    }
+                })
+            },
+            uploadDataToIotPlatform() {
+                this.message = "";
+                ajax.send("/aprint/thirdparty/handle/uploadData", {}).then((res) => {
+                    topWin.message("当前操作成功", "success");
+
+                    let list = res.list;
+                    if (list && list.length > 0) {
+                        this.message = "下列码上传失败：\n" + list.join("\n");
                     }
                 })
             }
