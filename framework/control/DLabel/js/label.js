@@ -4,7 +4,7 @@
  * Create Date: 2021-03-19
  * Modify Date: 2021-07-29
  * Copyright 2021, doys-next.com
- * DLabel class
+ * DLabel class ss
  * 
  * 事件命名规则，标签事件：on(after)-label-xxx，元素事件：on(after)-xxx
  * 
