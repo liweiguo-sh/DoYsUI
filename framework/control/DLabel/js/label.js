@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-06-29
+ * Modify Date: 2021-07-29
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -106,7 +106,8 @@ class Label {
         this.head.element_id = this.head.element_id || this.label.elements.length + 1;
         this.fields = this.label.fields;
         this.elements = this.label.elements;
-        this.multiCount = 0;                                        // -- 多选选中的元素数量 --
+        this.selectedElements = [];                                 // -- 多选选中的元素集合 --
+        this.selectedCount = 0;                                     // -- 多选选中的元素数量 --
         this.container.style.backgroundColor = "white";             // -- 标签底色(暂时设为白色，后续有需要再加配置参数) --
         if (!this.label.page) this.label.page = { width: this.head.width, height: this.head.height, marginLeft: 0, marginTop: 0, marginRight: 0, marginBottom: 0, rows: 1, cols: 1, horizontalSpace: 0, verticalSpace: 0 };
 
@@ -143,6 +144,7 @@ class Label {
         for (let i = 0; i < this.elements.length; i++) {
             let element = this.elements[i];
 
+            element._this = this;
             element._designMode = this._designMode;
             element._labelHead = this.head;
 
@@ -203,23 +205,18 @@ class Label {
         this.fields = null;
         this.label = null;
 
-        this.multiCount = 0;
+        this.selectedElements = [];
+        this.selectedCount = 0;
         this.raiseEvent("on-select");
     }
-    clearMultiSelect(jsp = { raiseEvent: false, excludeActivated: false }) {
-        let nameActivated = this.activatedElement ? this.activatedElement.head.name : "";
-        for (let i = 0; i < this.elements.length; i++) {
-            let element = this.elements[i];
-
-            if (!element.head._selected) continue;
-            if (jsp.excludeActivated) {
-                if (element.head.name.equals(nameActivated)) continue;
-            }
-
-            this.multiCount--;
+    clearMultiSelect(jsp = { raiseEvent: false }) {
+        for (let i = 0; i < this.selectedElements.length; i++) {
+            let element = this.selectedElements[i];
             element.head._selected = false;
             UtilElement.draw({ element: element });
         }
+        this.selectedElements = [];
+        this.selectedCount = 0;
 
         if (jsp.raiseEvent) {
             this.raiseEvent("on-select");
@@ -400,7 +397,7 @@ class Label {
             this.showResize();
         }
         else {
-            this.multiCount = count;
+            this.selectedCount = count;
         }
         this.raiseEvent("on-select");
     }
@@ -455,8 +452,14 @@ class Label {
             cvsElement.ondragstart = function (evt) {
                 let _dom = evt.srcElement;
                 let _this = _dom._this;
+                let element = _dom._element;
 
-                _this.activeElement(_dom._element);
+                if (!_dom._element.head._selected) {
+                    _this.clearMultiSelect();
+                    _this.activeElement(element);
+                    _this.selectedElements.push(element);
+                    _this.selectedCount++;
+                }
 
                 evt.dataTransfer.setDragImage(new Image(), 0, 0);
                 _this.ondragstart(evt);
@@ -482,6 +485,8 @@ class Label {
     }
     activeElement(element) {
         let _this = this;
+
+        element.head._selected = true;
 
         _this.activatedElement = element;
         _this.hideHover();
@@ -517,7 +522,7 @@ class Label {
     onCanvasDrag(evt) {
         let domDrag = evt.srcElement;
         let _this = domDrag._this;
-        let element = _this.activatedElement;
+        let element = domDrag._element;
         let x, y;
 
         if (element.head.locked) return;
@@ -541,9 +546,9 @@ class Label {
         let cvs, el;
         let xMove = domDrag.offsetLeft - domDrag.offsetLeft0;
         let yMove = domDrag.offsetTop - domDrag.offsetTop0;
-        for (let i = 0; i < _this.elements.length; i++) {
-            el = _this.elements[i];
-            if (!el.head._selected || el.head.name.equals(element.head.name)) continue;
+        for (let i = 0; i < _this.selectedElements.length; i++) {
+            el = _this.selectedElements[i];
+            if (el.head.name.equals(element.head.name)) continue;
 
             cvs = el._canvas;
             x = cvs.offsetLeft0 + xMove;
@@ -587,10 +592,12 @@ class Label {
                     _this.delElement(_this.elements[i]);
                 }
             }
-            _this.multiCount = 0;
+            _this.selectedElements = [];
+            _this.selectedCount = 0;
             _this.raiseEvent("on-select");
         }
     }
+
     // -- element event: click and hover --------------------------------------
     onElementClick(evt) {
         let _dom = evt.srcElement;
@@ -601,27 +608,57 @@ class Label {
 
         // ------------------------------------------------
         if (evt.ctrlKey) {
-            if (_this.activatedElement) {
-                _this.activatedElement = null;
-                _this.hideResize();
-                _this.hideHover();
-            }
-
             if (element.head._selected) {
+                if (_this.activatedElement && _this.activatedElement.head.name.equals(element.head.name)) {
+                    _this.activatedElement = null;
+                    _this.hideResize();
+                }
+
                 element.head._selected = false;
-                _this.multiCount--;
+                for (let i = 0; i < _this.selectedElements.length; i++) {
+                    let el = _this.selectedElements[i];
+                    if (el.head.name.equals(element.head.name)) {
+                        _this.selectedElements.splice(i, 1);
+                        _this.selectedCount--;
+                        break;
+                    }
+                }
+
+                if (_this.activatedElement == null && _this.selectedCount > 0) {
+                    _this.activeElement(_this.selectedElements[0]);
+                    UtilElement.draw({ element: _this.activatedElement });
+                }
+                else {
+                    if (_this.selectedCount == 1) {
+                        UtilElement.draw({ element: _this.activatedElement });
+                    }
+                }
             }
             else {
                 element.head._selected = true;
-                _this.multiCount++;
+                _this.selectedCount++;
+                _this.selectedElements.push(element);
+
+                if (_this.activatedElement == null) {
+                    _this.activeElement(element);
+                }
+                else {
+                    if (_this.selectedCount == 2) {
+                        if (!_this.activatedElement.head.name.equals(element.head.name)) {
+                            UtilElement.draw({ element: _this.activatedElement });
+                        }
+                    }
+                }
             }
             UtilElement.draw({ element: element });
         }
         else {
-            if (_this.multiCount > 0) {
-                _this.clearMultiSelect();
-            }
+            _this.clearMultiSelect();
             _this.activeElement(element);
+
+            _this.selectedElements.push(element);
+            _this.selectedCount = 1;
+            UtilElement.draw({ element: element });
         }
         _this.raiseEvent("on-select");
     }
@@ -1006,6 +1043,31 @@ class Label {
         UtilElement.draw({ element: element });
     }
 
+    // -- element event: align ------------------------------------------------
+    alignElements(jsp = {}) {
+        let align = jsp.align;
+        let position = this.activatedElement.position;
+
+        for (let i = 0; i < this.selectedElements.length; i++) {
+            let element = this.selectedElements[i];
+            if (element.head.name.equals(this.activatedElement.head.name)) continue;
+
+            if (align.equals("left")) {
+                element.position.left = position.left;
+            }
+            else if (align.equals("top")) {
+                element.position.top = position.top;
+            }
+            else if (align.equals("right")) {
+                element.position.left = parseFloat(position.left) + parseFloat(position.width) - parseFloat(element.position.width);
+            }
+            else if (align.equals("bottom")) {
+                element.position.top = parseFloat(position.top) + parseFloat(position.height) - parseFloat(element.position.height);
+            }
+            UtilElement.draw({ element: element });
+        }
+    }
+
     // -- properties change ---------------------------------------------------
     setAngle(angle) {
         if (!this.activatedElement) return;
@@ -1242,7 +1304,7 @@ class Label {
         }
     }
     jsAfterComputeDebug1() {
-        
+
 
         let mfgDate = this.fields["生产日期"].toDate("yyMMdd");
         let expDate = mfgDate.add(1, "year").add(-1, "day");

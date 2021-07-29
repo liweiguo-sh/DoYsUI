@@ -473,6 +473,7 @@ UtilElement.drawFrame = function (context, element) {
     }
 }
 UtilElement.drawMultiSelect = function (context, element) {
+    if (element._this.selectedCount <= 1) return;
     if (!element.head._selected) return;
 
     let _this = element._this;

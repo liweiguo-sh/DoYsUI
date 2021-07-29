@@ -63,7 +63,6 @@
                 <el-button type="success" onclick="testCross2()" v-show="true" icon="alifont ali-icon-test-ts" title="内网跨域测试2"></el-button>
                 <el-button type="warning" onclick="webPrintSample()" v-show="true" icon="alifont ali-icon-print" title="打印样张(WEB模式)"></el-button>
             </el-button-group>
-
         </el-row>
         <div style="height:5px;"></div>
     </div>
@@ -71,10 +70,10 @@
         <tr>
             <td id="tdProp" class="tdProp">
                 <div id="vmProp" style="overflow-y:auto;">
-                    <el-row v-show="false"><span style="color:yellow">元素选中数量：{{multiCount}}</span></el-row>
+                    <el-row v-show="false"><span style="color:yellow">元素选中数量：{{selectedCount}}</span></el-row>
                     <el-collapse v-model="activeNames" @change="propGroupChange" accordion>
                         <!-- label -->
-                        <el-collapse-item name="labelHead" v-show="multiCount==0">
+                        <el-collapse-item name="labelHead" v-show="selectedCount==0">
                             <template slot="title">
                                 <div class="divPropGrouName">标签 Label</div>
                                 <i class="el-icon-collection-tag"></i>
@@ -131,17 +130,17 @@
                             </el-row>
                         </el-collapse-item>
                         <!-- head -->
-                        <el-collapse-item name="head" v-show="multiCount>0">
+                        <el-collapse-item name="head" v-show="selectedCount>0">
                             <template slot="title">
                                 <div class="divPropGrouName">元素 Element</div>
                             </template>
-                            <el-row v-show="multiCount==1">
+                            <el-row v-show="selectedCount==1">
                                 <el-col :span="span[1]"><div class="divPropName">名称</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-input v-model="head.name" @change="elementPropChange('head.name')"></el-input>
                                 </el-col>
                             </el-row>
-                            <el-row v-show="multiCount==1">
+                            <el-row v-show="selectedCount==1">
                                 <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-select v-model="head.elementType" @change="elementPropChange('head.elementType')" :disabled="true">
@@ -190,7 +189,7 @@
                             </el-row>
                         </el-collapse-item>
                         <!-- position -->
-                        <el-collapse-item name="position" v-show="multiCount>0">
+                        <el-collapse-item name="position" v-show="selectedCount>0">
                             <template slot="title">
                                 <div class="divPropGrouName">位置 Position</div>
                             </template>
@@ -300,7 +299,7 @@
 
                         </el-collapse-item>
                         <!-- frame -->
-                        <el-collapse-item name="frame" v-show="multiCount>0">
+                        <el-collapse-item name="frame" v-show="selectedCount>0">
                             <template slot="title">
                                 <div class="divPropGrouName">边框 Frame</div>
                             </template>
@@ -335,7 +334,7 @@
                             </el-row>
                         </el-collapse-item>
                         <!-- font -->
-                        <el-collapse-item name="font" v-show="multiCount>0 && head.elementType!='image'">
+                        <el-collapse-item name="font" v-show="selectedCount>0 && head.elementType!='image'">
                             <template slot="title">
                                 <div class="divPropGrouName">字体 Font</div>
                             </template>
@@ -395,7 +394,7 @@
                             </el-row>
                         </el-collapse-item>
                         <!-- image -->
-                        <el-collapse-item name="image" v-show="multiCount==1 && head.elementType=='image'">
+                        <el-collapse-item name="image" v-show="selectedCount==1 && head.elementType=='image'">
                             <template slot="title">
                                 <div class="divPropGrouName">图片 Image</div>
                             </template>
@@ -437,7 +436,7 @@
                 </div>
             </td>
             <td id="tdAux" class="tdAux">
-                <div id="vmAux" class="vmAux" v-show="false">
+                <div id="vmAux" class="vmAux">
                     <el-row class="row-aux">
                         <el-button type="info" onclick="alignElements('top')" icon="alifont ali-icon-align-top" title="上对齐"></el-button>
                     </el-row>
@@ -503,7 +502,7 @@
                 imageBaseUrl: null
             },
             images: [],
-            multiCount: 0,
+            selectedCount: 0,
             fontNames: UtilFont.getNames(),
             fontSizes: UtilFont.getSizes(),
             head: {
@@ -545,7 +544,7 @@
                     lbl.compute(true);
                 }
                 else {
-                    if (lbl.multiCount > 0) {
+                    if (lbl.selectedCount > 0) {
                         for (let i = 0; i < lbl.elements.length; i++) {
                             element = lbl.elements[i];
                             if (element.head._selected) {
@@ -806,7 +805,7 @@
 
     // -- 复制、黏贴 ----------------------------------------
     function copyElements() {
-        if (vmProp.multiCount == 0 && lbl.activatedElement == null) {
+        if (vmProp.selectedCount == 0 && lbl.activatedElement == null) {
             topWin.message("请先选中要复制的元素。", "error");
             return;
         }
@@ -859,7 +858,7 @@
 <!-- aux -->
 <script>
     function alignElements(align) {
-        topWin.message(align, "success");
+        lbl.alignElements({ align: align });        
     }
 </script>
 
@@ -925,7 +924,7 @@
         let element;
 
         // -- 1. 获取首个元素(多个选中元素的第一个，或者当前ActivatedElement) --
-        if (lbl.multiCount > 0) {
+        if (lbl.selectedCount > 0) {
             for (let i = 0; i < lbl.elements.length; i++) {
                 if (lbl.elements[i].head._selected) {
                     element = lbl.elements[i];
@@ -944,7 +943,7 @@
         if (!propValue) return "";
 
         // -- 3. 判断属性值在选中的多个元素中是否完全相同 ---------
-        if (lbl.multiCount > 0) {
+        if (lbl.selectedCount > 0) {
             propValue = propValue.toString();
             for (let i = 1; i < lbl.elements.length; i++) {
                 if (!lbl.elements[i].head._selected) continue;
@@ -978,15 +977,15 @@
         vmProp.images = images;
     }
     function onSelect(jsp = {}) {
-        let multiCount = lbl.multiCount;
-        if (multiCount == 0) {
+        let selectedCount = lbl.selectedCount;
+        if (selectedCount == 0) {
             if (lbl.activatedElement) {
-                multiCount = 1;
+                selectedCount = 1;
             }
         }
 
-        vmProp.multiCount = multiCount;
-        if (vmProp.multiCount == 0) {
+        vmProp.selectedCount = selectedCount;
+        if (vmProp.selectedCount == 0) {
             vmProp.lastActiveNames = vmProp.activeNames;
             vmProp.activeNames = "labelHead";
         }
