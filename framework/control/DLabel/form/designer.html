@@ -450,6 +450,14 @@
                         <el-button type="info" onclick="alignElements('right')" icon="alifont ali-icon-align-right" title="右对齐"></el-button>
                     </el-row>
                     <el-row class="el-row-aux-space"></el-row>
+                    <!-- 等间距(垂直、水平) -->
+                    <el-row class="row-toolbar">
+                        <el-button type="info" onclick="equidistantElements('vertical')" icon="alifont ali-icon-equidistant-v" title="垂直等间距"></el-button>
+                    </el-row>
+                    <el-row class="row-toolbar">
+                        <el-button type="info" onclick="equidistantElements('horizontal')" icon="alifont ali-icon-equidistant-h" title="水平等间距"></el-button>
+                    </el-row>
+                    <el-row class="el-row-aux-space"></el-row>
                 </div>
             </td>
         </tr>
@@ -859,6 +867,9 @@
 <script>
     function alignElements(align) {
         lbl.alignElements({ align: align });        
+    }
+    function equidistantElements(align) {
+        lbl.equidistantElements({ align: align });
     }
 </script>
 

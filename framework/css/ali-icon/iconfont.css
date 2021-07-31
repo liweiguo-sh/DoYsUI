@@ -1,8 +1,8 @@
 @font-face {
   font-family: "alifont"; /* Project id 2419950 */
-  src: url('iconfont.woff2?t=1620351974024') format('woff2'),
-       url('iconfont.woff?t=1620351974024') format('woff'),
-       url('iconfont.ttf?t=1620351974024') format('truetype');
+  src: url('iconfont.woff2?t=1627695977687') format('woff2'),
+       url('iconfont.woff?t=1627695977687') format('woff'),
+       url('iconfont.ttf?t=1627695977687') format('truetype');
 }
 
 .alifont {
@@ -11,6 +11,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ali-icon-equidistant-h:before {
+  content: "\e608";
+}
+
+.ali-icon-equidistant-v:before {
+  content: "\e609";
 }
 
 .ali-icon-align-bottom:before {

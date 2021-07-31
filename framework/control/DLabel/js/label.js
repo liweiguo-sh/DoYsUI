@@ -2,9 +2,9 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-07-29
+ * Modify Date: 2021-07-31
  * Copyright 2021, doys-next.com
- * DLabel class ss
+ * DLabel class
  * 
  * 事件命名规则，标签事件：on(after)-label-xxx，元素事件：on(after)-xxx
  * 
@@ -496,7 +496,6 @@ class Label {
     // -- element event: drag -------------------------------------------------
     ondragstart(evt) {
         let domDrag = evt.srcElement;
-        let element = domDrag._element;
         let dragOffsetX = 0, dragOffsetY = 0;
 
         dragOffsetX = this.containerLeft;                                   // -- 容器偏移量、边框、margin、padding --
@@ -1065,6 +1064,49 @@ class Label {
                 element.position.top = parseFloat(position.top) + parseFloat(position.height) - parseFloat(element.position.height);
             }
             UtilElement.draw({ element: element });
+        }
+    }
+    equidistantElements(jsp = {}) {
+        if (this.selectedElements.length < 2) return;
+
+        let align = jsp.align;
+        let arrEl = [];
+        // -- 1. 排序(从上到下或从左到右) --
+        for (let i = 0; i < this.selectedElements.length; i++) {
+            arrEl.push(this.selectedElements[i]);
+        }
+        arrEl.sort((e1, e2) => {
+            let pos1 = parseFloat(align.equals("vertical") ? e1.position.top : e1.position.left);
+            let pos2 = parseFloat(align.equals("vertical") ? e2.position.top : e2.position.left);
+            if (pos1 < pos2) {
+                return -1;
+            }
+            else if (pos1 > pos2) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        });
+
+        // -- 2. 获取位置上下限，计算间距，修改位置 --
+        let posMin = parseFloat(align.equals("vertical") ? arrEl[0].position.top : arrEl[0].position.left);
+        let posMax = parseFloat(align.equals("vertical") ? arrEl[arrEl.length - 1].position.top : arrEl[arrEl.length - 1].position.left);
+        let distance = (posMax - posMin) / (arrEl.length - 1);
+
+        for (let i = 1; i < arrEl.length - 1; i++) {
+            let element = arrEl[i];
+            if (align.equals("vertical")) {
+                element.position.top = posMin + i * distance;
+            }
+            else {
+                element.position.left = posMin + i * distance;
+            }
+
+            UtilElement.draw({ element: element });
+            if (this.activatedElement.head.name.equals(element.head.name)) {
+                this.showResize();
+            }
         }
     }
 
