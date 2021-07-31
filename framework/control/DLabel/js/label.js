@@ -508,8 +508,8 @@ class Label {
         dragOffsetY += domDrag.clientTop;                                   // -- 拖动对象边框宽度 --
         dragOffsetY += evt.offsetY;                                         // -- 拖动对象偏移量(鼠标坐标相对于拖动对象) --
 
-        this.dragOffsetX = dragOffsetX;
-        this.dragOffsetY = dragOffsetY;
+        this.dragOffsetX = dragOffsetX - this.parentContainer.scrollLeft;
+        this.dragOffsetY = dragOffsetY - this.parentContainer.scrollTop;
         for (let i = 0; i < this.elements.length; i++) {
             let el = this.elements[i];
             if (!el.head._selected) continue;
