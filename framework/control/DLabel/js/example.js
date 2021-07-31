@@ -976,15 +976,14 @@ DLbelExample.debug1 = function () {
   "elements": [
     {
       "head": {
-        "elementType": "barcode",
-        "barcodeType": "EAN_13_D",
+        "elementType": "text",
         "name": "element_1"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "",
+          "value": "汉字W1间距",
           "format": ""
         },
         {
@@ -1003,87 +1002,68 @@ DLbelExample.debug1 = function () {
       },
       "frame": {
         "type": "rectangle",
-        "width": 0,
-        "color": "#ED9191",
-        "fillColor": "#E8BEBE"
+        "width": 2,
+        "color": "#E31C1C"
       },
       "position": {
         "layer": 1,
-        "width": 40,
-        "height": 10,
-        "textAlign": "center",
-        "verticalAlign": "bottom",
-        "top": "0",
-        "left": "0",
+        "width": 46.3,
+        "height": 14.89,
+        "textAlign": "justify",
+        "verticalAlign": "middle",
+        "top": "2.61",
+        "left": "2.61",
         "angle": 0,
         "angleR": 0,
-        "marginLeft": 0,
-        "marginRight": 0,
+        "marginLeft": 2,
+        "marginRight": 2,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 40,
-        "hC": 10,
+        "wC": 46.3,
+        "hC": 14.89,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 40,
+          "x": 46.3,
           "y": 0
         },
         "P3": {
-          "x": 40,
-          "y": 10
+          "x": 46.3,
+          "y": 14.89
         },
         "P4": {
           "x": 0,
-          "y": 10
+          "y": 14.89
         },
         "P15": {
-          "x": 20,
+          "x": 23.15,
           "y": 0
         },
         "P25": {
-          "x": 40,
-          "y": 5
+          "x": 46.3,
+          "y": 7.445
         },
         "P35": {
-          "x": 20,
-          "y": 10
+          "x": 23.15,
+          "y": 14.89
         },
         "P45": {
           "x": 0,
-          "y": 5
+          "y": 7.445
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 0,
-        "offsetRight": 0,
-        "offsetTop": 0,
-        "offsetBottom": 0,
-        "clientWidth": 40,
-        "clientHeight": 10,
-        "leftText": 0,
-        "topText": 10,
-        "heightBarcode": 7.7775,
-        "widthBarcode": 40,
-        "leftBarcode": 0,
-        "topBarcode": 0
-      },
-      "segments": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "7501031311308",
-          "format": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": "",
-          "format": ""
-        }
-      ]
+        "offsetLeft": 4,
+        "offsetRight": 4,
+        "offsetTop": 2,
+        "offsetBottom": 2,
+        "clientWidth": 38.3,
+        "clientHeight": 10.89,
+        "leftText": 4,
+        "topText": 7.445
+      }
     }
   ],
   "page": {

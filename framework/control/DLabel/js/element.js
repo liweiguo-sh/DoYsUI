@@ -519,7 +519,35 @@ UtilElement._drawSingleLine = function (context, element) {
     context.fillStyle = element.font._fillStyleDraw;
     context.textAlign = position.textAlign;
     context.textBaseline = position.verticalAlign;
-    context.fillText(text, x, y);
+
+    if (position.textAlign.equals("justify")) {
+        let wText = context.measureText(text).width;
+        let wCanvas = position.clientWidth * pxmm;
+        if (wText > wCanvas || text.length == 1) {
+            context.fillText(text, x, y);
+        }
+        else {
+            let left = x;
+            let xLast = wCanvas + (position.marginLeft + element.frame.width) * pxmm;   // -- 最右端字符的x坐标 --
+            let arrText = text.split("");
+            let wWordGap = (wCanvas - wText) / (arrText.length - 1);                    // -- 字符间间距 --
+
+            // -- 输出两端的两个文字 --
+            context.textAlign = "right";
+            context.fillText(arrText[arrText.length - 1], xLast, y);
+            context.textAlign = "left";
+            context.fillText(arrText[0], x, y);
+
+            // -- 分散输出中间部分的文字 --                        
+            for (let i = 1; i < arrText.length - 1; i++) {
+                left += context.measureText(arrText[i - 1]).width + wWordGap;
+                context.fillText(arrText[i], left, y);
+            }
+        }
+    }
+    else {
+        context.fillText(text, x, y);
+    }
 }
 UtilElement._drawMultiLine = function (context, element) {
     let pxmm = element._this.pxmm;

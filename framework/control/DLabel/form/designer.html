@@ -258,6 +258,7 @@
                                         <el-option value="left" label="居左"></el-option>
                                         <el-option value="center" label="居中"></el-option>
                                         <el-option value="right" label="居右"></el-option>
+                                        <el-option value="justify" label="两端对齐"></el-option>
                                     </el-select>
                                 </el-col>
                             </el-row>
@@ -584,9 +585,9 @@
 
                         UtilElement.computeProp({ element: element });
                         UtilElement.computeValue({ element: element, fields: lbl.fields });
-                        UtilElement.draw({ element: element });
-                        lbl.showResize();
+                        UtilElement.draw({ element: element });                                                
                     }
+                    lbl.showResize();
                 }
             },
             onFieldsClick() {
