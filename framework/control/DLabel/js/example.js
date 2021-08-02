@@ -1007,51 +1007,51 @@ DLbelExample.debug1 = function () {
       },
       "position": {
         "layer": 1,
-        "width": 46.3,
-        "height": 14.89,
+        "width": 50,
+        "height": 15,
         "textAlign": "justify",
         "verticalAlign": "middle",
-        "top": "2.61",
-        "left": "2.61",
+        "top": "5",
+        "left": "5",
         "angle": 0,
         "angleR": 0,
         "marginLeft": 2,
         "marginRight": 2,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 46.3,
-        "hC": 14.89,
+        "wC": 50,
+        "hC": 15,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 46.3,
+          "x": 50,
           "y": 0
         },
         "P3": {
-          "x": 46.3,
-          "y": 14.89
+          "x": 50,
+          "y": 15
         },
         "P4": {
           "x": 0,
-          "y": 14.89
+          "y": 15
         },
         "P15": {
-          "x": 23.15,
+          "x": 25,
           "y": 0
         },
         "P25": {
-          "x": 46.3,
-          "y": 7.445
+          "x": 50,
+          "y": 7.5
         },
         "P35": {
-          "x": 23.15,
-          "y": 14.89
+          "x": 25,
+          "y": 15
         },
         "P45": {
           "x": 0,
-          "y": 7.445
+          "y": 7.5
         },
         "offsetX": 0,
         "offsetY": 0,
@@ -1059,10 +1059,10 @@ DLbelExample.debug1 = function () {
         "offsetRight": 4,
         "offsetTop": 2,
         "offsetBottom": 2,
-        "clientWidth": 38.3,
-        "clientHeight": 10.89,
+        "clientWidth": 42,
+        "clientHeight": 11,
         "leftText": 4,
-        "topText": 7.445
+        "topText": 7.5
       }
     }
   ],
