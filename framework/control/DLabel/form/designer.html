@@ -143,7 +143,7 @@
                             <el-row v-show="selectedCount==1">
                                 <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="head.elementType" @change="elementPropChange('head.elementType')" :disabled="true">
+                                    <el-select v-model="head.elementType" @change="elementPropChange('head.elementType')" :disabled="true" style="width:100%;">
                                         <el-option value="barcode" label="条形码"></el-option>
                                         <el-option value="text" label="文本"></el-option>
                                         <el-option value="image" label="图片"></el-option>
@@ -154,7 +154,7 @@
                             <el-row v-show="head.elementType=='barcode'">
                                 <el-col :span="span[1]"><div class="divPropName">符号体系</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="head.barcodeType" @change="elementPropChange('head.barcodeType')" filterable>
+                                    <el-select v-model="head.barcodeType" @change="elementPropChange('head.barcodeType')" filterable style="width:100%;">
                                         <el-option-group label="一维码">
                                             <el-option value="CODE_128" key="CODE_128" label="Code 128"></el-option>
                                             <el-option value="CODE_39" key="CODE_39" label="Code 39"></el-option>
@@ -217,7 +217,7 @@
                                 <el-col :span="span[1]"><div class="divPropName">旋转角度</div></el-col>
                                 <el-col :span="span[2]">
                                     <!--<el-input v-model="position.angle" @change="elementPropChange('position.angle')"></el-input>-->
-                                    <el-select v-model="position.angle" @change="elementPropChange('position.angle')" filterable allow-create default-first-option>
+                                    <el-select v-model="position.angle" @change="elementPropChange('position.angle')" filterable allow-create default-first-option style="width:100%;">
                                         <el-option value="0" label="0"></el-option>
                                         <el-option value="90" label="90"></el-option>
                                         <el-option value="180" label="180"></el-option>
@@ -254,7 +254,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">水平位置</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="position.textAlign" @change="elementPropChange('position.textAlign')">
+                                    <el-select v-model="position.textAlign" @change="elementPropChange('position.textAlign')" style="width:100%;">
                                         <el-option value="left" label="居左"></el-option>
                                         <el-option value="center" label="居中"></el-option>
                                         <el-option value="right" label="居右"></el-option>
@@ -265,7 +265,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">垂直位置</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="position.verticalAlign" @change="elementPropChange('position.verticalAlign')">
+                                    <el-select v-model="position.verticalAlign" @change="elementPropChange('position.verticalAlign')" style="width:100%;">
                                         <el-option value="top" label="居上"></el-option>
                                         <el-option value="middle" label="居中"></el-option>
                                         <el-option value="bottom" label="居下"></el-option>
@@ -308,7 +308,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">类型</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="frame.type" @change="elementPropChange('frame.type')">
+                                    <el-select v-model="frame.type" @change="elementPropChange('frame.type')" style="width:100%;">
                                         <el-option value="" label="无"></el-option>
                                         <el-option value="rectangle" label="矩形"></el-option>
                                         <el-option value="ellipse" label="椭圆" :disabled="true"></el-option>
@@ -333,6 +333,12 @@
                                     <el-color-picker v-model="frame.fillColor" @change="elementPropChange('frame.fillColor')"></el-color-picker>
                                 </el-col>
                             </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">圆角半径(mm)</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="frame.radius" @change="elementPropChange('frame.radius')"></el-input>
+                                </el-col>
+                            </el-row>
                         </el-collapse-item>
                         <!-- font -->
                         <el-collapse-item name="font" v-show="selectedCount>0 && head.elementType!='image'">
@@ -343,7 +349,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">字体</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="font.name" @change="elementPropChange('font.name')" filterable default-first-option>
+                                    <el-select v-model="font.name" @change="elementPropChange('font.name')" filterable default-first-option style="width:100%;">
                                         <el-option v-for="name in fontNames" :value="name" :label="name" :key="name">
                                             <slot>
                                                 <div style="width:350px;">
@@ -358,7 +364,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">字号(pt)</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="font.size" @change="elementPropChange('font.size')" filterable allow-create default-first-option>
+                                    <el-select v-model="font.size" @change="elementPropChange('font.size')" filterable allow-create default-first-option style="width:100%;">
                                         <el-option v-for="size in fontSizes" :value="size" :label="size" :key="size"></el-option>
                                     </el-select>
                                 </el-col>
@@ -402,7 +408,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">图片</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="image.value" @change="elementPropChange('image.value')" clearable>
+                                    <el-select v-model="image.value" @change="elementPropChange('image.value')" clearable style="width:100%;">
                                         <el-option v-for="item in images" :value="item.k" :label="item.k" :key="item.k" :title="item.k + '  (' + item.v + ')'" style="height:52px;padding-top:2px;">
                                             <slot>
                                                 <image :src="item.url" style="height:48px;" />
@@ -420,7 +426,7 @@
                             <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">尺寸选项</div></el-col>
                                 <el-col :span="span[2]">
-                                    <el-select v-model="image.deformation" @change="elementPropChange('image.deformation')">
+                                    <el-select v-model="image.deformation" @change="elementPropChange('image.deformation')" style="width:100%;">
                                         <el-option value="stretch" label="拉伸填充"></el-option>
                                         <el-option value="zoom" label="同比缩放"></el-option>
                                         <el-option value="none" label="图片原始大小"></el-option>
@@ -527,7 +533,7 @@
                 textAlign: null, verticalAlign: null
             },
             frame: {
-                type: null, width: null, color: null, fillColor: null
+                type: null, width: null, color: null, fillColor: null, radius: null
             },
             font: {
                 name: null, size: 10.5, color: null,
@@ -585,7 +591,7 @@
 
                         UtilElement.computeProp({ element: element });
                         UtilElement.computeValue({ element: element, fields: lbl.fields });
-                        UtilElement.draw({ element: element });                                                
+                        UtilElement.draw({ element: element });
                     }
                     lbl.showResize();
                 }
@@ -867,7 +873,7 @@
 <!-- aux -->
 <script>
     function alignElements(align) {
-        lbl.alignElements({ align: align });        
+        lbl.alignElements({ align: align });
     }
     function equidistantElements(align) {
         lbl.equidistantElements({ align: align });
@@ -906,6 +912,7 @@
         props.push({ group: "frame", name: "width" });
         props.push({ group: "frame", name: "color" });
         props.push({ group: "frame", name: "fillColor" });
+        props.push({ group: "frame", name: "radius" });
 
         // -- font ---------------------------------------
         props.push({ group: "font", name: "name" });

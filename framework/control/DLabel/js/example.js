@@ -977,7 +977,7 @@ DLbelExample.debug1 = function () {
     {
       "head": {
         "elementType": "text",
-        "name": "element_1"
+        "name": "元素-01"
       },
       "sections": [
         {
@@ -998,25 +998,28 @@ DLbelExample.debug1 = function () {
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
         "lineHeight": null,
-        "textHeight": 3.7041666666666666
+        "textHeight": 3.7041666666666666,
+        "color": "#F2FF00"
       },
       "frame": {
         "type": "rectangle",
         "width": 2,
-        "color": "#E31C1C"
+        "color": "#E3761C",
+        "radius": 4,
+        "fillColor": "#0095FF"
       },
       "position": {
         "layer": 1,
-        "width": 50,
-        "height": 15,
+        "width": 40,
+        "height": 40,
         "textAlign": "justify",
         "verticalAlign": "middle",
         "top": "5",
         "left": "5",
         "angle": 0,
         "angleR": 0,
-        "marginLeft": 2,
-        "marginRight": 2,
+        "marginLeft": 0,
+        "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
         "wC": 50,
@@ -1055,13 +1058,13 @@ DLbelExample.debug1 = function () {
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 4,
-        "offsetRight": 4,
-        "offsetTop": 2,
-        "offsetBottom": 2,
-        "clientWidth": 42,
-        "clientHeight": 11,
-        "leftText": 4,
+        "offsetLeft": 1,
+        "offsetRight": 1,
+        "offsetTop": 1,
+        "offsetBottom": 1,
+        "clientWidth": 48,
+        "clientHeight": 13,
+        "leftText": 1,
         "topText": 7.5
       }
     }

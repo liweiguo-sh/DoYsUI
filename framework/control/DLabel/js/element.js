@@ -73,6 +73,7 @@ UtilElement.computeProp = function (jsp) {
 
     frame.type = frame.type || "";
     frame.width = frame.type.equals("") ? 0 : parseFloat(frame.width || 0);
+    frame.radius = parseFloat(frame.radius || 0);
 
     P.angle = P.angle || 0;
     P.angleR = P.angle * Math.PI / 180;
@@ -441,35 +442,90 @@ UtilElement.reduce = function (jsp) {
 
 // -- draw frame --------------------------------------------------------------
 UtilElement.drawFrame = function (context, element) {
+    let frame = element.frame;
+
+    if (frame.width <= 0 && !frame.fillColor) return;   // -- 没有边框，也没有填充色，无需绘制 --
+    if (frame.type.equals("rectangle")) {
+        UtilElement.drawRectangle(context, element);
+    }
+}
+UtilElement.drawRectangle = function (context, element) {
     let _this = element._this;
     let pxmm = _this.pxmm;
     let frame = element.frame;
     let width = element.position.width;
     let height = element.position.height;
-    let x, y, w, h;
-    // ----------------------------------------------------
-    if (frame.width > 0) {
-        x = frame.width / 2; y = x;
-        w = width - frame.width;
-        h = height - frame.width;
+    let r = frame.radius, x, y, w, h;
+    // ----------------------------------------------------    
+    if (r) {
+        context.beginPath();
+        // -- 1.1 左上角圆弧，上边直线 --
+        x = r + frame.width / 2;
+        y = x;
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 1 * Math.PI, 1.5 * Math.PI);
 
-        // -- context.lineJoin = "round"; --
-        context.strokeStyle = frame.color;
-        context.lineWidth = frame.width * pxmm;
-        if (frame.type.equals("ellipse")) {
-            // -- context.strokeRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm); --
+        x = width - x;
+        y = frame.width / 2;
+        context.lineTo(x * pxmm, y * pxmm);
+
+        // -- 1.2 右上角圆弧，右边直线 --
+        x = width - r - frame.width / 2;
+        y = r + frame.width / 2;
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 1.5 * Math.PI, 2 * Math.PI);
+
+        x = width - frame.width / 2;
+        y = height - y;
+        context.lineTo(x * pxmm, y * pxmm);
+
+        // -- 1.3 右下角圆弧，下边直线 --
+        x = width - r - frame.width / 2;
+        y = height - r - frame.width / 2;
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 2 * Math.PI, 0.5 * Math.PI);
+
+        x = r + frame.width / 2;
+        y = height - frame.width / 2;
+        context.lineTo(x * pxmm, y * pxmm);
+
+        // -- 1.1 坐下角圆弧，左边直线 --
+        x = r + frame.width / 2;
+        y = height - r - frame.width / 2;
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 0.5 * Math.PI, 1 * Math.PI);
+
+        x = frame.width / 2;
+        y = r + frame.width / 2;
+        context.lineTo(x * pxmm, y * pxmm);
+
+        // -- 1.5 内部填充、绘制边框。顺序不能颠倒 --
+        if (frame.fillColor) {
+            context.fillStyle = frame.fillColor;
+            context.fill();
         }
-        else {
-            context.strokeRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm);
+        if (frame.width > 0) {
+            context.lineWidth = frame.width * pxmm;
+            context.strokeStyle = frame.color;
+            context.stroke();
         }
     }
-    if (frame.fillColor) {
-        x = frame.width; y = x;
-        w = width - 2 * frame.width;
-        h = height - 2 * frame.width;
+    else {
+        if (frame.width > 0) {
+            x = frame.width / 2;
+            y = x;
+            w = width - frame.width;
+            h = height - frame.width;
 
-        context.fillStyle = frame.fillColor;
-        context.fillRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm);
+            context.lineWidth = frame.width * pxmm;
+            context.strokeStyle = frame.color;            
+            context.strokeRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm);
+        }
+        if (frame.fillColor) {
+            x = frame.width;
+            y = x;
+            w = width - 2 * frame.width;
+            h = height - 2 * frame.width;
+
+            context.fillStyle = frame.fillColor;
+            context.fillRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm);
+        }
     }
 }
 UtilElement.drawMultiSelect = function (context, element) {
