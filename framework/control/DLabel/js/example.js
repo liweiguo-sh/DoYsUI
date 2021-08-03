@@ -967,8 +967,8 @@ DLbelExample.debug1 = function () {
     return `
 {
   "head": {
-    "width": 80,
-    "height": 60,
+    "width": "40",
+    "height": "40",
     "point": 600,
     "element_id": 2
   },
@@ -1005,7 +1005,7 @@ DLbelExample.debug1 = function () {
         "type": "rectangle",
         "width": 2,
         "color": "#E3761C",
-        "radius": 4,
+        "radius": 8,
         "fillColor": "#0095FF"
       },
       "position": {
@@ -1014,58 +1014,58 @@ DLbelExample.debug1 = function () {
         "height": 40,
         "textAlign": "justify",
         "verticalAlign": "middle",
-        "top": "5",
-        "left": "5",
+        "top": "0",
+        "left": "0",
         "angle": 0,
         "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 50,
-        "hC": 15,
+        "wC": 40,
+        "hC": 40,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 50,
+          "x": 40,
           "y": 0
         },
         "P3": {
-          "x": 50,
-          "y": 15
+          "x": 40,
+          "y": 40
         },
         "P4": {
           "x": 0,
-          "y": 15
+          "y": 40
         },
         "P15": {
-          "x": 25,
+          "x": 20,
           "y": 0
         },
         "P25": {
-          "x": 50,
-          "y": 7.5
+          "x": 40,
+          "y": 20
         },
         "P35": {
-          "x": 25,
-          "y": 15
+          "x": 20,
+          "y": 40
         },
         "P45": {
           "x": 0,
-          "y": 7.5
+          "y": 20
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 1,
-        "offsetRight": 1,
-        "offsetTop": 1,
-        "offsetBottom": 1,
-        "clientWidth": 48,
-        "clientHeight": 13,
-        "leftText": 1,
-        "topText": 7.5
+        "offsetLeft": 2,
+        "offsetRight": 2,
+        "offsetTop": 2,
+        "offsetBottom": 2,
+        "clientWidth": 36,
+        "clientHeight": 36,
+        "leftText": 2,
+        "topText": 20
       }
     }
   ],

@@ -459,43 +459,29 @@ UtilElement.drawRectangle = function (context, element) {
     // ----------------------------------------------------    
     if (r) {
         context.beginPath();
-        // -- 1.1 左上角圆弧，上边直线 --
+
+        // -- 1. 左上角圆弧，上边直线 --
         x = r + frame.width / 2;
         y = x;
-        context.arc(x * pxmm, y * pxmm, r * pxmm, 1 * Math.PI, 1.5 * Math.PI);
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 1 * Math.PI, 1.5 * Math.PI); 
 
-        x = width - x;
-        y = frame.width / 2;
-        context.lineTo(x * pxmm, y * pxmm);
-
-        // -- 1.2 右上角圆弧，右边直线 --
+        // -- 2. 右上角圆弧，右边直线 --
         x = width - r - frame.width / 2;
         y = r + frame.width / 2;
-        context.arc(x * pxmm, y * pxmm, r * pxmm, 1.5 * Math.PI, 2 * Math.PI);
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 1.5 * Math.PI, 2 * Math.PI); 
 
-        x = width - frame.width / 2;
-        y = height - y;
-        context.lineTo(x * pxmm, y * pxmm);
-
-        // -- 1.3 右下角圆弧，下边直线 --
+        // -- 3. 右下角圆弧，下边直线 --
         x = width - r - frame.width / 2;
         y = height - r - frame.width / 2;
-        context.arc(x * pxmm, y * pxmm, r * pxmm, 2 * Math.PI, 0.5 * Math.PI);
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 2 * Math.PI, 0.5 * Math.PI); 
 
-        x = r + frame.width / 2;
-        y = height - frame.width / 2;
-        context.lineTo(x * pxmm, y * pxmm);
-
-        // -- 1.1 坐下角圆弧，左边直线 --
+        // -- 4. 坐下角圆弧，左边直线 --
         x = r + frame.width / 2;
         y = height - r - frame.width / 2;
-        context.arc(x * pxmm, y * pxmm, r * pxmm, 0.5 * Math.PI, 1 * Math.PI);
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 0.5 * Math.PI, 1 * Math.PI); 
 
-        x = frame.width / 2;
-        y = r + frame.width / 2;
-        context.lineTo(x * pxmm, y * pxmm);
-
-        // -- 1.5 内部填充、绘制边框。顺序不能颠倒 --
+        // -- 5. 内部填充、绘制边框。顺序不能颠倒 --
+        context.closePath();
         if (frame.fillColor) {
             context.fillStyle = frame.fillColor;
             context.fill();
@@ -514,7 +500,7 @@ UtilElement.drawRectangle = function (context, element) {
             h = height - frame.width;
 
             context.lineWidth = frame.width * pxmm;
-            context.strokeStyle = frame.color;            
+            context.strokeStyle = frame.color;
             context.strokeRect(x * pxmm, y * pxmm, w * pxmm, h * pxmm);
         }
         if (frame.fillColor) {
