@@ -559,7 +559,7 @@
                     lbl.compute(true);
                 }
                 else {
-                    if (lbl.selectedCount > 0) {
+                    if (lbl.selectedCount > 1) {
                         for (let i = 0; i < lbl.elements.length; i++) {
                             element = lbl.elements[i];
                             if (element.head._selected) {
@@ -943,7 +943,7 @@
         let element;
 
         // -- 1. 获取首个元素(多个选中元素的第一个，或者当前ActivatedElement) --
-        if (lbl.selectedCount > 0) {
+        if (lbl.selectedCount > 1) {
             for (let i = 0; i < lbl.elements.length; i++) {
                 if (lbl.elements[i].head._selected) {
                     element = lbl.elements[i];
@@ -962,7 +962,7 @@
         if (!propValue) return "";
 
         // -- 3. 判断属性值在选中的多个元素中是否完全相同 ---------
-        if (lbl.selectedCount > 0) {
+        if (lbl.selectedCount > 1) {
             propValue = propValue.toString();
             for (let i = 1; i < lbl.elements.length; i++) {
                 if (!lbl.elements[i].head._selected) continue;
