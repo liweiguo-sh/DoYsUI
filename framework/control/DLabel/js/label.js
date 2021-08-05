@@ -927,8 +927,8 @@ class Label {
 
         // -- 1. 计算domCanvas的位置及宽高 -------------------
         let pDrag = {
-            x: (evt.clientX - _this.containerLeft) / pxmm - P.left,
-            y: (evt.clientY - _this.containerTop) / pxmm - P.top
+            x: (evt.clientX - _this.containerLeft + _this.parentContainer.scrollLeft) / pxmm - P.left,
+            y: (evt.clientY - _this.containerTop + _this.parentContainer.scrollTop) / pxmm - P.top
         }
 
         if (domResize.resizeType.equals("L")) {
