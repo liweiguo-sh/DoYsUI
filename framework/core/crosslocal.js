@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-06-09
- * Modify Date: 2021-06-09
+ * Modify Date: 2021-08-10
  * Copyright 2021, doys-next.com
  * cross domain access localhost
  */
@@ -103,11 +103,16 @@ crossLocal.printLabel = async function (jsp) {
 
     let res = await crossLocal.send(controller, dataPost, { autoShowErr: false });
     if (!res.ok) {
-        if (res.error.equals("Network Error")) {
-            crossLocal.displayError(topWin.ERR.printWorkerUnstart);
+        if (res.error) {
+            if (res.error.equals("Network Error")) {
+                crossLocal.displayError(topWin.ERR.printWorkerUnstart);
+            }
+            else {
+                crossLocal.displayError(res.error);
+            }
         }
         else {
-            crossLocal.displayError(res.error);
+            crossLocal.displayError(res.msg);
         }
     }
     return res;

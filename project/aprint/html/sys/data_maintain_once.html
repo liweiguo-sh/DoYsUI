@@ -3,6 +3,12 @@
 <head>
     <title>一次性数据维护</title>
     <script src="../../../../framework/core/boot.js"></script>
+    <style type="text/css">
+        .message {
+            color: red;
+            font-size: large;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -18,8 +24,7 @@
 
         <el-divider content-position="left" v-if="message">执行结果</el-divider>
         <el-row>
-            <el-input type="textarea" v-model="message" v-show="message" autosize>
-            </el-input>
+            <div class="message">{{message}}</div>
         </el-row>
     </div>
 </body>
@@ -49,11 +54,13 @@
             uploadDataToIotPlatform() {
                 this.message = "";
                 ajax.send("/aprint/thirdparty/handle/uploadData", {}).then((res) => {
-                    topWin.message("当前操作成功", "success");
-
                     let list = res.list;
                     if (list && list.length > 0) {
                         this.message = "下列码上传失败：\n" + list.join("\n");
+                        topWin.message("有错误信息返回，请注意查看。", "warning");
+                    }
+                    else {
+                        topWin.message("当前操作成功", "success");
                     }
                 })
             }

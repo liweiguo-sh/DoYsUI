@@ -555,6 +555,7 @@
             },
             async print(jsp = { preview: false }) {
                 let para = {
+                    labelId: this.labelId,
                     labelType: this.labelType,
                     preview: jsp.preview,
                     printerName: this.printerName,

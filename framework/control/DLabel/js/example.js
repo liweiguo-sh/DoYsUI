@@ -967,23 +967,23 @@ DLbelExample.debug1 = function () {
     return `
 {
   "head": {
-    "width": "40",
-    "height": "40",
+    "width": 80,
+    "height": 60,
     "point": 600,
-    "element_id": 2
+    "element_id": 3
   },
   "fields": {},
   "elements": [
     {
       "head": {
         "elementType": "text",
-        "name": "元素-01"
+        "name": "element_1"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "汉字W1间距",
+          "value": "中文文本描述，关于多行文本自动换行的问题回车第二行内容",
           "format": ""
         },
         {
@@ -995,77 +995,169 @@ DLbelExample.debug1 = function () {
       ],
       "font": {
         "name": "宋体",
-        "size": "10.5",
-        "fontHeight": 3.7041666666666666,
+        "size": "9",
+        "fontHeight": 3.175,
         "lineHeight": null,
-        "textHeight": 3.7041666666666666,
-        "color": "#F2FF00"
+        "textHeight": 3.175,
+        "wordWrap": true
       },
       "frame": {
         "type": "rectangle",
-        "width": 2,
-        "color": "#E3761C",
-        "radius": 8,
-        "fillColor": "#0095FF"
+        "width": 0,
+        "radius": 0,
+        "fillColor": "#E78A8A"
       },
       "position": {
         "layer": 1,
-        "width": 40,
-        "height": 40,
-        "textAlign": "justify",
+        "width": 66,
+        "height": 13.35,
+        "textAlign": "left",
         "verticalAlign": "middle",
-        "top": "0",
-        "left": "0",
+        "top": "2.89",
+        "left": 2.47,
         "angle": 0,
         "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 40,
-        "hC": 40,
+        "wC": 66,
+        "hC": 13.35,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 40,
+          "x": 66,
           "y": 0
         },
         "P3": {
-          "x": 40,
-          "y": 40
+          "x": 66,
+          "y": 13.35
         },
         "P4": {
           "x": 0,
-          "y": 40
+          "y": 13.35
         },
         "P15": {
-          "x": 20,
+          "x": 33,
           "y": 0
         },
         "P25": {
-          "x": 40,
-          "y": 20
+          "x": 66,
+          "y": 6.675
         },
         "P35": {
-          "x": 20,
-          "y": 40
+          "x": 33,
+          "y": 13.35
         },
         "P45": {
           "x": 0,
-          "y": 20
+          "y": 6.675
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 2,
-        "offsetRight": 2,
-        "offsetTop": 2,
-        "offsetBottom": 2,
-        "clientWidth": 36,
-        "clientHeight": 36,
-        "leftText": 2,
-        "topText": 20
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 66,
+        "clientHeight": 13.35,
+        "leftText": 0,
+        "topText": 6.675
+      }
+    },
+    {
+      "head": {
+        "elementType": "text",
+        "name": "element_2"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "中文文本描述，关于多行文本自动换行的问题\\n回车第二行内容",
+          "format": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": "",
+          "format": ""
+        }
+      ],
+      "font": {
+        "name": "宋体",
+        "size": "9",
+        "fontHeight": 3.175,
+        "lineHeight": null,
+        "textHeight": 3.175,
+        "wordWrap": true
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0,
+        "radius": 0,
+        "fillColor": "#7998B5"
+      },
+      "position": {
+        "layer": 1,
+        "width": 66,
+        "height": 13.35,
+        "textAlign": "left",
+        "verticalAlign": "middle",
+        "top": "22.59",
+        "left": 2.47,
+        "angle": 0,
+        "angleR": 0,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 66,
+        "hC": 13.35,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 66,
+          "y": 0
+        },
+        "P3": {
+          "x": 66,
+          "y": 13.35
+        },
+        "P4": {
+          "x": 0,
+          "y": 13.35
+        },
+        "P15": {
+          "x": 33,
+          "y": 0
+        },
+        "P25": {
+          "x": 66,
+          "y": 6.675
+        },
+        "P35": {
+          "x": 33,
+          "y": 13.35
+        },
+        "P45": {
+          "x": 0,
+          "y": 6.675
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 66,
+        "clientHeight": 13.35,
+        "leftText": 0,
+        "topText": 6.675
       }
     }
   ],
