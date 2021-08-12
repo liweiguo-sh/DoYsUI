@@ -70,6 +70,10 @@
                 </el-row>
             </el-col>
         </el-row>
+        <el-divider content-position="left"></el-divider>
+        <el-row>
+            <div id="divResult"></div>
+        </el-row>
     </div>
 </body>
 </html>
@@ -155,8 +159,26 @@
                 data["busDate"] = this.busDate;
                 data["barcode"] = this.barcode; 
 
-                ajax.send("/aprint/trace_data_collect/uploadData", data).then((res) => {
-                    topWin.message("数据上传成功。", "success");
+                gId("divResult").innerHTML = "";
+                ajax.send("/aprint/trace_data_collect/uploadData", data).then((res) => {                    
+                    if (res.listFail) {
+                        let arrHtml = new Array();
+                        for (let i = 0; i < res.listFail.length; i++) {
+                            arrHtml.push("下列标识追溯数据上传失败:");
+
+                            let listErr = res.listFail[i];
+                            for (let j = 1; j < listErr.length; j++) {
+                                arrHtml.push(listErr[j]);
+                            }
+                            arrHtml.push("失败原因:");
+                            arrHtml.push(listErr[0]);
+                            arrHtml.push("");
+                        }
+                        gId("divResult").innerHTML = arrHtml.join("<br />");
+                    }
+                    else {
+                        topWin.message("数据上传成功。", "success");
+                    }
 
                     this.busDate = (new Date()).toString();
                     this.$refs.barcode.select();
