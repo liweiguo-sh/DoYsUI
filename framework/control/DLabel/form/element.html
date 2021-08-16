@@ -19,9 +19,10 @@
             <!-- 条码、文本 -->
             <el-tab-pane label="条码内容(机器识读)" name="segments" v-if="head.elementType=='barcode'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
-                    <el-col :span="19">
+                    <el-col :span="12">
                         <el-tag>{{head._segmentsText}}</el-tag>
                     </el-col>
+                    <el-col :span="12"></el-col>
                 </el-row>
                 <el-row v-for="segment in segments" :key="segment.pos" :gutter="8" style="margin-bottom:5px;">
                     <el-col :span="5">
@@ -38,9 +39,6 @@
                             <el-option v-for="s in symbols" :value="s.k" :label="s.v" :key="s.k" :segment="segment"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="5" v-show="false">
-                        <el-input v-model="segment.format" @change="segmentValueChange(segment.pos)"></el-input>
-                    </el-col>
                     <el-col :span="5">
                         <el-button-group>
                             <el-button type="danger" v-if="segment.type!=''" @click="segmentDelete(segment.pos)" :segment="segment" title="删除" icon="el-icon-delete"></el-button>
@@ -52,8 +50,11 @@
             </el-tab-pane>
             <el-tab-pane label="文本内容" name="sections" v-if="head.elementType=='barcode' || head.elementType=='text'">
                 <el-row :gutter="8" style="margin-bottom:12px;">
-                    <el-col :span="19">
+                    <el-col :span="12">
                         <el-tag>{{head._sectionsText}}</el-tag>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-input v-model="head.format" placeholder="文本内容格式化"></el-input>
                     </el-col>
                 </el-row>
                 <el-row v-for="section in sections" :key="section.pos" :gutter="8" style="margin-bottom:5px;">
@@ -70,9 +71,6 @@
                         <el-select v-model="section.value" v-if="section.type=='symbol'" @change="sectionValueChange(section.pos)" style="width:100%">
                             <el-option v-for="s in symbols" :value="s.k" :label="s.v" :key="s.k" :section="section"></el-option>
                         </el-select>
-                    </el-col>
-                    <el-col :span="5" v-show="false">
-                        <el-input v-model="section.format" @change="sectionValueChange(section.pos)"></el-input>
                     </el-col>
                     <el-col :span="5">
                         <el-button-group>
@@ -103,7 +101,9 @@
 
             fields: [],
 
-            head: {},
+            head: {
+                format: ""
+            },
             segments: [],
             sections: [],
 

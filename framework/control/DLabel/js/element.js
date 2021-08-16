@@ -321,6 +321,10 @@ UtilElement.computeValue = function (jsp) {
             if (valueString.equals("")) {
                 valueString = head._segmentsText;
             }
+
+            if (head.format) {
+                valueString = Util.stringFormat(valueString, head.format); 
+            }
             head._sectionsText = valueString;
         }
     }
@@ -387,8 +391,7 @@ UtilElement.getFixedSegment = function (jsp) {
     let segment = {
         pos: -1,
         type: "fixed",
-        value: "12345678",
-        format: ""
+        value: "12345678"
     }
     segment = g.x.extendJSON(segment, jsp);
     return segment;
@@ -397,8 +400,7 @@ UtilElement.getBlankSegment = function (jsp) {
     let segment = {
         pos: -1,
         type: "",
-        value: "",
-        format: ""
+        value: ""
     }
     segment = g.x.extendJSON(segment, jsp);
     return segment;
@@ -407,8 +409,7 @@ UtilElement.getFixedSection = function (jsp) {
     let section = {
         pos: -1,
         type: "fixed",
-        value: "",      // -- 默认为空，以segment为准 --
-        format: ""
+        value: ""       // -- 默认为空，以segment为准 --
     }
     section = g.x.extendJSON(section, jsp);
     return section;
@@ -417,8 +418,7 @@ UtilElement.getBlankSection = function (jsp) {
     let section = {
         pos: -1,
         type: "",
-        value: "",
-        format: ""
+        value: ""
     }
     section = g.x.extendJSON(section, jsp);
     return section;
@@ -463,22 +463,22 @@ UtilElement.drawRectangle = function (context, element) {
         // -- 1. 左上角圆弧，上边直线 --
         x = r + frame.width / 2;
         y = x;
-        context.arc(x * pxmm, y * pxmm, r * pxmm, 1 * Math.PI, 1.5 * Math.PI); 
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 1 * Math.PI, 1.5 * Math.PI);
 
         // -- 2. 右上角圆弧，右边直线 --
         x = width - r - frame.width / 2;
         y = r + frame.width / 2;
-        context.arc(x * pxmm, y * pxmm, r * pxmm, 1.5 * Math.PI, 2 * Math.PI); 
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 1.5 * Math.PI, 2 * Math.PI);
 
         // -- 3. 右下角圆弧，下边直线 --
         x = width - r - frame.width / 2;
         y = height - r - frame.width / 2;
-        context.arc(x * pxmm, y * pxmm, r * pxmm, 2 * Math.PI, 0.5 * Math.PI); 
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 2 * Math.PI, 0.5 * Math.PI);
 
         // -- 4. 坐下角圆弧，左边直线 --
         x = r + frame.width / 2;
         y = height - r - frame.width / 2;
-        context.arc(x * pxmm, y * pxmm, r * pxmm, 0.5 * Math.PI, 1 * Math.PI); 
+        context.arc(x * pxmm, y * pxmm, r * pxmm, 0.5 * Math.PI, 1 * Math.PI);
 
         // -- 5. 内部填充、绘制边框。顺序不能颠倒 --
         context.closePath();

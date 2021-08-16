@@ -45,9 +45,9 @@ DLbelExample._getElement_text = function (elementProp = {}) {
         position: {
             "layer": 1,
             width: 20,
-            height: 8,
+            height: 5,
             textAlign: "left",
-            verticalAlign: "middle"
+            verticalAlign: "top"
         }
     }
     return element;
@@ -967,23 +967,23 @@ DLbelExample.debug1 = function () {
     return `
 {
   "head": {
-    "width": 80,
-    "height": 60,
+    "width": "50",
+    "height": "30",
     "point": 600,
-    "element_id": 3
+    "element_id": 6
   },
   "fields": {},
   "elements": [
     {
       "head": {
         "elementType": "text",
-        "name": "element_1"
+        "name": "element_文本"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "中文文本描述，关于多行文本自动换行的问题回车第二行内容",
+          "value": "样本文本",
           "format": ""
         },
         {
@@ -995,65 +995,64 @@ DLbelExample.debug1 = function () {
       ],
       "font": {
         "name": "宋体",
-        "size": "9",
-        "fontHeight": 3.175,
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
         "lineHeight": null,
-        "textHeight": 3.175,
-        "wordWrap": true
+        "textHeight": 3.7041666666666666
       },
       "frame": {
         "type": "rectangle",
         "width": 0,
         "radius": 0,
-        "fillColor": "#E78A8A"
+        "fillColor": "#3B87D7"
       },
       "position": {
         "layer": 1,
-        "width": 66,
-        "height": 13.35,
+        "width": 20,
+        "height": 5,
         "textAlign": "left",
-        "verticalAlign": "middle",
-        "top": "2.89",
-        "left": 2.47,
+        "verticalAlign": "top",
+        "top": "5",
+        "left": "0",
         "angle": 0,
         "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 66,
-        "hC": 13.35,
+        "wC": 20,
+        "hC": 5,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 66,
+          "x": 20,
           "y": 0
         },
         "P3": {
-          "x": 66,
-          "y": 13.35
+          "x": 20,
+          "y": 5
         },
         "P4": {
           "x": 0,
-          "y": 13.35
+          "y": 5
         },
         "P15": {
-          "x": 33,
+          "x": 10,
           "y": 0
         },
         "P25": {
-          "x": 66,
-          "y": 6.675
+          "x": 20,
+          "y": 2.5
         },
         "P35": {
-          "x": 33,
-          "y": 13.35
+          "x": 10,
+          "y": 5
         },
         "P45": {
           "x": 0,
-          "y": 6.675
+          "y": 2.5
         },
         "offsetX": 0,
         "offsetY": 0,
@@ -1061,22 +1060,22 @@ DLbelExample.debug1 = function () {
         "offsetRight": 0,
         "offsetTop": 0,
         "offsetBottom": 0,
-        "clientWidth": 66,
-        "clientHeight": 13.35,
+        "clientWidth": 20,
+        "clientHeight": 5,
         "leftText": 0,
-        "topText": 6.675
+        "topText": 0
       }
     },
     {
       "head": {
         "elementType": "text",
-        "name": "element_2"
+        "name": "element_5"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "中文文本描述，关于多行文本自动换行的问题\\n回车第二行内容",
+          "value": "样本文本",
           "format": ""
         },
         {
@@ -1087,66 +1086,66 @@ DLbelExample.debug1 = function () {
         }
       ],
       "font": {
-        "name": "宋体",
-        "size": "9",
-        "fontHeight": 3.175,
+        "name": "微软雅黑",
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
         "lineHeight": null,
-        "textHeight": 3.175,
-        "wordWrap": true
+        "textHeight": 3.7041666666666666,
+        "color": "#F4EEEE"
       },
       "frame": {
         "type": "rectangle",
         "width": 0,
         "radius": 0,
-        "fillColor": "#7998B5"
+        "fillColor": "#0E3B14"
       },
       "position": {
         "layer": 1,
-        "width": 66,
-        "height": 13.35,
+        "width": 20,
+        "height": 5,
         "textAlign": "left",
-        "verticalAlign": "middle",
-        "top": "22.59",
-        "left": 2.47,
+        "verticalAlign": "top",
+        "top": "5",
+        "left": "20",
         "angle": 0,
         "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 66,
-        "hC": 13.35,
+        "wC": 20,
+        "hC": 5,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 66,
+          "x": 20,
           "y": 0
         },
         "P3": {
-          "x": 66,
-          "y": 13.35
+          "x": 20,
+          "y": 5
         },
         "P4": {
           "x": 0,
-          "y": 13.35
+          "y": 5
         },
         "P15": {
-          "x": 33,
+          "x": 10,
           "y": 0
         },
         "P25": {
-          "x": 66,
-          "y": 6.675
+          "x": 20,
+          "y": 2.5
         },
         "P35": {
-          "x": 33,
-          "y": 13.35
+          "x": 10,
+          "y": 5
         },
         "P45": {
           "x": 0,
-          "y": 6.675
+          "y": 2.5
         },
         "offsetX": 0,
         "offsetY": 0,
@@ -1154,10 +1153,80 @@ DLbelExample.debug1 = function () {
         "offsetRight": 0,
         "offsetTop": 0,
         "offsetBottom": 0,
-        "clientWidth": 66,
-        "clientHeight": 13.35,
+        "clientWidth": 20,
+        "clientHeight": 5,
         "leftText": 0,
-        "topText": 6.675
+        "topText": 0
+      }
+    },
+    {
+      "head": {
+        "elementType": "shape",
+        "name": "element_红框"
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0,
+        "color": "#000000",
+        "radius": 0,
+        "fillColor": "#D73B86"
+      },
+      "position": {
+        "layer": "2",
+        "width": 40,
+        "height": 10,
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "top": "8.58",
+        "left": "5.43",
+        "angle": 0,
+        "angleR": 0,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 40,
+        "hC": 10,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 40,
+          "y": 0
+        },
+        "P3": {
+          "x": 40,
+          "y": 10
+        },
+        "P4": {
+          "x": 0,
+          "y": 10
+        },
+        "P15": {
+          "x": 20,
+          "y": 0
+        },
+        "P25": {
+          "x": 40,
+          "y": 5
+        },
+        "P35": {
+          "x": 20,
+          "y": 10
+        },
+        "P45": {
+          "x": 0,
+          "y": 5
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 40,
+        "clientHeight": 10
       }
     }
   ],
@@ -1204,5 +1273,8 @@ DLbelExample.script1 = function () {
 
         element.image.url = imgUrl;
     }
-        `;
+
+    let sscc = this.fields["sscc"].replaceAll(" ","");
+    this.fields["sscc18"] = sscc + UtilLib.GetCheckBit_SSCC(sscc);
+    `;
 }

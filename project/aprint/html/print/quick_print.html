@@ -77,9 +77,9 @@
                         <el-col>
                             <el-form-item label="产品料号(SKU)">
                                 <el-select v-model="productPnId" @change="onProductPnChange" filterable :popper-append-to-body="false" style="width:100%;">
-                                    <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.productName + '    ' + item.pn">
-                                        <span style="float: left">{{ item.productName }}</span>
-                                        <span style="float: right;">{{ item.pn }}</span>
+                                    <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.pn + '  ' + item.productName">
+                                        <span style="float: left;">{{ item.pn }}</span>
+                                        <span style="float: right">{{ item.productName }}</span>
                                     </el-option>
                                 </el-select>
                             </el-form-item>

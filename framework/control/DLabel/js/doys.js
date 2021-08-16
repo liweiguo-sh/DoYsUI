@@ -2,13 +2,13 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-02-24
- * Modify Date: 2021-05-22
+ * Modify Date: 2021-08-16
  * Copyright 2021, doys-next.com
  * DLabel doys.js
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-08-03";
+    window.jsVer = top.jsVer || "2021-08-16";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }

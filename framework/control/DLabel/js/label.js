@@ -352,6 +352,9 @@ class Label {
 
         this.elements.push(element);
         this.createElement(element);
+        if (elementType.equals("text")) {
+            this.setElementValue(element.head.name, "样本文本");
+        }
 
         UtilElement.computeProp({ element: element });
         UtilElement.computeValue({ element: element, fields: this.fields });
@@ -1263,7 +1266,7 @@ class Label {
                     alert("Script jsBeforeCompute execute error:\n" + e.toString());
                 }
             }
-        }
+        }        
 
         // -- 2. compute elements --
         for (let i = 0; i < this.elements.length; i++) {
