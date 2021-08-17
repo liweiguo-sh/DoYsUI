@@ -156,10 +156,18 @@ g.x.isImageUrl = function (url) {
     let suffixes = suffixString.split(";");
     let len = suffixes.length;
 
-    for (let i = 0; i < len; i++) {
-        if (url.toLowerCase().endsWith(suffixes[i])) {
-            return true;
+    if (!g.x.isString(url)) {
+        return false;
+    }
+    try {
+        for (let i = 0; i < len; i++) {
+            if (url.toLowerCase().endsWith(suffixes[i])) {
+                return true;
+            }
         }
+    }
+    catch (e) {
+        alert(e.toString());
     }
     return false;
 }
