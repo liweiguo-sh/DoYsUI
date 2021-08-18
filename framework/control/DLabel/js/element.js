@@ -303,6 +303,7 @@ UtilElement.computeValue = function (jsp) {
                 let type = section.type;
 
                 if (type.equals("fixed")) {
+                    value = UtilElement.replaceFieldValue(value, jsp.fields);
                     values.push(value);
                 }
                 else if (type.equals("field")) {
@@ -323,7 +324,7 @@ UtilElement.computeValue = function (jsp) {
             }
 
             if (head.format) {
-                valueString = Util.stringFormat(valueString, head.format); 
+                valueString = Util.stringFormat(valueString, head.format);
             }
             head._sectionsText = valueString;
         }
@@ -334,6 +335,22 @@ UtilElement.computeValue = function (jsp) {
             image.url = fields[image.value];
         }
     }
+}
+UtilElement.replaceFieldValue = function (value, fields) {
+    let left, right;
+    let fieldName, fieldValue;
+
+    while (true) {
+        left = value.indexOf("<%");
+        if (left < 0) break;
+        right = value.indexOf("%>", left + 2);
+        if (right < 0) break;
+
+        fieldName = value.substring(left + 2, right);
+        fieldValue = fields[fieldName];
+        value = value.substring(0, left) + fieldValue + value.substring(right + 2);
+    }
+    return value;
 }
 UtilElement.draw = function (jsp) {
     let element = jsp.element;
@@ -596,6 +613,7 @@ UtilElement._drawMultiLine = function (context, element) {
     let font = element.font;
     let frame = element.frame;
     let position = element.position;
+    let x = position.leftText * pxmm;
 
     let txts = new Array();
     let txtString = element.head._sectionsText || (element._designMode ? "<空>" : "");
@@ -660,7 +678,36 @@ UtilElement._drawMultiLine = function (context, element) {
 
     // -- 3. draw -----------------------------------------
     for (let i = 0; i < txts.length; i++) {
-        context.fillText(txts[i], left, top + i * textHeightPx);
+        let text = txts[i];
+        if (position.textAlign.equals("justify")) {
+            let y = top + i * textHeightPx;
+            let wText = context.measureText(text).width;
+            let wCanvas = position.clientWidth * pxmm;
+            if (wText > wCanvas || text.length == 1) {
+                context.fillText(text, x, y);
+            }
+            else {
+                let left = x;
+                let xLast = wCanvas + (position.marginLeft + element.frame.width) * pxmm;   // -- 最右端字符的x坐标 --
+                let arrText = text.split("");
+                let wWordGap = (wCanvas - wText) / (arrText.length - 1);                    // -- 字符间间距 --
+
+                // -- 输出两端的两个文字 --
+                context.textAlign = "right";
+                context.fillText(arrText[arrText.length - 1], xLast, y);
+                context.textAlign = "left";
+                context.fillText(arrText[0], x, y);
+
+                // -- 分散输出中间部分的文字 --                        
+                for (let i = 1; i < arrText.length - 1; i++) {
+                    left += context.measureText(arrText[i - 1]).width + wWordGap;
+                    context.fillText(arrText[i], left, y);
+                }
+            }
+        }
+        else {
+            context.fillText(text, left, top + i * textHeightPx);
+        }
     }
 }
 UtilElement._drawError = function (context, element, message) {

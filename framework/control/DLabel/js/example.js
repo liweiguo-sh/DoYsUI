@@ -967,266 +967,197 @@ DLbelExample.debug1 = function () {
     return `
 {
   "head": {
-    "width": "50",
-    "height": "30",
+    "width": 80,
+    "height": 60,
     "point": 600,
-    "element_id": 6
+    "element_id": 3
   },
-  "fields": {},
+  "fields": {
+    "field1": "国产II型心脏支架",
+    "field2": "XXYYZZ",
+    "field3": "规格789"
+  },
   "elements": [
     {
       "head": {
         "elementType": "text",
-        "name": "element_文本"
+        "name": "element_1"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "样本文本",
-          "format": ""
+          "value": "产品名称\\n型号\\n规格"
         },
         {
           "pos": 1,
           "type": "",
-          "value": "",
-          "format": ""
-        }
-      ],
-      "font": {
-        "name": "宋体",
-        "size": "10.5",
-        "fontHeight": 3.7041666666666666,
-        "lineHeight": null,
-        "textHeight": 3.7041666666666666
-      },
-      "frame": {
-        "type": "rectangle",
-        "width": 0,
-        "radius": 0,
-        "fillColor": "#3B87D7"
-      },
-      "position": {
-        "layer": 1,
-        "width": 20,
-        "height": 5,
-        "textAlign": "left",
-        "verticalAlign": "top",
-        "top": "5",
-        "left": "0",
-        "angle": 0,
-        "angleR": 0,
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0,
-        "wC": 20,
-        "hC": 5,
-        "P1": {
-          "x": 0,
-          "y": 0
-        },
-        "P2": {
-          "x": 20,
-          "y": 0
-        },
-        "P3": {
-          "x": 20,
-          "y": 5
-        },
-        "P4": {
-          "x": 0,
-          "y": 5
-        },
-        "P15": {
-          "x": 10,
-          "y": 0
-        },
-        "P25": {
-          "x": 20,
-          "y": 2.5
-        },
-        "P35": {
-          "x": 10,
-          "y": 5
-        },
-        "P45": {
-          "x": 0,
-          "y": 2.5
-        },
-        "offsetX": 0,
-        "offsetY": 0,
-        "offsetLeft": 0,
-        "offsetRight": 0,
-        "offsetTop": 0,
-        "offsetBottom": 0,
-        "clientWidth": 20,
-        "clientHeight": 5,
-        "leftText": 0,
-        "topText": 0
-      }
-    },
-    {
-      "head": {
-        "elementType": "text",
-        "name": "element_5"
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "样本文本",
-          "format": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": "",
-          "format": ""
+          "value": ""
         }
       ],
       "font": {
         "name": "微软雅黑",
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
-        "lineHeight": null,
-        "textHeight": 3.7041666666666666,
-        "color": "#F4EEEE"
+        "lineHeight": 6,
+        "textHeight": 6,
+        "wordWrap": true
       },
       "frame": {
         "type": "rectangle",
         "width": 0,
         "radius": 0,
-        "fillColor": "#0E3B14"
+        "fillColor": "#E7A6A6"
       },
       "position": {
         "layer": 1,
-        "width": 20,
-        "height": 5,
-        "textAlign": "left",
+        "width": 18.85,
+        "height": 18.21,
+        "textAlign": "justify",
         "verticalAlign": "top",
-        "top": "5",
-        "left": "20",
+        "top": "2.89",
+        "left": "2.05",
         "angle": 0,
         "angleR": 0,
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0,
-        "wC": 20,
-        "hC": 5,
+        "marginLeft": 1,
+        "marginRight": 1,
+        "marginTop": 1,
+        "marginBottom": 1,
+        "wC": 18.85,
+        "hC": 18.21,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 20,
+          "x": 18.85,
           "y": 0
         },
         "P3": {
-          "x": 20,
-          "y": 5
+          "x": 18.85,
+          "y": 18.21
         },
         "P4": {
           "x": 0,
-          "y": 5
+          "y": 18.21
         },
         "P15": {
-          "x": 10,
+          "x": 9.425,
           "y": 0
         },
         "P25": {
-          "x": 20,
-          "y": 2.5
+          "x": 18.85,
+          "y": 9.105
         },
         "P35": {
-          "x": 10,
-          "y": 5
+          "x": 9.425,
+          "y": 18.21
         },
         "P45": {
           "x": 0,
-          "y": 2.5
+          "y": 9.105
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 0,
-        "offsetRight": 0,
-        "offsetTop": 0,
-        "offsetBottom": 0,
-        "clientWidth": 20,
-        "clientHeight": 5,
-        "leftText": 0,
-        "topText": 0
+        "offsetLeft": 1,
+        "offsetRight": 1,
+        "offsetTop": 1,
+        "offsetBottom": 1,
+        "clientWidth": 16.85,
+        "clientHeight": 16.21,
+        "leftText": 1,
+        "topText": 1
       }
     },
     {
       "head": {
-        "elementType": "shape",
-        "name": "element_红框"
+        "elementType": "text",
+        "name": "element_2"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "<%field1%>\\n<%field2%>\\n<%field3%>"
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ],
+      "font": {
+        "name": "微软雅黑",
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
+        "lineHeight": 6,
+        "textHeight": 6,
+        "wordWrap": true
       },
       "frame": {
         "type": "rectangle",
         "width": 0,
-        "color": "#000000",
         "radius": 0,
-        "fillColor": "#D73B86"
+        "fillColor": "#E7A6A6"
       },
       "position": {
-        "layer": "2",
-        "width": 40,
-        "height": 10,
-        "textAlign": "center",
-        "verticalAlign": "middle",
-        "top": "8.58",
-        "left": "5.43",
+        "layer": 1,
+        "width": 36.43,
+        "height": 18.21,
+        "textAlign": "left",
+        "verticalAlign": "top",
+        "top": "2.89",
+        "left": "23.08",
         "angle": 0,
         "angleR": 0,
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0,
-        "wC": 40,
-        "hC": 10,
+        "marginLeft": 1,
+        "marginRight": 1,
+        "marginTop": 1,
+        "marginBottom": 1,
+        "wC": 36.43,
+        "hC": 18.21,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 40,
+          "x": 36.43,
           "y": 0
         },
         "P3": {
-          "x": 40,
-          "y": 10
+          "x": 36.43,
+          "y": 18.21
         },
         "P4": {
           "x": 0,
-          "y": 10
+          "y": 18.21
         },
         "P15": {
-          "x": 20,
+          "x": 18.215,
           "y": 0
         },
         "P25": {
-          "x": 40,
-          "y": 5
+          "x": 36.43,
+          "y": 9.105
         },
         "P35": {
-          "x": 20,
-          "y": 10
+          "x": 18.215,
+          "y": 18.21
         },
         "P45": {
           "x": 0,
-          "y": 5
+          "y": 9.105
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 0,
-        "offsetRight": 0,
-        "offsetTop": 0,
-        "offsetBottom": 0,
-        "clientWidth": 40,
-        "clientHeight": 10
+        "offsetLeft": 1,
+        "offsetRight": 1,
+        "offsetTop": 1,
+        "offsetBottom": 1,
+        "clientWidth": 34.43,
+        "clientHeight": 16.21,
+        "leftText": 1,
+        "topText": 1
       }
     }
   ],
