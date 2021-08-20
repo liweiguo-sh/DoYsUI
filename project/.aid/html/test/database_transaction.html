@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>dds测试</title>
+    <title>数据库事务测试</title>
     <script src="../../../../framework/core/boot.js"></script>
 
     <style type="text/css">
@@ -30,30 +30,35 @@
     var app = new Vue({
         el: '#app',
         data: {
+            count: 0,
+            countMax: 10000
         },
         methods: {
             test1() {
-                ajax.send("/test/dds/test1", {}).then((res) => {
-                    topWin.message("测试1完成", "success");
+                ajax.send("/aprint/debug/test1", {}).then((res) => {
+                    topWin.message("测试 1 完成", "success");
                 })
             },
             test2() {
-                ajax.send("/test/dds/test2", {}).then((res) => {
-                    topWin.message("测试2完成", "success");
+                ajax.send("/aprint/debug/test2", {}).then((res) => {
+                    topWin.message("测试 2 完成", "success");
                 })
             },
             test3() {
-                g.x.jsCacheTest();
-                return;
-                ajax.send("/test/dds/test3", {}).then((res) => {
-                    topWin.message("测试 3 完成", "success");
+                this.count = 1;
+                this.exec3();
+            },
+            exec3() {
+                ajax.send("/aprint/debug/test3", {}).then((res) => {
+                    //topWin.message("测试 3 - " + this.count++ + " 完成", "success");
+                    if (this.count % 100 == 0) {
+                        topWin.message("测试3 - " + this.count++ + " 完成", "success");
+                    }
+                    if (this.count <= this.countMax) {
+                        this.exec3();
+                    }
                 })
             }
         }
     });
-
-    // ------------------------------------------------------------------------
-    function winLoad() {
-
-    }
 </script>
