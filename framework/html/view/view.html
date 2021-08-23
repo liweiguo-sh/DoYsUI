@@ -51,9 +51,10 @@
 
     // ------------------------------------------------------------------------
     function winLoad() {
-        gId("mview").style.height = (win.p.maxHeight + 0) + "px";
+        let height = win.p.maxHeight + topWin.cWin.titleHeight;     // -- 无标题窗口，需要加上标题高度才是可用区域的真实高度 --
+        gId("mview").style.height = height + "px";
         
-        var para = {
+        let para = {
             viewPk: win.para.viewPk,  
             controller: win.para.controller,
             flowPks: win.para.flowPks,
