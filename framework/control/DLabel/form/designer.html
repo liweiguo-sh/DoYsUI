@@ -932,8 +932,12 @@
         for (let i = 0; i < props.length; i++) {
             group = props[i].group;
             name = props[i].name;
-
             value = getPropValue(group, name);
+            if (typeof (vmProp[group][name]) == "boolean") {
+                if (typeof (value) == "string") {
+                    value = value.equals("true");
+                }
+            }
             vmProp[group][name] = value;
         }
     }
@@ -969,7 +973,10 @@
                 propGroup = lbl.elements[i][propGroupName];
                 if (!propGroup) return "";
 
-                if (!propValue.equals(propGroup[propName])) return "";
+                if (propGroup[propName] == undefined) {
+                    propGroup[propName] = "";
+                }
+                if (!propValue.equals(propGroup[propName].toString())) return "";
             }
         }
         return propValue;

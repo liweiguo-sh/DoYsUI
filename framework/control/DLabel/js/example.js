@@ -967,27 +967,24 @@ DLbelExample.debug1 = function () {
     return `
 {
   "head": {
-    "width": 80,
-    "height": 60,
+    "width": "30",
+    "height": "20",
     "point": 600,
     "element_id": 3
   },
-  "fields": {
-    "field1": "国产II型心脏支架",
-    "field2": "XXYYZZ",
-    "field3": "规格789"
-  },
+  "fields": {},
   "elements": [
     {
       "head": {
-        "elementType": "text",
+        "elementType": "barcode",
+        "barcodeType": "EAN_13_D",
         "name": "element_1"
       },
       "sections": [
         {
           "pos": 0,
           "type": "fixed",
-          "value": "产品名称\\n型号\\n规格"
+          "value": ""
         },
         {
           "pos": 1,
@@ -996,78 +993,94 @@ DLbelExample.debug1 = function () {
         }
       ],
       "font": {
-        "name": "微软雅黑",
+        "name": "宋体",
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
-        "lineHeight": 6,
-        "textHeight": 6,
-        "wordWrap": true
+        "lineHeight": null,
+        "textHeight": 3.7041666666666666,
+        "color": null
       },
       "frame": {
         "type": "rectangle",
         "width": 0,
         "radius": 0,
-        "fillColor": "#E7A6A6"
+        "fillColor": "#87B0E3"
       },
       "position": {
         "layer": 1,
-        "width": 18.85,
-        "height": 18.21,
-        "textAlign": "justify",
-        "verticalAlign": "top",
-        "top": "2.89",
-        "left": "2.05",
+        "width": 30,
+        "height": 10,
+        "textAlign": "center",
+        "verticalAlign": "bottom",
+        "top": "0",
+        "left": "0",
         "angle": 0,
         "angleR": 0,
-        "marginLeft": 1,
-        "marginRight": 1,
-        "marginTop": 1,
-        "marginBottom": 1,
-        "wC": 18.85,
-        "hC": 18.21,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 30,
+        "hC": 10,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 18.85,
+          "x": 30,
           "y": 0
         },
         "P3": {
-          "x": 18.85,
-          "y": 18.21
+          "x": 30,
+          "y": 10
         },
         "P4": {
           "x": 0,
-          "y": 18.21
+          "y": 10
         },
         "P15": {
-          "x": 9.425,
+          "x": 15,
           "y": 0
         },
         "P25": {
-          "x": 18.85,
-          "y": 9.105
+          "x": 30,
+          "y": 5
         },
         "P35": {
-          "x": 9.425,
-          "y": 18.21
+          "x": 15,
+          "y": 10
         },
         "P45": {
           "x": 0,
-          "y": 9.105
+          "y": 5
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 1,
-        "offsetRight": 1,
-        "offsetTop": 1,
-        "offsetBottom": 1,
-        "clientWidth": 16.85,
-        "clientHeight": 16.21,
-        "leftText": 1,
-        "topText": 1
-      }
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 30,
+        "clientHeight": 10,
+        "leftText": 0,
+        "topText": 10,
+        "heightBarcode": 7.7775,
+        "widthBarcode": 30,
+        "leftBarcode": 0,
+        "topBarcode": 0
+      },
+      "segments": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "1234567890"
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ]
     },
     {
       "head": {
@@ -1078,7 +1091,7 @@ DLbelExample.debug1 = function () {
         {
           "pos": 0,
           "type": "fixed",
-          "value": "<%field1%>\\n<%field2%>\\n<%field3%>"
+          "value": "样本文本样本文本"
         },
         {
           "pos": 1,
@@ -1087,77 +1100,76 @@ DLbelExample.debug1 = function () {
         }
       ],
       "font": {
-        "name": "微软雅黑",
+        "name": "宋体",
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
-        "lineHeight": 6,
-        "textHeight": 6,
-        "wordWrap": true
+        "lineHeight": null,
+        "textHeight": 3.7041666666666666
       },
       "frame": {
         "type": "rectangle",
         "width": 0,
         "radius": 0,
-        "fillColor": "#E7A6A6"
+        "fillColor": "#E3D287"
       },
       "position": {
         "layer": 1,
-        "width": 36.43,
-        "height": 18.21,
+        "width": 30,
+        "height": 5,
         "textAlign": "left",
-        "verticalAlign": "top",
-        "top": "2.89",
-        "left": "23.08",
+        "verticalAlign": "middle",
+        "top": "12",
+        "left": "0",
         "angle": 0,
         "angleR": 0,
-        "marginLeft": 1,
-        "marginRight": 1,
-        "marginTop": 1,
-        "marginBottom": 1,
-        "wC": 36.43,
-        "hC": 18.21,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 30,
+        "hC": 5,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 36.43,
+          "x": 30,
           "y": 0
         },
         "P3": {
-          "x": 36.43,
-          "y": 18.21
+          "x": 30,
+          "y": 5
         },
         "P4": {
           "x": 0,
-          "y": 18.21
+          "y": 5
         },
         "P15": {
-          "x": 18.215,
+          "x": 15,
           "y": 0
         },
         "P25": {
-          "x": 36.43,
-          "y": 9.105
+          "x": 30,
+          "y": 2.5
         },
         "P35": {
-          "x": 18.215,
-          "y": 18.21
+          "x": 15,
+          "y": 5
         },
         "P45": {
           "x": 0,
-          "y": 9.105
+          "y": 2.5
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 1,
-        "offsetRight": 1,
-        "offsetTop": 1,
-        "offsetBottom": 1,
-        "clientWidth": 34.43,
-        "clientHeight": 16.21,
-        "leftText": 1,
-        "topText": 1
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 30,
+        "clientHeight": 5,
+        "leftText": 0,
+        "topText": 2.5
       }
     }
   ],
