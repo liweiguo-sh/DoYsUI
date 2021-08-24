@@ -7,10 +7,12 @@
 <body>
     <div id="app">
         <el-row>
-            <el-col :span="6">
-                <el-tree ref="treeNav" :props="treeProps" node-key="nodeKey" :data="dataTree" @node-click="onNodeClick" @node-expand="onNodeExpand" :expand-on-click-node="false" highlight-current></el-tree>
+            <el-col :span="5">
+                <div id="divTree" style="overflow:auto;">
+                    <el-tree ref="treeNav" :props="treeProps" node-key="nodeKey" :data="dataTree" @node-click="onNodeClick" @node-expand="onNodeExpand" :expand-on-click-node="false" highlight-current></el-tree>
+                </div>
             </el-col>
-            <el-col :span="18">
+            <el-col :span="19">
                 <sub-view id="grid" ref="grid" style="height:300px;"></sub-view>
             </el-col>
         </el-row>
@@ -148,9 +150,12 @@
 
 <!-- winLoad -->
 <script>
+    let divTree = gId("divTree");
     let grid = gId("grid");
     function winLoad() {
-        grid.style.height = (win.p.maxHeight - 0) + "px";
+        let height = win.p.maxHeight + topWin.cWin.titleHeight;
+        divTree.style.height = height + "px";
+        grid.style.height = height + "px";        
 
         app.initTree();
     }

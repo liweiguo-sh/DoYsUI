@@ -38,6 +38,7 @@
         <input type="button" class="btn" value="跨域测试1" onclick="cross1();" />
         <input type="button" class="btn" value="跨域测试2" onclick="cross2();" />
         <input type="button" class="btn" value="跨域测试443" onclick="cross443();" />
+        <input type="button" class="btn" value="检测浏览器" onclick="checkBrowser();" />
         <div id="divMessage"></div>
     </div>
 </body>
@@ -107,5 +108,10 @@
             debugger
             console.log(res);
         }
+    }
+
+    function checkBrowser() {
+        var userAgent = navigator.userAgent;
+        divMessage.innerHTML = userAgent;
     }
 </script> 
