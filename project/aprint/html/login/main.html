@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "V2021_0823.1";</script>
+    <script>var jsVer = "V2021_0824";</script>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("crossLocal");
@@ -173,6 +173,7 @@
             })
 
             gId("ifrHome").src = "home.html?rnd=" + g.cfg.jsVer;
+            gId("tdTopLeft").title = topWin.tenantId;
         },
         methods: {
             fullScreen() {
