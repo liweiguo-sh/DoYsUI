@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>标签分类定义</title>
+    <title>通用分类定义窗口</title>
     <script src="../../../../framework/core/boot.js"></script>
 </head>
 <body>
@@ -25,7 +25,12 @@
     var app = new Vue({
         el: '#app',
         data: {
-            span: [24, 12, 12],
+            span: [24, 5, 19],
+
+            viewKey: "",
+            controller: "",            
+            vfUrl: "",
+            flowPks: "",
 
             nodeKeyRoot: "000",         // -- 根节点NodeKey --
             nodeKeyParent: "",          // -- 当前选中节点的NodeKey --
@@ -37,10 +42,9 @@
             dataTree: [],
             gridLoaded: false           // -- 网格是否已加载 --
         },
-        mounted() { },
         methods: {
             initTree() {
-                ajax.send("/aprint/base/category/getCategoryRoot", {}).then(res => {
+                ajax.send(this.controller + "/getCategoryRoot", {}).then(res => {
                     if (res.ok) {
                         let dtbNode = res.dtbNode;
                         let data = [];
@@ -63,7 +67,7 @@
             },
             loadTreeNode(nodeKey) {
                 let postData = { nodeKeyParent: nodeKey };
-                ajax.send("/aprint/base/category/getCategoryNode", postData).then(res => {
+                ajax.send(this.controller + "/getCategoryNode", postData).then(res => {
                     if (res.ok) {
                         let dtbNode = res.dtbNode;
                         let nodeKeyParent = res.nodeKeyParent;
@@ -112,10 +116,10 @@
                                     this.$refs.treeNav.store["root"].childNodes[0].expand();
 
                                     var para = {
-                                        viewPk: "category",
-                                        flowPks: "'sys_crud'",
+                                        viewPk: this.viewKey,
+                                        flowPks: this.flowPks,
                                         filter: "id_parent = " + this.idParent,
-                                        vfUrl: g.path.project + "/aprint/html/base/category.html"
+                                        vfUrl: this.vfUrl
                                     }
 
                                     app.$refs.grid.init(para);
@@ -154,14 +158,20 @@
 <script>
     let divTree = gId("divTree");
     let grid = gId("grid");
+    // ------------------------------------------------------------------------
     function winLoad() {
         let height = win.p.maxHeight + topWin.cWin.titleHeight;
         divTree.style.height = height + "px";
-        grid.style.height = height + "px";        
+        grid.style.height = height + "px";
 
         let wTree = Math.round(24 * (300 / win.p.maxWidth));
         app.span[1] = wTree;
         app.span[2] = 24 - wTree;
+
+        app.viewKey = urlPara["viewKey"];
+        app.controller = urlPara["controller"];
+        app.vfUrl = g.path.project + win.para.menu.vfUrl;
+        app.flowPks = win.para.menu.flowPks;
 
         app.initTree();
     }

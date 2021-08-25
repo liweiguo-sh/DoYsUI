@@ -49,6 +49,7 @@ function openMenu(menu) {
             text: menu.text
         };
         let para = {
+            menu: menu,
             menuPk: menu.pk
         };
         if (menu.flagMaximized) {

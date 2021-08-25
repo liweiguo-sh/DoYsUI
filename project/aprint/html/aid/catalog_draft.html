@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>图档目录定义</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="目录名称" required>
+                        <el-input v-model="form.name" ref="name" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="序号">
+                        <el-input v-model="form.sequence" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-input v-model="form.id_parent" type="hidden"></el-input>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {},
+            idParent: 0,
+            appParent: null
+        },
+
+        methods: {
+            afterAddnew: function () {
+                this.form.id_parent = this.idParent;
+            },
+
+            beforeSave: function () {
+                return true;
+            },
+            afterSave: function (para) {
+                if (para.addnew) {
+                    app.appParent.updateCurrentNode();
+                }
+            },
+
+            afterDelete: function () {
+                app.appParent.updateCurrentNode();
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    let winParent;
+    function winLoad() {
+        winParent = win.parentWindow;
+
+        app.idParent = winParent.app.idParent;
+        app.appParent = winParent.app;
+    }
+</script>

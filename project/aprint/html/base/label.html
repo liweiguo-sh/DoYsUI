@@ -259,6 +259,9 @@
             },
 
             afterAddnew: function (jsp) {
+                let nodeNav = this.$refs.vf.view.$refs.treeNav.selectedNode;
+                this.form.category_id = nodeNav.data.value;
+
                 if (!jsp.copy) {
                     this.form.product_id = (win.para.product_id ? "" + win.para.product_id : "0");
                     this.form.type = "DLabel";
@@ -268,6 +271,7 @@
                     this.form.height = "60";
                     this.form.point = "600";
                 }
+
                 this.form.code = "";
                 this.form.name = "";
             },
