@@ -8,7 +8,7 @@
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-08-23";
+    window.jsVer = top.jsVer || "2021-08-26";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }
@@ -25,7 +25,8 @@
             CHAR4: "\4",
             CHAR5: "\5",
             CHAR6: "\6",
-            CHAR7: "\7"
+            CHAR7: "\7",
+            GS: String.fromCharCode(29)           // -- 分组符 --
         }
     }
 

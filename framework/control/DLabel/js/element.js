@@ -261,6 +261,15 @@ UtilElement.computeValue = function (jsp) {
             let value = segment.value || "";
             let type = segment.type;
 
+            // -- 追加GS分组符 ----------
+            if (i == 0) {
+                if (head.barcodeType.equals("DATA_MATRIX") && head.gs1) {
+                    if (!value.equals("GS")) {
+                        values.push(g.c.GS);
+                    }
+                }
+            }
+            // ------------------------
             if (type.equals("fixed")) {
                 values.push(value);
             }
@@ -269,12 +278,10 @@ UtilElement.computeValue = function (jsp) {
             }
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
-                    values.push(String.fromCharCode(29));
+                    value = g.c.GS;                    
                 }
-                else {
-                    values.push(value);
-                }
-            }
+                values.push(value);
+            }            
         }
         valueString = values.join("");
 
@@ -311,7 +318,7 @@ UtilElement.computeValue = function (jsp) {
                 }
                 else if (type.equals("symbol")) {
                     if (value.equals("GS")) {
-                        values.push(String.fromCharCode(29));
+                        values.push(g.c.GS);
                     }
                     else {
                         values.push(value);
@@ -324,7 +331,7 @@ UtilElement.computeValue = function (jsp) {
             }
 
             if (head.format) {
-                valueString = Util.stringFormat(valueString, head.format);
+                valueString = Util.stringFormat(valueString.replaceAll(g.c.GS, ""), head.format);
             }
             head._sectionsText = valueString;
         }
