@@ -10,14 +10,6 @@ UtilElement.getSectionTypes = function () {
     }
     return UtilElement.__sectionTypes;
 }
-UtilElement.getAI = function () {
-    if (UtilElement.__ai == null) {
-        UtilElement.__ai = [
-            { k: "GS", v: "GS1分组符" }
-        ]
-    }
-    return UtilElement.__ai;
-}
 UtilElement.getJson = function (element) {
     try {
         return JSON.stringify(element,
@@ -264,9 +256,7 @@ UtilElement.computeValue = function (jsp) {
             // -- 追加GS分组符 ----------
             if (i == 0) {
                 if (head.barcodeType.equals("DATA_MATRIX") && head.gs1) {
-                    if (!value.equals("GS")) {
-                        values.push(g.c.GS);
-                    }
+                    values.push(g.c.GS);
                 }
             }
             // ------------------------
@@ -279,6 +269,9 @@ UtilElement.computeValue = function (jsp) {
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
                     value = g.c.GS;                    
+                }
+                else if (value.equals("FNC1")) {
+                    value = g.c.FNC1;
                 }
                 values.push(value);
             }            
@@ -320,6 +313,9 @@ UtilElement.computeValue = function (jsp) {
                     if (value.equals("GS")) {
                         values.push(g.c.GS);
                     }
+                    else if (value.equals("FNC1")) {
+                        values.push(g.c.FNC1);
+                    }
                     else {
                         values.push(value);
                     }
@@ -331,7 +327,7 @@ UtilElement.computeValue = function (jsp) {
             }
 
             if (head.format) {
-                valueString = Util.stringFormat(valueString.replaceAll(g.c.GS, ""), head.format);
+                valueString = Util.stringFormat(valueString.replaceAll(g.c.GS, "").replaceAll(g.c.FNC1, ""), head.format);
             }
             head._sectionsText = valueString;
         }

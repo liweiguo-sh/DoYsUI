@@ -44,7 +44,16 @@ Util.getTriangleHeight = function (p1, p2, p3) {
     return h;
 }
 
-// -- 字符串格式化 --------------------------------------------------------------
+// -- AI定义、字符串格式化 --------------------------------------------------------
+Util.getAI = function () {
+    if (Util.__ai == null) {
+        Util.__ai = [
+            { k: "GS", v: "GS1分组符" },
+            { k: "FNC1", v: "FNC1" }
+        ]
+    }
+    return Util.__ai;
+}
 Util.stringFormat = function (text, format) {
     let idx = 0;
     let symbol, char;
@@ -117,7 +126,6 @@ Util.GetChecksumSSCC = function (code) {
     }
     return sum.toString();
 }
-
 
 /**
  * 供用户脚本使用
