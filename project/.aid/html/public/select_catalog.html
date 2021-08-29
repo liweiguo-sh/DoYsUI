@@ -1,20 +1,29 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>通用目录定义窗口</title>
+    <title>通用目录树选择窗口</title>
     <script src="../../../../framework/core/boot.js"></script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #divTree {
+            overflow: auto;
+            margin: 5px 5px 10px 0px;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
         <el-row>
-            <el-col :span="span[1]">
-                <div id="divTree" style="overflow:auto;">
-                    <el-tree ref="treeNav" :props="treeProps" node-key="nodeKey" :data="dataTree" @node-click="onNodeClick" @node-expand="onNodeExpand" :expand-on-click-node="false" highlight-current></el-tree>
-                </div>
-            </el-col>
-            <el-col :span="span[2]">
-                <sub-view id="grid" ref="grid" style="height:300px;"></sub-view>
-            </el-col>
+            <el-button onclick="win.close();">关闭</el-button>
+        </el-row>
+        <el-row>
+            <div id="divTree">
+                <el-tree ref="treeNav" :props="treeProps" node-key="nodeKey" :data="dataTree" @node-click="onNodeClick" @node-expand="onNodeExpand" :expand-on-click-node="false" highlight-current></el-tree>
+            </div>
         </el-row>
     </div>
 </body>
@@ -25,13 +34,8 @@
     var app = new Vue({
         el: '#app',
         data: {
-            span: [24, 5, 19],
-
-            viewKey: "",
             controller: "",
             catalogType: "",
-            vfUrl: "",
-            flowPks: "",
 
             nodeKeyRoot: "000",         // -- 根节点NodeKey --
             nodeKeyParent: "",          // -- 当前选中节点的NodeKey --
@@ -40,9 +44,9 @@
                 label: "name",
                 isLeaf: "isLeaf"
             },
-            dataTree: [],
-            gridLoaded: false           // -- 网格是否已加载 --
+            dataTree: []
         },
+        mounted() { },
         methods: {
             initTree() {
                 ajax.send(this.controller + "/getCatalogRoot", { catalogType: this.catalogType}).then(res => {
@@ -77,7 +81,7 @@
                         let nodeKeyParent = res.nodeKeyParent;
                         let dataParent = this.dataTree[0];
 
-                        // -- 计算当前节点data对象 --
+                        // -- 查找当前节点data对象 --
                         for (let i = 1; i < nodeKeyParent.length / 3; i++) {
                             let key = nodeKey.substring(0, 3 * (i + 1));
                             for (let j = 0; j < dataParent.children.length; j++) {
@@ -88,6 +92,7 @@
                             }
                         }
 
+                        // -- 加载子节点数据 --
                         let data = [];
                         for (let i = 0; i < dtbNode.rowCount; i++) {
                             let dataRow = dtbNode.rows[i];
@@ -112,28 +117,9 @@
                         }
                         dataParent.children = data;
 
-                        // -- 延时自动展开根节点, 不需要延??? --
+                        // -- 首次加载展开根节点 --
                         if (nodeKeyParent.equals(this.nodeKeyRoot)) {
-                            if (!this.gridLoaded) {
-                                setTimeout(() => {
-                                    this.$refs.treeNav.setCurrentKey(this.nodeKeyRoot);
-                                    this.$refs.treeNav.store["root"].childNodes[0].expand();
-
-                                    var para = {
-                                        viewPk: this.viewKey,
-                                        flowPks: this.flowPks,
-                                        filter: "id_parent = " + this.idParent,
-                                        vfUrl: this.vfUrl
-                                    }
-
-                                    app.$refs.grid.init(para);
-
-                                    this.gridLoaded = true;
-                                }, 200);
-                            }
-                            else {
-                                // -- do nothing --
-                            }
+                            this.$refs.treeNav.store["root"].childNodes[0].expand();
                         }
                     }
                 });
@@ -145,15 +131,18 @@
                 }
             },
             onNodeClick(data, node, c) {
-                this.idParent = node.data.id;
-                this.nodeKeyParent = data.nodeKey;
+                if (data.nodeKey.length == 3) {
+                    return;
+                }
 
-                this.$refs.grid.setFilter("id_parent = " + this.idParent);
-            },
-
-            updateCurrentNode() {
-                this.loadTreeNode(this.nodeKeyParent);
-            },
+                let dataRow = data.dataRow;
+                let para = {
+                    catalogId: dataRow["id"].value,
+                    catalogFullname: dataRow["fullname"].value
+                }
+                win.para.callback(para);
+                win.close();
+            }
         }
     });
 </script>
@@ -161,23 +150,12 @@
 <!-- winLoad -->
 <script>
     let divTree = gId("divTree");
-    let grid = gId("grid");
-    // ------------------------------------------------------------------------
-    function winLoad() {
-        let height = win.p.maxHeight + topWin.cWin.titleHeight;
-        divTree.style.height = height + "px";
-        grid.style.height = height + "px";
+    function winLoad() {        
+        divTree.style.height = (win.p.maxHeight * 0.6) + "px";
+        divTree.style.width = "420px";
 
-        let wTree = Math.round(24 * (300 / win.p.maxWidth));
-        app.span[1] = wTree;
-        app.span[2] = 24 - wTree;
-
-        app.viewKey = urlPara["viewKey"];
-        app.controller = urlPara["controller"];
-        app.catalogType = urlPara["catalogType"];
-        app.vfUrl = g.path.project + win.para.menu.vfUrl;
-        app.flowPks = win.para.menu.flowPks;
-
+        app.controller = win.para.controller;
+        app.catalogType = win.para.catalogType;
         app.initTree();
     }
 </script>

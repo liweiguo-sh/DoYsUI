@@ -48,8 +48,8 @@ Util.getTriangleHeight = function (p1, p2, p3) {
 Util.getAI = function () {
     if (Util.__ai == null) {
         Util.__ai = [
-            { k: "GS", v: "GS1分组符" },
-            { k: "FNC1", v: "FNC1" }
+            { k: "GS", v: "GS1分组符" }
+            //{ k: "FNC1", v: "FNC1" }
         ]
     }
     return Util.__ai;
