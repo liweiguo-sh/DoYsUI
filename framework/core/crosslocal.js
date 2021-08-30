@@ -117,6 +117,28 @@ crossLocal.printLabel = async function (jsp) {
     }
     return res;
 }
+crossLocal.openDraftFile = async function (jsp) {
+    let controller = "/WebDraft/OpenDraftFile";
+    let dataPost = crossLocal.extendJSON({
+
+    }, jsp);
+
+    let res = await crossLocal.send(controller, dataPost, { autoShowErr: false });
+    if (!res.ok) {
+        if (res.error) {
+            if (res.error.equals("Network Error")) {
+                crossLocal.displayError(topWin.ERR.printWorkerUnstart);
+            }
+            else {
+                crossLocal.displayError(res.error);
+            }
+        }
+        else {
+            crossLocal.displayError(res.msg);
+        }
+    }
+    return res;
+}
 
 // -- cross domain access -----------------------------------------------------
 crossLocal.send = async function (controller, dataPOST, option = { autoShowErr: true }) {

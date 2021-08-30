@@ -223,11 +223,23 @@
                 })
             },
             onPreview(file, fileList) {
-                topWin.message("预览文件", "success");
                 let url = this.urlBase + file.name;
                 let extName = file.extName;
-                window.open(url, "_blank");
-                debugger
+
+                // window.open(url, "_blank"); 
+                let para = {
+                    tenantId: topWin.tenantId,
+                    urlDraftFile: url,
+                    extName: extName
+                }
+                top.crossLocal.openDraftFile(para).then((res) => {
+                    if (res.ok) {
+
+                    }
+                    else {
+                        // -- topWin.alert(res.msg, "error"); --
+                    }
+                })
             },
             getCss(file) {
                 let cssName = "thumbnail ";
