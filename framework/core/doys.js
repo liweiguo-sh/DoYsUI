@@ -166,7 +166,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(g.path.framework + "/core/crosslocal.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/font.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/element.js");
-        arrRes.push(g.path.framework + "/control/DLabel/js/label.js");        
+        arrRes.push(g.path.framework + "/control/DLabel/js/label.js");
     }
     // -- 4. plugin组件 --
     else if (fileRes.equals("echarts")) {
@@ -184,7 +184,7 @@ function importFrameworkRes(fileRes) {
         }
         else {
             //console.log("<script src='" + res + "?v=" + g.cfg.jsVer + "'></script>");
-            document.write("<script src='" + res + "?v=" + g.cfg.jsVer + "'></script>");            
+            document.write("<script src='" + res + "?v=" + g.cfg.jsVer + "'></script>");
         }
     }
 }

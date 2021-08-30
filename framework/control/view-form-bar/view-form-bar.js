@@ -230,6 +230,23 @@
                 this.$parent.afterMove();
             }
         },
+        getButtonStatus(btnKey) {
+            // -- 判断按钮是否存在，可见并且可用 --
+            let button;
+            for (let i = 0; i < this.vfButtons.length; i++) {
+                if (this.vfButtons[i].name.equals(btnKey)) {
+                    button = this.vfButtons[i];
+                    break;
+                }
+            }
+            if (button) {
+                if (!button.hide) {
+                    // -- 按钮存在，并且可见 --
+                    return true;
+                }
+            }
+            return false;
+        },
 
         onClick(button) {
             if (button.name.equals("close")) {

@@ -6,6 +6,42 @@
     <script>
         importFrameworkRes("view-form-bar");
     </script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+        /** .el-upload--picture-card 控制加号部分 */
+        .disabled .el-upload--picture-card {
+            display: none !important;
+        }
+    </style>
+    <!-- 文件缩略图 -->
+    <style type="text/css">
+        .thumbnail {
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: 50% 50%;
+        }
+
+        .unknown {
+            background-image: url('../../../../framework/images/thumbnail/unknown.png');
+        }
+
+        .image {
+            background-image: url('../../../../framework/images/thumbnail/image.png');
+        }
+
+        .pdf {
+            background-image: url('../../../../framework/images/thumbnail/pdf.png');
+        }
+        .ai {
+            background-image: url('../../../../framework/images/thumbnail/ai.png');
+        }
+
+        .word {
+            background-image: url('../../../../framework/images/thumbnail/word.png');
+        }
+    </style>
 </head>
 <body>
     <div id="app" style="width:900px;">
@@ -58,12 +94,26 @@
             </el-row>
         </el-form>
         <el-upload :action="actionUpload"
-                   :file-list="fileList" :with-credentials="true"
+                   :file-list="fileList" :with-credentials="true" :disabled="!allowUpload"
                    list-type="picture-card"
+                   :limit="maxFile"
                    :data="dataUpload"
                    :before-upload="beforeUpload"
                    :on-success="onSuccess"
-                   :on-remove="handleRemove">
+                   :on-preview="onPreview"
+                   :class="{disabled:disableUpload}">
+            <div slot="file" slot-scope="{file}" :class="getCss(file)" style="color:#67C23A;height:100%;">
+                <div style="padding:5px;">{{file.originalName}}</div>
+                <!--<img class="el-upload-list__item-thumbnail" :src="file.url" alt="" v-show="false">-->
+                <span class="el-upload-list__item-actions">
+                    <span class="el-upload-list__item-preview" @click="onPreview(file)">
+                        <i class="el-icon-zoom-in"></i>
+                    </span>
+                    <span v-if="allowUpload" class="el-upload-list__item-delete" @click="onRemove(file)">
+                        <i class="el-icon-delete"></i>
+                    </span>
+                </span>
+            </div>
             <i class="el-icon-plus"></i>
         </el-upload>
         <div style="height:10px;"></div>
@@ -85,21 +135,22 @@
             idParent: 0,
 
             actionUpload: g.prefix + "/aprint/aid/draft_file/upload",
+            allowUpload: true,              // -- 允许操作文件上传或删除 --
+            disableUpload: false,           // -- 禁止上传操作 --
+            maxFile: 5,
             dataUpload: {},
-            fileList: [
-                {
-                    name: 'food.jpeg',
-                    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg'
-                },
-                {
-                    name: 'food2.jpeg',
-                    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg'
-                }
-            ],
-            dialogImageUrl: '',
-            dialogVisible: false
+            fileList: [],
+            fileCount: 0,
+            urlBase: "",
         },
-
+        mounted() {
+            this.urlBase = g.path.resRun + "/" + topWin.tenantId + "/aprint/draft_file/";
+        },
+        watch: {
+            fileCount(valueNew, valueOld) {
+                this.disableUpload = (this.fileCount >= this.maxFile || !this.allowUpload);
+            }
+        },
         methods: {
             afterAddnew: function () {
                 let nodeNav = this.$refs.vf.view.$refs.treeNav.selectedNode;
@@ -110,15 +161,19 @@
             },
             afterMove: function () {
                 let draftId = this.$refs.vf.getId();
+
                 this.dataUpload = {
                     draftId: draftId
                 };
-
                 ajax.send("/aprint/aid/draft_file/getFiles", { draftId: draftId }).then(res => {
-                    debugger
-                    debugger
-                    console.log(res.files);
+                    for (let i = 0; i < res.files.length; i++) {
+                        res.files[i].url = this.urlBase + res.files[i].name;
+                    }
+                    this.fileList = res.files;
+                    this.fileCount = this.fileList.length;
                 })
+
+                this.allowUpload = this.$refs.vf.getButtonStatus("save");
             },
 
             selectCatalog: function () {
@@ -138,23 +193,64 @@
                 topWin.openWindow(prop, para);
             },
 
-            beforeUpload: function (file) {
-                debugger
-                debugger
+            beforeUpload(file) {
+                //debugger
+                //debugger
             },
-            onSuccess: function (response, file, fileList) {
-                let url = g.path.resRun + response.filename;
-                debugger
-                debugger
+            onSuccess(res, file, fileList) {
+                file.name = res.filename;
+                file.url = this.urlBase + file.name;
+                file.originalName = res.originalName;
+                file.sizeText = res.sizeText;
+                file.extName = res.extName;
+
+                this.fileList = fileList;
+                this.fileCount++;
             },
-            handleRemove(file, fileList) {
-                debugger
-                debugger
-                console.log(file, fileList);
-                ajax.send("/aprint/aid/draft_file/delete", { filename: "5_1.png"}).then(res => {
-                     
+            onRemove(file, fileList) {
+                topWin.confirm("确定要删除当前已生成的打印数据吗？").then((ok) => {
+                    if (ok) {
+                        ajax.send("/aprint/aid/draft_file/delete", { filename: file.name }).then(_ => {
+                            for (let i = 0; i < this.fileList.length; i++) {
+                                if (this.fileList[i].name.equals(file.name)) {
+                                    this.fileList.splice(i, 1);
+                                    break;
+                                }
+                            }
+                            this.fileCount--;
+                        })
+                    }
                 })
             },
+            onPreview(file, fileList) {
+                topWin.message("预览文件", "success");
+                let url = this.urlBase + file.name;
+                let extName = file.extName;
+                window.open(url, "_blank");
+                debugger
+            },
+            getCss(file) {
+                let cssName = "thumbnail ";
+                let extName = file.extName;
+
+                if (extName.equals("png") || extName.equals("jpg")) {
+                    cssName += "image";
+                }
+                else if (extName.equals("pdf")) {
+                    cssName += "pdf";
+                }
+                else if (extName.equals("ai")) {
+                    cssName += "ai";
+                }
+                else if (extName.equals("doc") || extName.equals("docx")) {
+                    cssName += "word";
+                }
+                else {
+                    cssName += "unknown";
+                }
+
+                return cssName;
+            }
         }
     });
 </script>

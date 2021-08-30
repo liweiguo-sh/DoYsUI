@@ -60,7 +60,7 @@
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="标签代码" required>
-                                <el-input v-model="form.code" />
+                                <el-input v-model="form.code" ref="code" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
@@ -70,13 +70,13 @@
                                         <span style="float: left">DLabel</span>
                                         <span style="float: right;">新版码尚</span>
                                     </el-option>
-                                    <el-option value="MASO" label="MASO" :disabled="true">
+                                    <el-option value="MASO" label="MASO" :disabled="true" v-show="false">
                                         <span style="float: left">MASO</span>
                                         <span style="float: right;">已停用</span>
                                     </el-option>
                                     <el-option value="BarTender" label="BarTender"></el-option>
-                                    <el-option value="NiceLabel" label="NiceLabel" :disabled="true"></el-option>
-                                    <el-option value="PDF" label="PDF" :disabled="true"></el-option>
+                                    <el-option value="NiceLabel" label="NiceLabel" :disabled="true" v-show="false"></el-option>
+                                    <el-option value="PDF" label="PDF" :disabled="true" v-show="false"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -260,7 +260,12 @@
 
             afterAddnew: function (jsp) {
                 let nodeNav = this.$refs.vf.view.$refs.treeNav.selectedNode;
-                this.form.category_id = nodeNav.data.value;
+                if (nodeNav) {
+                    this.form.category_id = nodeNav.data.value;
+                }
+                else {
+                    this.form.category_id = 0;
+                }
 
                 if (!jsp.copy) {
                     this.form.product_id = (win.para.product_id ? "" + win.para.product_id : "0");
@@ -276,10 +281,6 @@
                 this.form.name = "";
             },
             beforeSave: function () {
-                if (!this.form.code) {
-                    topWin.alert("请输入标签代码", "warning");
-                    return false;
-                }
                 delete this.form.content;
                 return true;
             },
