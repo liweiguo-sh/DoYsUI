@@ -42,7 +42,7 @@
         methods: {
             labelVariableToLabelColumn() {
                 this.message = "";
-                ajax.send("/aprint/sys/data_maintain_once/labelVariableToLabelColumn", {}).then((res) => {
+                ajax.send("/aprint/devops/data_maintain_once/labelVariableToLabelColumn", {}).then((res) => {
                     topWin.message("当前操作成功", "success");
 
                     let list = res.list;

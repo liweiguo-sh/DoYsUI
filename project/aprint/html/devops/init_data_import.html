@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>初始数据维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <style type="text/css">
+        .message {
+            color: red;
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-button type="primary" onclick="win.close();">关闭</el-button>
+        <el-tabs v-model="tabNameImport" @tab-click="tabImportClick">
+            <el-tab-pane label="产品导入" name="importProduct">
+                <el-link type="primary" :underline="false" href="产品数据导入模板.xlsx">产品数据导入模板.xlsx</el-link>
+            </el-tab-pane>
+            <el-tab-pane label="用户导入" name="user" :disabled="true">
+                用户导入模板
+            </el-tab-pane>
+        </el-tabs>
+        <!-- 上传文件 -->
+        <el-row style="margin-top:30px;margin-bottom:10px;">
+            <el-upload class="upload-demo" :action="actionUpload" :with-credentials="true"
+                       :on-success="onSuccess"
+                       :show-file-list="false"
+                       accept=".xlsx,.xls">
+                <el-button size="small" type="primary">选择导入文件</el-button>
+            </el-upload>
+        </el-row>
+        <!-- 导入数据 -->
+        <el-row style="margin-top:20px;margin-bottom:10px;" v-show="originalName">
+            <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
+            <el-button type="success" @click="importProduct">导入</el-button>
+        </el-row>
+
+        <!-- message -->
+        <el-divider content-position="left" v-if="message">执行结果</el-divider>
+        <el-row>
+            <div class="message">{{message}}</div>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            actionUpload: g.prefix + "/framework/common/upload/upload_temp_file",
+
+            tabNameImport: "importProduct",
+            originalName: "",
+            pathname: "",
+
+            message: ""
+        },
+        mounted() {
+        },
+        methods: {
+            tabImportClick() {
+
+            },
+
+            onSuccess(res, file, fileList) {
+                this.message = "";
+
+                this.originalName = res.originalName;
+                this.pathname = res.pathname;
+            },
+            importProduct() {
+                this.message = "";
+
+                let url = "/aprint/devops/data_import/" + this.tabNameImport;
+                let dataPOST = { pathname: this.pathname };
+                ajax.send(url, dataPOST).then((res) => {
+                    topWin.message("产品数据导入成功，请检查核对导入结果是否正确。", "success");
+
+                    this.message = "成功导入 " + res.importCount + " 条产品记录，请检查核对导入结果是否正确。";
+                    this.originalName = "";
+                })
+            }
+        }
+    });
+</script>

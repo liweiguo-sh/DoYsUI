@@ -20,8 +20,6 @@
         <el-row>
             <el-col>
                 <el-button @click="test1">测试一</el-button>
-                <el-button @click="test2">测试二</el-button>
-                <el-button @click="test3">测试-3</el-button>
                 <el-button onclick="win.close();">关闭</el-button>
             </el-col>
         </el-row>        
@@ -41,26 +39,6 @@
             test1() {
                 ajax.send("/aprint/debug/test1", {}).then((res) => {
                     topWin.message("测试 1 完成", "success");
-                })
-            },
-            test2() {
-                ajax.send("/aprint/debug/test2", {}).then((res) => {
-                    topWin.message("测试 2 完成", "success");
-                })
-            },
-            test3() {
-                this.count = 1;
-                this.exec3();
-            },
-            exec3() {
-                ajax.send("/aprint/debug/test3", {}).then((res) => {
-                    //topWin.message("测试 3 - " + this.count++ + " 完成", "success");
-                    if (this.count % 100 == 0) {
-                        topWin.message("测试3 - " + this.count++ + " 完成", "success");
-                    }
-                    if (this.count <= this.countMax) {
-                        this.exec3();
-                    }
                 })
             }
         }
