@@ -37,9 +37,14 @@
         </el-row>
 
         <!-- message -->
-        <el-divider content-position="left" v-if="message">执行结果</el-divider>
+        <el-divider content-position="left" v-if="listLog.length">执行结果</el-divider>
         <el-row>
-            <div class="message">{{message}}</div>
+            <ul>
+                <li v-for="item in listLog" style="color:red;margin-bottom:15px;">{{item}}</li>
+            </ul>
+        </el-row>
+        <el-row v-show="message">
+            {{message}}
         </el-row>
     </div>
 </body>
@@ -56,7 +61,8 @@
             originalName: "",
             pathname: "",
 
-            message: ""
+            message: "",
+            listLog: []
         },
         mounted() {
         },
@@ -67,19 +73,22 @@
 
             onSuccess(res, file, fileList) {
                 this.message = "";
+                this.listLog = [];
 
                 this.originalName = res.originalName;
                 this.pathname = res.pathname;
             },
             importProduct() {
                 this.message = "";
+                this.listLog = [];
 
                 let url = "/aprint/devops/data_import/" + this.tabNameImport;
                 let dataPOST = { pathname: this.pathname };
                 ajax.send(url, dataPOST).then((res) => {
-                    topWin.message("产品数据导入成功，请检查核对导入结果是否正确。", "success");
+                    topWin.message("产品数据导入成功，请检查并核对导入结果是否正确。", "success");
 
-                    this.message = "成功导入 " + res.importCount + " 条产品记录，请检查核对导入结果是否正确。";
+                    this.message = "产品数据导入成功，请检查并核对导入结果是否正确。";
+                    this.listLog = res.listLog;
                     this.originalName = "";
                 })
             }

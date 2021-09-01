@@ -2,7 +2,7 @@
  * DoYs.prototype.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2021-07-19
+ * Modify Date: 2021-09-01
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -78,9 +78,21 @@ String.prototype.toDate = function (format = "") {
     if (format) {
         return this.toDateByFromat(format);
     }
-
-    if (this.length < 10) {
-        return null;
+    else {
+        if (this.length < 6) {
+            return null;
+        }
+        else if (this.length == 6) {
+            return this.toDateByFromat("yyMMdd");
+        }
+        else if (this.length == 8) {
+            return this.toDateByFromat("yyyyMMdd");
+        }
+        else {
+            if (this.length < 10) {
+                return null;
+            }
+        }
     }
 
     var YEAR = parseInt(this.substring(0, 4), 10);
