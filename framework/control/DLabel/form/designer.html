@@ -111,6 +111,15 @@
                                 </el-col>
                             </el-row>
                             <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">纸张方向</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="labelHead.landscape" @change="elementPropChange('labelHead.landscape')" style="width:100%;">
+                                        <el-option value=false label="纵向"></el-option>
+                                        <el-option value=true label="横向"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row>
                                 <el-col :span="span[1]"><div class="divPropName">图片根路径</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-input v-model="labelHead.imageBaseUrl" @change="elementPropChange('labelHead.imageBaseUrl')"></el-input>
@@ -513,7 +522,7 @@
             printerName: "",
 
             labelHead: {
-                width: null, height: null, point: null,
+                width: null, height: null, point: null, landscape: false,
                 imageBaseUrl: null
             },
             images: [],
