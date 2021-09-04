@@ -76,8 +76,8 @@ UtilElement.computeProp = function (jsp) {
     P.marginRight = parseFloat(P.marginRight || 0);
     P.marginTop = parseFloat(P.marginTop || 0);
     P.marginBottom = parseFloat(P.marginBottom || 0);
-    P.width = Math.max(P.width, 1);                                    // -- 最小宽高 --
-    P.height = Math.max(P.height, 0.2);
+    P.width = Math.max(P.width, 1);                                 // -- 最小宽高 --
+    P.height = Math.max(P.height, 0.2);                             // -- 最小高度 --
 
     UtilElement.computePropAngle(element);
 
@@ -268,13 +268,13 @@ UtilElement.computeValue = function (jsp) {
             }
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
-                    value = g.c.GS;                    
+                    value = g.c.GS;
                 }
                 else if (value.equals("FNC1")) {
                     value = g.c.FNC1;
                 }
                 values.push(value);
-            }            
+            }
         }
         valueString = values.join("");
 

@@ -59,9 +59,8 @@
                 <el-button type="info" onclick="btnDebugLabel_click();" icon="alifont ali-icon-label" title="调试标签"></el-button>
             </el-button-group>
             <el-button-group v-show="false">
-                <el-button type="success" onclick="testCross1()" v-show="true" icon="alifont ali-icon-test-ts" title="远程跨域测试1"></el-button>
-                <el-button type="success" onclick="testCross2()" v-show="true" icon="alifont ali-icon-test-ts" title="内网跨域测试2"></el-button>
-                <el-button type="warning" onclick="webPrintSample()" v-show="true" icon="alifont ali-icon-print" title="打印样张(WEB模式)"></el-button>
+                <el-button type="success" onclick="test1()" icon="alifont ali-icon-test-ts" title="测试1"></el-button>
+                <el-button type="success" onclick="test2()" icon="alifont ali-icon-test-ts" title="测试2"></el-button>
             </el-button-group>
         </el-row>
         <div style="height:5px;"></div>
@@ -597,7 +596,6 @@
                         }
 
                         element[propGroupName][propName] = propValue;
-
                         UtilElement.computeProp({ element: element });
                         UtilElement.computeValue({ element: element, fields: lbl.fields });
                         UtilElement.draw({ element: element });
@@ -1073,52 +1071,10 @@
         lbl.compute(true);
     }
 
-    // -- 跨域测试 --
-    async function testCross1() {
-        let url = "http://124.71.181.137:5555/DoYsSV/test/AjaxCross/test1";
-        let dataPost = {
-            p1: "跨域请求外网地址 124.71.181.137:5555"
-        };
-
-        ajax.send(url, dataPost).then((res) => {
-            if (res.ok) {
-                topWin.message("当前操作成功，收到后台返回数据 result = " + res.result, "success");
-            }
-            else {
-                topWin.alert("系统信息 ...", "error");
-            }
-        })
+    function test1() {
+        topWin.message("test1", "success");
     }
-    async function testCross2() {
-
-        let url = "http://192.168.169.1:82/local";
-        let dataPost = {
-            protocol: "3.0"
-        }
-
-        axios({
-            method: 'post',
-            url: url,
-            data: dataPost
-        }).then((res) => {
-            let printers = res.data.data.printers;
-
-            alert(url + "<br /><br />" + printers.join("<br /><br />"));
-        });
-    }
-
-    function webPrintSample() {
-        let datas = [];
-        datas.push(lbl.getData());
-
-        let labelString = lbl.toJson();
-        let dataString = JSON.stringify(datas, null, " ");
-        let para = {
-            labelString: labelString,
-            dataString: dataString,
-            printerName: "",
-            copies: 1
-        }
-        crossLocal.printLabel(para);
+    function test2() {
+        topWin.message("test2", "success");
     }
 </script>

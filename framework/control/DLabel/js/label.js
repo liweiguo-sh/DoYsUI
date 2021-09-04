@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-07-31
+ * Modify Date: 2021-09-04
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -490,7 +490,6 @@ class Label {
         let _this = this;
 
         element.head._selected = true;
-
         _this.activatedElement = element;
         _this.hideHover();
         _this.showResize();
@@ -734,11 +733,26 @@ class Label {
             divT = _this.doc.createElement("DIV");
             divT.className = _this.prefix + "hoverTB";
             divT.style.zIndex = _this.zIndexHover;
+            divT.onclick = function (evt) {
+                // -- 解决元素太小无法选中的问题 --
+                let _this = evt.srcElement.parentElement._this;
+                let _canvas = _this.hoveredElement._canvas;
+                evt.stopPropagation();
+                _canvas.click();
+            }
             _this.container.appendChild(divT);
 
             divB = _this.doc.createElement("DIV");
+            //divB._this = _this;
             divB.className = _this.prefix + "hoverTB";
             divB.style.zIndex = _this.zIndexHover;
+            divB.onclick = function (evt) {
+                // -- 解决元素太小无法选中的问题 --
+                let _this = evt.srcElement.parentElement._this;
+                let _canvas = _this.hoveredElement._canvas;
+                evt.stopPropagation();
+                _canvas.click();
+            }
             _this.container.appendChild(divB);
 
 
@@ -1266,7 +1280,7 @@ class Label {
                     alert("Script jsBeforeCompute execute error:\n" + e.toString());
                 }
             }
-        }        
+        }
 
         // -- 2. compute elements --
         for (let i = 0; i < this.elements.length; i++) {
@@ -1349,8 +1363,6 @@ class Label {
         }
     }
     jsAfterComputeDebug1() {
-
-
         let mfgDate = this.fields["生产日期"].toDate("yyMMdd");
         let expDate = mfgDate.add(1, "year").add(-1, "day");
         let exp = expDate.toString("yyMMdd");

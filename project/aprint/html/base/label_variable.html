@@ -248,7 +248,7 @@
                 if (res.ok) {
 
                     this.form.value = res.filename;
-                    this.imageUrl = topWin.cfg.labelVariableImageBaseUrl + this.form.value + "?rnd" + (new Date()).getTime();
+                    this.imageUrl = topWin.cfg.labelVariableImageBaseUrl + this.form.value;
                     win.flashTitle("标签变量图片上传成功", "success");
                 }
                 else {

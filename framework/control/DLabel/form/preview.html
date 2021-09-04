@@ -11,6 +11,7 @@
             margin: 0px;
             padding: 0px;
             overflow: hidden;
+            background-color: #909399;
         }
 
         #divContainerParent {
@@ -23,12 +24,21 @@
         #divCanvas {
             border: solid 0px red;
         }
+
+        #divSummary {
+            padding-left: 5px;
+            margin-top: 5px;
+            height: 45px;
+            overflow: auto;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div id="divContainerParent">
         <div id="divCanvas"></div>
     </div>
+    <div id="divSummary"></div>
 </body>
 </html>
 
@@ -40,7 +50,7 @@
     // ------------------------------------------------------------------------
     window.addEventListener("load", function () {
         let width = document.documentElement.clientWidth;
-        let height = document.documentElement.clientHeight;
+        let height = document.documentElement.clientHeight - 50;
 
         divContainerParent.style.width = (width) + "px";
         divContainerParent.style.height = (height) + "px";
@@ -63,10 +73,15 @@
 <!-- winLoad(doys窗口模式) -->
 <script>
     let labelWidth, labelHeight;
+    let labelSummary;
     // ------------------------------------------------------------------------
-    function winLoad() {        
+    function winLoad() {
         labelWidth = win.para.labelWidth;
         labelHeight = win.para.labelHeight;
+        labelSummary = win.para.labelSummary;
+        if (labelSummary) {
+            gId("divSummary").innerHTML = labelSummary;
+        }
 
         winResize();
         win.addEventListener("beforeClose", function () {

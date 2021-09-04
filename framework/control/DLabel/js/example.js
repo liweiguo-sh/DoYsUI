@@ -540,7 +540,8 @@ DLbelExample.demo1 = function () {
       "frame": {
         "type": "rectangle",
         "width": 0.3,
-        "color": "#FFD000"
+        "color": "#FFD000",
+        "radius": 2
       },
       "position": {
         "layer": 1,
@@ -967,167 +968,40 @@ DLbelExample.debug1 = function () {
     return `
 {
   "head": {
-    "width": "30",
-    "height": "20",
+    "width": 80,
+    "height": 60,
     "point": 600,
-    "element_id": 3
+    "element_id": 2
   },
   "fields": {},
   "elements": [
     {
       "head": {
-        "elementType": "barcode",
-        "barcodeType": "EAN_13_D",
+        "elementType": "shape",
         "name": "element_1"
       },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": ""
-        }
-      ],
-      "font": {
-        "name": "宋体",
-        "size": "10.5",
-        "fontHeight": 3.7041666666666666,
-        "lineHeight": null,
-        "textHeight": 3.7041666666666666,
-        "color": null
-      },
       "frame": {
         "type": "rectangle",
         "width": 0,
-        "radius": 0,
-        "fillColor": "#87B0E3"
+        "fillColor": "#F80F0F",
+        "radius": 0
       },
       "position": {
         "layer": 1,
         "width": 30,
-        "height": 10,
-        "textAlign": "center",
-        "verticalAlign": "bottom",
-        "top": "0",
-        "left": "0",
+        "height": 0.2,
+        "top": "13.20",
+        "left": "16.66",
         "angle": 0,
         "angleR": 0,
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0,
-        "wC": 30,
-        "hC": 10,
-        "P1": {
-          "x": 0,
-          "y": 0
-        },
-        "P2": {
-          "x": 30,
-          "y": 0
-        },
-        "P3": {
-          "x": 30,
-          "y": 10
-        },
-        "P4": {
-          "x": 0,
-          "y": 10
-        },
-        "P15": {
-          "x": 15,
-          "y": 0
-        },
-        "P25": {
-          "x": 30,
-          "y": 5
-        },
-        "P35": {
-          "x": 15,
-          "y": 10
-        },
-        "P45": {
-          "x": 0,
-          "y": 5
-        },
-        "offsetX": 0,
-        "offsetY": 0,
-        "offsetLeft": 0,
-        "offsetRight": 0,
-        "offsetTop": 0,
-        "offsetBottom": 0,
-        "clientWidth": 30,
-        "clientHeight": 10,
-        "leftText": 0,
-        "topText": 10,
-        "heightBarcode": 7.7775,
-        "widthBarcode": 30,
-        "leftBarcode": 0,
-        "topBarcode": 0
-      },
-      "segments": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "1234567890"
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "head": {
-        "elementType": "text",
-        "name": "element_2"
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "样本文本样本文本"
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": ""
-        }
-      ],
-      "font": {
-        "name": "宋体",
-        "size": "10.5",
-        "fontHeight": 3.7041666666666666,
-        "lineHeight": null,
-        "textHeight": 3.7041666666666666
-      },
-      "frame": {
-        "type": "rectangle",
-        "width": 0,
-        "radius": 0,
-        "fillColor": "#E3D287"
-      },
-      "position": {
-        "layer": 1,
-        "width": 30,
-        "height": 5,
         "textAlign": "left",
-        "verticalAlign": "middle",
-        "top": "12",
-        "left": "0",
-        "angle": 0,
-        "angleR": 0,
+        "verticalAlign": "top",
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
         "wC": 30,
-        "hC": 5,
+        "hC": 0.2,
         "P1": {
           "x": 0,
           "y": 0
@@ -1138,11 +1012,11 @@ DLbelExample.debug1 = function () {
         },
         "P3": {
           "x": 30,
-          "y": 5
+          "y": 0.2
         },
         "P4": {
           "x": 0,
-          "y": 5
+          "y": 0.2
         },
         "P15": {
           "x": 15,
@@ -1150,15 +1024,15 @@ DLbelExample.debug1 = function () {
         },
         "P25": {
           "x": 30,
-          "y": 2.5
+          "y": 0.1
         },
         "P35": {
           "x": 15,
-          "y": 5
+          "y": 0.2
         },
         "P45": {
           "x": 0,
-          "y": 2.5
+          "y": 0.1
         },
         "offsetX": 0,
         "offsetY": 0,
@@ -1167,9 +1041,7 @@ DLbelExample.debug1 = function () {
         "offsetTop": 0,
         "offsetBottom": 0,
         "clientWidth": 30,
-        "clientHeight": 5,
-        "leftText": 0,
-        "topText": 2.5
+        "clientHeight": 0.2
       }
     }
   ],

@@ -179,7 +179,8 @@
                     };
                     let para = {
                         labelWidth: this.dtbLabel.rows[0]["width"].value,
-                        labelHeight: this.dtbLabel.rows[0]["height"].value
+                        labelHeight: this.dtbLabel.rows[0]["height"].value,
+                        labelSummary: this.getLabelSummary()
                     };
                     winPreview = topWin.openWindow(prop, para);
                     while (!winPreview.window) {
@@ -195,17 +196,18 @@
                 let lbl = winPreview.window.getLabel();
                 lbl.loadLabel(this.labelContent, {
                     imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
-                    labelId: this.labelId,
+                    labelId: this.labelId,                    
                     readonly: true
                 });
-                lbl.compute(true);
+
+                this.getPrintData(1)
             },
 
-            getPrintData() {
+            getPrintData(rowCountLimit) {
                 let data = [], dataString;
                 let lbl = winPreview.window.getLabel();
 
-                let rowCount = this.dtbTaskData.rowCount;
+                let rowCount = rowCountLimit || this.dtbTaskData.rowCount;
                 let columnCount = this.dtbTaskData.columnCount;
                 // ----------------------------------------
                 for (let i = 0; i < rowCount; i++) {

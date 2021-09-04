@@ -411,10 +411,10 @@
                 let dataRow = this.dtbLabel.rows[0];
                 let arr = new Array();
 
-                arr.push("标签代码：" + dataRow["code"].value);
-                arr.push("名称：" + dataRow["name"].value);
+                if (dataRow["code"].value) arr.push("标签代码：" + dataRow["code"].value);
+                if (dataRow["name"].value) arr.push("名称：" + dataRow["name"].value);
                 arr.push("宽高：" + dataRow["width"].value + "×" + dataRow["height"].value);
-                arr.push("备注：" + dataRow["remark"].value);
+                if (dataRow["remark"].value) arr.push("备注：" + dataRow["remark"].value);
 
                 return arr.join("    ");
             },
@@ -531,7 +531,8 @@
                     };
                     let para = {
                         labelWidth: this.dtbLabel.rows[0]["width"].value,
-                        labelHeight: this.dtbLabel.rows[0]["height"].value
+                        labelHeight: this.dtbLabel.rows[0]["height"].value,
+                        labelSummary: this.getLabelSummary()
                     };
                     winPreview = topWin.openWindow(prop, para);
                     while (!winPreview.window) {
@@ -559,6 +560,7 @@
                     labelType: this.labelType,
                     preview: jsp.preview,
                     printerName: this.printerName,
+                    labelSummary: this.getLabelSummary(),
                     copies: this.copies
                 }
                 if (this.labelType.equals("DLabel")) {
