@@ -1,117 +1,63 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title>once.html</title>
+    <title>临时测试</title>
     <script src="../../framework/core/boot.js"></script>
-    <script>
-        importFrameworkRes("crossLocal");
-        importFrameworkRes("topwin");
-    </script>
 
     <style type="text/css">
-        body {
-            margin: 15px;
-        }
-
-        .btn {
-            line-height: 36px;
-            min-height: 36px;
-            min-width: 100px;
-        }
-
-            .btn:hover {
-                color: red;
-            }
-
-        #divMessage {
-            width: 600px;
-            height: 300px;
-            overflow: auto;
-            margin: 20px 0px 0px 0px;
-            border: solid 1px green;
+        .el-row {
+            margin-bottom: 20px;
+            vertical-align: middle
         }
     </style>
 </head>
 <body>
-    <div>
-        <input type="button" class="btn" value="跨域测试1" onclick="cross1();" />
-        <input type="button" class="btn" value="跨域测试2" onclick="cross2();" />
-        <input type="button" class="btn" value="跨域测试443" onclick="cross443();" />
-        <input type="button" class="btn" value="检测浏览器" onclick="checkBrowser();" />
+    <div id="app">
+        <el-row>
+            <h3>临时测试</h3>
+            <hr />
+        </el-row>
+        <el-row>
+            <el-col>
+                <el-button @click="test1">测试一</el-button>
+                <el-button onclick="win.close();">关闭</el-button>
+            </el-col>
+        </el-row>
         <div id="divMessage"></div>
     </div>
 </body>
 </html>
 
-<script>
-    var divMessage = gId("divMessage");
-    // ------------------------------------------------------------------------
+<!-- winLoad -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            count: 0,
+            countMax: 10000
+        },
+        methods: {
+            test1() {
+                let regex = /^[0-9a-zA-Z_]{1,}$/;
+                //let list = ["a", "A", "1", "123", "__", "-", "，", ",", "】", "繁體", "と", "中", "a汉"];
+                let list = ["abc", "中文", "中1_abc1", "1zd", "a-zd"];
+                let result = [];
 
-    function cross1() {
-        divMessage.innerHTML = "";
+                result.push("<ul>");
+                for (let i = 0; i < list.length; i++) {
+                    let txt = list[i];
+                    //if (regex.test(txt)) {
+                    if (validate.dbFieldName(txt)) {
+                        result.push("<li><span style='color:green'>测试通过：&nbsp;&nbsp;&nbsp;&nbsp;" + txt + "</span></li>");
+                    }
+                    else {
+                        result.push("<li><span style='color:red'>测试失败：&nbsp;&nbsp;&nbsp;&nbsp;" + txt + "</span></li>");
+                    }
+                }
+                result.push("</ul>");
 
-        getPrinterList();
-    }
-
-    async function getPrinterList() {
-        let url = "http://127.0.0.1:4195/WebPrint/GetPrinterList";
-        let dataPost = {
-            protocol: "3.0"
+                gId("divMessage").innerHTML = result.join("");
+            }
         }
-        let res = await ajax.send(url, dataPost, { autoShowErr: false });
-        if (res.ok) {
-            let printers = res.data.printers;
-
-            divMessage.innerHTML = url + "<br /><br />" + printers.join("<br /><br />");
-        }
-        else {
-            alert("error, debug here");
-            debugger
-            debugger
-            console.log(res);
-        }
-    }
-
-    function cross2() {
-        //let url = "http://127.0.0.1:4195/WebPrint/GetPrinterList";
-        let url = "http://192.168.169.1:82/local";
-        let dataPost = {
-            protocol: "3.0"
-        }
-
-        axios({
-            method: 'post',
-            url: url,
-            data: dataPost
-        }).then((res) => {
-            let printers = res.data.data.printers;
-
-            divMessage.innerHTML = url + "<br /><br />" + printers.join("<br /><br />");
-        });
-    }
-
-    async function cross443() {
-        let url = "https://127.0.0.1:4195/WebPrint/GetPrinterList";
-        let dataPost = {
-            protocol: "3.0"
-        }
-        let res = await ajax.send(url, dataPost, { autoShowErr: false });
-        if (res.ok) {
-            let printers = res.data.printers;
-
-            divMessage.innerHTML = url + "<br /><br />" + printers.join("<br /><br />");
-        }
-        else {
-            alert("error, debug here");
-            debugger
-            debugger
-            console.log(res);
-        }
-    }
-
-    function checkBrowser() {
-        var userAgent = navigator.userAgent;
-        divMessage.innerHTML = userAgent;
-    }
-</script> 
+    });
+</script>

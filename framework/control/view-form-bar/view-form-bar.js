@@ -342,6 +342,18 @@
                     datatype = this.dtbViewField.rows[nFind]["datatype"].value;
                     nullable = this.dtbViewField.rows[nFind]["flag_nullable"].value;
 
+                    // -- 1. 根据d-validate校验 --
+                    let vueFormItem = this.$parent.$refs[key];
+                    if (vueFormItem) {
+                        let validateRules = vueFormItem.$attrs["d-validate"];
+                        if (validateRules) {
+                            if (!this.validateFormValue(vueFormItem, key, text, validateRules)) {
+                                return false;
+                            }
+                        }
+                    }
+
+                    // -- 2. 根据视图字段定义校验 --
                     if (datatype.equals("tinyint")) {
                         this.$parent.form[key] = this.$parent.form[key] ? true : false;
                     }
@@ -405,6 +417,30 @@
                 }
             });
             return blResult;
+        },
+        validateFormValue(vueFormItem, key, text, validateRules) {
+            let ret;
+            let value = this.$parent.form[key];
+            let rules = validateRules.split(";");
+            // --------------------------------------------
+            for (let i = 0; i < rules.length; i++) {
+                let rule = rules[i];
+                if (rule.equals("dbFieldName")) {
+                    ret = validate.dbFieldName(value);
+                }
+                else {
+                    topWin.alert("未实现的验证规则：" + rule + "，请检查。", "error");
+                    continue;
+                }
+
+                if (ret != true) {
+                    topWin.alert(text + " 的值不符合要求：" + ret, "warning", _ => {
+                        vueFormItem.focus();
+                    });
+                    return false;
+                }
+            }
+            return true;
         },
         addnew() {
             // -- beforeAddnew --

@@ -2,13 +2,13 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-02-24
- * Modify Date: 2021-08-27
+ * Modify Date: 2021-09-05
  * Copyright 2021, doys-next.com
  * DLabel doys.js
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-08-27";
+    window.jsVer = top.jsVer || "2021-09-05";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }
@@ -53,6 +53,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/framework/core/core.js");
         arrRes.push(resRootPath + "/framework/core/ajax.js");
         arrRes.push(resRootPath + "/framework/core/datatable.js");
+        arrRes.push(resRootPath + "/framework/core/validate.js");
     }
     // -- 2. 按需资源 ------------------------------------------
     else if (fileRes.equals("designer")) {

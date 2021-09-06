@@ -43,9 +43,14 @@
         methods: {
             fieldNameChange(idx) {
                 let field = this.fields[idx];
-                if (field.k != "" && idx == this.fields.length - 1) {                    
+
+                if (!validate.dbFieldName(field.k)) {
+                    topWin.alert("变量名称只能由英文字母、数字、下划线或中文组成，并且必须以英文字母或中文开头。", "warning");
+                    return false;
+                }
+                if (field.k != "" && idx == this.fields.length - 1) {
                     this.fields.push({ "k": "", "v": "" });
-                } 
+                }
             },
             fieldDelete(idx) {
                 this.fields.splice(idx, 1);
@@ -60,7 +65,7 @@
         let fields = [], k, v;
         for (k in win.para.fields) {
             v = win.para.fields[k];
-            fields.push({ k: k, v: v }); 
+            fields.push({ k: k, v: v });
         }
         fields.push({ k: "", v: "" });
         app.fields = fields;
@@ -70,7 +75,7 @@
             let fields = {};
             for (let i = 0; i < app.fields.length; i++) {
                 let field = app.fields[i];
-                if (field.k) {
+                if (field.k && validate.dbFieldName(field.k)) {
                     fields[field.k] = field.v;
                 }
             }

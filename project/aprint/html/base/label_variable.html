@@ -14,7 +14,7 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="变量名称" required>
-                        <el-input v-model="form.name" ref="name" />
+                        <el-input v-model="form.name" ref="name" d-validate="dbFieldName" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
