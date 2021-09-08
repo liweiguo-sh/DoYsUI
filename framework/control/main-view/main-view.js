@@ -103,6 +103,9 @@
 
                     this.getViewData(0);
                     this.initToolbar();
+
+                    // -- 设置左侧导航区高度 --
+                    this.$refs.elAside.$el.style.height = this.$refs.elContainer.$el.clientHeight + "px";
                 }
                 else {
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });
@@ -556,8 +559,8 @@
         <el-header style="padding:0">
             <main-view-bar ref="viewbar" @onclick="onBarClick" @onsearch="onBarSearch" @onclear="onBarUnsearch" :attrs="viewBarProps"></main-view-bar>
         </el-header>
-        <el-container style1="height:500px;">    <!-- 此处暂且设置固定值500, 不明所以, 待改进 -->
-            <el-aside v-show="showAside" style="width:250px;margin:0;padding:0;border-left:solid 2px #ebeef5;border-bottom:solid 2px #ebeef5;border-top:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">
+        <el-container ref="elContainer">
+            <el-aside v-show="showAside" ref="elAside" style="width:250px;margin:0;padding:0;border-left:solid 2px #ebeef5;border-bottom:solid 2px #ebeef5;border-top:solid 1px #ebeef5;border-right:solid 1px #ebeef5;">
                 <el-tree v-show="showFlowTree" ref="treeFlow" @node-click="onFlowNodeClick" :data="dataFlowNode" node-key="id" :expand-on-click-node="false" default-expand-all highlight-current></el-tree>
                 <el-tree v-show="showNavTree" ref="treeNav" :props="navTreeProps" @node-click="onNavNodeClick" :data="dataNavNode" :load="getTreeNode" lazy :expand-on-click-node="false" highlight-current></el-tree>
             </el-aside>
