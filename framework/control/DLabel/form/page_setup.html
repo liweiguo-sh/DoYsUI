@@ -4,6 +4,10 @@
     <title>标签页面设置</title>
     <script src="../js/boot.js"></script>
     <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
         .el-col {
             padding-right: 20px;
         }
@@ -12,13 +16,44 @@
                 padding-right: 10px;
             }
     </style>
+    <!-- 预览区 -->
+    <style type="text/css">
+        .divPreview {
+            background-color: lightgray;
+            text-align: center;
+            height: 500px;
+            padding: 10px;
+        }
+
+        .divPage {
+            background-color: white;
+            box-shadow: 5px 5px 5px gray;
+        }
+
+        .tbPreview {
+            table-layout: fixed;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+            .tbPreview td {
+                padding: 0px;
+                background-color: white;
+            }
+
+        .divTD {
+            border: solid 1px black;
+            background-color: white;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
     <div id="app" style="width:960px;">
         <el-row style="margin-bottom:10px;">
             <el-button-group>
                 <el-button @click="save" icon="el-icon-check">确定</el-button>
-                <el-button @click="abandon" icon="el-icon-close">取消</el-button>
+                <el-button @click="cancel" icon="el-icon-close">取消</el-button>
             </el-button-group>
         </el-row>
         <div style="height:5px;border-top:1px solid #e0e0e0;margin-top:8px;margin-bottom:8px;"></div>
@@ -89,7 +124,9 @@
                     </el-row>
             </el-col>
             <el-col :span="12">
-                <div style="background-color:lightgray;text-align:center;vertical-align:middle;height:500px;">页面布局预览区</div>
+                <div ref="divPreview" class="divPreview">
+                    <div ref="divPage" class="divPage"></div>
+                </div>
             </el-col>
         </el-row>
     </div>
@@ -109,6 +146,9 @@
                 rows: 1, cols: 1,
                 horizontalSpace: 0, verticalSpace: 0
             },
+            labelHead: {
+                width: 80, height: 60
+            },
 
             saveAction: false                   // -- 是否保存修改 --
         },
@@ -117,12 +157,62 @@
                 this.saveAction = true;
                 win.close();
             },
-            abandon() {
+            cancel() {
                 this.saveAction = false;
                 win.close();
             },
             preview() {
-                console.log("标签页面设置，预览功能开发中...");
+                let divPreview = this.$refs.divPreview;
+                let divPage = this.$refs.divPage;
+                let width = divPreview.clientWidth - 20;                                // -- 纸张预览区可用最大宽度 --
+                let height = divPreview.clientHeight - 20;                              // -- 纸张预览区可用最大高度 --
+                let ratio = parseInt(this.page.width) / parseInt(this.page.height);     // -- 页面宽高比 --
+
+                if (ratio > width / height) {
+                    height = width / ratio;
+                }
+                else {
+                    width = height * ratio;
+                }
+                ratio = width / this.page.width;                                        // -- 预览缩放比例 --
+
+
+                this.$refs.divPage.style.width = ((this.page.width - this.page.marginLeft - this.page.marginRight) * ratio) + "px";
+                this.$refs.divPage.style.height = ((this.page.height - this.page.marginTop - this.page.marginBottom) * ratio) + "px";
+                this.$refs.divPage.style.paddingTop = (this.page.marginTop * ratio) + "px";
+                this.$refs.divPage.style.paddingLeft = (this.page.marginLeft * ratio) + "px";
+                // ----------------------------------------
+                let arrHtml = new Array();
+                arrHtml.push("<table class='tbPreview'");
+                for (let i = 0; i < this.page.rows; i++) {
+                    arrHtml.push("<tr>");
+                    for (let j = 0; j < this.page.cols; j++) {
+                        arrHtml.push("<td>");
+                        arrHtml.push("<div class='divTD' id='divTD_" + i + "_" + j + "'></div>");
+                        arrHtml.push("</td>");
+                    }
+                    arrHtml.push("</tr>");
+                }
+                arrHtml.push("</table>");
+                divPage.innerHTML = arrHtml.join("");
+
+                // -- 对divTD属性赋值 --
+                for (let i = 0; i < this.page.rows; i++) {
+                    for (let j = 0; j < this.page.cols; j++) {
+                        let divTD = gId("divTD_" + i + "_" + j);
+                        divTD.innerHTML = (i + 1) + "-" + (j + 1);
+                        divTD.style.width = (this.labelHead.width * ratio - 2) + "px";
+                        divTD.style.height = (this.labelHead.height * ratio - 2) + "px";
+                        divTD.style.lineHeight = (this.labelHead.height * ratio) + "px";
+
+                        if (j < this.page.cols - 1) {
+                            divTD.style.marginRight = (this.page.horizontalSpace * ratio) + "px";
+                        }
+                        if (i < this.page.rows - 1) {
+                            divTD.style.marginBottom = (this.page.verticalSpace * ratio) + "px";
+                        }
+                    }
+                }
             }
         }
     });
@@ -131,8 +221,10 @@
 <!-- winLoad -->
 <script>
     function winLoad() {
+        app.labelHead = g.x.extendJSON(app.labelHead, win.para.labelHead);
         app.page = g.x.extendJSON(app.page, win.para.page);
-        // ------------------------------------------------
+        app.preview();
+
         win.addEventListener("afterClose", () => {
             if (win.para.callback) {
                 win.para.callback({

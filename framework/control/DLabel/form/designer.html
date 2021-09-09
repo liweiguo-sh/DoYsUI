@@ -801,6 +801,7 @@
         };
         let para = {
             page: lbl.label.page,
+            labelHead: lbl.label.head,
             callback: function (jsp) {
                 if (jsp.saveAction) {
                     lbl.label.page = g.x.extendJSON(lbl.label.page, jsp.page);
@@ -820,7 +821,7 @@
             labelString: labelString,
             dataString: dataString,
             printerName: lbl.getPrinterName(),
-            copies: 1
+            copies: parseInt(lbl.label.page.rows) * parseInt(lbl.label.page.cols)
         }
         crossLocal.printLabel(para);
     }
