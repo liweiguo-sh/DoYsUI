@@ -19,7 +19,7 @@
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="区域">
-                        <el-select v-model="form.table_area_id" placeholder="请选择" filterable :popper-append-to-body="false">
+                        <el-select v-model="form.table_area_id" placeholder="请选择" filterable >
                             <el-option v-for="item in ds.table_area_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>

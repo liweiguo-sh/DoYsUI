@@ -45,7 +45,7 @@
         },
         methods: {
             initTree() {
-                ajax.send(this.controller + "/getCatalogRoot", { catalogType: this.catalogType}).then(res => {
+                ajax.send(this.controller + "/getCatalogRoot", { catalogType: this.catalogType }).then(res => {
                     if (res.ok) {
                         let dtbNode = res.dtbNode;
                         let data = [];

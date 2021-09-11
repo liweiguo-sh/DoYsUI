@@ -7,7 +7,7 @@
 <body>
     <div id="app">
         <el-row>
-            <el-col :span="8" style="padding-right:20px;">
+            <el-col :span="span[1]" style="padding-right:20px;">
                 <!-- 生成、删除数据，预览、打印，更多... -->
                 <el-row>
                     <el-button @click="createTask" type="success">生成数据</el-button>
@@ -55,7 +55,7 @@
                     <el-row>
                         <el-col>
                             <el-form-item label="标签" required>
-                                <el-select v-model="labelId" @change="onLabelChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                <el-select v-model="labelId" @change="onLabelChange" filterable  style="width:100%;">
                                     <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
                                         <span style="float: left">{{ item.code }}</span>
                                         <span style="float: right;">{{ item.name }}</span>
@@ -67,7 +67,7 @@
                     <el-row v-if="hasCustomerRef">
                         <el-col>
                             <el-form-item label="客户">
-                                <el-select v-model="customerId" @change="onCustomerChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                <el-select v-model="customerId" @change="onCustomerChange" filterable  style="width:100%;">
                                     <el-option v-for="item in customers" :key="item.id" :value="item.id" :label="item.name"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -76,7 +76,7 @@
                     <el-row v-if="hasProductRef">
                         <el-col>
                             <el-form-item label="产品料号(SKU)">
-                                <el-select v-model="productPnId" @change="onProductPnChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                <el-select v-model="productPnId" @change="onProductPnChange" filterable  style="width:100%;">
                                     <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.pn + '  ' + item.productName">
                                         <span style="float: left;">{{ item.pn }}</span>
                                         <span style="float: right">{{ item.productName }}</span>
@@ -136,7 +136,7 @@
                     </el-collapse>
                 </el-form>
             </el-col>
-            <el-col :span="16">
+            <el-col :span="span[2]">
                 <sub-view id="grid" ref="grid" @oncolclick="oncolclick"></sub-view>
             </el-col>
         </el-row>
@@ -149,6 +149,8 @@
     var app = new Vue({
         el: '#app',
         data: {
+            span: [24, 8, 16],
+
             dtbLabel: null,
             dtbLabelVariable: null,
             dtbTask: null,
@@ -437,6 +439,8 @@
 
                 let postData = {
                     labelId: this.labelId,
+                    customerId: this.customerId,
+                    productPnId: this.productPnId,
                     variables: variables,
                     qty: this.qty,
                     copies: this.copies
@@ -754,6 +758,10 @@
     var winPreview;
     // ------------------------------------------------------------------------
     function winLoad() {
+        let wTree = Math.round(24 * (600 / win.p.maxWidth));
+        app.span[1] = wTree;
+        app.span[2] = 24 - wTree;
+
         gId("grid").style.height = (win.p.maxHeight - 0) + "px";
 
         top.crossLocal.getPrinterList().then((res) => {

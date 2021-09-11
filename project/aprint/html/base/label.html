@@ -44,7 +44,7 @@
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="产品名称">
-                                <el-select v-model="form.product_id" filterable :popper-append-to-body="false">
+                                <el-select v-model="form.product_id" filterable >
                                     <el-option v-for="item in ds.product_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
                                 </el-select>
                             </el-form-item>

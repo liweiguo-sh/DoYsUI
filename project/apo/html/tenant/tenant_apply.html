@@ -35,7 +35,7 @@
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="模板" required>
-                        <el-select v-model="form.tenant_code_templet" ref="tenant_code_templet" filterable :popper-append-to-body="false">
+                        <el-select v-model="form.tenant_code_templet" ref="tenant_code_templet" filterable >
                             <el-option v-for="item in ds.tenant_code_templet" :key="item.tenant_id" :value="item.tenant_id" :label="item.tenant_name"></el-option>
                         </el-select>
                     </el-form-item>

@@ -26,7 +26,7 @@
                         </el-col>
                         <el-col :span="span[3]">
                             <el-form-item label="子系统" required>
-                                <el-select v-model="form.system_name" filterable :popper-append-to-body="false">
+                                <el-select v-model="form.system_name" filterable >
                                     <el-option v-for="item in ds.system_name" :key="item.name" :value="item.name" :label="item.text"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -35,14 +35,14 @@
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="导航树">
-                                <el-select v-model="form.tree_pk" clearable filterable :popper-append-to-body="false">
+                                <el-select v-model="form.tree_pk" clearable filterable >
                                     <el-option v-for="item in ds.tree_pk" :key="item.pk" :value="item.pk" :label="item.pk"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
                             <el-form-item label="基础表" required>
-                                <el-select v-model="form.table_pk" filterable default-first-option :popper-append-to-body="false">
+                                <el-select v-model="form.table_pk" filterable default-first-option >
                                     <el-option v-for="item in ds.table_pk" :key="item.pk" :value="item.pk" :label="item.name + ' (' + item.database_pk + ')'">
                                         <span style="float: left">{{ item.name }}</span>
                                         <span style="float: right;">{{ item.database_pk }}</span>
@@ -52,7 +52,7 @@
                         </el-col>
                         <el-col :span="span[3]">
                             <el-form-item label="数据库" required>
-                                <el-select v-model="form.database_pk" filterable :popper-append-to-body="false">
+                                <el-select v-model="form.database_pk" filterable >
                                     <el-option v-for="item in ds.database_pk" :key="item.pk" :value="item.pk" :label="item.pk"></el-option>
                                 </el-select>
                             </el-form-item>

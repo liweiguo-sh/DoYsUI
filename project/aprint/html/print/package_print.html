@@ -59,7 +59,7 @@
                     <el-row>
                         <el-col>
                             <el-form-item label="标签" required>
-                                <el-select v-model="lableObj" ref="lableObj" @change="onLabelChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                <el-select v-model="lableObj" ref="lableObj" @change="onLabelChange" filterable  style="width:100%;">
                                     <el-option v-for="item in labels" :key="item.id" :value="item" :label="item.code + '    ' + item.name">
                                         <span style="float: left">{{ item.code }}</span>
                                         <span style="float: right;">{{ item.name }}</span>
@@ -71,7 +71,7 @@
                     <el-row v-if="hasCustomerRef">
                         <el-col>
                             <el-form-item label="客户">
-                                <el-select v-model="customerId" @change="onCustomerChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                <el-select v-model="customerId" @change="onCustomerChange" filterable  style="width:100%;">
                                     <el-option v-for="item in customers" :key="item.id" :value="item.id" :label="item.name"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -80,7 +80,7 @@
                     <el-row v-if="hasProductRef">
                         <el-col>
                             <el-form-item label="产品料号(SKU)">
-                                <el-select v-model="productPnId" @change="onProductPnChange" filterable :popper-append-to-body="false" style="width:100%;">
+                                <el-select v-model="productPnId" @change="onProductPnChange" filterable  style="width:100%;">
                                     <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.productName + '    ' + item.pn">
                                         <span style="float: left">{{ item.productName }}</span>
                                         <span style="float: right;">{{ item.pn }}</span>

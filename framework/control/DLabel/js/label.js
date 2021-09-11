@@ -1207,7 +1207,12 @@ class Label {
 
     setValue(name, value) {
         if (this.fields[name] == undefined) {
-            throw new Error("The label variable (" + name + ") was not found, please check.");
+            if (value) {
+                throw new Error("The label variable (" + name + ") was not found, please check.");
+            }
+            else {                
+                return; // -- 容错。例如，旧版本的标签缺少当前字段，赋值时又有这个字段。但是因为值为空，所以可以忽略 --
+            }
         }
         this.fields[name] = value;
     }

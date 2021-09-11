@@ -8,15 +8,41 @@
     <div id="app">
         <el-row>
             <el-col style="width:400px;">
-                <el-row>
-                    <el-select v-model="labelId" filterable style="width:100%;">
+                <!-- 标签、产品、客户、供应商 -->
+                <el-row style="margin-bottom:12px;">
+                    <el-select v-model="labelId" filterable style="width:100%;" clearable placeholder="请选择标签...">
                         <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
                             <span style="float: left">{{ item.code }}</span>
                             <span style="float: right;">{{ item.name }}</span>
                         </el-option>
                     </el-select>
                 </el-row>
+                <el-row style="margin-bottom:12px;">
+                    <el-select v-model="productPnId" filterable style="width:100%;" clearable placeholder="请选择产品...">
+                        <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.pn + '  ' + item.product_name">
+                            <span style="float: left;">{{ item.pn }}</span>
+                            <span style="float: right">{{ item.product_name }}</span>
+                        </el-option>
+                    </el-select>
+                </el-row>
+                <el-row style="margin-bottom:12px;">
+                    <el-select v-model="customerId" filterable style="width:100%;" clearable placeholder="请选择客户...">
+                        <el-option v-for="item in customers" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                            <span style="float: left">{{ item.code }}</span>
+                            <span style="float: right;">{{ item.name }}</span>
+                        </el-option>
+                    </el-select>
+                </el-row>
+                <el-row style="margin-bottom:12px;" v-show="false">
+                    <el-select v-model="supplierId" filterable style="width:100%;" clearable placeholder="请选择供应商...">
+                        <el-option v-for="item in suppliers" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                            <span style="float: left">{{ item.code }}</span>
+                            <span style="float: right;">{{ item.name }}</span>
+                        </el-option>
+                    </el-select>
+                </el-row>
                 <br />
+                <!-- 日期范围 -->
                 <el-row>
                     <el-col :span="11">
                         <el-date-picker type="date" placeholder="选择起始日期" v-model="date1" style="width:100%"></el-date-picker>
@@ -64,24 +90,25 @@
         el: '#app',
         data: {
             labels: [],
+            productPns: [],
+            customers: [],
+            suppliers: [],
 
             labelId: null,
+            productPnId: null,
+            customerId: null,
+            supplierId: null,
             date1: null,
             date2: null,
+
             urlXlsx: ""
         },
         mounted() {
-            ajax.send("/aprint/print/print_query/getLabels", {}).then((res) => {
-                let dtbLabel = res.dtbLabel;
-                let labels = [];
-                for (let i = 0; i < dtbLabel.rowCount; i++) {
-                    labels.push({
-                        id: dtbLabel.rows[i]["id"].value,
-                        code: dtbLabel.rows[i]["code"].value,
-                        name: dtbLabel.rows[i]["name"].value
-                    });
-                }
-                this.labels = labels;
+            ajax.send("/aprint/print/print_query/getMountedData", {}).then((res) => {
+                this.labels = res.labels; 
+                this.productPns = res.productPns;
+                this.customers = res.customers;
+                this.suppliers = res.suppliers;
             })
 
             this.reset();
@@ -89,6 +116,9 @@
         methods: {
             reset() {
                 this.labelId = null;
+                this.productPnId = null;
+                this.customerId = null;
+                this.supplierId = null;
                 this.date1 = new Date();
                 this.date2 = new Date();
                 this.urlXlsx = "";
@@ -105,6 +135,15 @@
                 let filter = "cdate >= '" + this.date1.toDate().toStr() + "' AND cdate <= '" + this.date2.toDate().toStr() + " 23:59:59'";
                 if (this.labelId) {
                     filter += " AND label_id = " + this.labelId;
+                }
+                if (this.productPnId) {
+                    filter += " AND product_pn_id = " + this.productPnId;
+                }
+                if (this.customerId) {
+                    filter += " AND customer_id = " + this.customerId;
+                }
+                if (this.supplierId) {
+                    filter += " AND supplier_id = " + this.supplierId;
                 }
                 this.$refs.grid.setFilter(filter);
             },
