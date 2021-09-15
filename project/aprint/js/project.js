@@ -42,6 +42,9 @@ async function verfiyPrintWorkerLicense() {
                     return;
                 }
             }
+            else {
+                console.log(res.error);
+            }
         }
         catch (e) {
             console.log(e);

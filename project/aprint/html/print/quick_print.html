@@ -585,7 +585,6 @@
                         para.dataString = await this.getPrintData_BarTender();
                     }
                 }
-                para.md5Origin = topWin.cfg.md5Origin;
                 top.crossLocal.printLabel(para);
             },
 
@@ -712,8 +711,7 @@
                     lbl.print({
                         data: [lbl.getData()],
                         printerName: this.printerName,
-                        copies: this.copies,
-                        md5Origin: topWin.cfg.md5Origin
+                        copies: this.copies
                     });
 
                     // -- 重置标签数据为当前变量值 --
