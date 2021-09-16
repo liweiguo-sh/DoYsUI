@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>login</title>
+    <script src="../../../../framework/core/boot.js"></script>
+
+    <!-- 仅login.html页面需要单独引用下列js -->
+    <script src="../../../../framework/system/login.js"></script>
+    <script src="../../../../framework/system/user.js"></script>
+
+    <script src="../../../../plugin/util/jquery-3.1.1.min.js"></script>
+    <script src="../../../../plugin/util/jquery_md5.js"></script>
+
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background-image: url('../../image/login/background.png');
+            background-position: center center;
+            background-repeat: no-repeat no-repeat;
+            background-size: cover;
+        }
+
+        .box-card {
+            width: 360px;
+        }
+
+        .el-row {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .image1 {
+            position: absolute;
+            left: 8%;
+            top: 6%;
+        }
+    </style>
+</head>
+<body onload="winLoad()">
+    <img src="../../image/login/maso1.png" class="image1" />
+    
+    <div id="app">
+        <el-link href="https://www.microsoft.com/zh-cn/edge/business/download" style="color:#c0c0c0" target="_blank" title="不建议使用除Edge、Chrome、Firefox之外的其它浏览器">Edge(推荐使用浏览器)</el-link><br />
+        <el-card id="elCardLogin" class="box-card">
+            <el-row style="text-align:center;">
+                <el-image style="width:100%; height:100%" :src="logoUrl"></el-image>
+            </el-row>
+            <el-row>
+                <el-input v-model="tenantId" placeholder="企业代码" prefix-icon="el-icon-office-building" clearable></el-input>
+            </el-row>
+            <el-row>
+                <el-input v-model="userPk" placeholder="用户名" prefix-icon="el-icon-user-solid" clearable></el-input>
+            </el-row>
+            <el-row>
+                <el-input v-model="password" placeholder="密码" prefix-icon="el-icon-lock" show-password></el-input>
+            </el-row>
+            <el-row>
+                <el-col :span="12">
+                    <el-input v-model="verifyCode" placeholder="验证码" prefix-icon="el-icon-success" clearable></el-input>
+                </el-col>
+                <el-col :span="12" style="text-align:right">
+                    <el-image :src="verifyCodeUrl" style="width:95%;height:40px;" placeholder="loading..."></el-image>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-checkbox v-model="remenber">记住密码</el-checkbox>
+            </el-row>
+            <el-row>
+                <el-button type="primary" v-if="syncLoginMode" @click="login1" title="同步登录" style="width:100%">登&nbsp;&nbsp;录</el-button>
+                <el-button type="primary" v-if="!syncLoginMode" @click="login2" title="异步登录" style="width:100%">登&nbsp;&nbsp;录</el-button>
+            </el-row>
+        </el-card>
+        <el-dialog :visible.sync="messageVisible" title="系统信息提示：">
+            <p>{{message}}</p>
+        </el-dialog>
+        <div id="divMessage"></div>
+    </div>
+</body>
+</html>
+
+<!-- winLoad -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            logoUrl: "",
+            tenantId: "",
+            userPk: "",
+            password: "",
+            verifyCode: "",
+            verifyCodeUrl: "",
+            remenber: false,
+            message: "",
+            messageVisible: false,
+            syncLoginMode: true
+        },
+        mounted() {
+            let heightBlank = document.body.offsetHeight - gId("elCardLogin").offsetHeight;
+            let widthBlank = document.body.offsetWidth - gId("elCardLogin").offsetWidth;
+
+            gId("elCardLogin").style.marginTop = (0.6 * heightBlank) + "px";
+            gId("elCardLogin").style.marginLeft = (0.8 * widthBlank) + "px";
+            // --------------------------------------------
+            let hostname = window.document.location.hostname;
+            
+            if (hostname.startsWith("udi.")) {
+                this.logoUrl = "../../image/login/maso_udi.jpg";
+            }
+            else {
+                this.logoUrl = "../../image/login/maso.png";
+            }
+            // --------------------------------------------
+            this.remenber = getLocalItem("login.remenber", "0").equals("1");
+            if (this.remenber) {
+                this.tenantId = getLocalItem("login.tenantId")
+                this.userPk = getLocalItem("login.userPk");
+                this.password = getLocalItem("login.password");
+            }
+            this.tenantId = getUrlItem("tenantId") || this.tenantId;
+            this.userPk = getUrlItem("userPk") || this.userPk;
+            this.password = getUrlItem("password") || this.password;
+
+            ajax.send('/user/getVerifyCode').then(response => {
+                this.verifyCodeUrl = g.prefix + response.url;
+                this.verifyCode = response.verifyCode;
+            })
+        },
+        methods: {
+            login1() {
+                loginAsync()
+            },
+            login2() {
+                loginSync()
+            }
+        }
+    })
+
+    function winLoad() {
+        let autoLogin = (getUrlItem("autoLogin").equals("1") || getUrlItem("autoLogin").equals("true"));
+        if (autoLogin) {
+            setTimeout(function () {
+                if (app.syncLoginMode) {
+                    app.login1();
+                }
+                else {
+                    app.login2();
+                }
+            }, 500);
+        }
+    }
+</script>
+
+<!-- login -->
+<script>
+    let urlMain = "./main.html";
+
+    async function loginAsync() {
+        try {
+            let para = getLoginPara();
+            let response = await login(para);
+            if (response.ok) {
+                log("token = " + response.token);
+            }
+            else {
+                log("登录失败");
+            }
+            log("login success");
+        }
+        catch (e) {
+            log(e.message);
+        }
+    }
+    function loginSync() {
+        let para = getLoginPara();
+        login(para).then(response => {
+            if (response) {
+                log("token = " + response.token);
+            }
+            else {
+                log("登录失败");
+            }
+        }).catch(e => {
+            log(e.message);
+        })
+
+        log("登录认证比较慢，我先抓紧时间干点啥先");
+    }
+
+    function getLoginPara() {
+        return {
+            tenantId: app.tenantId,
+            userPk: app.userPk,
+            password: app.password,
+            verifyCode: app.verifyCode,
+            urlMain: urlMain
+        };
+    }
+</script>
+
+<!-- log -->
+<script>
+    function log(msg) {
+        if (app.messageVisible) {
+            app.message += "\n" + msg
+        }
+        else {
+            app.message = msg;
+            app.messageVisible = true
+        }
+    }
+</script>
