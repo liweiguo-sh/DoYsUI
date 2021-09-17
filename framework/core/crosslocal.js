@@ -34,9 +34,11 @@
         let ifr = document.createElement("IFRAME");
         document.body.appendChild(ifr);
         ifr.src = crossLocal.urlLocal + "?rnd=" + Math.random();
+        ifr.title = "local";
         ifr.style.width = "600px";
         ifr.style.height = "200px";
         ifr.style.display = "none";
+        
 
         ifr.addEventListener("load", () => {
             window.winLocal = ifr.contentWindow;
