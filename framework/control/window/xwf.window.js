@@ -2,8 +2,8 @@
 * xwf.win JavaScript Library v1.0
 * Author: Volant Lee
 * Create Date: 2013-02-21
-* Modify Date: 2019-08-29
-* Copyright 2013-2019, xpas-next.com
+* Modify Date: 2021-09-18
+* Copyright 2013-2021, xpas-next.com
 * Description: 窗口控件 
 */
 var css_xwf_window = true;
@@ -141,7 +141,7 @@ window.xwf_window.prototype.createWindow = function (p) {
     arrHtml[idx++] = "</tr></table>";
 
     arrHtml[idx++] = "<iframe id='" + this.prefix + "iframe_" + windowId + "' src='about:blank' class='" + this.prefix + "ifrWin" + (p.windowState ? "Max" : "") + "' ";
-    arrHtml[idx++] = "frameborder='0' style='width:300px;height:100px;'></iframe>";
+    arrHtml[idx++] = "frameborder='0' style='width:300px;height:100px;' title='ifrWindow'></iframe>";
     // ----------------------------------------------------
     var divWin = this.doc.createElement("DIV");
     this.doc.body.appendChild(divWin);

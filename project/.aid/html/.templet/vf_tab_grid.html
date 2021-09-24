@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>选项卡窗口</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-tabs ref="tab" v-model="activeTabName" @tab-click="tabClick">
+            <el-tab-pane name="main" :key="0" label="基本信息">
+                <el-form :model="form" ref="form" label-width="145px" label-position="left">
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="接口代码" required>
+                                <el-input v-model="form.code" ref="code" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="接口名称">
+                                <el-input v-model="form.name" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="接口地址">
+                                <el-input v-model="form.url" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="方式">
+                                <el-select v-model="form.method" style="width:100%;" clearable>
+                                    <el-option value="GET" label="GET"></el-option>
+                                    <el-option value="POST" label="POST"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            &nbsp;
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="备注">
+                                <el-input v-model="form.remark" type="textarea" :rows="3" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <div style="height:145px"></div>
+                    </el-row>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane name="fields" :key="1" label="接口字段列表">
+                <sub-view id="grid" ref="grid" style="height:420px;"></sub-view>
+            </el-tab-pane>
+        </el-tabs>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            activeTabName: "main",
+
+            span: [24, 12, 12],
+            form: {
+                parent_id: null
+            },
+            parentId: null
+        },
+
+        methods: {
+            tabClick() {
+                if (!this.activeTabName.equals("main")) {
+                    if (!this.$refs.vf.status.equals("view")) {
+                        this.$refs.vf.save().then((result) => {
+                            if (!result) {
+                                this.activeTabName = "main";
+                            }
+                        })
+                    }
+                }
+            },
+
+            afterAddnew() {
+                this.activeTabName = "main";
+                this.form.parent_id = this.parentId;
+
+            },
+            afterMove() {
+                let filter = "data_interface_id = " + this.$refs.vf.getId();
+                if (this.$refs.grid.initialized) {
+                    this.$refs.grid.setFilter(filter);
+                }
+                else {
+                    var para = {
+                        viewPk: "data_interface_field",
+                        flowPks: "'sys_crud'",
+                        filter: filter,
+                        vfUrl: g.x.getPath("/") + "data_interface_field.html"
+                    }
+                    this.$refs.grid.init(para);
+                }
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.parentId = win.parentWindow.app.$refs.vf.getId();
+    }
+</script>

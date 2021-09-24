@@ -376,7 +376,7 @@
 
             let id = this.status.equals("addnew") ? 0 : (this.view ? this.dataRowView["id"].value : this.id);
             let postData = { viewPk: this.viewPk, id: id, idCopy: this.idCopy, form: this.$parent.form };
-            await ajax.send(this.controller + "/save", postData).then(res => {
+            await ajax.send(this.controller + "/save", postData, { autoShowErr: false }).then(res => {
                 if (res.ok) {
                     let addnew = this.status.equals("addnew");
                     let dtbViewData = res.dtbViewData;

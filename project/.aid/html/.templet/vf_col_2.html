@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>楼层定义</title>
+    <title>标准2列单表表单</title>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("view-form-bar");
@@ -11,35 +11,41 @@
     <div id="app" style="width:800px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <!-- 必填字段、日期字段 -->
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="区域名称">
-                        <el-input v-model="form.area_name" :disabled="true" />
+                    <el-form-item label="必填字段" required>
+                        <el-input v-model="form.name" ref="name" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="建筑名称">
-                        <el-input v-model="form.building_name" :disabled="true" />
+                    <el-form-item label="日期">
+                        <el-date-picker v-model="form.bus_date" type="date" placeholder="续费日期" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
                     </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
                 </el-col>
             </el-row>
+
+            <!-- 下拉框 -->
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="楼层名称" required>
-                        <el-input v-model="form.name" />
+                    <el-form-item label="静态枚举值">
+                        <el-select v-model="form.method" style="width:100%;" clearable default-first-option>
+                            <el-option value="GET" label="GET"></el-option>
+                            <el-option value="POST" label="POST"></el-option>
+                        </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="序号">
+                    <el-form-item label="序号" required>
                         <el-input v-model="form.sequence" />
                     </el-form-item>
                 </el-col>
             </el-row>
+
+            <!-- 跨列多行文本 -->
             <el-row>
                 <el-col :span="span[0]">
-                    <el-form-item label="备注">
+                    <el-form-item label="多行文本">
                         <el-input v-model="form.remark" type="textarea" :rows="2" />
                     </el-form-item>
                 </el-col>
@@ -55,29 +61,27 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {}
+            form: {
+                parent_id: null
+            },
+            parentId: null
         },
 
         methods: {
-            beforeAddnew: function () {
-                if (!win.para.building_id) {
-                    topWin.alert("请先选择左侧导航区的建筑节点。", "warning", () => {
-                        win.close();
-                    });
-                    return false;
-                }
-                return true;
-            },
-            afterAddnew: function () {
-                this.form.building_id = win.para.building_id;
+            afterAddnew() {
+                this.form.parent_id = this.parentId;
+                this.form.bus_date = (new Date()).toStr();
             },
             beforeSave: function () {
-                if (!this.form.name) {
-                    topWin.alert("请输入楼层名称。", "warning");
-                    return false;
-                }
                 return true;
             }
         }
     });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.parentId = win.parentWindow.app.$refs.vf.getId();
+    }
 </script>
