@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-09-04
+ * Modify Date: 2021-09-28
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -1205,16 +1205,17 @@ class Label {
         return data;
     }
 
-    setValue(name, value) {
+    setValue(name, value, ignoreIfNoExist = false) {
         if (this.fields[name] == undefined) {
+            if (ignoreIfNoExist) return;    // -- 如果变量不存在，忽略错误 --
             if (value) {
                 throw new Error("The label variable (" + name + ") was not found, please check.");
             }
-            else {                
+            else {
                 return; // -- 容错。例如，旧版本的标签缺少当前字段，赋值时又有这个字段。但是因为值为空，所以可以忽略 --
             }
         }
-        this.fields[name] = value;
+        this.fields[name] = value || "";
     }
     setElementValue(name, value) {
         let element = this.getElementByName(name);

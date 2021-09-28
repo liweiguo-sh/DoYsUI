@@ -59,6 +59,7 @@
                             <el-option value="" label="无"></el-option>
                             <el-option value="product" label="产品参数"></el-option>
                             <el-option value="customer" label="客户参数"></el-option>
+                            <el-option value="supplier" label="供应商参数"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
@@ -161,13 +162,15 @@
             labelVariables: [],
 
             refParas: [],                       // -- 变量引用参数集 --
+            productParas: [],                   // -- 产品参数定义集 --
             customerParas: [],                  // -- 客户参数定义集 --
-            productParas: []                    // -- 产品参数定义集 --
+            supplierParas: []                   // -- 供应商参数定义集 --            
         },
         mounted() {
-            ajax.send("/aprint/label_variable/getVariableRefDataSource", {}).then(res => {
-                this.customerParas = res.customerParas;
+            ajax.send("/aprint/label_variable/getVariableRefDataSource", {}).then(res => {                
                 this.productParas = res.productParas;
+                this.customerParas = res.customerParas;
+                this.supplierParas = res.supplierParas;
             })
         },
         methods: {
@@ -183,6 +186,9 @@
                 }
                 else if (this.form.quote_from.equals("customer")) {
                     this.refParas = this.customerParas;
+                }
+                else if (this.form.quote_from.equals("supplier")) {
+                    this.refParas = this.supplierParas;
                 }
                 else {
                     this.refParas = [];

@@ -132,6 +132,26 @@ g.x.extendJSON = function (json1, json2) {
     }
     return json1;
 };
+g.x.getAbsolutePath = function (jsSelf = "core.js", relativePath = "framework") {
+    let absolutePath;
+    let scripts = document.getElementsByTagName("script");
+    for (var i = scripts.length - 1; i >= 0; i--) {
+        var jsSrc = scripts[i].src;
+        var idx = jsSrc.indexOf("/" + jsSelf);
+        if (idx > 0) {
+            absolutePath = jsSrc.substring(0, idx + 1);
+            break;
+        }
+    }
+    if (!absolutePath) {
+        alert("When running g.x.getAbsolutePath, unexpected error encountered, please check.");
+        return;
+    }
+    if (relativePath) {
+        absolutePath = absolutePath.substring(0, absolutePath.lastIndexOf("/" + relativePath + "/") + relativePath.length + 2);
+    }
+    return absolutePath;
+}
 
 g.x.getEventTarget = function (evt) {
     evt = evt || window.event;

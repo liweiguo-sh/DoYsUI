@@ -340,18 +340,24 @@ UtilElement.computeValue = function (jsp) {
     }
 }
 UtilElement.replaceFieldValue = function (value, fields) {
-    let left, right;
+    let left, right, fromIndex = 0;
     let fieldName, fieldValue;
 
     while (true) {
-        left = value.indexOf("<%");
+        left = value.indexOf("<%", fromIndex);
         if (left < 0) break;
         right = value.indexOf("%>", left + 2);
         if (right < 0) break;
 
         fieldName = value.substring(left + 2, right);
         fieldValue = fields[fieldName];
-        value = value.substring(0, left) + fieldValue + value.substring(right + 2);
+        if (fieldValue != undefined) {
+            value = value.substring(0, left) + fieldValue + value.substring(right + 2);
+            fromIndex = left + fieldValue.length;
+        }
+        else {
+            fromIndex = right + 2;
+        }
     }
     return value;
 }
@@ -759,7 +765,10 @@ UtilElement.draw_image = function (context, element) {
     let urlImg = element.image.url || "";
     // ----------------------------------------------------
     if (urlImg.equals("")) {
-        urlImg = "../image/placeholder.png";
+        if (!UtilElement.urlPlaceholderImage) {
+            UtilElement.urlPlaceholderImage = g.x.getAbsolutePath("element.js", "DLabel") + "image/placeholder.png";
+        }
+        urlImg = UtilElement.urlPlaceholderImage;        
     }
     else {
         if (!urlImg.equals("") && !urlImg.startsWith("http:") && !urlImg.startsWith("https:")) {

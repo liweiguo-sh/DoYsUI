@@ -314,7 +314,6 @@
                         let quoteFrom = this.dtbLabelVariable.rows[i]["quote_from"].value;
                         let dateFormat = this.dtbLabelVariable.rows[i]["rule_date_format"].value;
                         let disabled = (this.dtbLabelVariable.rows[i]["flag_manual_modify"].value == 0);
-                        let js = this.dtbLabelVariable.rows[i]["js_after_input"].value;
 
                         // -- 代入客户变量或产品变量(如果有) --
                         if (!quoteFrom.equals("")) {
@@ -372,8 +371,7 @@
                             value: value,
                             type: type,
                             dateFormat: dateFormat,
-                            disabled: disabled,
-                            js: js
+                            disabled: disabled
                         };
                     }
                 }

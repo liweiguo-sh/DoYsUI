@@ -1,0 +1,626 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>集中打印(新)</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("DLabelPreview");
+    </script>
+
+    <style type="text/css">
+        body {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            padding-left: 5px;
+            padding-right: 10px;
+        }
+
+        .el-col {
+            --border: dotted 1px green;
+        }
+
+        #divLabelContainer {
+            height: 500px;
+            position: relative;
+            box-shadow: 2px 2px 15px gray;
+            border-radius: 5px;
+        }
+
+        .divPlaceholder {
+            width: 2px;
+            border: solid 1px white;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="span[1]">
+                <el-tabs ref="tab" v-model="activeTabName">
+                    <el-tab-pane name="standard" label="常规打印"></el-tab-pane>
+                    <el-tab-pane name="excel" label="Excel导入打印"></el-tab-pane>
+                    <el-tab-pane name="interface" label="单据接口打印">
+                        <el-form label-width="120px" label-position="left" size1="medium">
+                            <el-form-item label="业务单据接口">
+                                <el-select v-model="interfaceId" default-first-option filterable style="width:100%;">
+                                    <el-option v-for="item in interfaces" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                                        <span>{{ item.code }}</span>
+                                        <span style="float:right;">{{ item.name }}</span>
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="业务单号">
+                                <el-input v-model="taskPk" placeholder="请输入单据号...">
+                                    <el-button slot="append" icon="el-icon-search"></el-button>
+                                </el-input>
+                            </el-form-item>
+                        </el-form>
+                    </el-tab-pane>
+                </el-tabs>
+                <el-row>
+                    <el-button @click="createTask" type="success" v-if="activeTabName=='standard'">生成打印数据</el-button>
+                    <el-button @click="createTask" type="success" v-if="activeTabName=='interface'">拉取接口数据</el-button>
+                    <el-button @click="createTask" type="success" v-if="activeTabName=='excel'">导入Excel数据(.xls;.xlsx)</el-button>
+
+                    <el-button @click="print" type="primary" style="float:right;">打印</el-button>
+                    <div class="divPlaceholder"></div>
+                    <el-dropdown @command="more" placement="bottom-start" style="float:right;">
+                        <el-button type="primary" icon="el-icon-more" circle></el-button>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="toSupplier" icon="el-icon-full-screen">分发任务至供应商</el-dropdown-item>
+                            <el-dropdown-item v-show="false" command="exportData" icon="el-icon-full-screen">导出数据</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                    <div class="divPlaceholder"></div>
+                    <el-button type="warning" @click="deleteTask" icon="el-icon-delete" circle style="float:right" title="删除打印任务单"></el-button>
+                </el-row>
+                <hr />
+                <el-form label-width="120px" label-position="left">
+                    <!-- 任务单号、起始行号 -->
+                    <el-form-item label="任务单号">
+                        <el-input v-model="taskPk" placeholder="任务单号" :disabled="true" />
+                    </el-form-item>
+                    <el-row :gutter="20" style="margin-top:15px;">
+                        <el-col :span="12">
+                            <el-form-item label="起始行">
+                                <el-input v-model="rowNoFrom" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="到">
+                                <el-input v-model="rowNoTo" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <!-- 打印机、打印数量、份数 -->
+                    <el-form-item label="打印机">
+                        <el-select v-model="printerName" @change="preview();onPrinterChange();" default-first-option filterable clearable style="width:100%;">
+                            <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-row :gutter="20">
+                        <el-col :span="12">
+                            <el-form-item label="打印数量">
+                                <el-input v-model="qty" :disabled="!activeTabName.equals('standard')" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="份数">
+                                <el-input v-model="copies" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-col>
+            <!-- 标签区 -->
+            <el-col :span="span[2]" style="padding:0px 0px 0px 30px;">
+                <el-form label-width="160px" label-position="left" size1="medium">
+                    <!-- 标签列表 -->
+                    <el-form-item label="标签" required>
+                        <el-select v-model="label.id" @change="onLabelChange" default-first-option filterable style="width:100%;">
+                            <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                                <span style="float: left">{{ item.code }}</span>
+                                <span style="float: right;">{{ item.name }}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <!-- 产品、客户、供应商 -->
+                    <el-form-item label="产品料号(SKU)" v-show="hasProductRef">
+                        <el-select v-model="productPnId" @change="onProductPnChange" default-first-option filterable clearable style="width:100%;">
+                            <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.pn + '  ' + item.product_name">
+                                <span>{{ item.pn }}</span>
+                                <span style="float:right">{{ item.product_name }}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="客户" v-show="hasCustomerRef">
+                        <el-select v-model="customerId" @change="onCustomerChange" default-first-option filterable clearable style="width:100%;">
+                            <el-option v-for="item in customers" :key="item.id" :value="item.id" :label="item.name"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="供应商" v-show="hasSupplierRef">
+                        <el-select v-model="supplierId" @change="onSupplierChange" default-first-option filterable clearable style="width:100%;">
+                            <el-option v-for="item in suppliers" :key="item.id" :value="item.id" :label="item.name"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <!-- 变量输入区 -->
+                    <hr />
+                    <el-row v-for="item in variables" :key="item.name">
+                        <el-col>
+                            <el-form-item :label="item.name" v-if="item.type.equals('date') && !item.disabled">
+                                <el-date-picker v-model="item.value" @change="onVarChange(item.name,item)" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
+                            </el-form-item>
+                            <el-form-item :label="item.name" v-else-if="!item.disabled">
+                                <el-input v-model="item.value" @change="onVarChange(item.name,item)" :disabled="item.disabled" placeholder="打印前请赋值..." />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-collapse>
+                        <el-collapse-item title="..." name="1">
+                            <el-row v-for="item in variables" :key="item.name">
+                                <el-col>
+                                    <el-form-item :label="item.name" v-if="item.disabled">
+                                        <el-input v-model="item.value" :disabled="item.disabled" />
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-collapse-item>
+                    </el-collapse>
+                </el-form>
+            </el-col>
+        </el-row>
+        <el-collapse v-model="activeCollapses">
+            <el-collapse-item name="preview">
+                <template slot="title">
+                    <span style="font-size:large;color:#409EFF">
+                        标签预览区<i class="header-icon el-icon-postcard"></i>
+                    </span>
+                </template>
+                <el-row>
+                    <el-col :span="span[1]">
+                        <el-form label-width="140px" label-position="left">
+                            <el-form-item label="标签代码">{{label.code}}</el-form-item>
+                            <el-form-item label="标签名称">{{label.name}}</el-form-item>
+                            <el-form-item label="宽高">{{label.width}} * {{label.height}}</el-form-item>
+                            <el-form-item label="备注">{{label.remark}}</el-form-item>
+                            <el-button type="primary" plain style="margin-left:140px;" @click="printProof">打印样张</el-button>
+                        </el-form>
+                    </el-col>
+                    <el-col :span="span[2]" style="padding:15px 30px 0px 190px;">
+                        <div style="text-align: right; border: solid 0px red; position: relative;">
+                            <div id="divLabelContainer"></div>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-collapse-item>
+            <el-collapse-item title="打印任务单数据列表" name="grid">
+                <sub-view id="grid" ref="grid" @oncolclick="oncolclick" style="height:500px;"></sub-view>
+            </el-collapse-item>
+        </el-collapse>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            activeTabName: "standard",
+            activeCollapses: [],
+            span: [24, 8, 16],
+
+            labels: [],
+            label: {                        // -- 标签对象 --
+                id: null,                   // -- 标签ID --
+                type: "",                   // -- 标签类型(DLabel/BarTender/NiceLabel etc.) --
+                content: ""
+            },
+
+            productPns: [],                 // -- 产品料号集合 --
+            productPnId: "",
+            productPnPara: {},              // -- 产品料号参数集 --
+            customers: [],                  // -- 客户集合 --
+            customerId: "",                 // -- 当前选中客户ID --
+            customerPara: {},               // -- 当前客户参数集 --
+            suppliers: [],                  // -- 供应商集合 --
+            supplierId: null,
+            supplierPara: {},
+
+            variables: {},                  // -- 标签变量集合 --
+            variablesUser: {},              // -- 用户修改过的标签变量集合 --
+            interfaces: [],                 // -- 业务数据接口列表 --
+            interfaceId: null,
+
+            hasProductRef: false,           // -- 有变量引用产品参数 --
+            hasCustomerRef: false,          // -- 有变量引用客户参数 --
+            hasSupplierRef: false,          // -- 有变量引用供应商参数 --
+
+            qty: null,
+            copies: 1,
+            taskId: 0,
+            taskPk: null,
+            rowNoFrom: null,
+            rowNoTo: null,
+
+            printers: [],                   // -- 打印机数组 --
+            printerName: "",
+        },
+        mounted() {
+            ajax.send("/aprint/print/quick/getLabels", {}).then(res => {
+                this.labels = res.labels;
+            });
+            ajax.send("/aprint/print/quick/getInterfaces", {}).then(res => {
+                this.interfaces = res.interfaces;
+                if (this.interfaces.length == 1) {
+                    this.interfaceId = this.interfaces[0].id;
+                }
+            });
+
+            this.initGrid();
+
+            this.getQuoteData();
+        },
+        methods: {
+            reset() {
+                this.variables = {};
+                this.variablesUser = {};
+
+                this.taskId = 0;
+                this.taskPk = "";
+                this.qty = 0;
+                this.copies = 1;
+                this.rowNoFrom = 0;
+                this.rowNoTo = 0;
+
+                this.afterCompute = null;
+                this.hasProductRef = false;
+                this.hasCustomerRef = false;
+                this.hasSupplierRef = false;
+
+                this.initGrid();
+                this.activeCollapses = ["preview"];
+            },
+
+            onLabelChange() {
+                this.reset();
+
+                this.getDLabel();
+            },
+            getDLabel() {
+                ajax.send("/aprint/print/quick/getLabelById", { labelId: this.label.id }).then(res => {
+                    this.label = res.label;
+                    this.variables = res.variables;
+
+                    // -- 1. 加载标签 --
+                    if (!lbl) {
+                        lbl = new Label({
+                            container: gId("divLabelContainer"),
+                            designMode: false
+                        });
+                    }
+                    lbl.loadLabel(this.label.content, {
+                        imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+                        readonly: true
+                    });
+
+                    // -- 2. 加载标签脚本(针对BarTender等非DLabel标签) --
+                    let jsAfterCompute = this.label["js_after_compute"];
+                    if (jsAfterCompute) {
+                        try {
+                            jsAfterCompute = "this.afterCompute = function(jsp) {\n" + jsAfterCompute + "\n}";
+                            eval(jsAfterCompute);
+                        }
+                        catch (e) {
+                            alert("加载标签脚本时遇到意外错误：\n" + e.toString());
+                        }
+                    }
+
+                    // -- 3. 检查是否引用客户或产品参数 --
+                    for (let i = 0; i < this.variables.length; i++) {
+                        let variable = this.variables[i];
+                        let quoteFrom = variable["quote_from"];
+                        if (quoteFrom.equals("product")) {
+                            this.hasProductRef = true;
+                        }
+                        else if (quoteFrom.equals("customer")) {
+                            this.hasCustomerRef = true;
+                        }
+                        else if (quoteFrom.equals("supplier")) {
+                            this.hasSupplierRef = true;
+                        }
+                    }
+
+                    // -- 4. 不需要的引用重置 --
+                    if (!this.hasProductRef) this.productPnId = "";
+                    if (!this.hasCustomerRef) this.customerId = "";
+                    if (!this.hasSupplierRef) this.supplierId = "";
+
+                    // -- 5. 更新变量集合 --
+                    this.setVariables();
+                });
+            },
+            getQuoteData() {
+                if (this.productPns.length == 0) {
+                    ajax.send("/aprint/print/quick/getProductPns", {}).then(res => {
+                        this.productPns = res.productPns;
+                    });
+                }
+
+                if (this.customers.length == 0) {
+                    ajax.send("/aprint/print/quick/getCustomers", {}).then(res => {
+                        this.customers = res.customers;
+                    });
+                }
+
+                if (this.suppliers.length == 0) {
+                    ajax.send("/aprint/print/quick/getSuppliers", {}).then(res => {
+                        this.suppliers = res.suppliers;
+                    });
+                }
+            },
+
+            onProductPnChange() {
+                if (this.productPnId) {
+                    ajax.send("/aprint/print/quick/getProductPnPara", { productPnId: this.productPnId }).then(res => {
+                        this.productPnPara = res.productPnPara;
+                        this.setVariables();
+                    });
+                }
+                else {
+                    this.productPnPara = {};
+                    this.setVariables();
+                }
+            },
+            onCustomerChange() {
+                if (this.customerId) {
+                    ajax.send("/aprint/print/quick/getCustomerPara", { customerId: this.customerId }).then(res => {
+                        this.customerPara = res.customerPara;
+                        this.setVariables();
+                    });
+                }
+                else {
+                    this.customerPara = {};
+                    this.setVariables();
+                }
+            },
+            onSupplierChange() {
+                if (this.supplierId) {
+                    ajax.send("/aprint/print/quick/getSupplierPara", { supplierId: this.supplierId }).then(res => {
+                        this.supplierPara = res.supplierPara;
+                        this.setVariables();
+                    });
+                }
+                else {
+                    this.supplierPara = {};
+                    this.setVariables();
+                }
+            },
+            onVarChange(name, variable) {
+                // -- 记录用户手工改动过的变量值 --
+                this.variablesUser[name] = variable["value"];
+
+                this.setVariables();
+            },
+            setVariables() {                
+                for (let i = 0; i < this.variables.length; i++) {
+                    let variable = this.variables[i];
+                    let name = variable["name"];
+                    let value = variable["value"];
+                    let type = variable["type"];
+                    let quoteFrom = variable["quote_from"];
+
+                    // -- 1. 计算变量值 --
+                    variable["disabled"] = (variable["flag_manual_modify"] == 0);
+                    if (!quoteFrom.equals("")) {
+                        // -- 代入引用变量(产品、客户或供应商参数) --
+                        let quoteName = variable["quote_name"] || name;
+
+                        if (quoteFrom.equals("product")) {
+                            value = this.productPnPara[quoteName];
+                            if (type.equals("image")) {
+                                if (value && !value.startsWith("http")) {
+                                    value = topWin.cfg.productPnParaImageBaseUrl + value;
+                                }
+                            }
+                            if (this.productPnId) {
+                                variable["disabled"] = true;
+                            }
+                        }
+                        else if (quoteFrom.equals("customer")) {
+                            value = this.customerPara[quoteName];
+                            if (this.customerId) {
+                                variable["disabled"] = true;
+                            }
+                        }
+                        else if (quoteFrom.equals("supplier")) {
+                            value = this.supplierPara[quoteName];
+                            if (this.supplierId) {
+                                variable["disabled"] = true;
+                            }
+                        }
+                        else {
+                            topWin.message("未知的引用类型(" + quoteFrom + ")，请检查。");
+                        }
+
+                        // -- 如果disabled == true, 则用户手工输入的值无效 --
+                        if (variable["disabled"]) {
+                            this.variablesUser[name] = undefined;
+                        }
+                    }
+                    else {
+                        if (type.equals("date")) {
+                            debugger
+                            debugger
+                            let offset = variable["rule_date_offset"];
+                            let offset_unit = variable["rule_date_offset_unit"];
+
+                            if (offset && offset_unit) {
+                                value = (new Date()).add(offset, offset_unit).toStr();
+                                if (offset_unit.equals("YEAR") || offset_unit.equals("MONTH")) {
+                                    // -- 少一天，一般用于到期日期。将来改为是否要扣减一天的选项 --
+                                    value = (new Date()).add(offset, offset_unit).add(-1, "DAY").toStr();
+                                }
+                                else {
+                                    value = (new Date()).add(offset, offset_unit).toStr();
+                                }
+                            }
+                            else {
+                                value = (new Date()).toStr();
+                            }
+                        }
+                    }
+
+                    // -- 2. 回写用户手工修改过的变量值(如果存在有效的用户手工输入值，则以用户值为准) --
+                    if (this.variablesUser[name] != undefined) {
+                        value = this.variablesUser[name];
+                    }
+
+                    // -- 3. 回写计算后的变量值，格式化日期变量 --
+                    value = value || "";
+                    variable["value"] = value;
+                    variable["valueFormat"] = value;
+                    if (type.equals("date")) {
+                        let dateFormat = variable["rule_date_format"];
+                        if (dateFormat) {
+                            variable["valueFormat"] = value.toDate().toString(dateFormat);
+                        }
+                    }
+                }
+
+                // -- 执行脚本 --
+                if (this.afterCompute) {
+                    try {
+                        let jspReturn = this.afterCompute({ trigger: jsp.trigger });
+                        if (jspReturn) {
+                            if (jspReturn.printNow) {
+                                this.preview({ printNow: true });
+                                return;
+                            }
+                        }
+                    }
+                    catch (e) {
+                        alert("改变变量后执行脚本遇到意外错误：\n" + e.toString());
+                    }
+                }
+
+                // -- 预览 --
+                this.preview({});
+            },
+
+            printProof() {
+                let data = [lbl.getData()];
+                lbl.print({
+                    data: data,
+                    printerName: this.printerName,
+                    copies: this.copies
+                });
+            },
+            preview() {
+                if (this.label.type.equals("BarTender")) {
+                    this.print({ preview: true });
+                }
+                else {
+                    this.previewDLabel();
+                }
+            },
+            previewDLabel() {
+                let variable, name, value;
+                for (let i = 0; i < this.variables.length; i++) {
+                    variable = this.variables[i];
+
+                    lbl.setValue(variable.name, variable.valueFormat, true);
+                }
+                lbl.compute(true);
+
+                // -- 回写因lbl.compute改变的变量值 --
+                for (let i = 0; i < this.variables.length; i++) {
+                    variable = this.variables[i];
+                    name = variable["name"];
+                    if (lbl.fields[name] != undefined) {
+                        value = lbl.fields[name];
+
+                        if (variable.type.equals("date")) {
+                            value = value.toDate(variable.rule_date_format);
+                        }
+                        this.variables[i]["value"] = value;
+                    }
+                }
+            },
+
+            createTask() {
+                debugger
+                debugger
+            },
+            deleteTask() {
+
+            },
+            print() {
+
+            },
+
+            initGrid() {
+                var para = {
+                    viewPk: "x_label",
+                    controller: "/aprint/print/x_label_view",
+                    filter: "task_id = " + this.taskId,
+                    extUserDef: {
+                        labelId: this.labelId
+                    }
+                }
+                this.$refs.grid.init(para);
+            },
+            oncolclick(jsp) {
+            },
+
+            onPrinterChange() {
+                setLocalItem(ckLatestPrinter, this.printerName);
+            },
+            more(command) {
+                if (command.equals("toSupplier")) {
+                    var prop = {
+                        url: g.path.project + "/aprint/html/supplier/task_to_supplier.html",
+                        parent: win,
+                        modal: true
+                    };
+                    var para = {
+                        taskId: this.taskId,
+                        taskPk: this.taskPk
+                    };
+                    topWin.openWindow(prop, para);
+                }
+                else if (command.equals("exportData")) {
+                    this.exportData();
+                }
+                else {
+                    topWin.message("当前功能(" + command + ")正在开发中...");
+                }
+            },
+            exportData() {
+                topWin.message("debug here");
+            },
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    let lbl;
+    let ckLatestPrinter = "quick_print_latest_printer";
+    // ------------------------------------------------------------------------
+    function winLoad() {
+        let widthLeft = Math.round(24 * (540 / win.p.maxWidth));
+        app.span[1] = widthLeft;
+        app.span[2] = 24 - widthLeft;
+
+        top.crossLocal.getPrinterList().then((res) => {
+            if (res.ok) {
+                app.printers = res.data.printers;
+            }
+        });
+        app.printerName = getLocalItem(ckLatestPrinter);
+    }
+</script>

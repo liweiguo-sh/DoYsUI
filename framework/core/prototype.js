@@ -109,8 +109,7 @@ String.prototype.toDate = function (format = "") {
 };
 String.prototype.toDateByFromat = function (format = "yyyy-MM-dd") {
     let start;
-    let year, month, day;
-
+    let dateResult, year, month, day;
     try {
         start = format.indexOf("yyyy");
         if (start >= 0) {
@@ -133,8 +132,8 @@ String.prototype.toDateByFromat = function (format = "yyyy-MM-dd") {
             day = parseInt(this.substring(start, start + 2));
         }
 
-        let date1 = new Date(year, month - 1, day);
-        return date1;
+        dateResult = new Date(year, month - 1, day);
+        return dateResult;
     }
     catch (e) {
         throw e;
