@@ -59,21 +59,21 @@
                     </el-tab-pane>
                 </el-tabs>
                 <el-row>
-                    <el-button @click="createTask" type="success" v-if="activeTabName=='standard'">生成打印数据</el-button>
-                    <el-button @click="createTask" type="success" v-if="activeTabName=='interface'">拉取接口数据</el-button>
-                    <el-button @click="createTask" type="success" v-if="activeTabName=='excel'">导入Excel数据(.xls;.xlsx)</el-button>
+                    <el-button @click="createTask" type="success" v-if="activeTabName=='standard'" :disabled="!label.id || qty.toInt()<1">生成打印数据</el-button>
+                    <el-button @click="createTask" type="success" v-if="activeTabName=='interface'" :disabled="!label.id">拉取接口数据</el-button>
+                    <el-button @click="createTask" type="success" v-if="activeTabName=='excel'" :disabled="!label.id">导入Excel数据(.xls;.xlsx)</el-button>
 
-                    <el-button @click="print" type="primary" style="float:right;">打印</el-button>
+                    <el-button @click="print" :disabled="!taskId" type="primary" style="float:right;">打印</el-button>
                     <div class="divPlaceholder"></div>
                     <el-dropdown @command="more" placement="bottom-start" style="float:right;">
-                        <el-button type="primary" icon="el-icon-more" circle></el-button>
+                        <el-button type="primary" :disabled="!taskId" icon="el-icon-more" circle></el-button>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="toSupplier" icon="el-icon-full-screen">分发任务至供应商</el-dropdown-item>
                             <el-dropdown-item v-show="false" command="exportData" icon="el-icon-full-screen">导出数据</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                     <div class="divPlaceholder"></div>
-                    <el-button type="warning" @click="deleteTask" icon="el-icon-delete" circle style="float:right" title="删除打印任务单"></el-button>
+                    <el-button type="warning" @click="deleteTask" :disabled="!taskId" icon="el-icon-delete" circle style="float:right" title="删除打印任务单"></el-button>
                 </el-row>
                 <hr />
                 <el-form label-width="120px" label-position="left">
@@ -186,7 +186,7 @@
                             <el-form-item label="标签名称">{{label.name}}</el-form-item>
                             <el-form-item label="宽高">{{label.width}} * {{label.height}}</el-form-item>
                             <el-form-item label="备注">{{label.remark}}</el-form-item>
-                            <el-button type="primary" plain style="margin-left:140px;" @click="printProof">打印样张</el-button>
+                            <el-button type="primary" :disabled="!label.id" plain style="margin-left:140px;" @click="printProof">打印样张</el-button>
                         </el-form>
                     </el-col>
                     <el-col :span="span[2]" style="padding:15px 30px 0px 190px;">
@@ -453,8 +453,6 @@
                     }
                     else {
                         if (type.equals("date")) {
-                            debugger
-                            debugger
                             let offset = variable["rule_date_offset"];
                             let offset_unit = variable["rule_date_offset_unit"];
 
@@ -483,7 +481,7 @@
                     value = value || "";
                     variable["value"] = value;
                     variable["valueFormat"] = value;
-                    if (type.equals("date")) {
+                    if (type.equals("date")) { 
                         let dateFormat = variable["rule_date_format"];
                         if (dateFormat) {
                             variable["valueFormat"] = value.toDate().toString(dateFormat);
@@ -531,11 +529,10 @@
                 let variable, name, value;
                 for (let i = 0; i < this.variables.length; i++) {
                     variable = this.variables[i];
-
                     lbl.setValue(variable.name, variable.valueFormat, true);
                 }
                 lbl.compute(true);
-
+                
                 // -- 回写因lbl.compute改变的变量值 --
                 for (let i = 0; i < this.variables.length; i++) {
                     variable = this.variables[i];
@@ -544,7 +541,7 @@
                         value = lbl.fields[name];
 
                         if (variable.type.equals("date")) {
-                            value = value.toDate(variable.rule_date_format);
+                            value = value.toDate(variable.rule_date_format).toStr();    // -- 回写日期变量一定要转换成字符串，以避免el-date讨厌的日期格式问题 --
                         }
                         this.variables[i]["value"] = value;
                     }
@@ -552,11 +549,44 @@
             },
 
             createTask() {
-                debugger
-                debugger
+                let variables = {}, variable;
+                for (let key in this.variables) {
+                    variable = this.variables[key];
+                    variables[variable.name] = variable.value;
+                }
+                let post = {
+                    labelId: this.label.id,
+                    productPnId: this.productPnId,
+                    customerId: this.customerId,
+                    supplierId: this.supplierId,
+                    variables: variables,
+                    qty: this.qty,
+                    copies: this.copies
+                }; 
+                ajax.send("/aprint/print/quick/createTask", post).then(res => {
+                    this.variables = res.variables;
+                    this.setVariables();
+
+                    this.taskId = res.task.id;
+                    this.taskPk = res.task.pk;
+                    this.initGrid();
+
+                    this.rowNoFrom = 1;
+                    this.rowNoTo = this.qty;
+                });
             },
             deleteTask() {
+                if (!this.taskId) return;
 
+                topWin.confirm("确定要删除当前已生成的打印数据吗？").then((ok) => {
+                    if (!ok) return;
+                    let postData = {
+                        taskId: this.taskId
+                    };
+                    ajax.send("/aprint/quick_print/deleteTask", postData).then(res => {
+                        this.reset();
+                    });
+                });
             },
             print() {
 
@@ -568,7 +598,7 @@
                     controller: "/aprint/print/x_label_view",
                     filter: "task_id = " + this.taskId,
                     extUserDef: {
-                        labelId: this.labelId
+                        labelId: this.label.id
                     }
                 }
                 this.$refs.grid.init(para);
