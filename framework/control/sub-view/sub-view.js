@@ -428,8 +428,8 @@
                 this.currentRowIdx = currentRow.$idx;
             }
 
-            this.$emit("row-change", {
-                currentRow: currentRow,
+            this.$emit("onrowchange", {
+                rowData: currentRow,
                 rowIndex: this.currentRowIdx,
                 dataRow: this.currentRowIdx >= 0 ? this.dtbViewData.rows[this.currentRowIdx] : null
             });

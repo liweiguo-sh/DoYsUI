@@ -19,6 +19,10 @@
             --border: dotted 1px green;
         }
 
+        .el-form-item {
+            margin-bottom: 15px;
+        }
+
         #divLabelContainer {
             height: 500px;
             position: relative;
@@ -59,10 +63,16 @@
                     </el-tab-pane>
                 </el-tabs>
                 <el-row>
-                    <el-button @click="createTask" type="success" v-if="activeTabName=='standard'" :disabled="!label.id || qty.toInt()<1">生成打印数据</el-button>
+                    <el-button @click="createTaskByManual" type="success" v-if="activeTabName=='standard'" :disabled="!label.id || qty.toInt()<1">生成打印数据</el-button>
                     <el-button @click="createTask" type="success" v-if="activeTabName=='interface'" :disabled="!label.id">拉取接口数据</el-button>
-                    <el-button @click="createTask" type="success" v-if="activeTabName=='excel'" :disabled="!label.id">导入Excel数据(.xls;.xlsx)</el-button>
-
+                    <el-upload v-if="activeTabName=='excel'" :disabled="!label.id"
+                               :action="actionUpload"
+                               :on-success="afterUpload"
+                               :with-credentials="true"
+                               :show-file-list="false"
+                               accept=".xls,.xlsx">
+                        <el-button type="success" :disabled="!label.id">导入Excel数据(.xls;.xlsx)</el-button>
+                    </el-upload>
                     <el-button @click="print" :disabled="!taskId" type="primary" style="float:right;">打印</el-button>
                     <div class="divPlaceholder"></div>
                     <el-dropdown @command="more" placement="bottom-start" style="float:right;">
@@ -76,7 +86,16 @@
                     <el-button type="warning" @click="deleteTask" :disabled="!taskId" icon="el-icon-delete" circle style="float:right" title="删除打印任务单"></el-button>
                 </el-row>
                 <hr />
-                <el-form label-width="120px" label-position="left">
+                <!-- 标签列表 -->
+                <el-row style="margin-bottom:22px;">
+                    <el-select v-model="label.id" @change="onLabelChange" default-first-option filterable style="width:100%;">
+                        <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                            <span style="float: left">{{ item.code }}</span>
+                            <span style="float: right;">{{ item.name }}</span>
+                        </el-option>
+                    </el-select>
+                </el-row>
+                <el-form label-width="120px" label-position="left" :size="size">
                     <!-- 任务单号、起始行号 -->
                     <el-form-item label="任务单号">
                         <el-input v-model="taskPk" placeholder="任务单号" :disabled="true" />
@@ -115,17 +134,7 @@
             </el-col>
             <!-- 标签区 -->
             <el-col :span="span[2]" style="padding:0px 0px 0px 30px;">
-                <el-form label-width="160px" label-position="left" size1="medium">
-                    <!-- 标签列表 -->
-                    <el-form-item label="标签" required>
-                        <el-select v-model="label.id" @change="onLabelChange" default-first-option filterable style="width:100%;">
-                            <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
-                                <span style="float: left">{{ item.code }}</span>
-                                <span style="float: right;">{{ item.name }}</span>
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
-
+                <el-form label-width="160px" label-position="left" :size="size">
                     <!-- 产品、客户、供应商 -->
                     <el-form-item label="产品料号(SKU)" v-show="hasProductRef">
                         <el-select v-model="productPnId" @change="onProductPnChange" default-first-option filterable clearable style="width:100%;">
@@ -145,9 +154,7 @@
                             <el-option v-for="item in suppliers" :key="item.id" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
-
                     <!-- 变量输入区 -->
-                    <hr />
                     <el-row v-for="item in variables" :key="item.name">
                         <el-col>
                             <el-form-item :label="item.name" v-if="item.type.equals('date') && !item.disabled">
@@ -159,7 +166,7 @@
                         </el-col>
                     </el-row>
                     <el-collapse>
-                        <el-collapse-item title="..." name="1">
+                        <el-collapse-item title="......" name="1">
                             <el-row v-for="item in variables" :key="item.name">
                                 <el-col>
                                     <el-form-item :label="item.name" v-if="item.disabled">
@@ -197,7 +204,7 @@
                 </el-row>
             </el-collapse-item>
             <el-collapse-item title="打印任务单数据列表" name="grid">
-                <sub-view id="grid" ref="grid" @oncolclick="oncolclick" style="height:500px;"></sub-view>
+                <sub-view id="grid" ref="grid" @oncolclick="onColClick" @onrowchange="onRowChange" style="height:500px;"></sub-view>
             </el-collapse-item>
         </el-collapse>
     </div>
@@ -212,6 +219,9 @@
             activeTabName: "standard",
             activeCollapses: [],
             span: [24, 8, 16],
+            size: "medium",                 // -- medium/small/mini --
+
+            actionUpload: g.prefix + "/framework/common/upload/upload_temp_file",
 
             labels: [],
             label: {                        // -- 标签对象 --
@@ -405,7 +415,7 @@
 
                 this.setVariables();
             },
-            setVariables() {                
+            setVariables() {
                 for (let i = 0; i < this.variables.length; i++) {
                     let variable = this.variables[i];
                     let name = variable["name"];
@@ -481,7 +491,7 @@
                     value = value || "";
                     variable["value"] = value;
                     variable["valueFormat"] = value;
-                    if (type.equals("date")) { 
+                    if (type.equals("date")) {
                         let dateFormat = variable["rule_date_format"];
                         if (dateFormat) {
                             variable["valueFormat"] = value.toDate().toString(dateFormat);
@@ -506,49 +516,62 @@
                 }
 
                 // -- 预览 --
-                this.preview({});
+                if (this.label.type.equals("DLabel")) {
+                    this.preview_DLabel_byVariables();
+                }
+
+                // -- 回写因预览调用lbl.compute改变的变量值 --
+                if (this.label.type.equals("DLabel")) {
+                    let variable, name, value;
+                    for (let i = 0; i < this.variables.length; i++) {
+                        variable = this.variables[i];
+                        name = variable["name"];
+                        if (lbl.fields[name] != undefined) {
+                            value = lbl.fields[name];
+
+                            if (variable.type.equals("date")) {
+                                value = value.toDate(variable.rule_date_format).toStr();    // -- 回写日期变量一定要转换成字符串，以避免el-date讨厌的日期格式问题 --
+                            }
+                            this.variables[i]["value"] = value;
+                        }
+                    }
+                }
             },
 
-            printProof() {
-                let data = [lbl.getData()];
-                lbl.print({
-                    data: data,
-                    printerName: this.printerName,
-                    copies: this.copies
-                });
-            },
-            preview() {
-                if (this.label.type.equals("BarTender")) {
-                    this.print({ preview: true });
-                }
-                else {
-                    this.previewDLabel();
-                }
-            },
-            previewDLabel() {
-                let variable, name, value;
+            // -- preview ---------------------------------
+            preview_DLabel_byVariables() {
+                let variable;
                 for (let i = 0; i < this.variables.length; i++) {
                     variable = this.variables[i];
                     lbl.setValue(variable.name, variable.valueFormat, true);
                 }
                 lbl.compute(true);
-                
-                // -- 回写因lbl.compute改变的变量值 --
-                for (let i = 0; i < this.variables.length; i++) {
-                    variable = this.variables[i];
-                    name = variable["name"];
-                    if (lbl.fields[name] != undefined) {
-                        value = lbl.fields[name];
+            },
+            preview_DLabel_byGrid() {
+                let grid = this.$refs.grid;
+                let dtbViewData = grid.dtbViewData;
+                let iRow = Math.max(0, grid.currentRowIdx);
 
-                        if (variable.type.equals("date")) {
-                            value = value.toDate(variable.rule_date_format).toStr();    // -- 回写日期变量一定要转换成字符串，以避免el-date讨厌的日期格式问题 --
-                        }
-                        this.variables[i]["value"] = value;
-                    }
+                for (let iCol = 0; iCol < dtbViewData.columnCount; iCol++) {
+                    let columnName = dtbViewData.columns[iCol].name;
+                    let value = dtbViewData.rows[iRow][columnName].value;
+
+                    lbl.setValue(columnName, value, true);
                 }
+                lbl.compute(true);
             },
 
-            createTask() {
+            createTaskByManual() {
+                this.createTask();
+            },
+            afterUpload(res) {
+                this.createTask({
+                    mode: "excel",
+                    pathname: res.pathname
+                });
+            },
+
+            createTask(jsp = { mode: "" }) {
                 let variables = {}, variable;
                 for (let key in this.variables) {
                     variable = this.variables[key];
@@ -562,17 +585,22 @@
                     variables: variables,
                     qty: this.qty,
                     copies: this.copies
-                }; 
+                };
+                post = g.x.extendJSON(post, jsp);
                 ajax.send("/aprint/print/quick/createTask", post).then(res => {
                     this.variables = res.variables;
                     this.setVariables();
 
                     this.taskId = res.task.id;
                     this.taskPk = res.task.pk;
+                    this.qty = res.task.qty;
                     this.initGrid();
 
                     this.rowNoFrom = 1;
                     this.rowNoTo = this.qty;
+                    if (this.activeCollapses.indexOf("grid") < 0) {
+                        this.activeCollapses.push("grid");
+                    }                    
                 });
             },
             deleteTask() {
@@ -584,12 +612,95 @@
                         taskId: this.taskId
                     };
                     ajax.send("/aprint/quick_print/deleteTask", postData).then(res => {
-                        this.reset();
+                        this.taskId = 0;
+                        this.taskPk = "";
+                        this.rowNoFrom = 0;
+                        this.rowNoTo = 0;
+
+                        this.initGrid();
+
+                        let idx = this.activeCollapses.indexOf("grid");
+                        if (idx>=0) {
+                            this.activeCollapses.splice(idx, 1);
+                        }
                     });
                 });
             },
-            print() {
 
+            // -- print -----------------------------------
+            printProof() {
+                let data = [lbl.getData()];
+                lbl.print({
+                    data: data,
+                    printerName: this.printerName,
+                    copies: this.copies
+                });
+            },
+            async print() {
+                this.printData();
+            },
+            async printData(jsp = { preview: false }) {
+                let para = {
+                    labelId: this.label.id,
+                    labelType: this.label.type,
+                    preview: jsp.preview,
+                    printerName: this.printerName,
+                    copies: this.copies
+                }
+                if (this.label.type.equals("DLabel")) {
+                    para.labelString = lbl.toJson();
+                    para.dataString = await this.getPrintData();
+                }
+                else if (this.labelType.equals("BarTender")) {
+                    para.urlLabelFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["label_file_name"].value;
+                    para.urlDataFile = g.path.resRun + "/" + topWin.tenantId + "/aprint/label_file/" + this.dtbLabel.rows[0]["data_file_name"].value;
+
+                    if (jsp.preview || !this.taskId) {
+                        para.dataString = this.getPreviewData_BarTender();
+                    }
+                    else {
+                        para.dataString = await this.getPrintData_BarTender();
+                    }
+                }
+                top.crossLocal.printLabel(para);
+            },
+            async getPrintData() {
+                let dataString, data = [];
+                // ----------------------------------------
+                if (!this.taskId) {
+                    // -- 打印样张 --
+                    data.push(lbl.getData());
+                }
+                else {
+                    let postData = {
+                        labelId: this.label.id,
+                        taskId: this.taskId,
+                        rowNoFrom: this.rowNoFrom,
+                        rowNoTo: this.rowNoTo
+                    };
+                    let res = await ajax.send("/aprint/print/quick/getTaskData", postData);
+                    let dtbTaskData = res.dtbTaskData;
+                    let rowCount = dtbTaskData.rowCount;
+                    let columnCount = dtbTaskData.columnCount;
+                    // ------------------------------------
+                    for (let i = 0; i < rowCount; i++) {
+                        for (let j = 0; j < columnCount; j++) {
+                            name = dtbTaskData.columns[j].name;
+                            if (name.equals("task_id") || name.equals("id")
+                                || name.equals("$row_no") || name.equals("$cdate")) {
+                                continue;
+                            }
+                            value = dtbTaskData.rows[i][j].value;
+
+                            lbl.setValue(name, value);
+                        }
+                        lbl.compute(i == rowCount - 1);
+                        data.push(lbl.getData());
+                    }
+                }
+                // ----------------------------------------
+                dataString = JSON.stringify(data, null, " ");
+                return dataString;
             },
 
             initGrid() {
@@ -603,7 +714,21 @@
                 }
                 this.$refs.grid.init(para);
             },
-            oncolclick(jsp) {
+            onRowChange(jsp) {
+                for (let name in jsp.rowData) {
+                    let value = jsp.rowData[name];
+                    lbl.setValue(name, value, true);
+                }
+                lbl.compute(true);
+            },
+            onColClick(jsp) {
+                for (let name in jsp.rowData) {
+                    let value = jsp.rowData[name];
+                    lbl.setValue(name, value, true);
+                }
+                lbl.compute(true);
+
+                this.printProof();
             },
 
             onPrinterChange() {
@@ -631,7 +756,7 @@
             },
             exportData() {
                 topWin.message("debug here");
-            },
+            }
         }
     });
 </script>
