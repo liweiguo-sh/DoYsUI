@@ -373,6 +373,7 @@
                 }
             },
 
+            // -- variable --------------------------------
             onProductPnChange() {
                 if (this.productPnId) {
                     ajax.send("/aprint/print/quick/getProductPnPara", { productPnId: this.productPnId }).then(res => {
@@ -540,6 +541,8 @@
 
             // -- preview ---------------------------------
             preview_DLabel_byVariables() {
+                if (lbl == null) return;
+
                 let variable;
                 for (let i = 0; i < this.variables.length; i++) {
                     variable = this.variables[i];
@@ -559,72 +562,6 @@
                     lbl.setValue(columnName, value, true);
                 }
                 lbl.compute(true);
-            },
-
-            createTaskByManual() {
-                this.createTask();
-            },
-            afterUpload(res) {
-                this.createTask({
-                    mode: "excel",
-                    pathname: res.pathname
-                });
-            },
-
-            createTask(jsp = { mode: "" }) {
-                let variables = {}, variable;
-                for (let key in this.variables) {
-                    variable = this.variables[key];
-                    variables[variable.name] = variable.value;
-                }
-                let post = {
-                    labelId: this.label.id,
-                    productPnId: this.productPnId,
-                    customerId: this.customerId,
-                    supplierId: this.supplierId,
-                    variables: variables,
-                    qty: this.qty,
-                    copies: this.copies
-                };
-                post = g.x.extendJSON(post, jsp);
-                ajax.send("/aprint/print/quick/createTask", post).then(res => {
-                    this.variables = res.variables;
-                    this.setVariables();
-
-                    this.taskId = res.task.id;
-                    this.taskPk = res.task.pk;
-                    this.qty = res.task.qty;
-                    this.initGrid();
-
-                    this.rowNoFrom = 1;
-                    this.rowNoTo = this.qty;
-                    if (this.activeCollapses.indexOf("grid") < 0) {
-                        this.activeCollapses.push("grid");
-                    }                    
-                });
-            },
-            deleteTask() {
-                if (!this.taskId) return;
-
-                topWin.confirm("确定要删除当前已生成的打印数据吗？").then((ok) => {
-                    if (!ok) return;
-                    let postData = {
-                        taskId: this.taskId
-                    };
-                    ajax.send("/aprint/quick_print/deleteTask", postData).then(res => {
-                        this.taskId = 0;
-                        this.taskPk = "";
-                        this.rowNoFrom = 0;
-                        this.rowNoTo = 0;
-
-                        this.initGrid();
-
-                        let idx = this.activeCollapses.indexOf("grid");
-                        if (idx>=0) {
-                            this.activeCollapses.splice(idx, 1);
-                        }
-                    });
-                });
             },
 
             // -- print -----------------------------------
@@ -703,6 +640,74 @@
                 return dataString;
             },
 
+            // -- task ------------------------------------
+            createTaskByManual() {
+                this.createTask();
+            },
+            afterUpload(res) {
+                this.createTask({
+                    mode: "excel",
+                    pathname: res.pathname
+                });
+            },
+
+            createTask(jsp = { mode: "" }) {
+                let variables = {}, variable;
+                for (let key in this.variables) {
+                    variable = this.variables[key];
+                    variables[variable.name] = variable.value;
+                }
+                let post = {
+                    labelId: this.label.id,
+                    productPnId: this.productPnId,
+                    customerId: this.customerId,
+                    supplierId: this.supplierId,
+                    variables: variables,
+                    qty: this.qty,
+                    copies: this.copies
+                };
+                post = g.x.extendJSON(post, jsp);
+                ajax.send("/aprint/print/quick/createTask", post).then(res => {
+                    this.variables = res.variables;
+                    this.setVariables();
+
+                    this.taskId = res.task.id;
+                    this.taskPk = res.task.pk;
+                    this.qty = res.task.qty;
+                    this.initGrid();
+
+                    this.rowNoFrom = 1;
+                    this.rowNoTo = this.qty;
+                    if (this.activeCollapses.indexOf("grid") < 0) {
+                        this.activeCollapses.push("grid");
+                    }
+                });
+            },
+            deleteTask() {
+                if (!this.taskId) return;
+
+                topWin.confirm("确定要删除当前已生成的打印数据吗？").then((ok) => {
+                    if (!ok) return;
+                    let postData = {
+                        taskId: this.taskId
+                    };
+                    ajax.send("/aprint/quick_print/deleteTask", postData).then(res => {
+                        this.taskId = 0;
+                        this.taskPk = "";
+                        this.rowNoFrom = 0;
+                        this.rowNoTo = 0;
+
+                        this.initGrid();
+
+                        let idx = this.activeCollapses.indexOf("grid");
+                        if (idx >= 0) {
+                            this.activeCollapses.splice(idx, 1);
+                        }
+                    });
+                });
+            },
+
+            // -- data grid -------------------------------
             initGrid() {
                 var para = {
                     viewPk: "x_label",
@@ -715,15 +720,21 @@
                 this.$refs.grid.init(para);
             },
             onRowChange(jsp) {
-                for (let name in jsp.rowData) {
-                    let value = jsp.rowData[name];
-                    lbl.setValue(name, value, true);
+                if (jsp.rowData) {
+                    for (let name in jsp.rowData) {
+                        let value = jsp.rowData[name];
+                        lbl.setValue(name, value, true);
+                    }
+                    lbl.compute(true);
                 }
-                lbl.compute(true);
+                else {
+                    this.preview_DLabel_byVariables();
+                }
             },
             onColClick(jsp) {
+                let value;
                 for (let name in jsp.rowData) {
-                    let value = jsp.rowData[name];
+                    value = jsp.rowData[name];
                     lbl.setValue(name, value, true);
                 }
                 lbl.compute(true);
@@ -731,6 +742,7 @@
                 this.printProof();
             },
 
+            // -- others ----------------------------------
             onPrinterChange() {
                 setLocalItem(ckLatestPrinter, this.printerName);
             },

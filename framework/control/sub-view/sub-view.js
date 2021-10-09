@@ -38,8 +38,9 @@
             showDeleteColumn: false,
             showSingleColumn: false,
             totalRows: 0,                   // -- 总记录数 --
+            pageRows: 0,                    // -- 当前页记录数 --
             pageNum: 0,                     // -- 当前页号 --
-            currentRowIdx: 0,               // -- 当前行下标 --
+            currentRowIdx: -1,              // -- 当前行下标 --
             quickFields: "",                // -- 快速搜索字段 --            
             filterTreeeFlow: "",            // -- 流程树导航条件 --
             filterQuick: "",                // -- 快速查询条件 --
@@ -198,6 +199,7 @@
             ajax.send(this.controller + "/getViewData", postData).then(res => {
                 if (res.ok) {
                     this.dtbViewData = res.dtbViewData;
+                    this.pageRows = this.dtbViewData.rowCount;
                     if (pageNum == 0) {
                         this.pageNum = 1;
                         this.totalRows = res.totalRows;
@@ -209,6 +211,16 @@
                     this.viewData = [];
                 }
                 this.loading = false;
+
+                if (this.pageRows == 0) {
+                    this.currentRowIdx = 0;
+                    this.setCurrentRow(-1);
+                }
+                else {
+                    this.currentRowIdx = -1;
+                    this.setCurrentRow(0);
+                }
+                this.emitAfterLoadData();
             });
         },
         getFilter() {
@@ -251,8 +263,12 @@
             return tableData;
         },
         setCurrentRow(rowIdxNew) {
+            if (this.currentRowIdx == rowIdxNew) return;
+
             this.currentRowIdx = rowIdxNew;
-            this.$refs.eltable.setCurrentRow(this.viewData[rowIdxNew]);
+            if (rowIdxNew >= 0) {
+                this.$refs.eltable.setCurrentRow(this.viewData[rowIdxNew]);
+            }
         },
 
         getNextId() {
@@ -318,6 +334,7 @@
             this.initToolbar();
         },
         onPageChange(pageNum) {
+            this.currentRowIdx = -1;
             this.pageNum = pageNum;
             this.getViewData(pageNum);
         },
@@ -342,7 +359,7 @@
             }
             else {
                 let rowData = this.viewData[scope.$index];
-                this.$emit('oncolclick', {
+                this.$emit("oncolclick", {
                     name: columnType,
                     rowData: rowData
                 });
@@ -420,7 +437,51 @@
             this.afterVfDelete();
         },
 
+        emitAfterLoadData() {
+            if (this.pageRows > 0) {
+                this.$emit("afterloaddata", {
+                    pageRows: this.pageRows,
+                    rowIndex: 0,
+                    rowData: this.getViewData[0],
+                    dataRow: this.dtbViewData.rows[0]
+                });
+            }
+            else {
+                this.$emit("afterloaddata", {
+                    pageRows: 0,
+                    rowIndex: -1,
+                    rowData: [],
+                    dataRow: null
+                });
+            }
+        },
+        emitOnRowChange() {
+            if (this.pageRows > 0 && this.currentRowIdx >= 0) {
+                this.$emit("onrowchange", {
+                    pageRows: this.pageRows,
+                    rowIndex: this.currentRowIdx,
+                    rowData: this.viewData[this.currentRowIdx],
+                    dataRow: this.dtbViewData.rows[this.currentRowIdx]
+                });
+            }
+            else {
+                this.$emit("onrowchange", {
+                    pageRows: 0,
+                    rowIndex: -1,
+                    rowData: null,
+                    dataRow: null
+                });
+            }
+        },
+
         onCurrentChange(currentRow, oldCurrentRow) {
+            if (currentRow == null) {
+                if (this.pageRows > 0) {
+                    this.setCurrentRow(0);
+                    return;
+                }
+            }
+
             if (currentRow == null) {
                 this.currentRowIdx = -1;
             }
@@ -428,12 +489,17 @@
                 this.currentRowIdx = currentRow.$idx;
             }
 
-            this.$emit("onrowchange", {
-                rowData: currentRow,
+            this.emitOnRowChange();
+        },
+        onRowClick(row, col, event) {
+            this.$emit("onrowclick", {
+                pageRows: this.pageRows,
                 rowIndex: this.currentRowIdx,
-                dataRow: this.currentRowIdx >= 0 ? this.dtbViewData.rows[this.currentRowIdx] : null
+                rowData: this.viewData[this.currentRowIdx],
+                dataRow: this.dtbViewData.rows[this.currentRowIdx]
             });
         },
+
         onVfMove(moveAction) {
             let rowIdxNew = this.currentRowIdx;
             if (moveAction.equals("first")) {
@@ -524,7 +590,7 @@
             </el-aside>
             <el-container>
                 <el-main style="margin1:0;padding:0;">
-                    <el-table ref="eltable" v-loading="loading" @current-change="onCurrentChange" :data="viewData" :height="elTableHeight" size="small" border stripe highlight-current-row>
+                    <el-table ref="eltable" v-loading="loading" @current-change="onCurrentChange" @row-click="onRowClick" :data="viewData" :height="elTableHeight" size="small" border stripe highlight-current-row>
                         <el-table-column type="index" label="序" align="center" fixed=""></el-table-column>
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">
