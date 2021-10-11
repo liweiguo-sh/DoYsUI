@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>工业互联网数据维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <style type="text/css">
+        .message {
+            color: red;
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-button type="primary" onclick="win.close();">关闭</el-button>
+            <br /><br />
+        </el-row>
+        <el-tabs v-model="tabName" @tab-click="tabClick">
+            <el-tab-pane label="工创中心二级节点" name="3incloud">
+                <el-row>
+                    <el-button type="warning" @click="uploadMetaData">元数据上传（手工调用）</el-button>
+                    <el-button type="success" @click="uploadIdData">标识数据上传（手工调用）</el-button>
+                </el-row>
+            </el-tab-pane>
+            <el-tab-pane label="华峰二级节点" name="huafeng" :disabled="true">
+                <el-row>
+                    华峰
+                </el-row>
+            </el-tab-pane>
+        </el-tabs>
+       
+        <!-- message -->
+        <el-divider content-position="left" v-if="listLog.length">执行结果</el-divider>
+        <el-row>
+            <ul>
+                <li v-for="item in listLog" style="color:red;margin-bottom:15px;">{{item}}</li>
+            </ul>
+        </el-row>
+        <el-row v-show="message">
+            {{message}}
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            tabName: "3incloud",
+
+            message: "",
+            listLog: []
+        },
+        mounted() { },
+        methods: {
+            tabClick() { },
+
+            uploadMetaData() {
+                this.message = "";
+                ajax.send("/aprint/thirdparty/iot2/uploadMetaData", {}).then((res) => {
+                    let list = res.list;
+                    if (list && list.length > 0) {
+                        this.message = "下列元数据上传失败：\n" + list.join("\n");
+                        topWin.message("有错误信息返回，请注意查看。", "warning");
+                    }
+                    else {
+                        topWin.message("当前操作成功", "success");
+                    }
+                })
+            },
+            uploadIdData() {
+                this.message = "";
+                ajax.send("/aprint/thirdparty/iot2/uploadIdData", {}).then((res) => {
+                    let list = res.list;
+                    if (list && list.length > 0) {
+                        this.message = "下列标识码上传失败：\n" + list.join("\n");
+                        topWin.message("有错误信息返回，请注意查看。", "warning");
+                    }
+                    else {
+                        topWin.message("当前操作成功", "success");
+                    }
+                })
+            }
+        }
+    });
+</script>

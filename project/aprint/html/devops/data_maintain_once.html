@@ -12,14 +12,12 @@
 </head>
 <body>
     <div id="app">
-        <el-button type="primary" onclick="win.close();">关闭</el-button>
+        <el-row>
+            <el-button type="primary" onclick="win.close();">关闭</el-button>
+        </el-row>
         <el-divider content-position="left">修复标签动态表的表结构</el-divider>
         <el-row>
-            <el-button type="success" @click="labelVariableToLabelColumn">批量修复所有商户的所有标签</el-button>
-        </el-row>
-        <el-divider content-position="left">企业标识解析平台</el-divider>
-        <el-row>
-            <el-button type="success" @click="uploadDataToIotPlatform">标识上传任务（手工调用）</el-button>
+            <el-button type="success" @click="labelVariableToLabelColumn" :disabled="true">批量修复所有商户的所有标签</el-button>
         </el-row>
 
         <el-divider content-position="left" v-if="message">执行结果</el-divider>
@@ -48,19 +46,6 @@
                     let list = res.list;
                     if (list.length > 0) {
                         this.message = "下列标签执行失败：\n" + list.join("\n");
-                    }
-                })
-            },
-            uploadDataToIotPlatform() {
-                this.message = "";
-                ajax.send("/aprint/thirdparty/iot2/uploadIdData", {}).then((res) => {
-                    let list = res.list;
-                    if (list && list.length > 0) {
-                        this.message = "下列码上传失败：\n" + list.join("\n");
-                        topWin.message("有错误信息返回，请注意查看。", "warning");
-                    }
-                    else {
-                        topWin.message("当前操作成功", "success");
                     }
                 })
             }

@@ -41,7 +41,7 @@
     <div id="app">
         <el-row>
             <el-col :span="span[1]">
-                <el-tabs ref="tab" v-model="activeTabName">
+                <el-tabs ref="tab" v-model="activeTabName" @tab-click="tabClick">
                     <el-tab-pane name="standard" label="常规打印"></el-tab-pane>
                     <el-tab-pane name="excel" label="Excel导入打印"></el-tab-pane>
                     <el-tab-pane name="interface" label="单据接口打印">
@@ -54,8 +54,8 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="业务单号">
-                                <el-input v-model="taskPk" placeholder="请输入单据号...">
+                            <el-form-item label="单据接口单号">
+                                <el-input v-model="interfaceQueryCode" @change="pullInterfaceData" placeholder="请输入单据接口查询单号...">
                                     <el-button slot="append" icon="el-icon-search"></el-button>
                                 </el-input>
                             </el-form-item>
@@ -64,7 +64,7 @@
                 </el-tabs>
                 <el-row>
                     <el-button @click="createTaskByManual" type="success" v-if="activeTabName=='standard'" :disabled="!label.id || qty.toInt()<1">生成打印数据</el-button>
-                    <el-button @click="createTask" type="success" v-if="activeTabName=='interface'" :disabled="!label.id">拉取接口数据</el-button>
+                    <el-button @click="pullInterfaceData" type="success" v-if="activeTabName=='interface'" :disabled="!label.id || !interfaceId || !interfaceQueryCode">拉取接口数据</el-button>
                     <el-upload v-if="activeTabName=='excel'" :disabled="!label.id"
                                :action="actionUpload"
                                :on-success="afterUpload"
@@ -244,6 +244,7 @@
             variablesUser: {},              // -- 用户修改过的标签变量集合 --
             interfaces: [],                 // -- 业务数据接口列表 --
             interfaceId: null,
+            interfaceQueryCode: "",         // -- 业务接口查询单号 --
 
             hasProductRef: false,           // -- 有变量引用产品参数 --
             hasCustomerRef: false,          // -- 有变量引用客户参数 --
@@ -293,6 +294,11 @@
 
                 this.initGrid();
                 this.activeCollapses = ["preview"];
+            },
+            tabClick(tab, event) {
+                if (tab.name.equals("excel") || tab.name.equals("interface")) {
+                    this.qty = 0;
+                }
             },
 
             onLabelChange() {
@@ -648,6 +654,13 @@
                 this.createTask({
                     mode: "excel",
                     pathname: res.pathname
+                });
+            },
+            pullInterfaceData() {
+                this.createTask({
+                    mode: "interface",
+                    interfaceId: this.interfaceId,
+                    interfaceQueryCode: this.interfaceQueryCode
                 });
             },
 
