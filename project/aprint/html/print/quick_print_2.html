@@ -55,7 +55,7 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="单据接口单号">
-                                <el-input v-model="interfaceQueryCode" @change="pullInterfaceData" placeholder="请输入单据接口查询单号...">
+                                <el-input v-model="interfaceQueryCode" :disabled="!label.id || !interfaceId" @change="pullInterfaceData" placeholder="请输入单据接口查询单号...">
                                     <el-button slot="append" icon="el-icon-search"></el-button>
                                 </el-input>
                             </el-form-item>
@@ -657,6 +657,7 @@
                 });
             },
             pullInterfaceData() {
+
                 this.createTask({
                     mode: "interface",
                     interfaceId: this.interfaceId,
@@ -687,6 +688,7 @@
                     this.taskId = res.task.id;
                     this.taskPk = res.task.pk;
                     this.qty = res.task.qty;
+                    this.copies = res.copies || 1;
                     this.initGrid();
 
                     this.rowNoFrom = 1;
@@ -694,6 +696,8 @@
                     if (this.activeCollapses.indexOf("grid") < 0) {
                         this.activeCollapses.push("grid");
                     }
+
+                    topWin.message("打印任务单数据已生成，共 " + this.qty + " 条记录。", "success");
                 });
             },
             deleteTask() {

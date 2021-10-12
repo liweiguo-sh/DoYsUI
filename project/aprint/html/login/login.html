@@ -64,7 +64,7 @@
             </el-row>
             <el-row>
                 <el-col :span="12">
-                    <el-input v-model="verifyCode" placeholder="验证码" prefix-icon="el-icon-success" clearable></el-input>
+                    <el-input v-model="verifyCode" ref="verifyCode" @change="login1" placeholder="验证码" prefix-icon="el-icon-success" clearable></el-input>
                 </el-col>
                 <el-col :span="12" style="text-align:right">
                     <el-image :src="verifyCodeUrl" style="width:95%;height:40px;" placeholder="loading..."></el-image>
@@ -131,6 +131,8 @@
             ajax.send('/user/getVerifyCode').then(response => {
                 this.verifyCodeUrl = g.prefix + response.url;
                 this.verifyCode = response.verifyCode;
+
+                this.$refs.verifyCode.focus();
             })
         },
         methods: {

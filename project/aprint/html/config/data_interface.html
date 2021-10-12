@@ -8,7 +8,7 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:800px;">
+    <div id="app" style="width:800px;height:540px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-tabs ref="tab" v-model="activeTabName" @tab-click="tabClick">
             <el-tab-pane name="main" :key="0" label="基本信息">
@@ -47,15 +47,23 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
+                    <!-- 数量字段、备注-->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="数量字段">
+                                <el-input v-model="form.field_copies" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col>
+                            &nbsp;
+                        </el-col>
+                    </el-row>
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="备注">
                                 <el-input v-model="form.remark" type="textarea" :rows="3" />
                             </el-form-item>
                         </el-col>
-                    </el-row>
-                    <el-row>
-                        <div style="height:145px"></div>
                     </el-row>
                 </el-form>
             </el-tab-pane>
