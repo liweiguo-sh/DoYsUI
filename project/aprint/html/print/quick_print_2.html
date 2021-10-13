@@ -23,7 +23,12 @@
             margin-bottom: 15px;
         }
 
+        #divLabelContainerParent {
+            --border: solid 1px red;
+        }
+
         #divLabelContainer {
+            --border: solid 1px blue;
             height: 500px;
             position: relative;
             box-shadow: 2px 2px 15px gray;
@@ -88,7 +93,7 @@
                 <hr />
                 <!-- 标签列表 -->
                 <el-row style="margin-bottom:22px;">
-                    <el-select v-model="label.id" @change="onLabelChange" default-first-option filterable style="width:100%;">
+                    <el-select v-model="label.id" @change="onLabelChange" default-first-option filterable clearable style="width:100%;">
                         <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
                             <span style="float: left">{{ item.code }}</span>
                             <span style="float: right;">{{ item.name }}</span>
@@ -130,12 +135,9 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                </el-form>
-            </el-col>
-            <!-- 标签区 -->
-            <el-col :span="span[2]" style="padding:0px 0px 0px 30px;">
-                <el-form label-width="160px" label-position="left" :size="size">
+
                     <!-- 产品、客户、供应商 -->
+                    <hr v-show="hasProductRef || hasCustomerRef || hasSupplierRef" />
                     <el-form-item label="产品料号(SKU)" v-show="hasProductRef">
                         <el-select v-model="productPnId" @change="onProductPnChange" default-first-option filterable clearable style="width:100%;">
                             <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.pn + '  ' + item.product_name">
@@ -154,56 +156,47 @@
                             <el-option v-for="item in suppliers" :key="item.id" :value="item.id" :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
+
                     <!-- 变量输入区 -->
-                    <el-row v-for="item in variables" :key="item.name">
-                        <el-col>
-                            <el-form-item :label="item.name" v-if="item.type.equals('date') && !item.disabled">
-                                <el-date-picker v-model="item.value" @change="onVarChange(item.name,item)" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
-                            </el-form-item>
-                            <el-form-item :label="item.name" v-else-if="!item.disabled">
-                                <el-input v-model="item.value" @change="onVarChange(item.name,item)" :disabled="item.disabled" placeholder="打印前请赋值..." />
-                            </el-form-item>
-                        </el-col>
+                    <hr v-show="label.id" />
+                    <el-row v-for="item in variables" :key="item.name" v-show="label.id">
+                        <el-form-item :label="item.name" v-if="item.type.equals('date') && !item.disabled">
+                            <el-date-picker v-model="item.value" @change="onVarChange(item.name,item)" type="date" value-format="yyyy-MM-dd" :disabled="item.disabled" placeholder="打印前请选择日期..."></el-date-picker>
+                        </el-form-item>
+                        <el-form-item :label="item.name" v-else-if="!item.disabled">
+                            <el-input v-model="item.value" @change="onVarChange(item.name,item)" :disabled="item.disabled" placeholder="打印前请赋值..." />
+                        </el-form-item>
                     </el-row>
-                    <el-collapse>
-                        <el-collapse-item title="......" name="1">
+                    <el-collapse v-show="label.id">
+                        <el-collapse-item title="......" name="disabled">
                             <el-row v-for="item in variables" :key="item.name">
-                                <el-col>
-                                    <el-form-item :label="item.name" v-if="item.disabled">
-                                        <el-input v-model="item.value" :disabled="item.disabled" />
-                                    </el-form-item>
-                                </el-col>
+                                <el-form-item :label="item.name" v-if="item.disabled">
+                                    <el-input v-model="item.value" :disabled="item.disabled" />
+                                </el-form-item>
                             </el-row>
                         </el-collapse-item>
                     </el-collapse>
                 </el-form>
             </el-col>
-        </el-row>
-        <el-collapse v-model="activeCollapses">
-            <el-collapse-item name="preview">
-                <template slot="title">
-                    <span style="font-size:large;color:#409EFF">
-                        标签预览区<i class="header-icon el-icon-postcard"></i>
+            <!-- 标签区 -->
+            <el-col :span="span[2]" style="padding:15px 0px 0px 30px;">
+                <div id="divLabelContainerParent">
+                    <div id="divLabelContainer"></div>
+                </div>
+                <el-row v-show="label.id" style="margin-top:20px;">
+                    <el-button type="primary" plain @click="printProof">打印样张</el-button>
+                    <span style="margin-left:10px;margin-right:10px;">
+                        {{label.width}}×{{label.height}}
                     </span>
-                </template>
-                <el-row>
-                    <el-col :span="span[1]">
-                        <el-form label-width="140px" label-position="left">
-                            <el-form-item label="标签代码">{{label.code}}</el-form-item>
-                            <el-form-item label="标签名称">{{label.name}}</el-form-item>
-                            <el-form-item label="宽高">{{label.width}} * {{label.height}}</el-form-item>
-                            <el-form-item label="备注">{{label.remark}}</el-form-item>
-                            <el-button type="primary" :disabled="!label.id" plain style="margin-left:140px;" @click="printProof">打印样张</el-button>
-                        </el-form>
-                    </el-col>
-                    <el-col :span="span[2]" style="padding:15px 30px 0px 190px;">
-                        <div style="text-align: right; border: solid 0px red; position: relative;">
-                            <div id="divLabelContainer"></div>
-                        </div>
-                    </el-col>
+                    <span>{{label.remark}}</span>
                 </el-row>
-            </el-collapse-item>
-            <el-collapse-item title="打印任务单数据列表" name="grid">
+            </el-col>
+        </el-row>
+        <el-collapse v-model="activeCollapses" v-show="taskId">
+            <el-collapse-item name="grid">
+                <template slot="title">
+                    <span style="color:#409EFF">打印任务单数据列表 <i class="el-icon-coin"></i></span>
+                </template>
                 <sub-view id="grid" ref="grid" @oncolclick="onColClick" @onrowchange="onRowChange" style="height:500px;"></sub-view>
             </el-collapse-item>
         </el-collapse>
@@ -217,7 +210,7 @@
         el: '#app',
         data: {
             activeTabName: "standard",
-            activeCollapses: [],
+            activeCollapses: ["grid"],
             span: [24, 8, 16],
             size: "medium",                 // -- medium/small/mini --
 
@@ -312,6 +305,7 @@
                     this.variables = res.variables;
 
                     // -- 1. 加载标签 --
+                    this.setLabelContainerSize();
                     if (!lbl) {
                         lbl = new Label({
                             container: gId("divLabelContainer"),
@@ -763,6 +757,24 @@
             onPrinterChange() {
                 setLocalItem(ckLatestPrinter, this.printerName);
             },
+            setLabelContainerSize() {                
+                let elParent = divLabelContainerParent.parentElement;
+                let width = elParent.clientWidth - 10 - g.x.getStyleValue(elParent, "paddingLeft") - g.x.getStyleValue(elParent, "paddingRight");
+                let height = win.p.maxHeight - 50;
+
+                let WH = width / height;
+                let wh = this.label.width / this.label.height;
+
+                if (WH > wh) {
+                    width = height * wh;
+                }
+                else {
+                    height = width / wh;
+                }
+
+                divLabelContainerParent.style.width = width + "px";
+                divLabelContainerParent.style.height = height + "px";
+            },
             more(command) {
                 if (command.equals("toSupplier")) {
                     var prop = {
@@ -792,11 +804,12 @@
 
 <!-- winLoad -->
 <script>
-    let lbl;
+    let divLabelContainerParent = gId("divLabelContainerParent");
     let ckLatestPrinter = "quick_print_latest_printer";
+    let lbl;
     // ------------------------------------------------------------------------
     function winLoad() {
-        let widthLeft = Math.round(24 * (540 / win.p.maxWidth));
+        let widthLeft = Math.round(24 * (600 / win.p.maxWidth));
         app.span[1] = widthLeft;
         app.span[2] = 24 - widthLeft;
 
