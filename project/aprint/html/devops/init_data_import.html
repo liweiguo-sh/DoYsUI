@@ -23,7 +23,7 @@
         </el-tabs>
         <!-- 上传文件 -->
         <el-row style="margin-top:30px;margin-bottom:10px;">
-            <el-upload class="upload-demo" :action="actionUpload" :with-credentials="true"
+            <el-upload :action="actionUpload" :with-credentials="true"
                        :on-success="onSuccess"
                        :show-file-list="false"
                        accept=".xlsx,.xls">

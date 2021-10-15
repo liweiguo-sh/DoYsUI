@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>接口数据维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="span[1]">
+                <el-row>
+                    <el-col :span="12">
+                        <el-upload :disabled="!interfaceId" :action="actionUpload" :with-credentials="true"
+                                   :on-success="onSuccess"
+                                   :show-file-list="false"
+                                   accept=".xlsx,.xls">
+                            <el-button type="success" :disabled="!interfaceId">选择导入文件</el-button>
+                        </el-upload>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-button type="primary" style="float:right" onclick="win.close();">关闭</el-button>
+                    </el-col>                    
+                </el-row>
+                <!-- 接口列表、查询条件 -->
+                <el-row style="margin-top:10px;margin-bottom:15px;">
+                    <el-select v-model="interfaceId" @change="onInterfaceChange" default-first-option filterable clearable style="width:100%;">
+                        <el-option v-for="item in interfaces" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                            <span style="float: left">{{ item.code }}</span>
+                            <span style="float: right;">{{ item.name }}</span>
+                        </el-option>
+                    </el-select>
+                </el-row>
+                <el-row>
+                    <el-input v-model="fcode" @change="query" clearable placeholder="请输入查询业务单号"></el-input>
+                </el-row>
+                <!-- 删除数据、查询数据 -->
+                <el-row style="margin-top:10px;">
+                    <el-button type="warning" plain :disabled="!interfaceId" @click="delData">{{textDel}}</el-button>
+                    <el-button type="success" style="float:right" :disabled="!interfaceId" @click="query">查询</el-button>
+                </el-row>
+            </el-col>
+            <el-col :span="span[2]" style="padding-left:15px;">
+                <el-row>
+                    <sub-view id="grid" ref="grid" :height="500"></sub-view>
+                </el-row>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 8, 16],
+
+            interfaces: [],                 // -- 数据接口列表 --
+            interface: {},                  // -- 数据接口对象 --
+            interfaceId: null,              // -- 数据接口ID --
+
+            actionUpload: g.prefix + "/framework/common/upload/upload_temp_file",
+            textDel: "删除接口数据",
+            fcode: "",                      // -- 查询内容 --            
+        },
+        mounted() {
+            ajax.send("/aprint/cfg/interface_data_maintain/getDataInterfaceList", {}).then((res) => {
+                this.interfaces = res.interfaces;
+            })
+        },
+        methods: {
+            onInterfaceChange(interfaceId) {
+                for (let i = 0; i < this.interfaces.length; i++) {
+                    if (this.interfaces[i].id == this.interfaceId) {
+                        this.interface = this.interfaces[i];
+                        break;
+                    }
+                }
+
+                this.initGrid();
+            },
+            initGrid() {
+                var para = {
+                    viewPk: "x_idata",
+                    controller: "/aprint/cfg/x_idata_view",
+                    // filter: "1 = 0",
+                    extUserDef: {
+                        interfaceId: this.interfaceId
+                    }
+                }
+                this.$refs.grid.init(para);
+            },
+
+            onSuccess(res, file, fileList) {
+                let dataPOST = {
+                    interfaceId: this.interfaceId,
+                    pathname: res.pathname
+                }
+                ajax.send("/aprint/cfg/interface_data_maintain/importInterfaceData", dataPOST).then((res) => {
+                    topWin.message("成功导入 " + res.result + " 条接口数据。", "success");
+
+                    this.query();
+                })
+            },
+            importData() {
+
+            },
+            query() {
+                if (!this.interfaceId) return;
+
+                if (this.fcode) {
+                    this.$refs.grid.setFilter("$fcode = '" + this.fcode + "'");
+                }
+                else {
+                    this.$refs.grid.setFilter("");
+                }
+            },
+            delData() {
+                topWin.confirm("确定要删除接口数据吗？").then((ok) => {
+                    if (!ok) return;
+
+                    let dataPOST = {
+                        interfaceId: this.interfaceId,
+                        fcode: this.fcode
+                    }
+                    ajax.send("/aprint/cfg/interface_data_maintain/delInterfaceData", dataPOST).then((res) => {
+                        topWin.message("成功删除 " + res.result + " 条接口数据。", "success");
+
+                        this.query();
+                    })
+                })
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        let widthLeft = Math.round(24 * (420 / win.p.maxWidth));
+        app.span[1] = widthLeft;
+        app.span[2] = 24 - widthLeft;
+
+        let height = win.p.maxHeight;
+        app.$refs.grid.$el.style.height = height + "px";
+    }
+</script>
