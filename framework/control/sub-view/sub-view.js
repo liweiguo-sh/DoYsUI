@@ -2,6 +2,7 @@
     data: function () {
         return {
             initialized: false,
+            loading: false,                 // -- 正在请求后台数据 --
             elTableHeight: "100%",          // -- el-table高度 --
 
             viewPk: "",
@@ -44,7 +45,6 @@
             quickFields: "",                // -- 快速搜索字段 --            
             filterTreeeFlow: "",            // -- 流程树导航条件 --
             filterQuick: "",                // -- 快速查询条件 --
-            loading: false,
 
             vfUrl: "",                      // -- vf窗口URL --
             vfWindowState: "",              // -- vf窗口状态 --

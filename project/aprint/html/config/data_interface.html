@@ -6,6 +6,16 @@
     <script>
         importFrameworkRes("view-form-bar");
     </script>
+
+    <style type="text/css">
+        #divDataSample {
+            color: #67C23A;
+            background-color: white;
+            line-height: 36px;
+            white-space: nowrap;
+            overflow: auto;
+        }
+    </style>
 </head>
 <body>
     <div id="app" style="width:800px;height:540px;">
@@ -25,6 +35,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
+                    <!-- 接口地址，方式、接口数据缓存选项 -->
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="接口地址">
@@ -42,16 +53,16 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
-                            <el-form-item label="查询参数名称">
-                                <el-input v-model="form.para_code" placeholder="订单单号、入库单号等" />
+                            <el-form-item label="接口数据缓存选项">
+                                <el-checkbox v-model="form.flag_cache_data">缓存接口数据</el-checkbox>
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <!-- 数量字段、备注-->
+                    <!-- 查询参数名称、数量字段 -->
                     <el-row>
                         <el-col :span="span[1]">
-                            <el-form-item label="接口数据缓存选项">
-                                <el-checkbox v-model="form.flag_cache_data" >缓存接口数据</el-checkbox>
+                            <el-form-item label="查询参数名称" required>
+                                <el-input v-model="form.para_code" ref="para_code" placeholder="订单单号、入库单号等" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
@@ -59,8 +70,8 @@
                                 <el-input v-model="form.field_copies" />
                             </el-form-item>
                         </el-col>
-
                     </el-row>
+                    <!-- 备注 -->
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="备注">
@@ -72,6 +83,9 @@
             </el-tab-pane>
             <el-tab-pane name="fields" :key="1" label="接口字段列表">
                 <sub-view id="grid" ref="grid" style="height:420px;"></sub-view>
+            </el-tab-pane>
+            <el-tab-pane name="dataSample" :key="2" label="接口数据样例">
+                <div id="divDataSample"></div>
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -90,21 +104,77 @@
         },
 
         methods: {
-            tabClick( ) {
+            tabClick() {
                 if (!this.activeTabName.equals("main")) {
-                    if (!this.$refs.vf.status.equals("view")) { 
+                    if (!this.$refs.vf.status.equals("view")) {
                         this.$refs.vf.save().then((result) => {
                             if (!result) {
                                 this.activeTabName = "main";
+                                return;
                             }
                         })
                     }
                 }
+
+                if (this.activeTabName.equals("dataSample")) {
+                    this.generateDataSample();
+                }
+            },
+            async generateDataSample() {
+                if (!this.activeTabName.equals("dataSample")) return;
+                if (!this.$refs.vf.status.equals("view")) {
+                    gId("divDataSample").innerHTML = "[]";
+                    return;
+                }
+
+                while (this.$refs.grid.loading) {
+                    await sleep(100);
+                }
+
+                let dtbField = this.$refs.grid.dtbViewData;
+                let fieldCount = dtbField.rowCount;
+                if (fieldCount == 0) {
+                    gId("divDataSample").innerHTML = "[]";
+                    return;
+                }
+
+                // ----------------------------------------
+                let mockCount = this.form.field_copies ? 1 : 5;
+                let paraCode = this.form.para_code;
+                let data = [], heads = [];
+                let indent = "&nbsp;&nbsp;&nbsp;&nbsp;";
+                let space = "&nbsp;&nbsp;";
+
+                for (let i = 0; i < fieldCount; i++) {
+                    heads.push("\"" + dtbField.rows[i]["name"].value + "\"");
+                }
+                if (paraCode) heads.push("\"" + paraCode + "\"");
+                data.push(indent + "[ " + heads.join("," + space) + " ]");
+
+                for (let m = 0; m < mockCount; m++) {
+                    let values = [];
+                    for (let i = 0; i < fieldCount; i++) {
+                        values.push("\"数据" + "_" + (m + 1) + "_" + (i + 1) + "\"");
+                    }
+                    if (paraCode) values.push("\"" + paraCode + "_xxx\"");
+                    data.push(indent + "[ " + values.join("," + space) + " ]");
+                }
+
+                gId("divDataSample").innerHTML = "[<br />" + data.join(",<br />") + "<br />]";
             },
 
             afterAddnew() {
                 this.activeTabName = "main";
+                this.form.flag_cache_data = true;
 
+            },
+            beforeSave() {
+                if (this.form.url) {
+                    if (!this.form.method) {
+                        this.form.method = "GET";
+                    }
+                }
+                return true;
             },
             afterMove() {
                 let filter = "data_interface_id = " + this.$refs.vf.getId();
@@ -120,6 +190,8 @@
                     }
                     this.$refs.grid.init(para);
                 }
+
+                this.generateDataSample();
             }
         }
     });
