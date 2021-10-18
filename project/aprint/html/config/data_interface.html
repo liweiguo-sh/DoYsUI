@@ -58,16 +58,26 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <!-- 查询参数名称、数量字段 -->
+                    <!-- 查询参数名称，数量字段、份数字段 -->
                     <el-row>
                         <el-col :span="span[1]">
-                            <el-form-item label="查询参数名称" required>
+                            <el-form-item label="接口查询参数" required>
                                 <el-input v-model="form.para_code" ref="para_code" placeholder="订单单号、入库单号等" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
                             <el-form-item label="数量字段">
-                                <el-input v-model="form.field_copies" />
+                                <el-input v-model="form.field_qty" placeholder="可选项" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row v-show="true">
+                        <el-col :span="span[1]">
+                            &nbsp;
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="份数字段">
+                                <el-input v-model="form.field_copy" placeholder="可选项，默认1份" />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -82,7 +92,7 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane name="fields" :key="1" label="接口字段列表">
-                <sub-view id="grid" ref="grid" style="height:420px;"></sub-view>
+                <sub-view id="grid" ref="grid" view-height="410"></sub-view>
             </el-tab-pane>
             <el-tab-pane name="dataSample" :key="2" label="接口数据样例">
                 <div id="divDataSample"></div>
