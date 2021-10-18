@@ -401,7 +401,7 @@
             },
 
             // -- variable --------------------------------
-            onProductPnChange(jsp) {
+            onProductPnChange(jsp = {}) {
                 if (this.productPnId) {
                     ajax.send("/aprint/print/quick/getProductPnPara", { productPnId: this.productPnId }).then(res => {
                         this.productPnPara = res.productPnPara;
@@ -815,7 +815,7 @@
                 }
                 else {
                     topWin.message("尚未实现的触发字段", "error");
-                }         
+                }
             },
             scanBarcodeEnterNext() {
                 this.print();
