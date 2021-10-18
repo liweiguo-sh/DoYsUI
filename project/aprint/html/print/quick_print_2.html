@@ -401,11 +401,15 @@
             },
 
             // -- variable --------------------------------
-            onProductPnChange() {
+            onProductPnChange(jsp) {
                 if (this.productPnId) {
                     ajax.send("/aprint/print/quick/getProductPnPara", { productPnId: this.productPnId }).then(res => {
                         this.productPnPara = res.productPnPara;
                         this.setVariables();
+
+                        if (jsp.scanBarcodeEnterNext) {
+                            this.scanBarcodeEnterNext();
+                        }
                     });
                 }
                 else {
@@ -804,16 +808,20 @@
                 // -- 2. 选中 --
                 if (this.scanField.equals("pn")) {
                     this.productPnId = this.productPns[idxFind]["id"];
-                    this.onProductPnChange();
+
+                    if (this.autoPrint) {
+                        this.onProductPnChange({ scanBarcodeEnterNext: true });
+                    }
                 }
                 else {
                     topWin.message("尚未实现的触发字段", "error");
-                    return;
-                }
-
-                // -- 3. 自动打印 --
-                if (!this.autoPrint) return;
+                }         
+            },
+            scanBarcodeEnterNext() {
                 this.print();
+                if (this.autoResetCopy) {
+                    this.copies = 1;
+                }
             },
 
             // -- others ----------------------------------
