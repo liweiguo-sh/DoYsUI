@@ -61,8 +61,24 @@
                             </el-form-item>
                             <el-form-item label="单据接口单号">
                                 <el-input v-model="interfaceQueryCode" :disabled="!label.id || !interfaceId" placeholder="请输入单据接口查询单号...">
-                                    <el-button slot="append" icon="el-icon-search"></el-button>
+                                    <!--<el-button slot="append" icon="el-icon-search"></el-button>-->
                                 </el-input>
+                            </el-form-item>
+                        </el-form>
+                    </el-tab-pane>
+                    <el-tab-pane name="labelChange" label="扫码换标">
+                        <el-form label-width="135px" label-position="left" size1="medium">
+                            <el-form-item label="扫码内容">
+                                <el-select v-model="scanField" default-first-option filterable clearable style="width:100%;">
+                                    <el-option value="pn" label="产品料号(SKU)"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="选项">
+                                <el-checkbox v-model="autoPrint">扫码自动触发打印</el-checkbox>
+                                <el-checkbox v-model="autoResetCopy">自动重置份数</el-checkbox>
+                            </el-form-item>
+                            <el-form-item label="扫码区">
+                                <el-input v-model="barcodeScan" ref="barcodeScan" @keyup.enter.native="scanBarcodeEnter" :disabled="!scanField || !label.id" placeholder="请扫码...">自动重置份数</el-input>
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
@@ -93,7 +109,7 @@
                 <hr />
                 <!-- 标签列表 -->
                 <el-row style="margin-bottom:22px;">
-                    <el-select v-model="label.id" @change="onLabelChange" default-first-option filterable clearable style="width:100%;">
+                    <el-select v-model="label.id" @change="onLabelChange" default-first-option filterable style="width:100%;">
                         <el-option v-for="item in labels" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
                             <span style="float: left">{{ item.code }}</span>
                             <span style="float: right;">{{ item.name }}</span>
@@ -214,6 +230,10 @@
             span: [24, 8, 16],
             size: "medium",                 // -- medium/small/mini --
 
+            scanField: "pn",               // -- 扫码内容 --
+            autoPrint: true,                // -- 自动打印 --
+            autoResetCopy: true,            // -- 自动重置份数 --
+            barcodeScan: "",                // -- 扫码内容 --
             actionUpload: g.prefix + "/framework/common/upload/upload_temp_file",
 
             labels: [],
@@ -292,6 +312,13 @@
                 if (tab.name.equals("excel") || tab.name.equals("interface")) {
                     this.qty = 0;
                 }
+                else if (tab.name.equals("labelChange")) {
+                    setTimeout(_ => {
+                        this.$refs.barcodeScan.focus();
+                    }, 100);
+                }
+
+                setLocalItem("activeTabName", this.activeTabName);
             },
 
             onLabelChange() {
@@ -753,11 +780,47 @@
                 this.printProof();
             },
 
+            // -- label change print ----------------------
+            scanBarcodeEnter() {
+                let barcode = this.barcodeScan.trim();
+                if (barcode.equals("")) return;
+
+                // -- 1. 查找 --
+                let value, idxFind = -1;
+                for (let i = this.productPns.length - 1; i >= 0; i--) {
+                    value = this.productPns[i][this.scanField];
+                    if (barcode == value) {
+                        idxFind = i;
+                        break;
+                    }
+                }
+
+                this.$refs["barcodeScan"].select();
+                if (idxFind < 0) {
+                    topWin.message("未找到符合条件的数据，请检查扫码内容是否正确。", "error");
+                    return;
+                }
+
+                // -- 2. 选中 --
+                if (this.scanField.equals("pn")) {
+                    this.productPnId = this.productPns[idxFind]["id"];
+                    this.onProductPnChange();
+                }
+                else {
+                    topWin.message("尚未实现的触发字段", "error");
+                    return;
+                }
+
+                // -- 3. 自动打印 --
+                if (!this.autoPrint) return;
+                this.print();
+            },
+
             // -- others ----------------------------------
             onPrinterChange() {
                 setLocalItem(ckLatestPrinter, this.printerName);
             },
-            setLabelContainerSize() {                
+            setLabelContainerSize() {
                 let elParent = divLabelContainerParent.parentElement;
                 let width = elParent.clientWidth - 10 - g.x.getStyleValue(elParent, "paddingLeft") - g.x.getStyleValue(elParent, "paddingRight");
                 let height = win.p.maxHeight - 50;
@@ -819,5 +882,11 @@
             }
         });
         app.printerName = getLocalItem(ckLatestPrinter);
+
+
+        let activeTabName = getLocalItem("activeTabName");
+        if (!activeTabName.equals("")) {
+            app.activeTabName = activeTabName;
+        }
     }
 </script>
