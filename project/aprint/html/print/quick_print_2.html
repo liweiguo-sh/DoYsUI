@@ -135,7 +135,7 @@
                     </el-row>
                     <!-- 打印机、打印数量、份数 -->
                     <el-form-item label="打印机">
-                        <el-select v-model="printerName" @change="preview();onPrinterChange();" default-first-option filterable clearable style="width:100%;">
+                        <el-select v-model="printerName" @change="onPrinterChange();" default-first-option filterable clearable style="width:100%;">
                             <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
                         </el-select>
                     </el-form-item>
@@ -318,7 +318,7 @@
                     }, 100);
                 }
 
-                setLocalItem("activeTabName", this.activeTabName);
+                setPageCookie("activeTabName", this.activeTabName);
             },
 
             onLabelChange() {
@@ -826,7 +826,7 @@
 
             // -- others ----------------------------------
             onPrinterChange() {
-                setLocalItem(ckLatestPrinter, this.printerName);
+                setPageCookie("printerName", this.printerName);
             },
             setLabelContainerSize() {
                 let elParent = divLabelContainerParent.parentElement;
@@ -876,7 +876,6 @@
 <!-- winLoad -->
 <script>
     let divLabelContainerParent = gId("divLabelContainerParent");
-    let ckLatestPrinter = "quick_print_latest_printer";
     let lbl;
     // ------------------------------------------------------------------------
     function winLoad() {
@@ -889,10 +888,10 @@
                 app.printers = res.data.printers;
             }
         });
-        app.printerName = getLocalItem(ckLatestPrinter);
+        app.printerName = getPageCookie("printerName");
 
 
-        let activeTabName = getLocalItem("activeTabName");
+        let activeTabName = getPageCookie("activeTabName");
         if (!activeTabName.equals("")) {
             app.activeTabName = activeTabName;
         }

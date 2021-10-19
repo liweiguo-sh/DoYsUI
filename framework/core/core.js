@@ -2,7 +2,7 @@
  * DoYs.core.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2021-03-22
+ * Modify Date: 2021-10-19
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -38,12 +38,28 @@ function _getUrlPara(url) {
 function getUrlItem(key, defaultValue = "") {
     return urlPara[key] || defaultValue;
 }
+function getPageHash(key = "") {
+    let url = window.location.href;
+    let idx = url.indexOf("?");
+    if (idx > 0) {
+        url = url.substring(0, idx);
+    }
+    let hash = JSON.getHashCode(url);
+
+    return hash + "_" + key;
+}
 
 function getLocalItem(key, defaultValue = "") {
     return window.localStorage.getItem(key) || defaultValue;
 }
 function setLocalItem(key, value) {
     window.localStorage.setItem(key, value);
+}
+function getPageCookie(key, defaultValue = "") {
+    return window.localStorage.getItem(getPageHash(key)) || defaultValue;
+}
+function setPageCookie(key, value) {
+    window.localStorage.setItem(getPageHash(key), value);
 }
 
 // -- 定位 ---------------------------------------------------------------------

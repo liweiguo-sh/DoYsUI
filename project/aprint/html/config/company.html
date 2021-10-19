@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>企业信息配置</title>
+    <script src="../../../../framework/core/boot.js"></script>
+</head>
+<body>
+    <div id="app" style="width:540px;">
+        <el-form label-width="180px" label-position="left">
+            <el-tabs ref="tab" v-model="activeTabName" @tab-click="onTabClick">
+                <!-- 基本信息 -->
+                <el-tab-pane name="base" :key="0" label="基本信息">
+                    <el-row>
+                        <el-form-item label="企业名称" required>
+                            <el-input v-model="company.name" />
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="统一社会信用代码" required>
+                            <el-input v-model="company.usci" />
+                        </el-form-item>
+                    </el-row>
+                </el-tab-pane>
+                <!-- UDI信息 -->
+                <el-tab-pane name="nmpa" :key="1" label="UDI配置信息">
+                    <el-row>
+                        <el-form-item label="产品标识编码体系">
+                            <el-select v-model="company.nmpa_cpbsbmtxmc" clearable style="width:100%">
+                                <el-option value="GS1" label="GS1"></el-option>
+                                <el-option value="MA" label="MA" :disabled="true"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="企业前缀">
+                            <el-input v-model="company.nmpa_prefix" placeholder="请填写编码组织分配的企业前缀" />
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="appId">
+                            <el-input v-model="company.nmpa_app_id" placeholder="请填写DI上传接口 appId" />
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="appSecret">
+                            <el-input v-model="company.nmpa_app_secret" placeholder="请填写DI上传接口 appSecred" />
+                        </el-form-item>
+                    </el-row>
+                </el-tab-pane>
+                <el-tab-pane name="iot" :key="2" label="工业互联网标识解析节点" :disabled="true">
+                </el-tab-pane>
+            </el-tabs>
+        </el-form>
+        <el-row style="text-align:right;">
+            <el-button type="primary" @click="saveCompany">保存配置</el-button>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            activeTabName: "base",
+
+            company: {
+                usci: "",
+                name: ""
+            }
+        },
+        mounted() {
+            ajax.send("/aprint/cfg/company/getCompany", {}).then((res) => {
+                this.company = res.company;
+            });
+
+            this.getQueueSummary();
+        },
+        methods: {
+            onTabClick() {
+                setPageCookie("activeTabName", this.activeTabName);
+            },
+            saveCompany() {
+                let dataPOST = {
+                    company: this.company
+                };
+                ajax.send("/aprint/cfg/company/saveCompany", dataPOST).then((res) => {
+                    topWin.message("数据保存成功。", "success");
+                });
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        let activeTabName = getPageCookie("activeTabName");
+        if (!activeTabName.equals("")) {
+            app.activeTabName = activeTabName;
+        }
+    }
+</script>
