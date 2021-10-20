@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>后台任务（手工调用）</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <style type="text/css">
+        .message {
+            color: red;
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-button type="primary" onclick="win.close();">关闭</el-button>
+        <el-tabs v-model="activeTabName" @tab-click="tabImportClick">
+            <el-tab-pane label="DI上传" name="uploadDI">
+                <el-button type="primary" @click="uploadDiData">上传DI数据</el-button>
+            </el-tab-pane>
+            <el-tab-pane label="待定..." name="others" :disabled="true">
+
+            </el-tab-pane>
+        </el-tabs>
+
+        <!-- message -->
+        <el-divider content-position="left" v-if="listLog.length">执行结果</el-divider>
+        <el-row v-show="message">
+            {{message}}
+        </el-row>
+        <el-row>
+            <ul>
+                <li v-for="item in listLog" style="color:red;margin-bottom:15px;">{{item}}</li>
+            </ul>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            activeTabName: "uploadDI",
+
+            message: "",
+            listLog: []
+        },
+        mounted() {
+        },
+        methods: {
+            tabImportClick() {
+                setPageCookie("activeTabName", this.activeTabName);
+            },
+
+            uploadDiData() {
+                this.listLog = [];
+                this.message = "DI数据上传接口服务器较慢，请耐心等待接口返回信息...";
+                ajax.send("/aprint/thirdparty/nmpa/uploadDiData", {}).then((res) => {
+                    if (res.listFail && res.listFail.length > 0) {
+                        this.listLog = res.listFail;
+                        this.message = "接口返回如下错误信息：";
+                        topWin.message("接口返回错误信息，请检查。", "error");
+                    }
+                    else {
+                        this.listLog = [];
+                        this.message = "DI上传操作成功";
+                        topWin.message(this.message, "success");
+                    }
+                })
+            }
+        }
+    });
+</script>
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        let activeTabName = getPageCookie("activeTabName");
+        if (!activeTabName.equals("")) {
+            app.activeTabName = activeTabName;
+        }
+    }
+</script>
