@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>医疗器械DI维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:1100px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="190px" label-position="left">
+            <!-- DI、产品名称/通用名称 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="DI" required>
+                        <el-input v-model="form.di" ref="di" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="产品名称/通用名称" required>
+                        <el-select v-model="form.md_name_id" ref="md_name_id" filterable default-first-option>
+                            <el-option v-for="item in ds.md_name_id" :key="item.id" :value="item.id" :label="item.cpmctymc"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 最小销售单元中使用单元的数量、产品标识发布日期 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="最小销售单元数量" required>
+                        <el-tooltip effect="dark" placement="bottom-end">
+                            <div slot="content">最小销售单元中使用单元的数量<br />示例：<br />最小销售单元包含100支采血管/盒；<br />最小销售单元中使用单元的数量=100。</div>
+                            <el-input v-model="form.zxxsdyzsydydsl" ref="zxxsdyzsydydsl" placeholder="最小销售单元中使用单元的数量" />
+                        </el-tooltip>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="产品标识发布日期" required>
+                        <el-tooltip effect="dark" placement="bottom-end">
+                            <div slot="content">产品标识在医疗器械唯一标识数据库上对外发布的日期<br />(由企业自行指定)</div>
+                            <el-date-picker v-model="form.cpbsfbrq" ref="cpbsfbrq" type="date" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
+                        </el-tooltip>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <!-- 是否有本体直接标识 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="是否有本体直接标识" required>
+                        <el-radio v-model="form.sfybtzjbs" label="1">是</el-radio>
+                        <el-radio v-model="form.sfybtzjbs" label="0">否</el-radio>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="标识载体" required>
+                        <el-checkbox v-model="bszt.BARCODE_1D" label="一维码"></el-checkbox>
+                        <el-checkbox v-model="bszt.BARCODE_2D" label="二维码"></el-checkbox>
+                        <el-checkbox v-model="bszt.RFID" label="RFID"></el-checkbox>
+                        <el-checkbox v-model="bszt.OTHERS" label="其它"></el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 是否与注册/备案标识一致、注册/备案产品标识，是否为包类/组套类产品 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="是否与注册/备案标识一致" required>
+                        <el-radio v-model="form.sfyzcbayz" label="1">是</el-radio>
+                        <el-radio v-model="form.sfyzcbayz" label="0">否</el-radio>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="注册/备案产品标识">
+                        <el-input v-model="form.zcbacpbs" ref="zcbacpbs" :disabled="form.sfyzcbayz.equals('1')" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="是否为包类/组套类产品" required>
+                        <el-radio v-model="form.sfwblztlcp" label="1">是</el-radio>
+                        <el-radio v-model="form.sfwblztlcp" label="0">否</el-radio>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+
+            <!-- 规格型号，产品描述 -->
+            <el-row>
+                <el-row>
+                    <el-col :span="span[0]">
+                        <el-form-item label="规格型号" required>
+                            <el-input v-model="form.ggxh" ref="ggxh" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-row>
+            <el-row>
+                <el-row>
+                    <el-col :span="span[0]">
+                        <el-form-item label="产品描述" required>
+                            <el-tooltip effect="dark" placement="bottom-end">
+                                <div slot="content">包括产品注册证或备案凭证上附页相关描述以及其他必需的产品描述，应与最小销售单元产品标识一一对应；<br />当医疗器械为包类/组套类产品（经批准的）时，还应列明所有组件的产品名称和数量；<br />当医疗器械附带软件时，须列明软件版本号。</div>
+                                <el-input v-model="form.cpms" ref="cpms" type="textarea" :rows="3" />
+                            </el-tooltip>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-row>
+
+            <!-- 备注 -->
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-tooltip effect="dark" content="备注说明" placement="bottom-end">
+                            <el-input v-model="form.remark" type="textarea" :rows="2" />
+                        </el-tooltip>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {
+                sfybtzjbs: "0",
+                sfyzcbayz: "1"
+            },
+            ds: {},
+            bszt: {
+                BARCODE_1D: false, BARCODE_2D: false, RFID: false, OTHERS: false
+            }
+        },
+
+        methods: {
+            afterAddnew(jsp) {
+                if (!jsp.copy) {
+                    this.form.md_name_id = md_name_id;
+                    this.form.sfybtzjbs = "0";
+                    this.form.sfyzcbayz = "1";
+                }
+                this.form.di = "";
+                this.form.upload_type = "add";
+            },
+            beforeSave: function () {
+                if (this.form.sfyzcbayz.equals("1")) this.form.zcbacpbs = "";
+                // -- 标识载体 --
+                let bszts = [];
+                if (this.bszt.BARCODE_1D) bszts.push("1");
+                if (this.bszt.BARCODE_2D) bszts.push("2");
+                if (this.bszt.RFID) bszts.push("3");
+                if (this.bszt.OTHERS) bszts.push("4");
+                this.form.bszt = bszts.join(",");
+
+                return true;
+            },
+            afterMove() {
+                // -- 标识载体 --
+                let bszt = this.form.bszt;
+                this.bszt.BARCODE_1D = bszt.indexOf("1") >= 0;
+                this.bszt.BARCODE_2D = bszt.indexOf("2") >= 0;
+                this.bszt.RFID = bszt.indexOf("3") >= 0;
+                this.bszt.OTHERS = bszt.indexOf("4") >= 0;
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    let md_name_id = "";
+    // ------------------------------------------------------------------------
+    function winLoad() {
+        let mview = win.parentWindow.view.$refs.mview;
+        let treeNav = mview.$refs.treeNav;
+        if (treeNav && treeNav.selectedNode) {
+            md_name_id = treeNav.selectedNode.data.value + "";
+        }
+    }
+</script>

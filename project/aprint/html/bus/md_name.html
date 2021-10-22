@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>医疗器械名称维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:900px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <!-- 产品名称/通用名称、商品名称、分类编码 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="产品名称/通用名称" required>
+                        <el-input v-model="form.cpmctymc" ref="cpmctymc" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="分类编码" required>
+                        <el-input v-model="form.flbm" ref="flbm" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="商品名称" required>
+                        <el-input v-model="form.spmc" ref="spmc" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="原器械目录代码">
+                        <el-input v-model="form.yflbm" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 器械类别 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="器械类别" required>
+                        <el-radio v-model="form.cplx" label="1">器械</el-radio>
+                        <el-radio v-model="form.cplx" label="2">体外诊断试剂</el-radio>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <!-- 是否包含批量、序列号，生产日期、失效效期 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="是否包含批号" required>
+                        <el-radio v-model="form.scbssfbhph" label="1">是</el-radio>
+                        <el-radio v-model="form.scbssfbhph" label="0">否</el-radio>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="是否包含序列号" required>
+                        <el-radio v-model="form.scbssfbhxlh" label="1">是</el-radio>
+                        <el-radio v-model="form.scbssfbhxlh" label="0">否</el-radio>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="是否包含生产日期" required>
+                        <el-radio v-model="form.scbssfbhscrq" label="1">是</el-radio>
+                        <el-radio v-model="form.scbssfbhscrq" label="0">否</el-radio>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="是否包含失效日期" required>
+                        <el-radio v-model="form.scbssfbhsxrq" label="1">是</el-radio>
+                        <el-radio v-model="form.scbssfbhsxrq" label="0">否</el-radio>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <!-- 备注 -->
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {
+                
+            }
+        },
+
+        methods: {
+            afterAddnew(jsp) {
+                this.form.cpmctymc = "";
+                this.form.spmc = "";
+
+                if (!jsp.copy) {
+                    this.form.cplx = "1";
+
+                    this.form.scbssfbhph = "1";
+                    this.form.scbssfbhxlh = "0";
+                    this.form.scbssfbhscrq = "1";
+                    this.form.scbssfbhsxrq = "1";
+                }
+            },
+            beforeSave: function () {
+                return true;
+            }
+        }
+    });
+</script>
