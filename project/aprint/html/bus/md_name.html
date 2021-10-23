@@ -8,9 +8,9 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:900px;">
+    <div id="app" style="width:990px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
-        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+        <el-form :model="form" ref="form" label-width="160px" label-position="left">
             <!-- 产品名称/通用名称、商品名称、分类编码 -->
             <el-row>
                 <el-col :span="span[1]">
@@ -36,44 +36,105 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <!-- 备案信息，注册证-->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="注册/备案人名称" required>
+                        <el-input v-model="form.ylqxzcrbarmc" ref="spmc" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="注册人/备案人英文名称">
+                        <el-input v-model="form.ylqxzcrbarywmc" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="注册证/备案凭证编号" required>
+                        <el-input v-model="form.zczbhhzbapzbh" ref="zczbhhzbapzbh" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
             <!-- 器械类别 -->
             <el-row>
                 <el-col :span="span[1]">
+                    <el-form-item label="产品类别" required>
+                        <el-radio v-model="form.hchzsb" label="0">耗材</el-radio>
+                        <el-radio v-model="form.hchzsb" label="1">设备</el-radio>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
                     <el-form-item label="器械类别" required>
                         <el-radio v-model="form.cplx" label="1">器械</el-radio>
                         <el-radio v-model="form.cplx" label="2">体外诊断试剂</el-radio>
                     </el-form-item>
                 </el-col>
-                <el-col :span="span[2]">
-                    &nbsp;
-                </el-col>
             </el-row>
+
             <!-- 是否包含批量、序列号，生产日期、失效效期 -->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="是否包含批号" required>
-                        <el-radio v-model="form.scbssfbhph" label="1">是</el-radio>
-                        <el-radio v-model="form.scbssfbhph" label="0">否</el-radio>
+                        <el-checkbox v-model="form.scbssfbhph">包含批号</el-checkbox>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="是否包含序列号" required>
-                        <el-radio v-model="form.scbssfbhxlh" label="1">是</el-radio>
-                        <el-radio v-model="form.scbssfbhxlh" label="0">否</el-radio>
+                        <el-checkbox v-model="form.scbssfbhxlh">包含序列号</el-checkbox>
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="是否包含生产日期" required>
-                        <el-radio v-model="form.scbssfbhscrq" label="1">是</el-radio>
-                        <el-radio v-model="form.scbssfbhscrq" label="0">否</el-radio>
+                        <el-checkbox v-model="form.scbssfbhscrq">包含生产日期</el-checkbox>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="是否包含失效日期" required>
-                        <el-radio v-model="form.scbssfbhsxrq" label="1">是</el-radio>
-                        <el-radio v-model="form.scbssfbhsxrq" label="0">否</el-radio>
+                        <el-checkbox v-model="form.scbssfbhsxrq">包含失效日期</el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 灭菌信息 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="是否为无菌包装" required>
+                        <el-checkbox v-model="form.sfwwjbz">是无菌包装</el-checkbox>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="使用前是否需要灭菌" required>
+                        <el-checkbox v-model="form.syqsfxyjxmj">使用前需要灭菌</el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="灭菌方式">
+                        <el-tooltip effect="dark" placement="bottom-end">
+                            <div slot="content">使用前需要接菌的情况下必填</div>
+                            <el-input v-model="form.mjfs" ref="mjfs" placeholder="使用前需要接菌的情况下必填" />
+                        </el-tooltip>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 磁共振(MR)安全信息 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="磁共振(MR)安全信息" required>
+                        <el-select v-model="form.cgzmraqxgxx" style="width:100%;" default-first-option>
+                            <el-option value="0" label="安全"></el-option>
+                            <el-option value="1" label="条件安全"></el-option>
+                            <el-option value="2" label="不安全"></el-option>
+                            <el-option value="3" label="说明书或标签上面不包含MR安全性信息"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="使用前是否需要灭菌" required>
+                        <el-checkbox v-model="form.syqsfxyjxmj">使用前需要灭菌</el-checkbox>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -98,7 +159,7 @@
         data: {
             span: [24, 12, 12],
             form: {
-                
+
             }
         },
 
@@ -108,15 +169,27 @@
                 this.form.spmc = "";
 
                 if (!jsp.copy) {
+                    this.form.hchzsb = "0";
                     this.form.cplx = "1";
 
-                    this.form.scbssfbhph = "1";
-                    this.form.scbssfbhxlh = "0";
-                    this.form.scbssfbhscrq = "1";
-                    this.form.scbssfbhsxrq = "1";
+                    this.form.scbssfbhph = true;
+                    this.form.scbssfbhscrq = true;
+                    this.form.scbssfbhsxrq = true;
                 }
             },
             beforeSave: function () {
+                if (this.form.syqsfxyjxmj) {
+                    if (this.form.mjfs.equals("")) {
+                        topWin.message("请填写灭菌方式。", "warning");
+                        this.$refs.mjfs.focus();
+                        return false;
+                    }
+                }
+                else {
+                    this.form.mjfs = "";
+                }
+                this.form.zczbhhzbapzbh = this.form.zczbhhzbapzbh.replaceAll("，", ",");
+
                 return true;
             }
         }

@@ -50,8 +50,7 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="是否有本体直接标识" required>
-                        <el-radio v-model="form.sfybtzjbs" label="1">是</el-radio>
-                        <el-radio v-model="form.sfybtzjbs" label="0">否</el-radio>
+                        <el-checkbox v-model="form.sfybtzjbs">有本体直接标识</el-checkbox>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
@@ -67,25 +66,42 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="是否与注册/备案标识一致" required>
-                        <el-radio v-model="form.sfyzcbayz" label="1">是</el-radio>
-                        <el-radio v-model="form.sfyzcbayz" label="0">否</el-radio>
+                        <el-checkbox v-model="form.sfyzcbayz">与注册/备案一致</el-checkbox>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
                     <el-form-item label="注册/备案产品标识">
-                        <el-input v-model="form.zcbacpbs" ref="zcbacpbs" :disabled="form.sfyzcbayz.equals('1')" />
+                        <el-input v-model="form.zcbacpbs" ref="zcbacpbs" :disabled="form.sfyzcbayz" />
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="是否为包类/组套类产品" required>
-                        <el-radio v-model="form.sfwblztlcp" label="1">是</el-radio>
-                        <el-radio v-model="form.sfwblztlcp" label="0">否</el-radio>
+                        <el-checkbox v-model="form.sfwblztlcp">是包类/组套类</el-checkbox>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
                     &nbsp;
+                </el-col>
+            </el-row>
+            <!-- 一次性使用 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="是否标记为一次性使用" required>
+                        <el-tooltip effect="dark" placement="bottom-end">
+                            <div slot="content">一次性使用是指在医疗器械说明书或标签已注明“一次性使用”字样或者符号的情形；<br />一次性使用包含使用一次即丢弃和同一患者在一次治疗过程中多次使用的情形。</div>
+                            <el-checkbox v-model="form.sfbjwycxsy">一次性使用</el-checkbox>
+                        </el-tooltip>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="最大重复使用次数" required>
+                        <el-tooltip effect="dark" placement="bottom-end">
+                            <div slot="content">输入最大重复次数；<br />当产品说明书或者标签上载明最大重复使用次数时，必选</div>
+                            <el-input v-model="form.zdcfsycs" ref="zdcfsycs" :disabled="form.sfbjwycxsy"></el-input>
+                        </el-tooltip>
+                    </el-form-item>
                 </el-col>
             </el-row>
 
@@ -133,10 +149,7 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {
-                sfybtzjbs: "0",
-                sfyzcbayz: "1"
-            },
+            form: {},
             ds: {},
             bszt: {
                 BARCODE_1D: false, BARCODE_2D: false, RFID: false, OTHERS: false
@@ -148,13 +161,13 @@
                 if (!jsp.copy) {
                     this.form.md_name_id = md_name_id;
                     this.form.sfybtzjbs = "0";
-                    this.form.sfyzcbayz = "1";
+                    this.form.sfyzcbayz = true;
                 }
                 this.form.di = "";
                 this.form.upload_type = "add";
             },
             beforeSave: function () {
-                if (this.form.sfyzcbayz.equals("1")) this.form.zcbacpbs = "";
+                if (this.form.sfyzcbayz) this.form.zcbacpbs = "";
                 // -- 标识载体 --
                 let bszts = [];
                 if (this.bszt.BARCODE_1D) bszts.push("1");
@@ -162,6 +175,18 @@
                 if (this.bszt.RFID) bszts.push("3");
                 if (this.bszt.OTHERS) bszts.push("4");
                 this.form.bszt = bszts.join(",");
+
+                // -- 一次性使用 --
+                if (this.form.sfbjwycxsy) {
+                    this.form.zdcfsycs = "";
+                }
+                else {
+                    if (this.form.zdcfsycs.toInt() <= 1) {
+                        topWin.message("请填写最大重复使用次数。", "warning");
+                        this.$refs.zdcfsycs.focus();
+                        return false;
+                    }
+                }
 
                 return true;
             },
