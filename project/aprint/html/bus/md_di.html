@@ -10,11 +10,11 @@
 <body>
     <div id="app" style="width:1100px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
-        <el-form :model="form" ref="form" label-width="190px" label-position="left">
+        <el-form :model="form" ref="form" label-width="195px" label-position="left">
             <!-- DI、产品名称/通用名称 -->
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="DI" required>
+                    <el-form-item label="DI(最小销售单元产品标识)" required>
                         <el-input v-model="form.di" ref="di" />
                     </el-form-item>
                 </el-col>
@@ -26,7 +26,7 @@
                     </el-form-item>
                 </el-col>
             </el-row>
-            <!-- 最小销售单元中使用单元的数量、产品标识发布日期 -->
+            <!-- 最小销售单元中使用单元的数量、产品标识发布日期，使用单元产品标识 -->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="最小销售单元数量" required>
@@ -43,6 +43,19 @@
                             <el-date-picker v-model="form.cpbsfbrq" ref="cpbsfbrq" type="date" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
                         </el-tooltip>
                     </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="使用单元产品标识">
+                        <el-tooltip effect="dark" placement="bottom-end">
+                            <div slot="content">当在UDI未标记在单个医疗器械上的情况下，<br />分配给单个医疗器械产品的产品标识，<br />其目的是将医疗器械产品的使用与患者进行关联。</div>
+                            <el-input v-model="form.sydycpbs" ref="sydycpbs" :disabled="form.zxxsdyzsydydsl.toInt()<=1" />
+                        </el-tooltip>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
                 </el-col>
             </el-row>
 
@@ -149,7 +162,9 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {},
+            form: {
+                zxxsdyzsydydsl: "1"
+            },
             ds: {},
             bszt: {
                 BARCODE_1D: false, BARCODE_2D: false, RFID: false, OTHERS: false
@@ -160,6 +175,7 @@
             afterAddnew(jsp) {
                 if (!jsp.copy) {
                     this.form.md_name_id = md_name_id;
+                    this.form.zxxsdyzsydydsl = "1";
                     this.form.sfybtzjbs = "0";
                     this.form.sfyzcbayz = true;
                 }
@@ -168,6 +184,18 @@
             },
             beforeSave: function () {
                 if (this.form.sfyzcbayz) this.form.zcbacpbs = "";
+
+                if (this.form.zxxsdyzsydydsl.toInt() > 1) {
+                    if (this.form.sydycpbs.equals("")) {
+                        topWin.message("使用单元数量大于1，请填写使用单元产品标识。", "warning");
+                        this.$refs.sydycpbs.focus();
+                        return false;
+                    }
+                }
+                else {
+                    this.form.sydycpbs = "";
+                }
+
                 // -- 标识载体 --
                 let bszts = [];
                 if (this.bszt.BARCODE_1D) bszts.push("1");
