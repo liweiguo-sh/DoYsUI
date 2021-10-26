@@ -92,36 +92,48 @@
                 this.getElementNamesByLabelId(this.form.label_id_child, "child");
             },
             getElementNamesByLabelId(labelId, parentOrChild) {
-                ajax.send("/aprint/cfg/pack_relation/getLabelContentByLabelId", { labelId: labelId }).then((res) => {
-                    let content = res.content;
-                    let elementNames = [];
-                    try {
-                        let label = JSON.parse(content);
-                        let elements = label.elements;
-                        for (let i = 0; i < elements.length; i++) {
-                            let head = elements[i].head;
-                            if (head.elementType.equals("barcode")) {
-                                elementNames.push(head.name);
+                if (labelId) {
+                    ajax.send("/aprint/cfg/pack_relation/getLabelContentByLabelId", { labelId: labelId }).then((res) => {
+                        let content = res.content;
+                        let elementNames = [];
+                        try {
+                            let label = JSON.parse(content);
+                            let elements = label.elements;
+                            for (let i = 0; i < elements.length; i++) {
+                                let head = elements[i].head;
+                                if (head.elementType.equals("barcode")) {
+                                    elementNames.push(head.name);
+                                }
                             }
                         }
-                    }
-                    catch (e) {
-                        topWin.alert(e, "error");
-                    }
+                        catch (e) {
+                            topWin.alert(e, "error");
+                        }
 
+                        if (parentOrChild.equals("parent")) {
+                            this.elementParents = elementNames;
+                        }
+                        else {
+                            this.elementChildren = elementNames;
+                        }
+                    })
+                }
+                else {
                     if (parentOrChild.equals("parent")) {
-                        this.elementParents = elementNames;
+                        this.elementParents = [];
                     }
                     else {
-                        this.elementChildren = elementNames;
+                        this.elementChildren = [];
                     }
-                })
+                }
             },
 
             afterAddnew: function () {
                 this.form.qty = 1;
             },
             afterMove: function () {
+                this.parentLabelChange();
+                this.childLabelChange();
             },
             beforeSave: function () {
                 return true;

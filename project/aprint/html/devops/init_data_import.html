@@ -16,24 +16,26 @@
         <el-tabs v-model="tabNameImport" @tab-click="tabImportClick">
             <el-tab-pane label="产品导入" name="importProduct">
                 <el-link type="primary" :underline="false" href="产品数据导入模板.xlsx">产品数据导入模板.xlsx</el-link>
+                <el-button type="danger" plain @click="deleteProduct">清空产品数据</el-button>
+                <!-- 导入数据 -->
+                <el-row style="margin-top:20px;margin-bottom:10px;" v-show="originalName">
+                    <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
+                    <el-button type="success" @click="importProduct">导入产品数据</el-button>
+                </el-row>
             </el-tab-pane>
             <el-tab-pane label="用户导入" name="user" :disabled="true">
                 用户导入模板
             </el-tab-pane>
         </el-tabs>
-        <!-- 上传文件 -->
-        <el-row style="margin-top:30px;margin-bottom:10px;">
+
+        <!-- 上传文件 -->        
+        <el-row style="padding-top:30px;" v-show="tabNameImport.equals('importProduct')">
             <el-upload :action="actionUpload" :with-credentials="true"
                        :on-success="onSuccess"
                        :show-file-list="false"
                        accept=".xlsx,.xls">
                 <el-button size="small" type="primary">选择导入文件</el-button>
             </el-upload>
-        </el-row>
-        <!-- 导入数据 -->
-        <el-row style="margin-top:20px;margin-bottom:10px;" v-show="originalName">
-            <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
-            <el-button type="success" @click="importProduct">导入</el-button>
         </el-row>
 
         <!-- message -->
@@ -90,6 +92,18 @@
                     this.message = "产品数据导入成功，请检查并核对导入结果是否正确。";
                     this.listLog = res.listLog;
                     this.originalName = "";
+                })
+            },
+            deleteProduct() {
+                topWin.confirm("数据删除后不能恢复，确定要清空全部产品数据吗？").then((ok) => {
+                    if (!ok) return;
+                    topWin.confirm("数据删除后不能恢复，请再次确认。").then((ok) => {
+                        if (!ok) return;
+
+                        ajax.send("/aprint/devops/data_import/emptyProduct", {}).then((res) => {
+                            topWin.message("产品数据删除成功。", "success");
+                        })
+                    })
                 })
             }
         }
