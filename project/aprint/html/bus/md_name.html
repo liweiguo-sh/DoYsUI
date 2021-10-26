@@ -8,9 +8,9 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:990px;">
+    <div id="app" style="width:1100px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
-        <el-form :model="form" ref="form" label-width="160px" label-position="left">
+        <el-form :model="form" ref="form" label-width="170px" label-position="left">
             <!-- 产品名称/通用名称、商品名称、分类编码 -->
             <el-row>
                 <el-col :span="span[1]">
@@ -133,12 +133,41 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="使用前是否需要灭菌" required>
-                        <el-checkbox v-model="form.syqsfxyjxmj">使用前需要灭菌</el-checkbox>
-                    </el-form-item>
+                    &nbsp;
                 </el-col>
             </el-row>
 
+            <!-- 医保编码、其它信息的网址链接 -->
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="医保耗材分类编码">
+                        <el-tooltip effect="dark" placement="bottom-start">
+                            <div slot="content">填写27位的国家医保耗材分类编码<br />若存在多个医保耗材分类编码，以英文逗号分隔</div>
+                            <el-input v-model="form.ybbm" />
+                        </el-tooltip>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="其他信息的网址链接">
+                        <el-tooltip effect="dark" placement="bottom-start">
+                            <div slot="content">输入其他信息的网址链接地址<br />填报用户企业可以填写本产品相关网址信息<br />有利于于行业其他机构的相关信息查询</div>
+                            <el-input v-model="form.qtxxdwzlj" />
+                        </el-tooltip>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="退市日期">
+                        <el-date-picker v-model="form.tsrq" type="date" value-format="yyyy-MM-dd" style="width:100%;" placeholder="医疗器械停止进入流通领域的时间"></el-date-picker>
+                    </el-form-item>
+                </el-col>
+                <el-col>
+                    &nbsp;
+                </el-col>
+            </el-row>
             <!-- 备注 -->
             <el-row>
                 <el-col :span="span[0]">
@@ -160,7 +189,8 @@
             span: [24, 12, 12],
             form: {
 
-            }
+            },
+            activeTabName: "first"
         },
 
         methods: {
@@ -194,4 +224,15 @@
             }
         }
     });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        if (win.p.maxWidth < 1200) {
+            gId("app").style.width = "980px";
+        }
+        let marginLeft = (win.p.maxWidth - gId("app").offsetWidth) / 2;
+        gId("app").style.marginLeft = marginLeft + "px";
+    }
 </script>

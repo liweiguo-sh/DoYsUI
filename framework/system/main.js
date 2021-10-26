@@ -34,7 +34,7 @@ function openMenu(menu) {
             controller: menu.controller,
             flowPks: menu.flowPksUdf || menu.flowPks,
             vfUrl: g.path.project + menu.vfUrl,
-            vfWindowState: menu.vfWindowState
+            vfWindowState: menu.flagMaximized
         };
         win = topWin.openFullWindow(prop, para);
     }

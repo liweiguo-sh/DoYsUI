@@ -52,7 +52,7 @@
             loading: false,
 
             vfUrl: "",                      // -- ## viewForm --
-            vfWindowState: "",              // -- vf窗口状态 --
+            vfMaximized: "",                // -- vf窗口状态 --
             // -- TODO：此处不可以定义winViewForm，回造成内存泄漏，有待进一步分析原因。后面直接使用没有泄漏问题，很是奇怪 --
             // -- winViewForm: null,        // -- vf编辑窗口 --
             remark: ""
@@ -67,7 +67,7 @@
             this.flowPks = para.flowPks || this.flowPks;
             this.extUserDef = para.extUserDef || this.extUserDef;
             this.vfUrl = para.vfUrl;
-            this.vfWindowState = para.vfWindowState;
+            this.vfMaximized = para.vfWindowState;
 
             let postData = { viewPk: this.viewPk, flowPks: this.flowPks };
             postData = g.x.extendJSON(postData, this.extUserDef);
@@ -431,7 +431,7 @@
                 modal: false,
                 parent: win
             };
-            if (this.vfWindowState.equals("maximized")) {
+            if (this.vfMaximized) {
                 prop.windowState = "maximized";
                 prop.noTitle = true;
             }

@@ -14,6 +14,20 @@
             <!-- DI、产品名称/通用名称 -->
             <el-row>
                 <el-col :span="span[1]">
+                    <el-form-item label="产品料号/SKU">
+                        <el-tooltip effect="dark" placement="bottom-start">
+                            <div slot="content">对应药监局的 医疗器械产品的货号或企业的产品目录编号</div>
+                            <el-input v-model="form.pn" ref="pn" placeholder="" />
+                        </el-tooltip>
+                        
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
                     <el-form-item label="DI(最小销售单元产品标识)" required>
                         <el-input v-model="form.di" ref="di" />
                     </el-form-item>
@@ -30,7 +44,7 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="最小销售单元数量" required>
-                        <el-tooltip effect="dark" placement="bottom-end">
+                        <el-tooltip effect="dark" placement="bottom-start">
                             <div slot="content">最小销售单元中使用单元的数量<br />示例：<br />最小销售单元包含100支采血管/盒；<br />最小销售单元中使用单元的数量=100。</div>
                             <el-input v-model="form.zxxsdyzsydydsl" ref="zxxsdyzsydydsl" placeholder="最小销售单元中使用单元的数量" />
                         </el-tooltip>
@@ -47,23 +61,11 @@
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="使用单元产品标识">
-                        <el-tooltip effect="dark" placement="bottom-end">
+                    <el-form-item label="使用单元产品标识" required>
+                        <el-tooltip effect="dark" placement="bottom-start">
                             <div slot="content">当在UDI未标记在单个医疗器械上的情况下，<br />分配给单个医疗器械产品的产品标识，<br />其目的是将医疗器械产品的使用与患者进行关联。</div>
                             <el-input v-model="form.sydycpbs" ref="sydycpbs" :disabled="form.zxxsdyzsydydsl.toInt()<=1" />
                         </el-tooltip>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    &nbsp;
-                </el-col>
-            </el-row>
-
-            <!-- 是否有本体直接标识 -->
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="是否有本体直接标识" required>
-                        <el-checkbox v-model="form.sfybtzjbs">有本体直接标识</el-checkbox>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
@@ -75,7 +77,7 @@
                     </el-form-item>
                 </el-col>
             </el-row>
-            <!-- 是否与注册/备案标识一致、注册/备案产品标识，是否为包类/组套类产品 -->
+            <!-- 注册备案、本体标识 -->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="是否与注册/备案标识一致" required>
@@ -90,19 +92,56 @@
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
+                    <el-form-item label="是否有本体直接标识" required>
+                        <el-checkbox v-model="form.sfybtzjbs">有本体直接标识</el-checkbox>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="与最小销售单元是否一致" required>
+                        <el-checkbox v-model="form.btcpbsyzxxsdycpbssfyz" :disabled="!form.sfybtzjbs">本体标识与最小销售单元一致</el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row v-show="!form.btcpbsyzxxsdycpbssfyz">
+                <el-col :span="span[1]">
+                    &nbsp;
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="本体产品标识" required>
+                        <el-input v-model="form.btcpbs" ref="btcpbs" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <hr />
+
+            <!-- 规格型号、包类/组套类产品，产品描述 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="规格型号" required>
+                        <el-input v-model="form.ggxh" ref="ggxh" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
                     <el-form-item label="是否为包类/组套类产品" required>
                         <el-checkbox v-model="form.sfwblztlcp">是包类/组套类</el-checkbox>
                     </el-form-item>
                 </el-col>
-                <el-col :span="span[2]">
-                    &nbsp;
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="产品描述" required>
+                        <el-tooltip effect="dark" placement="bottom-start">
+                            <div slot="content">包括产品注册证或备案凭证上附页相关描述以及其他必需的产品描述，应与最小销售单元产品标识一一对应；<br />当医疗器械为包类/组套类产品（经批准的）时，还应列明所有组件的产品名称和数量；<br />当医疗器械附带软件时，须列明软件版本号。</div>
+                            <el-input v-model="form.cpms" ref="cpms" type="textarea" :rows="3" />
+                        </el-tooltip>
+                    </el-form-item>
                 </el-col>
             </el-row>
             <!-- 一次性使用 -->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="是否标记为一次性使用" required>
-                        <el-tooltip effect="dark" placement="bottom-end">
+                        <el-tooltip effect="dark" placement="bottom-start">
                             <div slot="content">一次性使用是指在医疗器械说明书或标签已注明“一次性使用”字样或者符号的情形；<br />一次性使用包含使用一次即丢弃和同一患者在一次治疗过程中多次使用的情形。</div>
                             <el-checkbox v-model="form.sfbjwycxsy">一次性使用</el-checkbox>
                         </el-tooltip>
@@ -118,36 +157,11 @@
                 </el-col>
             </el-row>
 
-            <!-- 规格型号，产品描述 -->
-            <el-row>
-                <el-row>
-                    <el-col :span="span[0]">
-                        <el-form-item label="规格型号" required>
-                            <el-input v-model="form.ggxh" ref="ggxh" />
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-            </el-row>
-            <el-row>
-                <el-row>
-                    <el-col :span="span[0]">
-                        <el-form-item label="产品描述" required>
-                            <el-tooltip effect="dark" placement="bottom-end">
-                                <div slot="content">包括产品注册证或备案凭证上附页相关描述以及其他必需的产品描述，应与最小销售单元产品标识一一对应；<br />当医疗器械为包类/组套类产品（经批准的）时，还应列明所有组件的产品名称和数量；<br />当医疗器械附带软件时，须列明软件版本号。</div>
-                                <el-input v-model="form.cpms" ref="cpms" type="textarea" :rows="3" />
-                            </el-tooltip>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-            </el-row>
-
             <!-- 备注 -->
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
-                        <el-tooltip effect="dark" content="备注说明" placement="bottom-end">
-                            <el-input v-model="form.remark" type="textarea" :rows="2" />
-                        </el-tooltip>
+                        <el-input v-model="form.remark" type="textarea" :rows="3" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -163,6 +177,8 @@
         data: {
             span: [24, 12, 12],
             form: {
+                sfybtzjbs: "0",
+                btcpbsyzxxsdycpbssfyz: "1",
                 zxxsdyzsydydsl: "1"
             },
             ds: {},
@@ -178,6 +194,7 @@
                     this.form.zxxsdyzsydydsl = "1";
                     this.form.sfybtzjbs = "0";
                     this.form.sfyzcbayz = true;
+                    this.form.btcpbsyzxxsdycpbssfyz = true;
                 }
                 this.form.di = "";
                 this.form.upload_type = "add";
@@ -194,6 +211,21 @@
                 }
                 else {
                     this.form.sydycpbs = "";
+                }
+
+                // -- 本体标识 --
+                if (!this.form.sfybtzjbs) {
+                    this.form.btcpbsyzxxsdycpbssfyz = true;
+                }
+                if (this.form.btcpbsyzxxsdycpbssfyz) {
+                    this.form.btcpbs = "";
+                }
+                else {
+                    if (!this.form.btcpbs) {
+                        topWin.message("本体标识与最小销售单元不一致，请填写产品本体标识。", "warning");
+                        this.$refs.btcpbs.focus();
+                        return false;
+                    }
                 }
 
                 // -- 标识载体 --
@@ -240,5 +272,11 @@
         if (treeNav && treeNav.selectedNode) {
             md_name_id = treeNav.selectedNode.data.value + "";
         }
+
+        if (win.p.maxWidth < 1200) {
+            gId("app").style.width = "980px";
+        }
+        let marginLeft = (win.p.maxWidth - gId("app").offsetWidth) / 2;
+        gId("app").style.marginLeft = marginLeft + "px";
     }
 </script>
