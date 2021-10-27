@@ -59,7 +59,7 @@
                     <el-row>
                         <el-col>
                             <el-form-item label="标签" required>
-                                <el-select v-model="lableObj" ref="lableObj" @change="onLabelChange" filterable  style="width:100%;">
+                                <el-select v-model="lableObj" ref="lableObj" @change="onLabelChange" filterable style="width:100%;">
                                     <el-option v-for="item in labels" :key="item.id" :value="item" :label="item.code + '    ' + item.name">
                                         <span style="float: left">{{ item.code }}</span>
                                         <span style="float: right;">{{ item.name }}</span>
@@ -71,7 +71,7 @@
                     <el-row v-if="hasCustomerRef">
                         <el-col>
                             <el-form-item label="客户">
-                                <el-select v-model="customerId" @change="onCustomerChange" filterable  style="width:100%;">
+                                <el-select v-model="customerId" @change="onCustomerChange" filterable style="width:100%;">
                                     <el-option v-for="item in customers" :key="item.id" :value="item.id" :label="item.name"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -80,7 +80,7 @@
                     <el-row v-if="hasProductRef">
                         <el-col>
                             <el-form-item label="产品料号(SKU)">
-                                <el-select v-model="productPnId" @change="onProductPnChange" filterable  style="width:100%;">
+                                <el-select v-model="productPnId" @change="onProductPnChange" filterable style="width:100%;">
                                     <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.productName + '    ' + item.pn">
                                         <span style="float: left">{{ item.productName }}</span>
                                         <span style="float: right;">{{ item.pn }}</span>
@@ -193,6 +193,8 @@
             rowNoFrom: null,
             rowNoTo: null,
 
+            fieldNamePrefix: "",        // -- 导出文件前缀字段名称 --
+            filePrefix: "",             // -- 导出文件前缀字段值 --
             elementNameParent: "",      // -- 包装码元素名称 --
             barcodes: "",               // -- 下级包装码 --
             qtyBarcodes: null,          // -- 下级包装码数量 --
@@ -213,6 +215,7 @@
                         code: dataRow["code"].value,
                         name: dataRow["name"].value,
                         qty: dataRow["qty"].value,
+                        fieldNamePrefix: dataRow["field_name_prefix"].value,
                         elementNameParent: dataRow["element_name_parent"].value,
                         dataRow: dataRow
                     });
@@ -255,8 +258,8 @@
                 this.reset();
                 this.labelId = this.lableObj.id;
                 this.qtyBarcodes = this.lableObj.qty;
+                this.fieldNamePrefix = this.lableObj.fieldNamePrefix;
                 this.elementNameParent = this.lableObj.elementNameParent;
-
 
                 ajax.send("/aprint/quick_print/getLabelAndLabelVariableById", { labelId: this.labelId }).then(res => {
                     this.dtbLabel = res.dtbLabel;
@@ -474,7 +477,8 @@
             },
             exportData() {
                 let dataPOST = {
-                    taskId: this.taskId
+                    taskId: this.taskId,                    
+                    fieldNamePrefix: this.filePrefix
                 };
                 ajax.send("/aprint/package_print/exportData", dataPOST).then(res => {
                     let urlFile = g.prefix + res.urlFile;
@@ -537,6 +541,7 @@
                     barcodes: arrBarcode
                 };
 
+                this.filePrefix = this.fieldNamePrefix ? this.variables[this.fieldNamePrefix].value : "";
                 ajax.send("/aprint/quick_print/createTask", postData).then(res => {
                     lbl.print({
                         data: [lbl.getData()],

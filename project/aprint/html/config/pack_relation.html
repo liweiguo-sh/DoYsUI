@@ -8,7 +8,7 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:900px;">
+    <div id="app" style="width:1000px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
@@ -25,7 +25,7 @@
                 <el-col :span="span[2]">
                     <el-form-item label="上级标签元素" required>
                         <el-select v-model="form.element_name_parent" ref="element_name_parent" filterable default-first-option style="width:100%;">
-                            <el-option v-for="name in elementParents" :key="name" :value="name" :label="name"></el-option>
+                            <el-option v-for="name in elementsParent" :key="name" :value="name" :label="name"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
@@ -44,25 +44,29 @@
                 <el-col :span="span[2]">
                     <el-form-item label="下级标签元素" required>
                         <el-select v-model="form.element_name_child" ref="element_name_child" filterable default-first-option style="width:100%;">
-                            <el-option v-for="name in elementChildren" :key="name" :value="name" :label="name"></el-option>
+                            <el-option v-for="name in elementsChild" :key="name" :value="name" :label="name"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="数量关系" required>
-                        <el-input v-model="form.qty" ref="qty" />
+                    <el-form-item label="导出文件名称前缀">
+                        <el-select v-model="form.field_name_prefix" ref="field_name_prefix" filterable default-first-option clearable style="width:100%;">
+                            <el-option v-for="name in fieldsParent" :key="name" :value="name" :label="name"></el-option>
+                        </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    &nbsp;
+                    <el-form-item label="数量关系" required>
+                        <el-input v-model="form.qty" ref="qty" />
+                    </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                        <el-input v-model="form.remark" type="textarea" :rows="5" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -80,8 +84,9 @@
             form: {},
             ds: [],
 
-            elementParents: [],
-            elementChildren: []
+            fieldsParent: [],           // -- 上级标签字段集合 --
+            elementsParent: [],         // -- 上级标签元素集合 --
+            elementsChild: []           // -- 下级标签元素集合 --
         },
 
         methods: {
@@ -105,25 +110,34 @@
                                     elementNames.push(head.name);
                                 }
                             }
+
+                            if (parentOrChild.equals("parent")) {
+                                let fields = [];
+                                for (let key in label.fields) {
+                                    fields.push(key);
+                                }
+                                this.fieldsParent = fields;
+                            }
                         }
                         catch (e) {
                             topWin.alert(e, "error");
                         }
 
                         if (parentOrChild.equals("parent")) {
-                            this.elementParents = elementNames;
+                            this.elementsParent = elementNames;
                         }
                         else {
-                            this.elementChildren = elementNames;
+                            this.elementsChild = elementNames;
                         }
                     })
                 }
                 else {
                     if (parentOrChild.equals("parent")) {
-                        this.elementParents = [];
+                        this.fieldsParent = [];
+                        this.elementsParent = [];
                     }
                     else {
-                        this.elementChildren = [];
+                        this.elementsChild = [];
                     }
                 }
             },
