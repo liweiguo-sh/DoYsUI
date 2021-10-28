@@ -409,7 +409,13 @@
                         this.$parent.afterSave({ addnew: addnew, copy: this.idCopy > 0 });
                     }
                     this.idCopy = 0;
-                    win.flashTitle("数据保存成功  " + (new Date).toTimeString());
+
+                    if (win.p.windowState.equals("maximized")) {
+                        topWin.message("数据保存成功。", "success");
+                    }
+                    else {
+                        win.flashTitle("数据保存成功  " + (new Date).toTimeString());
+                    }
                     blResult = true;
                 }
                 else {

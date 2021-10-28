@@ -6,12 +6,18 @@
     <script>
         importFrameworkRes("view-form-bar");
     </script>
+    <style type="text/css">
+        .divTitle {
+            font-size: large;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div id="app" style="width:1100px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="170px" label-position="left">
-            <!-- 产品名称/通用名称、商品名称、分类编码 -->
+            <!-- 产品名称/通用名称、商品名称 -->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="产品名称/通用名称" required>
@@ -19,163 +25,238 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    <el-form-item label="分类编码" required>
-                        <el-input v-model="form.flbm" ref="flbm" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
                     <el-form-item label="商品名称" required>
                         <el-input v-model="form.spmc" ref="spmc" />
                     </el-form-item>
                 </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="原器械目录代码">
-                        <el-input v-model="form.yflbm" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <!-- 备案信息，注册证-->
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="注册/备案人名称" required>
-                        <el-input v-model="form.ylqxzcrbarmc" ref="spmc" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="注册人/备案人英文名称">
-                        <el-input v-model="form.ylqxzcrbarywmc" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="注册证/备案凭证编号" required>
-                        <el-input v-model="form.zczbhhzbapzbh" ref="zczbhhzbapzbh" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <!-- 器械类别 -->
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="产品类别" required>
-                        <el-radio v-model="form.hchzsb" label="0">耗材</el-radio>
-                        <el-radio v-model="form.hchzsb" label="1">设备</el-radio>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="器械类别" required>
-                        <el-radio v-model="form.cplx" label="1">器械</el-radio>
-                        <el-radio v-model="form.cplx" label="2">体外诊断试剂</el-radio>
-                    </el-form-item>
-                </el-col>
             </el-row>
 
-            <!-- 是否包含批量、序列号，生产日期、失效效期 -->
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="是否包含批号" required>
-                        <el-checkbox v-model="form.scbssfbhph">包含批号</el-checkbox>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="是否包含序列号" required>
-                        <el-checkbox v-model="form.scbssfbhxlh">包含序列号</el-checkbox>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="是否包含生产日期" required>
-                        <el-checkbox v-model="form.scbssfbhscrq">包含生产日期</el-checkbox>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="是否包含失效日期" required>
-                        <el-checkbox v-model="form.scbssfbhsxrq">包含失效日期</el-checkbox>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <!-- 灭菌信息 -->
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="是否为无菌包装" required>
-                        <el-checkbox v-model="form.sfwwjbz">是无菌包装</el-checkbox>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="使用前是否需要灭菌" required>
-                        <el-checkbox v-model="form.syqsfxyjxmj">使用前需要灭菌</el-checkbox>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="灭菌方式">
-                        <el-tooltip effect="dark" placement="bottom-end">
-                            <div slot="content">使用前需要接菌的情况下必填</div>
-                            <el-input v-model="form.mjfs" ref="mjfs" placeholder="使用前需要接菌的情况下必填" />
-                        </el-tooltip>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <!-- 磁共振(MR)安全信息 -->
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="磁共振(MR)安全信息" required>
-                        <el-select v-model="form.cgzmraqxgxx" style="width:100%;" default-first-option>
-                            <el-option value="0" label="安全"></el-option>
-                            <el-option value="1" label="条件安全"></el-option>
-                            <el-option value="2" label="不安全"></el-option>
-                            <el-option value="3" label="说明书或标签上面不包含MR安全性信息"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    &nbsp;
-                </el-col>
-            </el-row>
-
-            <!-- 医保编码、其它信息的网址链接 -->
-            <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="医保耗材分类编码">
-                        <el-tooltip effect="dark" placement="bottom-start">
-                            <div slot="content">填写27位的国家医保耗材分类编码<br />若存在多个医保耗材分类编码，以英文逗号分隔</div>
-                            <el-input v-model="form.ybbm" />
-                        </el-tooltip>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="其他信息的网址链接">
-                        <el-tooltip effect="dark" placement="bottom-start">
-                            <div slot="content">输入其他信息的网址链接地址<br />填报用户企业可以填写本产品相关网址信息<br />有利于于行业其他机构的相关信息查询</div>
-                            <el-input v-model="form.qtxxdwzlj" />
-                        </el-tooltip>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="退市日期">
-                        <el-date-picker v-model="form.tsrq" type="date" value-format="yyyy-MM-dd" style="width:100%;" placeholder="医疗器械停止进入流通领域的时间"></el-date-picker>
-                    </el-form-item>
-                </el-col>
-                <el-col>
-                    &nbsp;
-                </el-col>
-            </el-row>
-            <!-- 备注 -->
-            <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="2" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
+            <el-collapse v-model="activeNames">
+                <el-collapse-item name="1">
+                    <template slot="title">
+                        <div class="divTitle">备案及注册证<i class="el-icon-s-check"></i></div>
+                    </template>
+                    <!-- 备案信息，注册证 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="注册/备案人名称" required>
+                                <el-input v-model="form.ylqxzcrbarmc" ref="spmc" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="注册人/备案人英文名称">
+                                <el-input v-model="form.ylqxzcrbarywmc" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="注册证/备案凭证编号" required>
+                                <el-input v-model="form.zczbhhzbapzbh" ref="zczbhhzbapzbh" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+                <el-collapse-item name="2">
+                    <template slot="title">
+                        <div class="divTitle">分类信息<i class="el-icon-s-help"></i></div>
+                    </template>
+                    <!-- 分类，产品类别、器械类别，包类组套类产品 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="分类编码" required>
+                                <el-input v-model="form.flbm" ref="flbm" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="原器械目录代码">
+                                <el-input v-model="form.yflbm" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="产品类别" required>
+                                <el-radio v-model="form.hchzsb" label="0">耗材</el-radio>
+                                <el-radio v-model="form.hchzsb" label="1">设备</el-radio>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="器械类别" required>
+                                <el-radio v-model="form.cplx" label="1">器械</el-radio>
+                                <el-radio v-model="form.cplx" label="2">体外诊断试剂</el-radio>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="是否为包类/组套类产品" required>
+                                <el-tooltip effect="dark" placement="bottom-start" content="包括手术包、体外诊断试剂、套装、组套类等情况">
+                                    <el-checkbox v-model="form.sfwblztlcp">是包类/组套类</el-checkbox>
+                                </el-tooltip>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            &nbsp;
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+                <el-collapse-item name="3">
+                    <template slot="title">
+                        <div class="divTitle">生产信息<i class="el-icon-s-tools"></i></div>
+                    </template>
+                    <!-- 是否包含批量、序列号，生产日期、失效效期 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="是否包含批号" required>
+                                <el-checkbox v-model="form.scbssfbhph">包含批号</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="是否包含序列号" required>
+                                <el-checkbox v-model="form.scbssfbhxlh">包含序列号</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="是否包含生产日期" required>
+                                <el-checkbox v-model="form.scbssfbhscrq">包含生产日期</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="是否包含失效日期" required>
+                                <el-checkbox v-model="form.scbssfbhsxrq">包含失效日期</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+                <el-collapse-item name="4">
+                    <template slot="title">
+                        <div class="divTitle">产品安全信息<i class="el-icon-warning"></i></div>
+                    </template>
+                    <!-- 磁共振(MR)安全信息，一次性使用 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="磁共振(MR)安全信息" required>
+                                <el-select v-model="form.cgzmraqxgxx" style="width:100%;" default-first-option>
+                                    <el-option value="0" label="安全"></el-option>
+                                    <el-option value="1" label="条件安全"></el-option>
+                                    <el-option value="2" label="不安全"></el-option>
+                                    <el-option value="3" label="说明书或标签上面不包含MR安全性信息"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            &nbsp;
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="是否标记为一次性使用" required>
+                                <el-tooltip effect="dark" placement="bottom-start">
+                                    <div slot="content">一次性使用是指在医疗器械说明书或标签已注明“一次性使用”字样或者符号的情形；<br />一次性使用包含使用一次即丢弃和同一患者在一次治疗过程中多次使用的情形。</div>
+                                    <el-checkbox v-model="form.sfbjwycxsy">一次性使用</el-checkbox>
+                                </el-tooltip>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="最大重复使用次数" required>
+                                <el-tooltip effect="dark" placement="bottom-end">
+                                    <div slot="content">输入最大重复次数；<br />当产品说明书或者标签上载明最大重复使用次数时，必选</div>
+                                    <el-input v-model="form.zdcfsycs" ref="zdcfsycs" :disabled="form.sfbjwycxsy"></el-input>
+                                </el-tooltip>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <!-- 灭菌信息 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="是否为无菌包装" required>
+                                <el-checkbox v-model="form.sfwwjbz">是无菌包装</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="使用前是否需要灭菌" required>
+                                <el-checkbox v-model="form.syqsfxyjxmj">使用前需要灭菌</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="灭菌方式">
+                                <el-tooltip effect="dark" placement="bottom-end">
+                                    <div slot="content">使用前需要接菌的情况下必填</div>
+                                    <el-input v-model="form.mjfs" ref="mjfs" placeholder="使用前需要接菌的情况下必填" />
+                                </el-tooltip>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+                <el-collapse-item name="5">
+                    <template slot="title">
+                        <div class="divTitle">其它必填项<i class="el-icon-star-on"></i></div>
+                    </template>
+                    <!-- 标识载体 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="标识载体" required>
+                                <el-checkbox v-model="bszt.BARCODE_1D" label="一维码"></el-checkbox>
+                                <el-checkbox v-model="bszt.BARCODE_2D" label="二维码"></el-checkbox>
+                                <el-checkbox v-model="bszt.RFID" label="RFID"></el-checkbox>
+                                <el-checkbox v-model="bszt.OTHERS" label="其它"></el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            &nbsp;
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+                <el-collapse-item name="6">
+                    <template slot="title">
+                        <div class="divTitle">选填项(药监上传非必填项)<i class="el-icon-star-off"></i></div>
+                    </template>
+                    <!-- 医保编码、其它信息的网址链接、退市日期 -->
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="医保耗材分类编码">
+                                <el-tooltip effect="dark" placement="bottom-start">
+                                    <div slot="content">填写27位的国家医保耗材分类编码<br />若存在多个医保耗材分类编码，以英文逗号分隔</div>
+                                    <el-input v-model="form.ybbm" />
+                                </el-tooltip>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="其他信息的网址链接">
+                                <el-tooltip effect="dark" placement="bottom-start">
+                                    <div slot="content">输入其他信息的网址链接地址<br />填报用户企业可以填写本产品相关网址信息<br />有利于于行业其他机构的相关信息查询</div>
+                                    <el-input v-model="form.qtxxdwzlj" />
+                                </el-tooltip>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="退市日期">
+                                <el-date-picker v-model="form.tsrq" type="date" value-format="yyyy-MM-dd" style="width:100%;" placeholder="医疗器械停止进入流通领域的时间"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                        <el-col>
+                            &nbsp;
+                        </el-col>
+                    </el-row>
+                    <!-- 备注 -->
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="备注">
+                                <el-input v-model="form.remark" type="textarea" :rows="3" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+            </el-collapse>
         </el-form>
     </div>
 </body>
@@ -190,7 +271,10 @@
             form: {
 
             },
-            activeTabName: "first"
+            bszt: {
+                BARCODE_1D: false, BARCODE_2D: false, RFID: false, OTHERS: false
+            },
+            activeNames: ["1", "2", "3", "4", "5"]
         },
 
         methods: {
@@ -207,7 +291,7 @@
                     this.form.scbssfbhsxrq = true;
                 }
             },
-            beforeSave: function () {
+            beforeSave() {
                 if (this.form.syqsfxyjxmj) {
                     if (this.form.mjfs.equals("")) {
                         topWin.message("请填写灭菌方式。", "warning");
@@ -220,7 +304,35 @@
                 }
                 this.form.zczbhhzbapzbh = this.form.zczbhhzbapzbh.replaceAll("，", ",");
 
+                // -- 一次性使用 --
+                if (this.form.sfbjwycxsy) {
+                    this.form.zdcfsycs = "";
+                }
+                else {
+                    if (this.form.zdcfsycs.toInt() <= 1) {
+                        topWin.message("请填写最大重复使用次数。", "warning");
+                        this.$refs.zdcfsycs.focus();
+                        return false;
+                    }
+                }
+
+                // -- 标识载体 --
+                let bszts = [];
+                if (this.bszt.BARCODE_1D) bszts.push("1");
+                if (this.bszt.BARCODE_2D) bszts.push("2");
+                if (this.bszt.RFID) bszts.push("3");
+                if (this.bszt.OTHERS) bszts.push("4");
+                this.form.bszt = bszts.join(",");
+
                 return true;
+            },
+            afterMove() {
+                // -- 标识载体 --
+                let bszt = this.form.bszt;
+                this.bszt.BARCODE_1D = bszt.indexOf("1") >= 0;
+                this.bszt.BARCODE_2D = bszt.indexOf("2") >= 0;
+                this.bszt.RFID = bszt.indexOf("3") >= 0;
+                this.bszt.OTHERS = bszt.indexOf("4") >= 0;
             }
         }
     });
