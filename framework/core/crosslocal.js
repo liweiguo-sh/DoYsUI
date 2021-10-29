@@ -38,7 +38,7 @@
         ifr.style.width = "600px";
         ifr.style.height = "200px";
         ifr.style.display = "none";
-        
+
 
         ifr.addEventListener("load", () => {
             window.winLocal = ifr.contentWindow;
@@ -144,17 +144,16 @@ crossLocal.openDraftFile = async function (jsp) {
 
 // -- cross domain access -----------------------------------------------------
 crossLocal.send = async function (controller, dataPOST, option = { autoShowErr: true }) {
-    let md5Origin = dataPOST.md5Origin || (topWin && topWin.cfg ? topWin.cfg.md5Origin : "");
     let timing = crossLocal.timingId++;
     let obj = {
         method: "post",
         url: crossLocal.base + controller,
         data: crossLocal.extendJSON({
-            protocol: "3.0",
-            md5Origin: md5Origin
+            protocol: "3.0"
         }, dataPOST),
         timing: timing
     }
+    obj.data.md5Origin = obj.data.md5Origin || (topWin && topWin.cfg ? topWin.cfg.md5Origin : "");
     // -- 1. postMessage --
     if (!crossLocal.localReady) {
         for (let i = 0; i < 30; i++) {
