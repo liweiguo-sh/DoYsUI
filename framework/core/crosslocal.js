@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-06-09
- * Modify Date: 2021-09-14
+ * Modify Date: 2021-10-28
  * Copyright 2021, doys-next.com
  * cross domain access localhost
  */
@@ -149,11 +149,11 @@ crossLocal.send = async function (controller, dataPOST, option = { autoShowErr: 
         method: "post",
         url: crossLocal.base + controller,
         data: crossLocal.extendJSON({
-            protocol: "3.0"
+            protocol: "3.0",
+            md5Origin: (topWin && topWin.cfg) ? topWin.cfg.md5Origin : ""
         }, dataPOST),
         timing: timing
     }
-    obj.data.md5Origin = obj.data.md5Origin || (topWin && topWin.cfg ? topWin.cfg.md5Origin : "");
     // -- 1. postMessage --
     if (!crossLocal.localReady) {
         for (let i = 0; i < 30; i++) {
