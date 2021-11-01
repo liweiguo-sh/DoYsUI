@@ -75,12 +75,13 @@ Util.stringFormat = function (text, format) {
 }
 
 // -- 条码校验位计算 -----------------------------------------------------------------
-Util.GetChecksumEAN13 = function (code) {
+Util.GetChecksumEAN = function (code, length) {
+    // -- length是包括校验的长度 --
     let len = code.length;
     let sum = 0, num;
 
-    if (len != 12) {
-        throw Error("EAN code length must be 12");
+    if (length && len != length - 1) {
+        throw Error("Code length must be " + (length - 1));
     }
 
     for (let i = 1; i <= len; i++) {
@@ -99,33 +100,7 @@ Util.GetChecksumEAN13 = function (code) {
     }
     return sum.toString();
 }
-Util.GetChecksumSSCC = function (code) {
-    let len = code.length;
-    let sum = 0, num;
 
-    if (len < 17) {
-        throw Error("SSCC code length must be 17");
-    }
-    else if (len > 17) {
-        code = code.substring(0, 17);
-    }
-
-    for (let i = 1; i <= len; i++) {
-        num = parseInt(code.substr(len - i, 1));
-        if (i % 2 == 0) {
-            sum += num;
-        }
-        else {
-            sum += 3 * num;
-        }
-    }
-    sum = 10 - sum % 10;
-
-    if (sum == 10) {
-        return "0";
-    }
-    return sum.toString();
-}
 
 /**
  * 供用户脚本使用
@@ -133,8 +108,11 @@ Util.GetChecksumSSCC = function (code) {
 var UtilLib = {};
 // ----------------------------------------------------------------------------
 UtilLib.GetCheckBit_EAN13 = function (code) {
-    return Util.GetChecksumEAN13(code);
+    return Util.GetChecksumEAN(code, 13);
 }
-UtilLib.GetCheckBit_SSCC = function (code) {
-    return Util.GetChecksumSSCC(code);
+UtilLib.GetCheckBit_GTIN14 = function (code) {
+    return Util.GetChecksumEAN(code, 14);
+}
+UtilLib.GetCheckBit_SSCC = function (code, len = 18) {
+    return Util.GetChecksumEAN(code, len);
 }

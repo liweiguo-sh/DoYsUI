@@ -279,13 +279,14 @@ UtilElement.computeValue = function (jsp) {
         valueString = values.join("");
 
         if (head.barcodeType.startsWith("EAN_13")) {
+            valueString = valueString.trim();
             if (valueString.length < 12) {
                 valueString = valueString.padEnd(12, "0");
             }
             else if (valueString.length > 12) {
                 valueString = valueString.substring(0, 12);
             }
-            valueString += Util.GetChecksumEAN13(valueString);
+            valueString += Util.GetChecksumEAN(valueString, 13);
         }
 
         head._segmentsText = valueString;
@@ -768,7 +769,7 @@ UtilElement.draw_image = function (context, element) {
         if (!UtilElement.urlPlaceholderImage) {
             UtilElement.urlPlaceholderImage = g.x.getAbsolutePath("element.js", "DLabel") + "image/placeholder.png";
         }
-        urlImg = UtilElement.urlPlaceholderImage;        
+        urlImg = UtilElement.urlPlaceholderImage;
     }
     else {
         if (!urlImg.equals("") && !urlImg.startsWith("http:") && !urlImg.startsWith("https:")) {

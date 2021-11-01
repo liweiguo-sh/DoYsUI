@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-09-28
+ * Modify Date: 2021-10-30
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -672,7 +672,6 @@ class Label {
         let prop = {
             url: g.x.getPath() + "element.html",
             parent: window.win,
-            parent: null,
             modal: true
         };
         let para = {

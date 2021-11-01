@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>包装标识维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("DLabel.util");
+    </script>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        .el-row {
+            margin-bottom: 8px;
+        }
+
+        .el-col {
+            text-align: center;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .divCol {
+            line-height: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:850px;height:480px;">
+        <el-row style="margin-top:5px;">
+            <el-button-group>
+                <el-button type="primary" @click="save">保存包装标识</el-button>
+                <el-button type="primary" plain onclick="win.close();">关闭</el-button>
+            </el-button-group>
+        </el-row>
+        <hr />
+
+        <el-row style="margin-bottom:10px;">
+            <el-col :span="span[1]">序号</el-col>
+            <el-col :span="span[2]">包装产品标识</el-col>
+            <el-col :span="span[3]">包装名称</el-col>
+            <el-col :span="span[4]">内含小一级标识数量</el-col>
+            <el-col :span="span[5]">小一级标识</el-col>
+        </el-row>
+        <el-row v-for="(item,index) in dis">
+            <el-col :span="span[1]"><div class="divCol">{{index+1}}</div></el-col>
+            <el-col :span="span[2]"><div class="divCol">{{item.pack_di}}</div></el-col>
+            <el-col :span="span[3]">
+                <el-input v-model="item.pack_name" placeholder="示例：箱、盒、包 ..."></el-input>
+                <el-select v-model="item.pack_name" v-if="false" allow-create filterable>
+                    <el-option v-for="unit in units" :value="unit" :label="unit"></el-option>
+                </el-select>
+            </el-col>
+            <el-col :span="span[4]">
+                <el-input v-model="item.sub_di_qty"></el-input>
+            </el-col>
+            <el-col :span="span[5]">
+                <el-select v-model="item.sub_di" clearable>
+                    <el-option v-if="item2.idx<=index" v-for="(item2,index2) in disSub" :value="item2.pack_di" :label="item2.pick_di"></el-option>
+                </el-select>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 3, 5, 5, 5, 6],
+            units: ["盒", "箱", "包", "袋", "托"],
+
+            max: 8,
+            diMain: "",
+            jsonPacks: "",          // -- 包装标识信息 --
+            dis: [],
+            disSub: []
+        },
+        mounted() { },
+        methods: {
+            init() {
+                let pickDi;
+                let suffix = this.diMain.substring(1, 13);
+                let disSub = [{ idx: 0, pack_di: this.diMain }];
+
+                for (let i = 1; i <= this.max; i++) {
+                    pickDi = i.toString() + suffix + Util.GetChecksumEAN(i.toString() + suffix, 14);
+                    this.dis.push({
+                        idx: i,
+                        pack_di: pickDi,
+                        pack_name: "",
+                        sub_di_qty: "",
+                        sub_di: ""
+                    });
+                    disSub.push({ idx: i, pack_di: pickDi });
+                }
+                this.disSub = disSub;
+
+                // ----------------------------------------
+                if (!this.jsonPacks.equals("")) {
+                    let dis = JSON.parse(this.jsonPacks);
+                    for (let i = 0; i < dis.length; i++) {
+                        let di = dis[i];
+                        this.dis[i].pack_name = di.pack_name;
+                        this.dis[i].sub_di_qty = di.sub_di_qty;
+                        this.dis[i].sub_di = di.sub_di;
+                    }
+                }
+
+            },
+            save() {
+                let results = [];
+                // ----------------------------------------
+                for (let i = 0; i < this.dis.length; i++) {
+                    let di = this.dis[i];
+                    if (di.pack_name || di.sub_di_qty || di.sub_di) {
+                        if (!di.pack_name || !di.sub_di_qty || !di.sub_di) {
+                            topWin.message("第" + (i + 1) + "行数据填写不完整，请检查。", "error");
+                            return;
+                        }
+                        else {
+                            let qty = di.sub_di_qty.toInt();
+                            if (qty < 1) {
+                                topWin.message("第" + (i + 1) + "行数量填写不正确，请检查。", "error");
+                                return;
+                            }
+                        }
+
+                        results.push({
+                            //"BZCPBS": di.pack_di,
+                            //"BZNHXYJBZCPBS": di.sub_di,
+                            //"BZNHXYJCPBSSL": di.sub_di_qty,
+                            //"CPBZJB": di.pack_name,
+                            "pack_di": di.pack_di,
+                            "pack_name": di.pack_name,
+                            "sub_di_qty": di.sub_di_qty,
+                            "sub_di": di.sub_di
+                        });
+                    }
+                }
+                for (let i = this.dis.length - 1; i > 0; i--) {
+                    let di = this.dis[i];
+                    let diPre = this.dis[i - 1];
+                    if (di.pack_name && !diPre.pack_name) {
+                        topWin.message("第" + (i) + "行数据不能为空，请按照顺序填写。", "error");
+                        return;
+                    }
+                }
+                // ----------------------------------------
+
+                win.para.callback({ packs: results });
+                win.close();
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.diMain = win.para.di;
+        app.jsonPacks = win.para.jsonPacks;
+        app.init();
+    }
+</script>
