@@ -8,7 +8,7 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:900px;height:540px;">
+    <div id="app" style="width:900px;height:555px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
@@ -108,6 +108,13 @@
             </div>
             <div v-if="'seq'.equals(form.type)">
                 <el-row>
+                    <el-col :span="span[1]">
+                        <el-form-item label="序列初始值选项">
+                            <el-checkbox v-model="form.flag_seq_reset">允许手工设置序列初始值</el-checkbox>
+                        </el-form-item>
+                    </el-col>                    
+                </el-row>
+                <el-row>
                     <el-col :span="span[0]">
                         <el-form-item label="序列归零条件">
                             <el-card>
@@ -134,7 +141,7 @@
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="3" />
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
                     </el-form-item>
                 </el-col>
             </el-row>

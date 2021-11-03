@@ -260,11 +260,11 @@
                 return true;
             },
             afterMove() {
-                if (this.form.json_packs.equals("")) {
-                    this.packs = [];
+                if (this.form.json_packs) {
+                    this.packs = JSON.parse(this.form.json_packs);                   
                 }
                 else {
-                    this.packs = JSON.parse(this.form.json_packs);
+                    this.packs = [];
                 }                
             },
 

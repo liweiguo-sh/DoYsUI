@@ -461,7 +461,7 @@
                         // -- 代入引用变量(产品、客户或供应商参数) --
                         let quoteName = variable["quote_name"] || name;
 
-                        if (quoteFrom.equals("product")) {
+                        if (quoteFrom.equals("product") && this.productPnId) {
                             value = this.productPnPara[quoteName];
                             if (type.equals("image")) {
                                 if (value && !value.startsWith("http")) {
@@ -472,20 +472,17 @@
                                 variable["disabled"] = true;
                             }
                         }
-                        else if (quoteFrom.equals("customer")) {
+                        else if (quoteFrom.equals("customer") && this.customerId) {
                             value = this.customerPara[quoteName];
                             if (this.customerId) {
                                 variable["disabled"] = true;
                             }
                         }
-                        else if (quoteFrom.equals("supplier")) {
+                        else if (quoteFrom.equals("supplier") && this.supplierId) {
                             value = this.supplierPara[quoteName];
                             if (this.supplierId) {
                                 variable["disabled"] = true;
                             }
-                        }
-                        else {
-                            topWin.message("未知的引用类型(" + quoteFrom + ")，请检查。");
                         }
 
                         // -- 如果disabled == true, 则用户手工输入的值无效 --
@@ -514,9 +511,11 @@
                         }
                     }
 
-                    // -- 2. 回写用户手工修改过的变量值(如果存在有效的用户手工输入值，则以用户值为准) --
+                    // -- 2. 回写用户手工修改过的变量值(如果存在有效的用户手工输入值，则以用户值为准)/(仅限字符或日期类型的变量) --
                     if (this.variablesUser[name] != undefined) {
-                        value = this.variablesUser[name];
+                        if ((variable.type.equals("string") || variable.type.equals("date")) && !variable.disabled) {
+                            value = this.variablesUser[name];
+                        }
                     }
 
                     // -- 3. 回写计算后的变量值，格式化日期变量 --
