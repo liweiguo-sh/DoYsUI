@@ -54,7 +54,7 @@
             </el-row>
             <el-row>
                 <el-col :span="12">
-                    <el-input v-model="verifyCode" placeholder="验证码" prefix-icon="el-icon-success" clearable></el-input>
+                    <el-input v-model="verifyCode" placeholder="验证码" @keyup.enter.native="login1" prefix-icon="el-icon-success" clearable></el-input>
                 </el-col>
                 <el-col :span="12" style="text-align:right">
                     <el-image :src="verifyCodeUrl" style="width:95%;height:40px;" placeholder="loading..."></el-image>

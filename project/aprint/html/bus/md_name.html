@@ -39,21 +39,26 @@
                     </template>
                     <!-- 备案信息，注册证 -->
                     <el-row>
-                        <el-col :span="span[1]">
-                            <el-form-item label="注册/备案人名称" required>
-                                <el-input v-model="form.ylqxzcrbarmc" ref="spmc" />
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="span[2]">
-                            <el-form-item label="注册人/备案人英文名称">
-                                <el-input v-model="form.ylqxzcrbarywmc" />
+                        <el-col :span="span[0]">
+                            <el-form-item label="注册证/备案凭证编号" required>
+                                <el-select v-model="certs" ref="zczbhhzbapzbh" @change="onCodeChange" multiple clearable>
+                                    <el-option v-for="item in certificates" :key="item.code" :value="item.code" :label="item.code" :disabled="item.disabled">
+                                        <span style="float: left">{{ item.code }}&nbsp;&nbsp;&nbsp;&nbsp;效期: {{item.expDate}}</span>
+                                        <span style="float: right;">{{ item.name }} </span>
+                                    </el-option>
+                                </el-select>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="span[0]">
-                            <el-form-item label="注册证/备案凭证编号" required>
-                                <el-input v-model="form.zczbhhzbapzbh" ref="zczbhhzbapzbh" />
+                        <el-col :span="span[1]">
+                            <el-form-item label="注册/备案人名称" required>
+                                <el-input v-model="form.ylqxzcrbarmc" ref="spmc" :disabled="true" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="注册人/备案人英文名称">
+                                <el-input v-model="form.ylqxzcrbarywmc" :disabled="true" />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -66,7 +71,7 @@
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="分类编码" required>
-                                <el-input v-model="form.flbm" ref="flbm" />
+                                <el-input v-model="form.flbm" ref="flbm" :disabled="true" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
@@ -270,15 +275,71 @@
         data: {
             span: [24, 12, 12],
             form: {
-
+                zczbhhzbapzbh: "",          // -- 注册证/备案凭证编号 --
             },
             bszt: {
                 BARCODE_1D: false, BARCODE_2D: false, RFID: false, OTHERS: false
             },
-            activeNames: ["1", "2", "3", "4", "5"]
+            activeNames: ["1", "2", "3", "4", "5"],
+
+            dtbCertificate: null,           // -- 注册证记录集 --
+            certificates: [],               // -- 注册证集合 --
+            certs: []                       // -- 当前记录选中的注册证集合 --
         },
 
+        mounted() {
+            ajax.send("/aprint/bus/md_common/getMdCertificateList", {}).then(res => {
+                let code, name, namePre = "", count = 0;
+                let certificates = [];
+                this.dtbCertificate = res.dtbCertificate;
+
+                this.dtbCertificate.sort("cpmctymc, exp_date DESC");
+                for (let i = 0; i < this.dtbCertificate.rowCount; i++) {
+                    let dataRow = this.dtbCertificate.rows[i];
+                    let disabled;
+
+                    code = dataRow["zczbhhzbapzbh"].value;
+                    name = dataRow["cpmctymc"].value;
+                    if (name.equals(namePre)) {
+                        count++;
+                        disabled = count > 2;       // -- 相同产品名称，前两个注册证有效 --
+                    }
+                    else {
+                        namePre = name;
+                        count = 1;
+                        disabled = false;
+                    }
+
+                    certificates.push({
+                        code: code,
+                        name: name,
+                        expDate: dataRow["exp_date"].value,
+                        disabled: disabled
+                    });
+                }
+                this.certificates = certificates;
+            });
+        },
         methods: {
+            onCodeChange() {
+                if (this.certs.length > 0) {
+                    this.certs = this.certs.sort().reverse();
+
+                    let code = this.certs[0];
+                    for (let i = 0; i < this.dtbCertificate.rowCount; i++) {
+                        let dataRow = this.dtbCertificate.rows[i];
+                        if (dataRow["zczbhhzbapzbh"].value.equals(code)) {
+                            this.form.cpmctymc = dataRow["cpmctymc"].value;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    this.form.cpmctymc = "";
+                }
+                this.form.zczbhhzbapzbh = this.certs.join(",");
+            },
+
             afterAddnew(jsp) {
                 this.form.cpmctymc = "";
                 this.form.spmc = "";
@@ -292,7 +353,7 @@
                     this.form.scbssfbhsxrq = true;
                 }
             },
-            beforeSave() {
+            beforeSave() { 
                 if (this.form.syqsfxyjxmj) {
                     if (this.form.mjfs.equals("")) {
                         topWin.message("请填写灭菌方式。", "warning");
@@ -328,6 +389,13 @@
                 return true;
             },
             afterMove() {
+                if (this.form.zczbhhzbapzbh) {
+                    this.certs = this.form.zczbhhzbapzbh.split(",");
+                }
+                else {
+                    this.certs = [];
+                }
+
                 // -- 标识载体 --
                 let bszt = this.form.bszt;
                 this.bszt.BARCODE_1D = bszt.indexOf("1") >= 0;

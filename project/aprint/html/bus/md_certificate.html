@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>医疗器械注册证维护</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+
+    <style type="text/css">
+        .divTitle {
+            font-size: large;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:1100px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="170px" label-position="left">
+            <!-- 注册/备案号、注册/备案产品名称 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="注册/备案号" required>
+                        <el-input v-model="form.zczbhhzbapzbh" ref="zczbhhzbapzbh" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="注册/备案产品名称" required>
+                        <el-input v-model="form.cpmctymc" ref="cpmctymc" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-collapse v-model="activeNames">
+                <el-collapse-item name="1">
+                    <template slot="title">
+                        <div class="divTitle">注册人<i class="el-icon-user-solid"></i></div>
+                    </template>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="注册/备案人" required>
+                                <el-input v-model="form.ylqxzcrbarmc" ref="ylqxzcrbarmc" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="注册/备案人英文名称">
+                                <el-input v-model="form.ylqxzcrbarywmc" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="注册人地区">
+                                <el-input v-model="form.ylqxzcrdq" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="注册人住所">
+                                <el-input v-model="form.ylqxzcrzs" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="代理人名称">
+                                <el-input v-model="form.dlrmc" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="代理人住所">
+                                <el-input v-model="form.dlrzs" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="生产厂商">
+                                <el-input v-model="form.sccs" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="生产地址">
+                                <el-input v-model="form.scdz" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+                <el-collapse-item name="2">
+                    <template slot="title">
+                        <div class="divTitle">类别分类<i class="el-icon-s-help"></i></div>
+                    </template>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="器械类别" required>
+                                <el-radio v-model="form.cplx" label="1">器械</el-radio>
+                                <el-radio v-model="form.cplx" label="2">体外诊断试剂</el-radio>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="医疗器械管理类别" required>
+                                <el-radio v-model="form.ylqxgllb" label="1">I类</el-radio>
+                                <el-radio v-model="form.ylqxgllb" label="2">II类</el-radio>
+                                <el-radio v-model="form.ylqxgllb" label="3">III类</el-radio>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="分类编码" required>
+                                <el-input v-model="form.flbm" ref="flbm" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+                <el-collapse-item name="3">
+                    <template slot="title">
+                        <div class="divTitle">日期<i class="el-icon-date"></i></div>
+                    </template>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="批准日期" required>
+                                <el-date-picker v-model="form.approval_date" ref="approval_date" type="date" placeholder="" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="生效日期">
+                                <el-date-picker v-model="form.effective_date" ref="effective_date" type="date" placeholder="" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            &nbsp;
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="有效期至" required>
+                                <el-date-picker v-model="form.exp_date" ref="exp_date" type="date" placeholder="医疗器械批准的有效期" value-format="yyyy-MM-dd" style="width:100%;"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+
+                <el-collapse-item name="5">
+                    <template slot="title">
+                        <div class="divTitle">规格组成及适用<i class="el-icon-s-tools"></i></div>
+                    </template>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="规格型号">
+                                <el-input v-model="form.ggxh" type="textarea" :rows="3" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="结构及组成">
+                                <el-input v-model="form.jgjzc" type="textarea" :rows="3" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="使用范围">
+                                <el-input v-model="form.syfw" type="textarea" :rows="2" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+
+                <el-collapse-item name="6">
+                    <template slot="title">
+                        <div class="divTitle">其它信息<i class="el-icon-star-off"></i></div>
+                    </template>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="其它内容">
+                                <el-input v-model="form.qtnr" type="textarea" :rows="3" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="备注">
+                                <el-input v-model="form.remark" type="textarea" :rows="2" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+            </el-collapse>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {
+
+            },
+            activeNames: ["1", "2", "3", "6"]
+        },
+
+        methods: {
+            afterAddnew(jsp) {
+                if (!jsp.copy) {
+                    this.form.ylqxgllb = "1";                       // -- 1：I类；2：II类；3：III类 --
+                    this.form.cplx = "1";                           // -- 1：器械；2：体外诊断试剂 --
+                    this.form.ylqxzcrbarmc = topWin.company.name;   // -- 注册/备案人 --
+                }
+                this.form.zczbhhzbapzbh = "";
+                this.form.cpmctymc = "";
+            },
+            beforeSave() {
+                return true;
+            },
+            afterMove() {
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        if (win.p.maxWidth < 1200) {
+            gId("app").style.width = "980px";
+        }
+        let marginLeft = (win.p.maxWidth - gId("app").offsetWidth) / 2;
+        gId("app").style.marginLeft = marginLeft + "px";
+    }
+</script>

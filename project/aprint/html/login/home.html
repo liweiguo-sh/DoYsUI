@@ -61,6 +61,10 @@
         },
         methods: {
             getHome() {
+                ajax.send("/aprint/home/common/getCompany", {}).then(res => {
+                    topWin.company = res.company;                    
+                });
+
                 ajax.send("/aprint/home/common/checkTenantTerm", {}).then(res => {
                     let tenant = res.tenant;
                     this.tenantType = tenant.type;

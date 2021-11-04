@@ -200,7 +200,7 @@ window.datatable.prototype.close = function () {
 };
 //-- 排序 ---------------------------------------------------------------------
 window.datatable.prototype.sort = function (strColumns) {
-    ///<summary>排序，支持多字段排序，参数示例：字段1,  字段2 ASC ,字段3 desc，语法同 SQL 的 ORDER BY，但中文结果有可能不一致。</summary>
+    ///<summary>排序，支持多字段排序，参数示例：字段1, 字段2 ASC ,字段3 desc，语法同 SQL 的 ORDER BY，但中文结果有可能不一致。</summary>
     var iIndex = 0;
     var arrColumn = strColumns.trim().split(",");
     for (var i = 0; i < arrColumn.length; i++) {
