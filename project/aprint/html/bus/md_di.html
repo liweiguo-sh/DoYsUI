@@ -47,7 +47,7 @@
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="DI(最小销售单元产品标识)" required>
-                                <el-input v-model="form.di" ref="di" />
+                                <el-input v-model="form.di" ref="di" :disabled="form.id.toInt()>0" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
@@ -179,7 +179,8 @@
         data: {
             span: [24, 12, 12],
             form: {
-                sfybtzjbs: "0",
+                id: "",
+                sfybtzjbs: false,
                 btcpbsyzxxsdycpbssfyz: "1",
                 zxxsdyzsydydsl: "1"
             },
@@ -202,7 +203,7 @@
                 if (!jsp.copy) {
                     this.form.md_name_id = md_name_id;
                     this.form.zxxsdyzsydydsl = "1";
-                    this.form.sfybtzjbs = "0";
+                    this.form.sfybtzjbs = false;
                     this.form.sfyzcbayz = true;
                     this.form.btcpbsyzxxsdycpbssfyz = true;
                 }

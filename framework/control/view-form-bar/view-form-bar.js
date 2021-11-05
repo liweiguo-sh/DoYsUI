@@ -519,7 +519,13 @@
                         win.close();
                         return;
                     }
-                    win.flashTitle("数据删除成功  " + (new Date).toTimeString());
+                    
+                    if (win.p.windowState.equals("maximized")) {
+                        topWin.message("数据删除成功。", "success");
+                    }
+                    else {
+                        win.flashTitle("数据删除成功  " + (new Date).toTimeString());
+                    }
                 }
                 else {
                     this.$alert(res.error, { type: "error", title: "系统消息 ..." });

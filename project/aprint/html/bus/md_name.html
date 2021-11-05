@@ -22,7 +22,7 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="产品名称/通用名称" required>
-                        <el-input v-model="form.cpmctymc" ref="cpmctymc" />
+                        <el-input v-model="form.cpmctymc" ref="cpmctymc" :disabled="true" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
@@ -41,7 +41,7 @@
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="注册证/备案凭证编号" required>
-                                <el-select v-model="certs" ref="zczbhhzbapzbh" @change="onCodeChange" multiple clearable>
+                                <el-select v-model="certs" ref="certs" @change="onCodeChange" multiple clearable>
                                     <el-option v-for="item in certificates" :key="item.code" :value="item.code" :label="item.code" :disabled="item.disabled">
                                         <span style="float: left">{{ item.code }}&nbsp;&nbsp;&nbsp;&nbsp;效期: {{item.expDate}}</span>
                                         <span style="float: right;">{{ item.name }} </span>
@@ -53,7 +53,7 @@
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="注册/备案人名称" required>
-                                <el-input v-model="form.ylqxzcrbarmc" ref="spmc" :disabled="true" />
+                                <el-input v-model="form.ylqxzcrbarmc" ref="ylqxzcrbarmc" :disabled="true" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
@@ -75,22 +75,22 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
+                            <el-form-item label="器械类别" required>
+                                <el-radio v-model="form.cplx" label="1" :disabled="true">器械</el-radio>
+                                <el-radio v-model="form.cplx" label="2" :disabled="true">体外诊断试剂</el-radio>
+                            </el-form-item>
+                        </el-col>                        
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
                             <el-form-item label="原器械目录代码">
                                 <el-input v-model="form.yflbm" />
                             </el-form-item>
                         </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="span[1]">
+                        <el-col :span="span[2]">
                             <el-form-item label="产品类别" required>
                                 <el-radio v-model="form.hchzsb" label="0">耗材</el-radio>
                                 <el-radio v-model="form.hchzsb" label="1">设备</el-radio>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="span[2]">
-                            <el-form-item label="器械类别" required>
-                                <el-radio v-model="form.cplx" label="1">器械</el-radio>
-                                <el-radio v-model="form.cplx" label="2">体外诊断试剂</el-radio>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -329,13 +329,21 @@
                     for (let i = 0; i < this.dtbCertificate.rowCount; i++) {
                         let dataRow = this.dtbCertificate.rows[i];
                         if (dataRow["zczbhhzbapzbh"].value.equals(code)) {
-                            this.form.cpmctymc = dataRow["cpmctymc"].value;
+                            this.form.cpmctymc = dataRow["cpmctymc"].value;                 // -- 产品名称/通用名称 --
+                            this.form.ylqxzcrbarmc = dataRow["ylqxzcrbarmc"].value;         // -- 注册/备案人名称 --
+                            this.form.ylqxzcrbarywmc = dataRow["ylqxzcrbarywmc"].value;     // -- 注册/备案人英文名称 --
+                            this.form.flbm = dataRow["flbm"].value;                         // -- 分类编码 --
+                            this.form.cplx = dataRow["cplx"].value.toString();              // -- 器械类别 --
                             break;
                         }
                     }
                 }
                 else {
                     this.form.cpmctymc = "";
+                    this.form.ylqxzcrbarmc = "";
+                    this.form.ylqxzcrbarywmc = "";
+                    this.form.flbm = "";
+                    this.form.cplx = "";
                 }
                 this.form.zczbhhzbapzbh = this.certs.join(",");
             },
@@ -346,14 +354,25 @@
 
                 if (!jsp.copy) {
                     this.form.hchzsb = "0";
-                    this.form.cplx = "1";
+                    this.form.cgzmraqxgxx = "0";                // -- 核磁安全 --
+                    this.form.zdcfsycs = "0";                   // -- 重复使用次数，0表示不确定次数 --
 
                     this.form.scbssfbhph = true;
                     this.form.scbssfbhscrq = true;
                     this.form.scbssfbhsxrq = true;
+                    this.form.sfbjwycxsy = true;               // -- 是否标记为一次性使用 --
                 }
             },
-            beforeSave() { 
+            beforeSave() {
+                if (this.form.zczbhhzbapzbh.equals("")) {
+                    topWin.message("请先选择“注册证/备案凭证编号”。", "warning");
+                    this.$refs.certs.focus();
+                    return false;
+                }
+                if (this.form.spmc.equals("")) {
+                    this.form.spmc = this.form.cpmctymc;
+                }
+
                 if (this.form.syqsfxyjxmj) {
                     if (this.form.mjfs.equals("")) {
                         topWin.message("请填写灭菌方式。", "warning");
@@ -371,7 +390,7 @@
                     this.form.zdcfsycs = "";
                 }
                 else {
-                    if (this.form.zdcfsycs.toInt() <= 1) {
+                    if (this.form.zdcfsycs.toInt() < 0) {
                         topWin.message("请填写最大重复使用次数。", "warning");
                         this.$refs.zdcfsycs.focus();
                         return false;

@@ -161,6 +161,17 @@
             </el-col>
         </el-row>
     </div>
+    <div style="display:none;">
+        <audio id="audioError">
+            <source src="../../res/audio/error.wav" />
+        </audio>
+        <audio id="audioError2">
+            <source src="../../res/audio/error.wav" />
+        </audio>
+        <audio id="audioError3">
+            <source src="../../res/audio/error.wav" />
+        </audio>
+    </div>
 </body>
 </html>
 
@@ -477,7 +488,7 @@
             },
             exportData() {
                 let dataPOST = {
-                    taskId: this.taskId,                    
+                    taskId: this.taskId,
                     fieldNamePrefix: this.filePrefix
                 };
                 ajax.send("/aprint/package_print/exportData", dataPOST).then(res => {
@@ -597,14 +608,23 @@
                             return;
                         }
                     }
+                    this.barcodes = arrBarcode.join("\n") + "\n";
 
                     if (arrBarcode.length == this.qtyBarcodes) {
                         if (this.autoPrint) {
                             this.print();
                         }
                         else {
+                            playStop();
                             topWin.message("已扫描 " + this.qtyBarcodes + "个 条码，请手工打印包装码。", "success");
                         }
+                    }
+                    else if (arrBarcode.length > this.qtyBarcodes) {
+                        arrBarcode.pop();
+                        this.barcodes = arrBarcode.join("\n") + "\n";
+
+                        playStop(3);
+                        topWin.alert("已扫描 " + this.qtyBarcodes + "个 条码，请停止扫描。", "error");
                     }
                 }
             }
@@ -619,6 +639,9 @@
     let grid = gId("grid");
     let divIfr = gId("divIfr"), ifr = gId("ifr");
     let lbl;
+
+    let audioError = gId("audioError");
+    let audioError2 = gId("audioError2");
     // ------------------------------------------------------------------------
     function winLoad() {
         let height = win.p.maxHeight - 0;
@@ -643,5 +666,13 @@
         app.printerName = getLocalItem(ckLatestPrinter);
 
         app.initGrid();
+    }
+
+    async function playStop(times = 1) {
+        gId("audioError").play();
+        if (times > 1) {
+            setTimeout("gId('audioError2').play()", 100);
+            setTimeout("gId('audioError3').play()", 200);
+        }
     }
 </script>
