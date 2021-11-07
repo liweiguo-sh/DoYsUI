@@ -303,10 +303,16 @@
     let md_name_id = "";
     // ------------------------------------------------------------------------
     function winLoad() {
-        let mview = win.parentWindow.view.$refs.mview;
-        let treeNav = mview.$refs.treeNav;
-        if (treeNav && treeNav.selectedNode) {
-            md_name_id = treeNav.selectedNode.data.value + "";
+        if (win.parentWindow.view) {
+            let mview = win.parentWindow.view.$refs.mview;
+
+            let treeNav = mview.$refs.treeNav;
+            if (treeNav && treeNav.selectedNode) {
+                md_name_id = treeNav.selectedNode.data.value + "";
+            }
+        }
+        else {
+            // -- 非标准视图。DI上传页面 --
         }
 
         if (win.p.maxWidth < 1200) {

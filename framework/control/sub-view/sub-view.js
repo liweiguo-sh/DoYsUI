@@ -34,6 +34,7 @@
             columns: [],                    // -- 中间浮动列 --
             columnsR: [],                   // -- 右侧固定列（element-ui实现上有Bug，暂不支持） --
             viewData: [],
+            selectedData: [],               // -- 选中行数据 --
             showSelectColumn: false,
             showDetailColumn: false,
             showDeleteColumn: false,
@@ -491,6 +492,9 @@
 
             this.emitOnRowChange();
         },
+        onSelectionChange(val) {
+            this.selectedData = val;
+        },
         onRowClick(row, col, event) {
             this.$emit("onrowclick", {
                 pageRows: this.pageRows,
@@ -590,7 +594,7 @@
             </el-aside>
             <el-container>
                 <el-main style="margin1:0;padding:0;">
-                    <el-table ref="eltable" v-loading="loading" @current-change="onCurrentChange" @row-click="onRowClick" :data="viewData" :height="elTableHeight" size="small" border stripe highlight-current-row>
+                    <el-table ref="eltable" v-loading="loading" @current-change="onCurrentChange" @row-click="onRowClick" @selection-change="onSelectionChange" :data="viewData" :height="elTableHeight" size="small" border stripe highlight-current-row>
                         <el-table-column type="index" label="序" align="center" fixed=""></el-table-column>
                         <el-table-column v-if="showSelectColumn" type="selection" width="45" align="center" fixed="left"></el-table-column>
                         <el-table-column v-if="showDetailColumn" width="60" align="center" label="操作" fixed="left">

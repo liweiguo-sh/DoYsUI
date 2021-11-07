@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>产品DI上传</title>
+    <script src="../../../../framework/core/boot.js"></script>
+
+    <style type="text/css">
+        .divTree {
+            overflow: auto;
+            border-top: solid 1px #EBEEF5;
+            border-left: solid 1px #EBEEF5;
+            border-bottom: solid 1px #EBEEF5;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-row style="margin-bottom:8px;">
+            <el-button @click="upload" icon="el-icon-upload" v-show="uploadQueue.equals('0')">上传至药监局</el-button>
+            <el-button @click="uploadCancel" icon="el-icon-error" v-show="uploadQueue.equals('1')">取消上传</el-button>
+            <el-button icon="el-icon-close" @click="win.close();">关闭</el-button>
+        </el-row>
+        <el-row>
+            <el-col :span="span[1]">
+                <div id="divTree" class="divTree">
+                    <el-tree ref="treeNav" @node-click="onNodeClick" :props="treeProps" node-key="nodeKey" :data="dataTree"
+                             :default-expanded-keys="['queue_all']" :default-checked-keys="['queue_all']" :expand-on-click-node="false" highlight-current></el-tree>
+                </div>
+            </el-col>
+            <el-col :span="span[2]">
+                <sub-view id="grid" ref="grid" v-if="ifGrid" :style="gridHeight"></sub-view>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            treeProps: {
+                label: "name",
+                isLeaf: "isLeaf"
+            },
+            dataTree: [],
+            gridHeight: "height:300px;",    // -- 网格高度 --
+            ifGrid: true,                   // -- 控制销毁grid --
+
+            uploadQueue: "0"
+        },
+        mounted() { },
+        methods: {
+            initTree() {
+                this.dataTree = [
+                    {
+                        nodeKey: "queue_all",
+                        name: "全部待上传产品DI",
+                        taskStatus: 0,
+                        isLeaf: false,
+                        children: [
+                            { nodeKey: "queue_0", name: "新增未上传", taskStatus: 0 },
+                            { nodeKey: "queue_1", name: "变更未上传", taskStatus: 0 },
+                            { nodeKey: "queue_9", name: "上传失败，须重传", taskStatus: 0 }
+                        ]
+                    },
+                    {
+                        nodeKey: "uploading",
+                        name: "正在上传中产品DI列表",
+                        taskStatus: 1,
+                    },
+                    {
+                        nodeKey: "uploaded",
+                        name: "已上传产品DI列表",
+                        taskStatus: 0,
+                    }
+                ];
+
+                this.loadGrid("md_di_upload_queue_all", "upload_queue = 0 AND upload_reason >= 0");
+            },
+            loadGrid(viewKey, filter = "") {
+                var para = {
+                    viewPk: viewKey,
+                    flowPks: "",
+                    filter: filter,
+                    vfWindowState: "maximized",
+                    vfUrl: g.path.project + "/aprint/html/bus/md_di.html"
+                }
+                this.$refs.grid.init(para);
+            },
+            onNodeClick(data, node, c) {
+                this.showGrid(data.nodeKey);
+            },
+            async showGrid(nodeKey) {
+                this.ifGrid = false;
+                await sleep(10);
+                this.ifGrid = true;
+                await sleep(10);
+
+                this.uploadStatus = nodeKey;
+                if (nodeKey.equals("queue_all")) {
+                    this.loadGrid("md_di_upload_queue_all", "1=1");
+                    this.uploadQueue = "0";
+                }
+                else if (nodeKey.equals("uploaded")) {
+                    this.uploadQueue = "";
+                    this.loadGrid("md_di_upload_query", "1=1");
+                }
+                else if (nodeKey.equals("uploading")) {
+                    this.uploadQueue = "1";
+                    this.loadGrid("md_di_upload", "1=1");
+                }
+                else if (nodeKey.equals("queue_0")) {
+                    this.uploadQueue = "0";
+                    this.loadGrid("md_di_upload_queue_01", "upload_reason = 0");
+                }
+                else if (nodeKey.equals("queue_1")) {
+                    this.uploadQueue = "0";
+                    this.loadGrid("md_di_upload_queue_01", "upload_reason = 1");
+                }
+                else if (nodeKey.equals("queue_9")) {
+                    this.uploadQueue = "0";
+                    this.loadGrid("md_di_upload_failure", "1=1");
+                }
+            },
+
+            upload() {
+                let ids = [];
+                for (let i = 0; i < this.$refs.grid.selectedData.length; i++) {
+                    ids.push(this.$refs.grid.selectedData[i]["id"]);
+                }
+                if (ids.length == 0) {
+                    topWin.message("请先勾选要上传的产DI。", "warning");
+                    return;
+                }
+                topWin.confirm("确定要上传选中的产品DI吗？").then((ok) => {
+                    if (!ok) return;
+
+                    ajax.send("/aprint/thirdparty/nmpa/addToUploadQueue", { ids: ids.join(",") }).then(res => {
+                        topWin.message("选中的产品DI已加入到上传任务队列中。", "success");
+                        this.$refs.grid.getViewData();
+                    });
+                })
+            },
+            uploadCancel() {
+                let ids = [];
+                for (let i = 0; i < this.$refs.grid.selectedData.length; i++) {
+                    ids.push(this.$refs.grid.selectedData[i]["id"]);
+                }
+                if (ids.length == 0) {
+                    topWin.message("请先勾选要上传的产DI。", "warning");
+                    return;
+                }
+
+                topWin.confirm("确定要取消上传选中的产品DI吗？").then((ok) => {
+                    if (!ok) return;
+
+                    ajax.send("/aprint/thirdparty/nmpa/removeFromUploadQueue", { ids: ids.join(",") }).then(res => {
+                        topWin.message("选中的产品DI已从上传任务队列中移除。", "success");
+                        this.$refs.grid.getViewData();
+                    });
+                })
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    let divTree = gId("divTree");
+    let grid = gId("grid");
+    function winLoad() {
+        let height = win.p.maxHeight + topWin.cWin.titleHeight - 50;
+        app.gridHeight = "height:" + height + "px";
+        divTree.style.height = (height - 2) + "px";
+
+        let wTree = Math.round(24 * (300 / win.p.maxWidth));
+        app.span[1] = wTree;
+        app.span[2] = 24 - wTree;
+
+        app.initTree();
+    }
+</script>
