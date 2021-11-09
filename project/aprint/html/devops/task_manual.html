@@ -44,7 +44,9 @@
             activeTabName: "uploadDI",
 
             message: "",
-            listLog: []
+            listLog: [],
+
+            dtStart: ""                 // -- 接口返回的接口执行开始时间 --
         },
         mounted() {
         },
@@ -53,21 +55,12 @@
                 setPageCookie("activeTabName", this.activeTabName);
             },
 
-            uploadDiData() {
-                this.listLog = [];
-                this.message = "DI数据上传接口服务器较慢，请耐心等待接口返回信息...";
+            async uploadDiData() {
+                this.message = "DI数据上传接口服务器较慢，请耐心等待...";
+
                 ajax.send("/aprint/thirdparty/nmpa/uploadDiData", {}).then((res) => {
-                    if (res.listFail && res.listFail.length > 0) {
-                        this.listLog = res.listFail;
-                        this.message = "接口返回如下错误信息：";
-                        topWin.message("接口返回错误信息，请检查。", "error");
-                    }
-                    else {
-                        this.listLog = [];
-                        this.message = "DI上传操作成功";
-                        topWin.message(this.message, "success");
-                    }
-                })
+                    this.message = (new Date()).toString() + " DI数据上传接口服务已启动，请到“产品DI上传日志”中查询上传结果。";
+                });
             }
         }
     });

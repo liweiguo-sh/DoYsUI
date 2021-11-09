@@ -14,15 +14,18 @@
             viewBarProps: {
                 leftButtons: [],
                 rightButtons: [],
-                showSearch: true,
-                searchPlaceholder: "quick search ..."
+                showrefresh: false,
+                showSearch: false,
+                searchPlaceholder: "quick search ...",
+                size: "small",
+                type: "primary"
             },
             filterExternal: "",             // -- 外部条件 --
             extUserDef: {},                 // -- 用户自定义参数 --
             allowAddnew: false,             // -- 视图允许添加 --
             detailAlise: "查看",             // -- 查看 --
 
-            showViewBar: true,              // -- ## 顶部工具条 ## --
+            showViewBar: false,             // -- ## 顶部工具条 ## --
 
             dtbFlowNode: null,              // -- ## 导航树 ##--
             showNavArea: false,             // -- 显示导航区 --
@@ -62,7 +65,8 @@
             this.flowPks = para.flowPks || this.flowPks;
             this.filterExternal = para.filter || this.filterExternal;
             this.extUserDef = para.extUserDef || this.extUserDef;
-            this.viewBarProps.showSearch = para.showSearch || false;
+            this.showViewBar = para.showViewBar || this.showViewBar;
+            this.viewBarProps = g.x.extendJSON(this.viewBarProps, para.viewBarProps);
 
             this.vfUrl = para.vfUrl;
             this.vfWindowState = para.vfWindowState || this.vfWindowState;
@@ -108,27 +112,25 @@
 
             // -- 后期处理 --
             if (para.showDeleteColumn != undefined) this.showDeleteColumn = para.showDeleteColumn;
-
         },
         initToolbar() {
-            let leftButtons = [
-                // -- { name: "refresh", text: "刷新", icon: "el-icon-refresh" }
-            ]
+            this.showViewBar = this.showViewBar || (this.allowAddnew && this.navAllowAddnew);
+            this.viewBarProps.searchPlaceholder = this.searchPlaceholder || "";
+
+            let leftButtons = [];
+            if (this.viewBarProps.showRefresh) {
+                leftButtons.push({ name: "refresh", text: "刷新", type: this.viewBarProps.type, size: this.viewBarProps.size, icon: "el-icon-refresh" });
+            }
             if (this.allowAddnew && this.navAllowAddnew) {
-                leftButtons.push({ name: "addnew", text: "添加", type: "primary", icon: "el-icon-plus" });
+                leftButtons.push({ name: "addnew", text: "添加", type: this.viewBarProps.type, size: this.viewBarProps.size, icon: "el-icon-plus" });
             }
 
             let rightButtons = [
                 { name: "config", text: "配置", type: "danger", icon: "el-icon-share" },
                 { name: "export", text: "数据导出", type: "success", icon: "el-icon-download" }
             ]
-            this.showViewBar = this.viewBarProps.showSearch || (leftButtons.length > 0);
-            this.viewBarProps = {
-                leftButtons: leftButtons,
-                rightButtons: [],
-                showSearch: this.viewBarProps.showSearch,
-                searchPlaceholder: this.searchPlaceholder
-            }
+            this.viewBarProps.leftButtons = leftButtons;
+            this.viewBarProps.rightButtons = [];
         },
         initNavTree() {
             if (this.dtbFlowNode == null) return;

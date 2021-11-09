@@ -3,7 +3,6 @@
 <head>
     <title>产品DI上传</title>
     <script src="../../../../framework/core/boot.js"></script>
-
     <style type="text/css">
         .divTree {
             overflow: auto;
@@ -15,20 +14,21 @@
 </head>
 <body>
     <div id="app">
-        <el-row style="margin-bottom:8px;">
-            <el-button @click="upload" icon="el-icon-upload" v-show="uploadQueue.equals('0')">上传至药监局</el-button>
-            <el-button @click="uploadCancel" icon="el-icon-error" v-show="uploadQueue.equals('1')">取消上传</el-button>
-            <el-button icon="el-icon-close" @click="win.close();">关闭</el-button>
-        </el-row>
+
         <el-row>
             <el-col :span="span[1]">
+                <el-row style="margin-bottom:5px;">
+                    <el-button @click="upload" icon="el-icon-upload" v-show="uploadQueue.equals('0')">上传至药监局</el-button>
+                    <el-button @click="uploadCancel" icon="el-icon-error" v-show="uploadQueue.equals('1')">取消上传</el-button>
+                    <el-button icon="el-icon-close" @click="win.close();">关闭</el-button>
+                </el-row>
                 <div id="divTree" class="divTree">
                     <el-tree ref="treeNav" @node-click="onNodeClick" :props="treeProps" node-key="nodeKey" :data="dataTree"
                              :default-expanded-keys="['queue_all']" :default-checked-keys="['queue_all']" :expand-on-click-node="false" highlight-current></el-tree>
                 </div>
             </el-col>
             <el-col :span="span[2]">
-                <sub-view id="grid" ref="grid" v-if="ifGrid" :style="gridHeight"></sub-view>
+                <sub-view id="grid" ref="grid" :style="gridHeight"></sub-view>
             </el-col>
         </el-row>
     </div>
@@ -47,13 +47,12 @@
             },
             dataTree: [],
             gridHeight: "height:300px;",    // -- 网格高度 --
-            ifGrid: true,                   // -- 控制销毁grid --
 
-            uploadQueue: "0"
+            uploadQueue: "0"                // -- 上传按钮控制变量 --
         },
         mounted() { },
         methods: {
-            initTree() {
+            init() {
                 this.dataTree = [
                     {
                         nodeKey: "queue_all",
@@ -78,51 +77,48 @@
                     }
                 ];
 
-                this.loadGrid("md_di_upload_queue_all", "upload_queue = 0 AND upload_reason >= 0");
-            },
-            loadGrid(viewKey, filter = "") {
                 var para = {
-                    viewPk: viewKey,
+                    viewPk: "md_di_upload",
                     flowPks: "",
-                    filter: filter,
+                    filter: "upload_queue = 0 AND upload_reason >= 0",
                     vfWindowState: "maximized",
-                    vfUrl: g.path.project + "/aprint/html/bus/md_di.html"
+                    vfUrl: g.path.project + "/aprint/html/bus/md_di.html",
+                    showViewBar: true,
+                    viewBarProps: {
+                        showRefresh: true,
+                        showSearch: true,
+                        type: "",
+                        size: ""
+                    }
                 }
                 this.$refs.grid.init(para);
             },
             onNodeClick(data, node, c) {
-                this.showGrid(data.nodeKey);
-            },
-            async showGrid(nodeKey) {
-                this.ifGrid = false;
-                await sleep(10);
-                this.ifGrid = true;
-                await sleep(10);
+                let nodeKey = data.nodeKey;
 
-                this.uploadStatus = nodeKey;
                 if (nodeKey.equals("queue_all")) {
-                    this.loadGrid("md_di_upload_queue_all", "1=1");
                     this.uploadQueue = "0";
+                    this.$refs.grid.setFilter("upload_queue = 0 AND upload_reason >= 0");
                 }
                 else if (nodeKey.equals("uploaded")) {
                     this.uploadQueue = "";
-                    this.loadGrid("md_di_upload_query", "1=1");
+                    this.$refs.grid.setFilter("upload_queue = 0 AND upload_reason = -1");
                 }
                 else if (nodeKey.equals("uploading")) {
                     this.uploadQueue = "1";
-                    this.loadGrid("md_di_upload", "1=1");
+                    this.$refs.grid.setFilter("upload_queue = 1");
                 }
                 else if (nodeKey.equals("queue_0")) {
                     this.uploadQueue = "0";
-                    this.loadGrid("md_di_upload_queue_01", "upload_reason = 0");
+                    this.$refs.grid.setFilter("upload_queue = 0 AND upload_reason = 0");
                 }
                 else if (nodeKey.equals("queue_1")) {
                     this.uploadQueue = "0";
-                    this.loadGrid("md_di_upload_queue_01", "upload_reason = 1");
+                    this.$refs.grid.setFilter("upload_queue = 0 AND upload_reason = 1");
                 }
                 else if (nodeKey.equals("queue_9")) {
                     this.uploadQueue = "0";
-                    this.loadGrid("md_di_upload_failure", "1=1");
+                    this.$refs.grid.setFilter("upload_queue = 0 AND upload_reason = 9");
                 }
             },
 
@@ -172,14 +168,14 @@
     let divTree = gId("divTree");
     let grid = gId("grid");
     function winLoad() {
-        let height = win.p.maxHeight + topWin.cWin.titleHeight - 50;
+        let height = win.p.maxHeight + topWin.cWin.titleHeight - 5;
+        divTree.style.height = (height - gId("divTree").offsetTop - 2) + "px";
         app.gridHeight = "height:" + height + "px";
-        divTree.style.height = (height - 2) + "px";
 
         let wTree = Math.round(24 * (300 / win.p.maxWidth));
         app.span[1] = wTree;
         app.span[2] = 24 - wTree;
 
-        app.initTree();
+        app.init();
     }
 </script>
