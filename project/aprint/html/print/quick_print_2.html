@@ -155,12 +155,13 @@
                     <!-- 产品、客户、供应商 -->
                     <hr v-show="hasProductRef || hasCustomerRef || hasSupplierRef" />
                     <el-form-item label="产品料号(SKU)" v-show="hasProductRef">
-                        <el-select v-model="productPnId" @change="onProductPnChange" default-first-option filterable clearable style="width:100%;">
+                        <el-select v-model="productPnId" v-if="productPnCount<=1000" @change="onProductPnChange" default-first-option filterable clearable style="width:100%;">
                             <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.pn + '  ' + item.product_name">
                                 <span>{{ item.pn }}</span>
                                 <span style="float:right">{{ item.product_name }}</span>
                             </el-option>
                         </el-select>
+                        <el-input v-model="productPn" ref="productPn" v-else @change="onProductPnChange_input" placeholder="请输入产品料号/SKU"></el-input>
                     </el-form-item>
                     <el-form-item label="客户" v-show="hasCustomerRef">
                         <el-select v-model="customerId" @change="onCustomerChange" default-first-option filterable clearable style="width:100%;">
@@ -230,7 +231,7 @@
             span: [24, 8, 16],
             size: "medium",                 // -- medium/small/mini --
 
-            scanField: "pn",               // -- 扫码内容 --
+            scanField: "pn",                // -- 扫码内容 --
             autoPrint: true,                // -- 自动打印 --
             autoResetCopy: true,            // -- 自动重置份数 --
             barcodeScan: "",                // -- 扫码内容 --
@@ -245,6 +246,8 @@
 
             productPns: [],                 // -- 产品料号集合 --
             productPnId: "",
+            productPn: "",                  // -- 产品料号 --
+            productPnCount: 0,              // -- 产品料号数量(数量过大时，导致渲染太慢，优化为不加载下俩列表) --
             productPnPara: {},              // -- 产品料号参数集 --
             customers: [],                  // -- 客户集合 --
             customerId: "",                 // -- 当前选中客户ID --
@@ -382,7 +385,8 @@
             },
             getQuoteData() {
                 if (this.productPns.length == 0) {
-                    ajax.send("/aprint/print/quick/getProductPns", {}).then(res => {
+                    ajax.send("/aprint/print/quick/getProductPns", {}).then(res => {                        
+                        this.productPnCount = res.productPns.length;
                         this.productPns = res.productPns;
                     });
                 }
@@ -416,6 +420,31 @@
                     this.productPnPara = {};
                     this.setVariables();
                 }
+            },
+            onProductPnChange_input() {
+                // -- onProductPnChange是下拉框触发的，onProductPnChange_input是文本框触发的 --
+                let productPn = this.productPn.trim();
+                if (productPn.equals("")) return;
+
+                // -- 1. 查找 --
+                let value, idxFind = -1;
+                for (let i = this.productPns.length - 1; i >= 0; i--) {
+                    value = this.productPns[i]["pn"];
+                    if (productPn == value) {
+                        idxFind = i;
+                        break;
+                    }
+                }
+
+                // -- 2. 调用下拉框change事件 --
+                if (idxFind < 0) {
+                    topWin.message("未找到符合条件的产品料号/SKU，请检查。", "error");
+                    this.$refs["productPn"].select();
+                    return;
+                }
+
+                this.productPnId = this.productPns[idxFind]["id"];
+                this.onProductPnChange();
             },
             onCustomerChange() {
                 if (this.customerId) {
