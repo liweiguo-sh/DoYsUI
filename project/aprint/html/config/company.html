@@ -30,7 +30,7 @@
                     </el-row>
                 </el-tab-pane>
                 <!-- UDI信息 -->
-                <el-tab-pane name="nmpa" :key="1" label="UDI配置信息" v-if="company.industry.equals('MD')">
+                <el-tab-pane name="nmpa" :key="1" label="UDI配置信息" v-if="company.industry && company.industry.equals('MD')">
                     <el-row>
                         <el-form-item label="产品标识编码体系">
                             <el-select v-model="company.nmpa_cpbsbmtxmc" clearable style="width:100%">
@@ -77,6 +77,7 @@
             activeTabName: "base",
 
             company: {
+                industry: "",
                 usci: "",
                 name: ""
             }
@@ -85,8 +86,6 @@
             ajax.send("/aprint/cfg/company/getCompany", {}).then((res) => {
                 this.company = res.company;
             });
-
-            this.getQueueSummary();
         },
         methods: {
             onTabClick() {

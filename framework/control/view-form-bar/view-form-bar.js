@@ -127,7 +127,10 @@
             ajax.send(this.controller + "/getFormData", postData).then(res => {
                 if (res.ok) {
                     this.dtbFormData = res.dtbFormData;
-
+                    if (res.dtbFormData.rowCount == 0) {
+                        topWin.alert("当前记录已不存在，请刷新视图页面。", "error");
+                        return;
+                    }
                     this.fillFormData();
                 }
                 else {
@@ -519,7 +522,7 @@
                         win.close();
                         return;
                     }
-                    
+
                     if (win.p.windowState.equals("maximized")) {
                         topWin.message("数据删除成功。", "success");
                     }
