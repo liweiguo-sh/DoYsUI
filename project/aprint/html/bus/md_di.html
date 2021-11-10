@@ -207,10 +207,12 @@
                     this.form.sfyzcbayz = true;
                     this.form.btcpbsyzxxsdycpbssfyz = true;
                 }
-                
-                this.form.device_record_key = "";
-                this.form.di = "";
+
                 this.form.upload_type = "add";
+                this.form.device_record_key = "";
+                this.form.di = "0" + (topWin.company.nmpa_prefix || "");
+                this.form.json_packs = "";
+                this.packs = [];
             },
             beforeSave: function () {
                 // -- di检查 --
@@ -256,24 +258,24 @@
                         this.$refs.btcpbs.focus();
                         return false;
                     }
-                }                
+                }
 
                 return true;
             },
             afterMove() {
                 if (this.form.json_packs) {
-                    this.packs = JSON.parse(this.form.json_packs);                   
+                    this.packs = JSON.parse(this.form.json_packs);
                 }
                 else {
                     this.packs = [];
-                }                
+                }
             },
 
             modifyPack() {
                 if (!this.$refs.vf.status.equals("view")) {
                     this.$refs.vf.save();
                     return;
-                }                
+                }
 
                 let prop = {
                     url: g.x.getPath() + "md_di_pack.html",
