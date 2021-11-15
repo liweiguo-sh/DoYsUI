@@ -1,97 +1,110 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-	<title>产品料号(SKU)定义</title>
-	<script src="../../../../framework/core/boot.js"></script>
-	<script>
-		importFrameworkRes("view-form-bar");
-	</script>
+    <title>产品料号(SKU)定义</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
 </head>
 <body>
-	<div id="app" style="width:900px;">
-		<view-form-bar ref="vf"></view-form-bar>
-		<el-form :model="form" ref="form" label-width="145px" label-position="left">
-			<el-row>
-				<el-col :span="span[1]">
-					<el-form-item label="产品名称" required>
-						<el-select v-model="form.product_id" placeholder="请选择" filterable >
-							<el-option v-for="item in ds.product_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
-						</el-select>
-					</el-form-item>
-				</el-col>
-				<el-col :span="span[2]">
-					<el-form-item label="规格">
-						<el-input v-model="form.spec" />
-					</el-form-item>
-				</el-col>
-			</el-row>
-			<el-row>
-				<el-col :span="span[1]">
-					<el-form-item label="产品料号(SKU)" required>
-						<el-input v-model="form.pn" />
-					</el-form-item>
-				</el-col>
-				
-				<el-col :span="span[2]">
-					<el-form-item label="型号">
-						<el-input v-model="form.model" />
-					</el-form-item>
-				</el-col>
-			</el-row>
-			<el-row>
-				<el-col :span="span[0]">
-					<el-form-item label="备注">
-						<el-input v-model="form.remark" type="textarea" :rows="2" />
-					</el-form-item>
-				</el-col>
-			</el-row>
-			<el-row>
-				<sub-view id="grid" ref="grid" style="height:300px;"></sub-view>
-			</el-row>
-		</el-form>
-	</div>
+    <div id="app" style="width:900px;">
+        <view-form-bar ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="产品名称" required>
+                        <el-select v-model="form.product_id" placeholder="请选择" filterable>
+                            <el-option v-for="item in ds.product_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="规格">
+                        <el-input v-model="form.spec" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="产品料号(SKU)" required>
+                        <el-input v-model="form.pn" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="型号">
+                        <el-input v-model="form.model" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="产品标识(DI)" required>
+                        <el-input v-model="form.di" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+        <el-row>
+            <sub-view id="grid" ref="grid" style="height:300px;"></sub-view>
+        </el-row>
+    </div>
 </body>
 </html>
 
 <!-- vue.init -->
 <script type="text/javascript">
-	var app = new Vue({
-		el: '#app',
-		data: {
-			span: [24, 12, 12],
-			form: {
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {
                 product_id: ""
-			},
-			ds: {}
-		},
+            },
+            ds: {}
+        },
 
-		methods: {
-			afterMove: function () {
-				let filter = "product_pn_id = " + this.$refs.vf.getId();
-				if (this.$refs.grid.initialized) {
-					this.$refs.grid.setFilter(filter);
-				}
-				else {
-					var para = {
-						viewPk: "product_pn_para",
-						flowPks: "'sys_crud'",
-						filter: filter,
-						vfUrl: g.path.project + "/aprint/html/base/product_pn_para.html"
-					}
-					this.$refs.grid.init(para);
-				}
-			},
-			beforeSave: function () {
+        methods: {
+            afterAddnew(jsp) {
+                this.form.pn = "";
+                this.form.di = "";
+            },
+            afterMove: function () {
+                let filter = "product_pn_id = " + this.$refs.vf.getId();
+                if (this.$refs.grid.initialized) {
+                    this.$refs.grid.setFilter(filter);
+                }
+                else {
+                    var para = {
+                        viewPk: "product_pn_para",
+                        flowPks: "'sys_crud'",
+                        filter: filter,
+                        vfUrl: g.path.project + "/aprint/html/base/product_pn_para.html"
+                    }
+                    this.$refs.grid.init(para);
+                }
+            },
+            beforeSave: function () {
                 if (!this.form.product_id) {
                     topWin.alert("请选择产品。", "warning");
                     return false;
                 }
-				if (!this.form.pn) {
-					topWin.alert("请输入产品料号。");
-					return false;
-				}
-				return true;
-			}
-		}
-	});
+                if (!this.form.pn) {
+                    topWin.alert("请输入产品料号。", "warning");
+                    return false;
+                }
+                return true;
+            }
+        }
+    });
 </script>

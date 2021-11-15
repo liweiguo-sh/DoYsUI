@@ -8,7 +8,7 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:800px;">
+    <div id="app" style="width:800px;height:660px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
@@ -32,10 +32,10 @@
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-row>
-                <sub-view id="grid" ref="grid" style="height:350px;" @onaddnew="onGridAddnew"></sub-view>
-            </el-row>
         </el-form>
+        <el-row>
+            <sub-view id="grid" ref="grid" style="height:350px;" @onaddnew="onGridAddnew"></sub-view>
+        </el-row>
     </div>
 </body>
 </html>
