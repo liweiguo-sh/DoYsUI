@@ -31,14 +31,20 @@
 </head>
 <body onload="formLoad()">
     <div id="home">
-        <el-row v-show="expInfo">
-            <el-col :span="11"></el-col>
-            <el-col :span="13">
-                <h1 v-if="expDays<0" style="color:#F56C6C">{{expInfo}}</h1>
-                <h1 v-else-if="expDays<=7 " style="color:#F56C6C">{{expInfo}}</h1>
-                <h2 v-else-if="expDays<=15" style="color:#E6A23C">{{expInfo}}</h2>
-                <h3 v-else-if="expDays<=30" style="color:#909399">{{expInfo}}</h3>
-                <h4 v-else-if="expDays<=90" style="color:#67C23A">{{expInfo}}</h4>
+        <el-row>
+            <el-col :span="12">
+                <div v-show="expInfo">
+                    <h1 v-if="expDays<0" style="color:#F56C6C">{{expInfo}}</h1>
+                    <h1 v-else-if="expDays<=7 " style="color:#F56C6C">{{expInfo}}</h1>
+                    <h2 v-else-if="expDays<=15" style="color:#E6A23C">{{expInfo}}</h2>
+                    <h3 v-else-if="expDays<=30" style="color:#909399">{{expInfo}}</h3>
+                    <h4 v-else-if="expDays<=90" style="color:#67C23A">{{expInfo}}</h4>
+                </div>
+                &nbsp;
+            </el-col>
+            <el-col :span="12" style="text-align:right;">
+                <el-image style="width: 215px; height: 215px" alt="售后支持"
+                          src="../../image/home/weixin.jpg"></el-image>
             </el-col>
         </el-row>
         <div style="height:50px;"></div>
@@ -62,7 +68,7 @@
         methods: {
             getHome() {
                 ajax.send("/aprint/home/common/getCompany", {}).then(res => {
-                    topWin.company = res.company;                    
+                    topWin.company = res.company;
                 });
 
                 ajax.send("/aprint/home/common/checkTenantTerm", {}).then(res => {

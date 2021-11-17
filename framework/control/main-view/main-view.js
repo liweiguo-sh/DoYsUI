@@ -387,7 +387,10 @@
         },
 
         exportData() {
-            this.$message("数据导出");
+            ajax.send(this.controller + "/exportData", {}).then(res => {
+                debugger
+                debugger
+            });
         },
 
         onCellButtonClick(scope, columnType) {
