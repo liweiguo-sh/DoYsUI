@@ -2,13 +2,13 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-02-24
- * Modify Date: 2021-09-05
+ * Modify Date: 2021-11-18
  * Copyright 2021, doys-next.com
  * DLabel doys.js
  */
 
 (function () {
-    window.jsVer = top.jsVer || "2021-01-18";
+    window.jsVer = top.jsVer || "2021-11-18";
     if (document.documentURI.indexOf("//127.0.0.1/") > 0) {
         window.jsVer = (new Date()).getTime();
     }
@@ -25,9 +25,7 @@
             CHAR4: "\4",
             CHAR5: "\5",
             CHAR6: "\6",
-            CHAR7: "\7",
-            GS: String.fromCharCode(29),            // -- 分组符 --
-            FNC1: String.fromCharCode(232)          // -- FNC1(code128), 尚不明确具体值是什么 --
+            CHAR7: "\7"            
         }
     }
 

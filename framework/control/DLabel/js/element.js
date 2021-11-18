@@ -1,4 +1,7 @@
-﻿var UtilElement = {};
+﻿var UtilElement = {
+    GS: String.fromCharCode(29),            // -- 分组符 --
+    FNC1: String.fromCharCode(232)          // -- FNC1(code128), 尚不明确具体值是什么 --
+};
 
 UtilElement.getSectionTypes = function () {
     if (UtilElement.__sectionTypes == null) {
@@ -256,7 +259,7 @@ UtilElement.computeValue = function (jsp) {
             // -- 追加GS分组符 ----------
             if (i == 0) {
                 if (head.barcodeType.equals("DATA_MATRIX") && head.gs1) {
-                    values.push(g.c.GS);
+                    values.push(this.GS);
                 }
             }
             // ------------------------
@@ -268,10 +271,10 @@ UtilElement.computeValue = function (jsp) {
             }
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
-                    value = g.c.GS;
+                    value = this.GS;
                 }
                 else if (value.equals("FNC1")) {
-                    value = g.c.FNC1;
+                    value = this.FNC1;
                 }
                 values.push(value);
             }
@@ -312,10 +315,10 @@ UtilElement.computeValue = function (jsp) {
                 }
                 else if (type.equals("symbol")) {
                     if (value.equals("GS")) {
-                        values.push(g.c.GS);
+                        values.push(this.GS);
                     }
                     else if (value.equals("FNC1")) {
-                        values.push(g.c.FNC1);
+                        values.push(this.FNC1);
                     }
                     else {
                         values.push(value);
@@ -328,7 +331,7 @@ UtilElement.computeValue = function (jsp) {
             }
 
             if (head.format) {
-                valueString = Util.stringFormat(valueString.replaceAll(g.c.GS, "").replaceAll(g.c.FNC1, ""), head.format);
+                valueString = Util.stringFormat(valueString.replaceAll(this.GS, "").replaceAll(this.FNC1, ""), head.format);
             }
             head._sectionsText = valueString;
         }

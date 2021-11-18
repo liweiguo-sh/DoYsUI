@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2021-10-30
+ * Modify Date: 2021-11-18
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -39,8 +39,6 @@
         CHAR5: "\5",
         CHAR6: "\6",
         CHAR7: "\7",
-        GS: String.fromCharCode(29),            // -- 分组符 --
-        FNC1: String.fromCharCode(232),         // -- FNC1(code128), 尚不明确具体值是什么 --
 
         zIndexWin: 1000,
         zIndexElement: 90000,
