@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>接口换标打印</title>
+    <script src="../../../../framework/core/boot.js"></script>
+
+    <style type="text/css">
+        body {
+            overflow-y: scroll;
+        }
+
+        .divTitle {
+            font-size: large;
+            font-weight: bold;
+        }
+
+        .divPreview {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="span[1]">
+                <el-form label-width="160px" label-position="left">
+                    <el-form-item label="业务单据接口">
+                        <el-select v-model="interfaceId" default-first-option filterable style="width:100%;">
+                            <el-option v-for="item in interfaces" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                                <span>{{ item.code }}</span>
+                                <span style="float:right;">{{ item.name }}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="单据接口单号">
+                        <el-input v-model="interfaceQueryCode" :disabled="!interfaceId" placeholder="请输入单据接口查询单号...">
+                            <!--<el-button slot="append" icon="el-icon-search"></el-button>-->
+                        </el-input>
+                    </el-form-item>
+
+                    <hr />
+                    <el-form-item v-for="item in scanCodes" :label="item.text">
+                        <el-input v-model="item.value" :ref="'_sc_' + item.name"></el-input>
+                    </el-form-item>
+                </el-form>
+            </el-col>
+            <el-col :span="span[2]" style="padding-left:30px;padding-right:30px;border:solid 0px red;">
+                <el-form label-width="160px" label-position="left">
+                    <el-form-item label="套标标签模板组">
+                        <el-select v-model="templateId" default-first-option filterable style="width:100%;">
+                            <el-option v-for="item in templates" :key="item.id" :value="item.id" :label="item.name"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <hr />
+                    <el-form-item v-for="item in labels" :label="item.labelName">
+                        <el-select v-model="item.printerName" default-first-option filterable :style="stylePrinter">
+                            <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
+                        </el-select>
+                        <el-input v-model="item.copies" :style="styleCopies" :disabled="true" title="打印份数"></el-input>
+                        <el-button @click="manualPrint(item.labelId)" icon="el-icon-printer" style="float:right"></el-button>
+                    </el-form-item>
+                </el-form>
+            </el-col>
+            <el-col :span="span[3]">
+                <el-form label-width="5px" label-position="left">
+                    <el-form-item label="">
+                        <el-button type="primary" plain>打 印</el-button>
+                    </el-form-item>
+                    <el-form-item label="">
+                        <el-checkbox>自动打印</el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="">
+                        <el-checkbox>自动计算尾箱</el-checkbox>
+                    </el-form-item>
+                </el-form>
+            </el-col>
+        </el-row>
+
+        <el-collapse v-model="activeNames">
+            <!-- 标签预览区 -->
+            <el-collapse-item name="preview">
+                <template slot="title">
+                    <div class="divTitle">标签预览 <i class="el-icon-picture"></i></div>
+                </template>
+                <div id="divPreview" :style="styleDivPreview">
+                    标签列表...
+                </div>
+            </el-collapse-item>
+            <!-- 标签数据区 -->
+            <el-collapse-item name="grid">
+                <template slot="title">
+                    <div class="divTitle">标签数据 <i class="el-icon-s-data"></i></div>
+                </template>
+                <el-row>
+                    <el-col :span="12">
+                        <sub-view id="gridPack" ref="gridPack" style="height:350px;"></sub-view>
+                    </el-col>
+                    <el-col :span="12">
+                        <sub-view id="gridProduct" ref="gridProduct" style="height:350px;"></sub-view>
+                    </el-col>
+                </el-row>
+            </el-collapse-item>
+        </el-collapse>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 9, 9, 6],
+            activeNames: ["preview", "grid"],
+            stylePrinter: "width:200px",
+            styleCopies: "width:100px",
+
+
+            interfaces: [],                     // -- 接口列表 --
+            interfaceId: null,                  // -- 接口ID --
+            interfaceQueryCode: "",             // -- 业务接口查询单号 --
+            scanCodes: [                        // -- 换标扫码字段集合 --
+                {
+                    name: "ean13",              // -- 扫码字段 --
+                    text: "原标签上的69码",       // -- 扫码字段名称 --
+                    value: ""                   // -- 扫码内容 --
+                },
+                {
+                    name: "lot",                // -- 扫码字段2 --
+                    text: "批号",                // -- 扫码字段名称2 --
+                    value: ""                   // -- 扫码内容2 --
+                }
+            ],
+
+            templates: [                        // -- 标签模板组集合 --
+                {
+                    id: "T1",
+                    name: "化妆品模板"
+                },
+                {
+                    id: "T2",
+                    name: "婴儿食品模板"
+                }
+            ],
+            templateId: null,                   // -- 标签模板组ID --
+            labels: [
+                {
+                    labelId: 1,
+                    labelName: "外箱标签1",
+                    printerName: "",
+                    copies: 1
+                },
+                {
+                    labelId: 2,
+                    labelName: "外箱标签2",
+                    printerName: "",
+                    copies: 1
+                },
+                {
+                    labelId: 3,
+                    labelName: "产品标",
+                    printerName: "",
+                    copies: 1
+                }
+            ],
+
+            printers: [],                       // -- 打印机数组 --
+            styleDivPreview: "height:350px;border:solid 1px red;"
+        },
+        mounted() {
+            return;
+            let postData = {
+
+            };
+            ajax.send("/project/module/controller/method", postData).then((res) => {
+                let dtbLabel = res.dtbLabel;
+                let labels = [];
+                for (let i = 0; i < dtbLabel.rowCount; i++) {
+                    labels.push({
+                        id: dtbLabel.rows[i]["id"].value,
+                        code: dtbLabel.rows[i]["code"].value,
+                        name: dtbLabel.rows[i]["name"].value
+                    });
+                }
+                this.labels = labels;
+            })
+        },
+        methods: {
+            manualPrint(labelId) {
+                topWin.message(labelId, "success");
+            },
+            method1() {
+                ajax.send("/project/module/controller/method", {}).then((res) => {
+                    if (res.ok) {
+                        topWin.message("当前操作成功");
+                    }
+                    else {
+                        topWin.alert("系统信息 ...", "error");
+                    }
+                })
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        top.crossLocal.getPrinterList().then((res) => {
+            if (res.ok) {
+                app.printers = res.data.printers;
+            }
+        });
+
+        let spanRight = Math.ceil(24 * (250 / win.p.maxWidth));
+        let spanLeft = Math.floor((24 - spanRight) / 2) - 1;
+        let spanMiddle = 24 - spanRight - spanLeft;
+
+        app.span[1] = spanLeft;
+        app.span[2] = spanMiddle;
+        app.span[3] = spanRight;
+
+        let widthMiddle = spanMiddle / 24 * win.p.maxWidth - 220 - 75;
+        let widthCopies = 45;
+        let widthPrinter = widthMiddle - widthCopies;
+
+        app.styleCopies = "width:" + widthCopies + "px;";
+        app.stylePrinter = "width:" + widthPrinter + "px;";
+    }
+</script>
