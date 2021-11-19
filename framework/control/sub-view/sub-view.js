@@ -266,8 +266,6 @@
             return tableData;
         },
         setCurrentRow(rowIdxNew) {
-            if (this.currentRowIdx == rowIdxNew) return;
-
             this.currentRowIdx = rowIdxNew;
             if (rowIdxNew >= 0) {
                 this.$refs.eltable.setCurrentRow(this.viewData[rowIdxNew]);
@@ -479,14 +477,7 @@
 
         onCurrentChange(currentRow, oldCurrentRow) {
             if (currentRow == null) {
-                if (this.pageRows > 0) {
-                    this.setCurrentRow(0);
-                    return;
-                }
-            }
-
-            if (currentRow == null) {
-                this.currentRowIdx = -1;
+                this.setCurrentRow(this.currentRowIdx);
             }
             else {
                 this.currentRowIdx = currentRow.$idx;
@@ -544,8 +535,7 @@
                 this.dtbViewData.rows[this.currentRowIdx][i].value = dataRowView[i].value;
             }
 
-            this.viewData = this.getTableData();
-            this.setCurrentRow(this.currentRowIdx);
+            this.viewData = this.getTableData();            
         },
         afterVfDelete() {
             let rowIdxNew = this.currentRowIdx;
