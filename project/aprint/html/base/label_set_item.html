@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>套标明细项编辑窗口</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;height:390px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <!-- 标签模板 -->
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="标签模板" required>
+                        <el-select v-model="form.label_id" filterable default-first-option style="width:100%;">
+                            <el-option v-for="item in ds.label_id" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                                <span style="float: left">{{ item.code }}</span>
+                                <span style="float: right;">{{ item.name }}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 包装级别、打印份数 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="包装级别" required>
+                        <el-select v-model="form.level" ref="level" style="width:100%;">
+                            <el-option value="0" label="单品(最小单元)"></el-option>
+                            <el-option value="1" label="一级包装"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="打印份数" required>
+                        <el-input v-model="form.copies" ref="copies" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            labelSetId: null,
+            form: {
+                parent_id: null
+            },
+            ds: {}
+        },
+
+        methods: {
+            afterAddnew() {
+                this.form.level = "0";
+                this.form.copies = "1";
+                this.form.label_set_id = this.labelSetId;
+            },
+            beforeSave() {
+                return true;
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.labelSetId = win.parentWindow.app.$refs.vf.getId();
+    }
+</script>

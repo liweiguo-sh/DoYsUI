@@ -44,7 +44,7 @@
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="产品名称">
-                                <el-select v-model="form.product_id" filterable >
+                                <el-select v-model="form.product_id" filterable>
                                     <el-option v-for="item in ds.product_id" :key="item.id" :value="item.id" :label="item.name"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -84,17 +84,10 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
-                            <el-form-item label="打印机点数">
-                                <el-select v-model="form.point">
-                                    <el-option value="200" label="200"></el-option>
-                                    <el-option value="300" label="300"></el-option>
-                                    <el-option value="400" label="400"></el-option>
-                                    <el-option value="600" label="600"></el-option>
-                                    <el-option value="1200" label="1200"></el-option>
-                                </el-select>
-                            </el-form-item>
+                            &nbsp;
                         </el-col>
                     </el-row>
+                    <!-- 打印机 -->
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="宽度(毫米)">
@@ -108,9 +101,30 @@
                         </el-col>
                     </el-row>
                     <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="默认打印机">
+                                <el-select v-model="form.printer_name" clearable filterable default-first-option>
+                                    <el-option v-for="printerName in printers" :value="printerName" :label="printerName"></el-option>
+                                </el-select>
+                            </el-form-item>                            
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="打印机点数">
+                                <el-select v-model="form.point">
+                                    <el-option value="200" label="200"></el-option>
+                                    <el-option value="300" label="300"></el-option>
+                                    <el-option value="400" label="400"></el-option>
+                                    <el-option value="600" label="600"></el-option>
+                                    <el-option value="1200" label="1200"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <!-- 备注 -->
+                    <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="备注">
-                                <el-input v-model="form.remark" type="textarea" :rows="4" />
+                                <el-input v-model="form.remark" type="textarea" :rows="3" />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -178,6 +192,8 @@
                 type: ""
             },
             ds: {},
+            printers: [],
+
             actionUploadLabelFile_BarTender: "",    // -- 上传标签文件 Action（BarTender）--
             actionUploadDataFile_BarTender: "",     // -- 上传数据文件 Action（BarTender）--
             urlLabelFile_BarTender: "",             // -- 标签模板文件（BarTender）--
@@ -411,7 +427,14 @@
 
 <!-- javascript block -->
 <script>
-    let lbl;
+    function winLoad() {
+        top.crossLocal.getPrinterList().then((res) => {
+            if (res.ok) {
+                app.printers = res.data.printers;
+            }
+        });
+    }
+
     function getLabelId() {
         return app.$refs.vf.getId();
     }

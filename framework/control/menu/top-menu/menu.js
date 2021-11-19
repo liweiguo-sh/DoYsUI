@@ -41,10 +41,22 @@ Vue.component('sub-menu', {
  * @param {any} nodeKeyParent
  */
 function dtbMenuToJson(dtbMenu, nodeKeyParent) {
+    let lastIsLine = false;
     let menus = new Array();
+
     for (let i = 0; i < dtbMenu.rowCount; i++) {
         let dataRow = dtbMenu.rows[i];
         let pk = dataRow["pk"].value;
+        let text = dataRow["text"].value;
+
+        if (text.equals("-")) {
+            if (lastIsLine) continue;
+            lastIsLine = true;
+        }
+        else {
+            lastIsLine = false;
+        }
+
         if (pk.length - nodeKeyParent.length == 3 && pk.indexOf(nodeKeyParent) == 0) {
             let menu = {};
             for (let j = 0; j < dtbMenu.columnCount; j++) {
@@ -52,9 +64,6 @@ function dtbMenuToJson(dtbMenu, nodeKeyParent) {
                 menu[columnName.toCamelCase()] = dataRow[columnName].value;
             }
             menu["key"] = menu["pk"];
-            if (nodeKeyParent.length >= 6) {
-                menu["text"] = menu["text"];
-            }
 
             if (!menu.isLeaf) {
                 menu["menus"] = dtbMenuToJson(dtbMenu, pk);

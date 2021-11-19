@@ -45,20 +45,23 @@
                 </el-form>
             </el-col>
             <el-col :span="span[2]" style="padding-left:30px;padding-right:30px;border:solid 0px red;">
-                <el-form label-width="160px" label-position="left">
+                <el-form label-width="210px" label-position="left">
                     <el-form-item label="套标标签模板组">
-                        <el-select v-model="templateId" default-first-option filterable style="width:100%;">
-                            <el-option v-for="item in templates" :key="item.id" :value="item.id" :label="item.name"></el-option>
+                        <el-select v-model="labelSetId" @change="onLabelSetChange" default-first-option filterable style="width:100%;">
+                            <el-option v-for="item in labelSets" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
+                                <span style="float: left">{{ item.code }}</span>
+                                <span style="float: right;">{{ item.name }}</span>
+                            </el-option>
                         </el-select>
                     </el-form-item>
 
                     <hr />
-                    <el-form-item v-for="item in labels" :label="item.labelName">
-                        <el-select v-model="item.printerName" default-first-option filterable :style="stylePrinter">
+                    <el-form-item v-for="label in labels" :label="label.code + ' / ' + label.name">
+                        <el-select v-model="label.printer_name" default-first-option filterable :style="stylePrinter">
                             <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
                         </el-select>
-                        <el-input v-model="item.copies" :style="styleCopies" :disabled="true" title="打印份数"></el-input>
-                        <el-button @click="manualPrint(item.labelId)" icon="el-icon-printer" style="float:right"></el-button>
+                        <el-input v-model="label.copies" :style="styleCopies" :disabled="true" title="打印份数"></el-input>
+                        <el-button @click="manualPrint(label.id)" icon="el-icon-printer" style="float:right"></el-button>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -68,10 +71,10 @@
                         <el-button type="primary" plain>打 印</el-button>
                     </el-form-item>
                     <el-form-item label="">
-                        <el-checkbox>自动打印</el-checkbox>
+                        <el-checkbox v-model="autoPrint">自动打印</el-checkbox>
                     </el-form-item>
                     <el-form-item label="">
-                        <el-checkbox>自动计算尾箱</el-checkbox>
+                        <el-checkbox v-model="autoCalc">自动计算尾箱</el-checkbox>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -133,72 +136,56 @@
                 }
             ],
 
-            templates: [                        // -- 标签模板组集合 --
-                {
-                    id: "T1",
-                    name: "化妆品模板"
-                },
-                {
-                    id: "T2",
-                    name: "婴儿食品模板"
-                }
-            ],
-            templateId: null,                   // -- 标签模板组ID --
-            labels: [
-                {
-                    labelId: 1,
-                    labelName: "外箱标签1",
-                    printerName: "",
-                    copies: 1
-                },
-                {
-                    labelId: 2,
-                    labelName: "外箱标签2",
-                    printerName: "",
-                    copies: 1
-                },
-                {
-                    labelId: 3,
-                    labelName: "产品标",
-                    printerName: "",
-                    copies: 1
-                }
-            ],
+            labelSets: [],                      // -- 标签模板组集合(id, code, name, qty0, qty1, qty2) --
+            labelSetId: null,                   // -- 标签模板组ID --
+            labelSet: null,                     // -- 标签模板对象 --
+            labels: [],                         // -- 标签模板集合 --
+
+            autoPrint: true,                    // -- 自动打印 --
+            autoCalc: true,                     // -- 自动打印尾箱 --
+
 
             printers: [],                       // -- 打印机数组 --
             styleDivPreview: "height:350px;border:solid 1px red;"
         },
         mounted() {
-            return;
-            let postData = {
-
-            };
-            ajax.send("/project/module/controller/method", postData).then((res) => {
-                let dtbLabel = res.dtbLabel;
-                let labels = [];
-                for (let i = 0; i < dtbLabel.rowCount; i++) {
-                    labels.push({
-                        id: dtbLabel.rows[i]["id"].value,
-                        code: dtbLabel.rows[i]["code"].value,
-                        name: dtbLabel.rows[i]["name"].value
-                    });
-                }
-                this.labels = labels;
+            ajax.send("/aprint/print/interface_change/getLabelSetList", {}).then((res) => {
+                this.labelSets = res.labelSets;
             })
         },
         methods: {
             manualPrint(labelId) {
                 topWin.message(labelId, "success");
             },
-            method1() {
-                ajax.send("/project/module/controller/method", {}).then((res) => {
-                    if (res.ok) {
-                        topWin.message("当前操作成功");
+            async onLabelSetChange() {
+                for (let i = 0; i < this.labelSets.length; i++) {
+                    if (this.labelSets[i].id == this.labelSetId) {
+                        this.labelSet = this.labelSets[i];
+                        break;
                     }
-                    else {
-                        topWin.alert("系统信息 ...", "error");
-                    }
-                })
+                }
+
+                await this.getLabels();
+            },
+            async getLabels() {
+                let res = await ajax.send("/aprint/print/interface_change/getLabelList", { labelSetId: this.labelSetId });
+                this.labels = res.labels;
+
+                await this.initLabels();
+                
+            },
+            async initLabels() {
+                debugger
+                debugger
+
+                let widthAll = 0;
+                for (let i = 0; i < this.labels.length; i++) {
+                    let label = this.labels[i];
+
+                    widthAll += label.width;
+                }
+
+                console.log(widthAll);
             }
         }
     });
@@ -214,14 +201,14 @@
         });
 
         let spanRight = Math.ceil(24 * (250 / win.p.maxWidth));
-        let spanLeft = Math.floor((24 - spanRight) / 2) - 1;
+        let spanLeft = Math.floor((24 - spanRight) / 2) - 2;
         let spanMiddle = 24 - spanRight - spanLeft;
 
         app.span[1] = spanLeft;
         app.span[2] = spanMiddle;
         app.span[3] = spanRight;
 
-        let widthMiddle = spanMiddle / 24 * win.p.maxWidth - 220 - 75;
+        let widthMiddle = spanMiddle / 24 * win.p.maxWidth - 210 - 60 - 75;
         let widthCopies = 45;
         let widthPrinter = widthMiddle - widthCopies;
 

@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>套标编辑窗口</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:960px;height:590px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="175px" label-position="left">
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="套标代码" required>
+                        <el-input v-model="form.code" ref="code" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="一级包装含单品数量">
+                        <el-input v-model="form.qty0" ref="qty0" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="套标名称" required>
+                        <el-input v-model="form.name" ref="name" />
+                    </el-form-item>
+                </el-col>
+
+                <el-col :span="span[2]">
+                    <el-form-item label="二级包装含一级包装数量">
+                        <el-input v-model="form.qty1" ref="qty1" :disabled="true" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="2" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+        <sub-view id="grid" ref="grid" style="height:280px;"></sub-view>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {}
+        },
+
+        methods: {
+            afterAddnew: function () {
+                this.form.qty0 = "0";
+                this.form.qty1 = "0";
+                this.form.qty2 = "0";
+            },
+            afterMove: function () {
+                let filter = "label_set_id = " + this.$refs.vf.getId();
+                if (this.$refs.grid.initialized) {
+                    this.$refs.grid.setFilter(filter);
+                }
+                else {
+                    var para = {
+                        viewPk: "label_set_item",
+                        flowPks: "'sys_crud'",
+                        filter: filter,
+                        vfUrl: g.x.getPath("/") + "label_set_item.html"
+                    }
+                    this.$refs.grid.init(para);
+                }
+            }
+        }
+    });
+</script>
