@@ -2,7 +2,7 @@
  * DoYs.ajax.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2021-05-12
+ * Modify Date: 2021-11-22
  * Copyright 2020-2021, doys-next.com 
  */
 
@@ -16,13 +16,17 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
             if (!url.startsWith("http")) url = g.prefix + url;
             let axiosCfg = {
                 method: "GET",
-                url: url
+                url: url,
+                headers: {
+                    token: getLocalItem("token"),
+                    tenantId: option.tenantId || getLocalItem("tenantId")
+                }
             }
             if (data) {
                 axiosCfg.method = "POST";
                 axiosCfg.data = data;
             }
-            if (option && option.headers) {                
+            if (option && option.headers) {
                 axiosCfg.headers = option.headers;
             }
             axios.defaults.withCredentials = true;
@@ -31,7 +35,7 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
 
                 response.data = ajax.parseResponseData(response.data);
                 if (!response.data.ok) {
-                    if (response.data.error.indexOf("session timeout") >= 0) {
+                    if (response.data.error.indexOf("token timeout") >= 0 || response.data.error.indexOf("session timeout") >= 0) {
                         topWin.sessionTimeout();
                         return;
                     }

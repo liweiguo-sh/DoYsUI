@@ -2,7 +2,7 @@
  * DoYs.login.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2020-04-11
+ * Modify Date: 2020-11-22
  * Copyright 2020, doys-next.com
  */
 function login(para) {
@@ -18,11 +18,13 @@ function login(para) {
         let passwordLoginMD5 = UtilUser.passwordLoginMD5(passwordMD5, paraLogin.loginTime);
 
         paraLogin.password = passwordLoginMD5;
-        ajax.send("/user/login", paraLogin).then(response => {
+        ajax.send("/user/login", paraLogin, { tenantId: paraLogin.tenantId }).then(response => {
             if (response.ok) {
                 if (para.urlMain) {
                     let arrPara = new Array();
 
+                    setLocalItem("token", response.token);
+                    setLocalItem("tenantId", para.tenantId);
                     setLocalItem("login.remenber", app.remenber ? "1" : "0");
                     if (app.remenber) {
                         setLocalItem("login.tenantId", paraLogin.tenantId);
