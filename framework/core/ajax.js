@@ -35,7 +35,8 @@ ajax.send = function (url, data, option = { autoShowErr: true }) {
 
                 response.data = ajax.parseResponseData(response.data);
                 if (!response.data.ok) {
-                    if (response.data.error.indexOf("token timeout") >= 0 || response.data.error.indexOf("session timeout") >= 0) {
+                    let code = response.data.code || "";
+                    if (code.equals("S05") || code.equals("S06")) {
                         topWin.sessionTimeout();
                         return;
                     }

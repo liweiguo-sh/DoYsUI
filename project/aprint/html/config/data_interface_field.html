@@ -24,6 +24,18 @@
                 </el-col>
             </el-row>
             <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="外键字段标志">
+                        <el-checkbox v-model="form.flag_fk" ref="flag_ux">是外键字段</el-checkbox>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[1]">
+                    <el-form-item label="唯一索引字段标志">
+                        <el-checkbox v-model="form.flag_ux" ref="flag_ux">是唯一索引字段</el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="备注">
                         <el-input v-model="form.remark" type="textarea" :rows="2" />
@@ -51,6 +63,8 @@
             afterAddnew() {
                 this.form.data_interface_id = this.parentId;
                 this.form.size = 30;
+                this.form.flag_fk = false;
+                this.form.flag_ux = false;
             },
             beforeSave: function () {
                 return true;
