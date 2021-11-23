@@ -44,13 +44,17 @@
 
 <!-- winLoad(页内iframe 模式) -->
 <script>
+    let divSummary = gId("divSummary");
     let divContainerParent = gId("divContainerParent");
     let divCanvas = gId("divCanvas");
     let lbl;
     // ------------------------------------------------------------------------
     window.addEventListener("load", function () {
+        let showSummary = (urlPara["summary"] ? urlPara["summary"] : "1").equals("1");
+        divSummary.style.display = showSummary ? "" : "none";
+
         let width = document.documentElement.clientWidth;
-        let height = document.documentElement.clientHeight - 50;
+        let height = document.documentElement.clientHeight - divSummary.offsetHeight;
 
         divContainerParent.style.width = (width) + "px";
         divContainerParent.style.height = (height) + "px";
