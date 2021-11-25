@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "V2021_11-23";</script>
+    <script>var jsVer = "V2021-11-25";</script>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("crossLocal");
@@ -172,7 +172,7 @@
                 this.$message("当前用户没有指定登录的子系统权限，请检查。");
             })
 
-            //gId("ifrHome").src = "home.html?rnd=" + g.cfg.jsVer;
+            gId("ifrHome").src = "home.html?rnd=" + g.cfg.jsVer;
             gId("tdTopLeft").title = topWin.tenantId;
         },
         methods: {
