@@ -13,15 +13,29 @@
             font-size: large;
             font-weight: bold;
         }
-
+    </style>
+    <!-- 标签预览区样式 -->
+    <style type="text/css">
         #divPreview {
             background-color: #d0d0d0;
             vertical-align: top;
         }
 
-        .ifrLabelPreview {
+        .tbIframe {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .tdIframe {
             border: solid 0px red;
-            margin: 20px;
+            padding: 15px;
+            overflow: hidden;
+            vertical-align: top;
+        }
+
+        .ifrLabel {
+            border: solid 0px blue;
             background-color: #c0c0c0;
             box-shadow: 2px 2px 15px gray;
             border-radius: 5px;
@@ -34,7 +48,7 @@
             <el-col :span="span[1]">
                 <el-form label-width="160px" label-position="left">
                     <el-form-item label="业务单据接口">
-                        <el-select v-model="interfaceId" default-first-option filterable style="width:100%;">
+                        <el-select v-model="interfaceId" @change="interfaceChange" default-first-option filterable style="width:100%;">
                             <el-option v-for="item in interfaces" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
                                 <span>{{ item.code }}</span>
                                 <span style="float:right;">{{ item.name }}</span>
@@ -65,7 +79,7 @@
                     </el-form-item>
 
                     <hr />
-                    <el-form-item v-for="label in labels" :label="label.code + ' / ' + label.name">
+                    <el-form-item v-for="label in labels" :label="label.name">
                         <el-select v-model="label.printer_name" default-first-option filterable :style="stylePrinter">
                             <el-option v-for="printerName in printers" :key="printerName" :value="printerName" :label="printerName"></el-option>
                         </el-select>
@@ -131,18 +145,10 @@
 
             interfaces: [],                     // -- 接口列表 --
             interfaceId: null,                  // -- 接口ID --
+            interface: null,                    // -- 当前接口对象 --
             interfaceQueryCode: "",             // -- 业务接口查询单号 --
             scanCodes: [                        // -- 换标扫码字段集合 --
-                {
-                    name: "ean13",              // -- 扫码字段 --
-                    text: "原标签上的69码",       // -- 扫码字段名称 --
-                    value: ""                   // -- 扫码内容 --
-                },
-                {
-                    name: "lot",                // -- 扫码字段2 --
-                    text: "批号",                // -- 扫码字段名称2 --
-                    value: ""                   // -- 扫码内容2 --
-                }
+                
             ],
 
             labelSets: [],                      // -- 标签模板组集合(id, code, name, qty0, qty1, qty2) --
@@ -161,7 +167,7 @@
             ajax.send("/aprint/print/quick/getInterfaces", {}).then(res => {
                 this.interfaces = res.interfaces;
                 if (this.interfaces.length == 1) {
-                    this.interfaceId = this.interfaces[0].id;
+                    // this.interfaceId = this.interfaces[0].id;
                 }
             });
             ajax.send("/aprint/print/interface_change/getLabelSetList", {}).then((res) => {
@@ -184,6 +190,29 @@
                 }
                 topWin.message(labelId, "success");
             },
+
+            interfaceChange() {
+                ajax.send("/aprint/juchen/getInterfaceById", { interfaceId: this.interfaceId }).then(res => {
+                    this.interface = res.interface;
+
+                    let scanCodes = [];
+                    let scanFields = res.scanFields;
+                    if (scanFields.length > 0) {
+                        for (let i = 0; i < scanFields.length; i++) {
+                            scanCodes.push({
+                                name: scanFields[i].name,
+                                text: scanFields[i].name,
+                                value: ""
+                            });
+                        }
+                        this.scanCodes = scanCodes;
+                    }
+                    else {
+                        this.scanCodes = [];
+                    }
+                });
+            },
+
             async onLabelSetChange() {
                 for (let i = 0; i < this.labelSets.length; i++) {
                     if (this.labelSets[i].id == this.labelSetId) {
@@ -202,8 +231,22 @@
 
             },
             async initLabels() {
-                divPreview.innerHTML = "";
-                let widthPreview = divPreview.offsetWidth - 130;
+                await this.createIFrames(); 
+                for (let i = 0; i < this.labels.length; i++) {
+                    let iframe = this.labels[i].iframe;
+
+                    iframe.src = g.path.framework + "/control/DLabel/form/preview.html?summary=0&v=" + top.jsVer;
+                    iframe.addEventListener("load", function (evt) {
+                        // -- 获取 Label控件 实例 -- 
+                        let label = app.labels[iframe.labelIndex];
+                        let lbl = iframe.contentWindow.getLabel();
+                        lbl.loadLabel(label.content, { designMode: false });
+                        lbl.compute(true);
+                        label.lbl = lbl;
+                    }, false);
+                }
+            },
+            async createIFrames() {
                 let widthAll = 0;
                 for (let i = 0; i < this.labels.length; i++) {
                     let label = this.labels[i];
@@ -211,27 +254,31 @@
                     widthAll += label.width;
                 }
 
+                let arrHtml = [];
+                arrHtml.push("<table class='tbIframe'><tr>")
                 for (let i = 0; i < this.labels.length; i++) {
                     let label = this.labels[i];
-                    let width = (label.width / widthAll) * widthPreview;
 
-                    let ifr = document.createElement("iframe");
-                    divPreview.appendChild(ifr);
-                    ifr.labelIdx = i;
-                    ifr.style.width = width + "px";
-                    ifr.style.height = width * (label.height / label.width) + "px";
-                    ifr.className = "ifrLabelPreview";
-                    ifr.src = g.path.framework + "/control/DLabel/form/preview.html?summary=0&v=" + top.jsVer;
-                    ifr.addEventListener("load", function (evt) {
-                        // -- 获取 Label控件 实例 --
-                        let labelIfr = app.labels[ifr.labelIdx];
-                        let lbl = ifr.contentWindow.getLabel();
-                        lbl.loadLabel(labelIfr.content, { designMode: false });
-                        lbl.compute(true);
-                        labelIfr.lbl = lbl;
-                    }, false);
+                    label.widthPercent = 100 * label.width / widthAll;
+                    arrHtml.push("<td class='tdIframe' style='width:" + label.widthPercent + "%'>");
+                    arrHtml.push("<iframe id='ifr_" + label.id + "' class='ifrLabel'></iframe>")
+                    arrHtml.push("</td > ");
                 }
+                arrHtml.push("</tr></table>")
+                divPreview.innerHTML = arrHtml.join("");
 
+                for (let i = 0; i < this.labels.length; i++) {
+                    let label = this.labels[i];
+                    let idIfr = "ifr_" + label.id;
+                    let ifr = gId(idIfr);
+
+                    
+                    ifr.labelIndex = i;
+                    ifr.style.width = (ifr.parentElement.clientWidth - 30) + "px";
+                    ifr.style.height = ifr.offsetWidth * (label.height / label.width) + "px";
+
+                    label.iframe = ifr;
+                }
             }
         }
     });
