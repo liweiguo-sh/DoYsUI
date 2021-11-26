@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-    <div id="app" style="width:840px;height:540px;">
+    <div id="app" style="width:840px;height:560px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-tabs ref="tab" v-model="activeTabName" @tab-click="tabClick">
             <el-tab-pane name="main" :key="0" label="基本信息">
@@ -73,14 +73,16 @@
                     </el-row>
                     <el-row v-show="true">
                         <el-col :span="span[1]">
-                            &nbsp;
-                        </el-col>
+                            <el-form-item label="套标代码字段">
+                                <el-input v-model="form.label_set_code" ref="label_set_code" />
+                            </el-form-item>
+                        </el-col>                        
                         <el-col :span="span[2]">
                             <el-form-item label="份数字段">
                                 <el-input v-model="form.field_copy" placeholder="可选项，默认1份" />
                             </el-form-item>
                         </el-col>
-                    </el-row>
+                    </el-row> 
                     <!-- 备注 -->
                     <el-row>
                         <el-col :span="span[0]">
@@ -92,7 +94,7 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane name="fields" :key="1" label="接口字段列表">
-                <sub-view id="grid" ref="grid" view-height="410"></sub-view>
+                <sub-view id="grid" ref="grid" view-height="430"></sub-view>
             </el-tab-pane>
             <el-tab-pane name="dataSample" :key="2" label="接口数据样例">
                 <div id="divDataSample"></div>
