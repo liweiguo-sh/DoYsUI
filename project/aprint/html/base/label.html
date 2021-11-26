@@ -141,7 +141,7 @@
                                    :action="actionUploadLabelFile_BarTender"
                                    :before-upload="beforeUpload1"
                                    :on-success="afterUpload1"
-                                   :with-credentials="true"
+                                   :headers= "headers"
                                    :show-file-list="false">
                             <el-button type="primary">上传标签文件 (.btw)</el-button>
                         </el-upload>
@@ -152,7 +152,7 @@
                                    :action="actionUploadDataFile_BarTender"
                                    :before-upload="beforeUpload2"
                                    :on-success="afterUpload2"
-                                   :with-credentials="true"
+                                   :headers= "headers"
                                    :show-file-list="false">
                             <el-button type="primary">上传数据源模板文件 (.csv, .txt)</el-button>
                         </el-upload>
@@ -198,6 +198,13 @@
             actionUploadDataFile_BarTender: "",     // -- 上传数据文件 Action（BarTender）--
             urlLabelFile_BarTender: "",             // -- 标签模板文件（BarTender）--
             urlDataFile_BarTender: ""               // -- 数据模板文件（BarTender）--
+        },
+        computed: {
+            headers() {
+                return {
+                    token: getLocalItem("token")
+                };
+            }
         },
         methods: {
             onTabClick: function (tab, evt) {

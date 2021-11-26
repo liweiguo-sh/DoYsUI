@@ -31,6 +31,7 @@
         <!-- 上传文件 -->        
         <el-row style="padding-top:30px;" v-show="tabNameImport.equals('importProduct')">
             <el-upload :action="actionUpload" :with-credentials="true"
+                       :headers= "headers"
                        :on-success="onSuccess"
                        :show-file-list="false"
                        accept=".xlsx,.xls">
@@ -67,6 +68,13 @@
             listLog: []
         },
         mounted() {
+        },
+        computed: {
+            headers() {
+                return {
+                    token: getLocalItem("token")
+                };
+            }
         },
         methods: {
             tabImportClick() {

@@ -71,7 +71,7 @@
                                        :before-upload="beforeUpload"
                                        :on-success="afterUpload"
                                        accept=".xls,.xlsx"
-                                       :with-credentials="true"
+                                       :headers= "headers"
                                        :show-file-list="false">
                                 <el-button v-show="labelId" type="primary">导入Excel数据 (.xls; .xlsx)</el-button>
                             </el-upload>
@@ -128,6 +128,13 @@
                 else {
                 }
             });
+        },
+        computed: {
+            headers() {
+                return {
+                    token: getLocalItem("token")
+                };
+            }
         },
         methods: {
             reset() {

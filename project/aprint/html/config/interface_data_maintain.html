@@ -11,6 +11,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-upload :disabled="!interfaceId" :action="actionUpload" :with-credentials="true"
+                                   :headers= "headers"
                                    :on-success="onSuccess"
                                    :show-file-list="false"
                                    accept=".xlsx,.xls">
@@ -68,6 +69,13 @@
             ajax.send("/aprint/cfg/interface_data_maintain/getDataInterfaceList", {}).then((res) => {
                 this.interfaces = res.interfaces;
             })
+        },
+        computed: {
+            headers() {
+                return {
+                    token: getLocalItem("token")
+                };
+            }
         },
         methods: {
             onInterfaceChange(interfaceId) {

@@ -89,7 +89,7 @@
                     <el-upload v-if="activeTabName=='excel'" :disabled="!label.id"
                                :action="actionUpload"
                                :on-success="afterUpload"
-                               :with-credentials="true"
+                               :headers= "headers"
                                :show-file-list="false"
                                accept=".xls,.xlsx">
                         <el-button type="success" :disabled="!label.id">导入Excel数据(.xls;.xlsx)</el-button>
@@ -290,6 +290,13 @@
             this.initGrid();
 
             this.getQuoteData();
+        },
+        computed: {
+            headers() {
+                return {
+                    token: getLocalItem("token")
+                };
+            }
         },
         methods: {
             reset() {

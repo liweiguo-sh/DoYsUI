@@ -38,6 +38,7 @@
                                accept=".png,.jpg,.jpeg,.bmp"
                                :action="actionUploadVariableImage"
                                :on-success="afterUploadVariableImage"
+                               :headers= "headers"
                                :with-credentials="true"
                                :show-file-list="false">
                         <el-button type="primary">上传图片(png/jpg/jpeg/bmp)</el-button>
@@ -63,6 +64,13 @@
 
             imageUrl: "",
             actionUploadVariableImage: ""
+        },
+        computed: {
+            headers() {
+                return {
+                    token: getLocalItem("token")
+                };
+            }
         },
         methods: {
             afterMove: function () {
