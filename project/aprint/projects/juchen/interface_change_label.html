@@ -48,7 +48,7 @@
             <el-col :span="span[1]">
                 <el-form label-width="160px" label-position="left">
                     <el-form-item label="业务单据接口">
-                        <el-select v-model="interfaceId" @change="interfaceChange" default-first-option filterable style="width:100%;">
+                        <el-select v-model="interfaceId" @change="interfaceChange" clearable default-first-option filterable style="width:100%;">
                             <el-option v-for="item in interfaces" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
                                 <span>{{ item.code }}</span>
                                 <span style="float:right;">{{ item.name }}</span>
@@ -56,7 +56,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="单据接口单号">
-                        <el-input v-model="interfaceQueryCode" :disabled="!interfaceId" placeholder="请输入单据接口查询单号...">
+                        <el-input v-model="paraValue" ref="paraValue" @keyup.enter.native="onParaValueEnter" :disabled="!interfaceId" placeholder="请输入单据接口查询单号...">
                             <!--<el-button slot="append" icon="el-icon-search"></el-button>-->
                         </el-input>
                     </el-form-item>
@@ -70,7 +70,7 @@
             <el-col :span="span[2]" style="padding-left:30px;padding-right:30px;border:solid 0px red;">
                 <el-form label-width="210px" label-position="left">
                     <el-form-item label="套标标签模板组">
-                        <el-select v-model="labelSetId" @change="onLabelSetChange" default-first-option filterable style="width:100%;">
+                        <el-select v-model="labelSetId" @change="labelSetChange" clearable default-first-option filterable style="width:100%;">
                             <el-option v-for="item in labelSets" :key="item.id" :value="item.id" :label="item.code + '    ' + item.name">
                                 <span style="float: left">{{ item.code }}</span>
                                 <span style="float: right;">{{ item.name }}</span>
@@ -110,7 +110,7 @@
                     <div class="divTitle">标签预览 <i class="el-icon-picture"></i></div>
                 </template>
                 <div id="divPreview" :style="styleDivPreview">
-                    标签列表...
+                    套标标签预览区...
                 </div>
             </el-collapse-item>
             <!-- 标签数据区 -->
@@ -146,9 +146,12 @@
             interfaces: [],                     // -- 接口列表 --
             interfaceId: null,                  // -- 接口ID --
             interface: null,                    // -- 当前接口对象 --
-            interfaceQueryCode: "",             // -- 业务接口查询单号 --
+            paraCode: "",                       // -- 业务接口查询字段 --
+            paraValue: "",                      // -- 业务接口查询字段值 --
+            labelSetCode: "",                   // -- 套标字段名称 --
+            labelSetCodeValue: "",              // -- 套标字段值 --
             scanCodes: [                        // -- 换标扫码字段集合 --
-                
+
             ],
 
             labelSets: [],                      // -- 标签模板组集合(id, code, name, qty0, qty1, qty2) --
@@ -159,7 +162,6 @@
             autoPrint: true,                    // -- 自动打印 --
             autoCalc: true,                     // -- 自动打印尾箱 --
 
-
             printers: [],                       // -- 打印机数组 --
             styleDivPreview: "border:solid 0px red;"
         },
@@ -167,7 +169,8 @@
             ajax.send("/aprint/print/quick/getInterfaces", {}).then(res => {
                 this.interfaces = res.interfaces;
                 if (this.interfaces.length == 1) {
-                    // this.interfaceId = this.interfaces[0].id;
+                    this.interfaceId = this.interfaces[0].id;
+                    this.interfaceChange();
                 }
             });
             ajax.send("/aprint/print/interface_change/getLabelSetList", {}).then((res) => {
@@ -193,8 +196,17 @@
 
             interfaceChange() {
                 ajax.send("/aprint/juchen/getInterfaceById", { interfaceId: this.interfaceId }).then(res => {
-                    this.interface = res.interface;
+                    this.clearLabelSet();
 
+                    this.interface = res.interface;
+                    this.paraCode = this.interface.para_code;
+                    this.labelSetCode = this.interface.label_set_code;
+                    this.labelSetCodeValue = "";
+                    this.paraCode = this.interface.para_code;
+                    this.paraValue = "MT-2108006";
+                    this.$refs.paraValue.focus();                    
+
+                    // ------------------------------------
                     let scanCodes = [];
                     let scanFields = res.scanFields;
                     if (scanFields.length > 0) {
@@ -212,16 +224,51 @@
                     }
                 });
             },
+            async onParaValueEnter() {
+                let dataPOST = {
+                    interfaceId: this.interfaceId, 
+                    paraValue: this.paraValue
+                }
+                let res = await ajax.send("/aprint/juchen/queryInterfaceData", dataPOST);
+                let dtbItem = res.dtbItem;
+                if (dtbItem.rowCount == 0) {
+                    topWin.message("没有查询到符合条件的接口数据。", "error");
+                    return;
+                }
 
-            async onLabelSetChange() {
+                let labelSetId;
+                let labelSetCodeValue = dtbItem.rows[0][this.labelSetCode].value;
                 for (let i = 0; i < this.labelSets.length; i++) {
-                    if (this.labelSets[i].id == this.labelSetId) {
-                        this.labelSet = this.labelSets[i];
+                    if (this.labelSets[i].code.equals(labelSetCodeValue)) {
+                        labelSetId = this.labelSets[i].id;
                         break;
                     }
                 }
+                if (!labelSetId) return;
+                this.labelSetId = labelSetId;
+                await this.labelSetChange();
+            },
 
-                await this.getLabels();
+            clearLabelSet() {
+                this.labelSetId = null;
+                this.labelSet = null;
+                this.labels = [];
+                divPreview.innerHTML = "套标标签预览区...";
+            },
+            async labelSetChange() {
+                if (this.labelSetId) {
+                    for (let i = 0; i < this.labelSets.length; i++) {
+                        if (this.labelSets[i].id == this.labelSetId) {
+                            this.labelSet = this.labelSets[i];
+                            break;
+                        }
+                    }
+
+                    await this.getLabels();
+                }
+                else {
+                    this.clearLabelSet();
+                }
             },
             async getLabels() {
                 let res = await ajax.send("/aprint/print/interface_change/getLabelList", { labelSetId: this.labelSetId });
@@ -231,13 +278,13 @@
 
             },
             async initLabels() {
-                await this.createIFrames(); 
+                await this.createIFrames();
                 for (let i = 0; i < this.labels.length; i++) {
                     let iframe = this.labels[i].iframe;
 
                     iframe.src = g.path.framework + "/control/DLabel/form/preview.html?summary=0&v=" + top.jsVer;
                     iframe.addEventListener("load", function (evt) {
-                        // -- 获取 Label控件 实例 -- 
+                        // -- 获取 Label控件 实例 --
                         let label = app.labels[iframe.labelIndex];
                         let lbl = iframe.contentWindow.getLabel();
                         lbl.loadLabel(label.content, { designMode: false });
@@ -272,7 +319,7 @@
                     let idIfr = "ifr_" + label.id;
                     let ifr = gId(idIfr);
 
-                    
+
                     ifr.labelIndex = i;
                     ifr.style.width = (ifr.parentElement.clientWidth - 30) + "px";
                     ifr.style.height = ifr.offsetWidth * (label.height / label.width) + "px";
