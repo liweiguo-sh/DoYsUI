@@ -99,6 +99,9 @@
                     <el-form-item label="">
                         <el-checkbox v-model="autoCalc">自动计算尾箱</el-checkbox>
                     </el-form-item>
+                    <el-form-item label="">
+                        总件数：{{itemCount}}，箱号：{{boxNo}} / {{boxCount}}
+                    </el-form-item>
                 </el-form>
             </el-col>
         </el-row>
@@ -158,6 +161,11 @@
             labelSetId: null,                   // -- 标签模板组ID --
             labelSet: null,                     // -- 标签模板对象 --
             labels: [],                         // -- 标签模板集合 --
+
+            dtbItem: null,                      // -- 接口数据记录集 --
+            itemCount: null,                    // -- 总件数 --
+            boxNo: null,                        // -- 第几箱 --
+            boxCount: null,                     // -- 总箱数 --
 
             autoPrint: true,                    // -- 自动打印 --
             autoCalc: true,                     // -- 自动打印尾箱 --
@@ -230,14 +238,14 @@
                     paraValue: this.paraValue
                 }
                 let res = await ajax.send("/aprint/juchen/queryInterfaceData", dataPOST);
-                let dtbItem = res.dtbItem;
-                if (dtbItem.rowCount == 0) {
+                this.dtbItem = res.dtbItem;
+                if (this.dtbItem.rowCount == 0) {
                     topWin.message("没有查询到符合条件的接口数据。", "error");
                     return;
                 }
 
                 let labelSetId;
-                let labelSetCodeValue = dtbItem.rows[0][this.labelSetCode].value;
+                let labelSetCodeValue = this.dtbItem.rows[0][this.labelSetCode].value;
                 for (let i = 0; i < this.labelSets.length; i++) {
                     if (this.labelSets[i].code.equals(labelSetCodeValue)) {
                         labelSetId = this.labelSets[i].id;
@@ -247,6 +255,10 @@
                 if (!labelSetId) return;
                 this.labelSetId = labelSetId;
                 await this.labelSetChange();
+
+                this.itemCount = this.dtbItem.rowCount;
+                this.boxNo = 1;
+                this.boxCount = Math.ceil(this.itemCount / this.labelSet.qty0);
             },
 
             clearLabelSet() {
