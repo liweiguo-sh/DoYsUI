@@ -62,8 +62,8 @@
                     </el-form-item>
 
                     <hr />
-                    <el-form-item v-for="item in scanCodes" :label="item.text">
-                        <el-input v-model="item.value" :ref="'_sc_' + item.name"></el-input>
+                    <el-form-item v-for="(item,index) in scanCodes" :label="item.text">
+                        <el-input v-model="item.value" :ref="'_sc_' + index" @keyup.enter.native="onBarcodeScan(index)"></el-input>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -94,13 +94,13 @@
                         <el-button @click="manualPrint(0)" type="primary" plain>打 印</el-button>
                     </el-form-item>
                     <el-form-item label="">
+                        <el-button @click="resetPackData" type="warning" plain>重置包装数据</el-button>
+                    </el-form-item>
+                    <el-form-item label="">
                         <el-checkbox v-model="autoPrint">自动打印</el-checkbox>
                     </el-form-item>
                     <el-form-item label="">
                         <el-checkbox v-model="autoCalc">自动计算尾箱</el-checkbox>
-                    </el-form-item>
-                    <el-form-item label="">
-                        总件数：{{itemCount}}，箱号：{{boxNo}} / {{boxCount}}
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -117,17 +117,43 @@
                 </div>
             </el-collapse-item>
             <!-- 标签数据区 -->
-            <el-collapse-item name="grid">
+            <el-collapse-item name="gridScan">
                 <template slot="title">
-                    <div class="divTitle">标签数据 <i class="el-icon-s-data"></i></div>
+                    <div class="divTitle">扫码装箱数据 <i class="el-icon-s-help"></i></div>
                 </template>
                 <el-row>
                     <el-col :span="12">
-                        <sub-view id="gridPack" ref="gridPack" style="height:350px;"></sub-view>
+                        <el-row style="margin-bottom:10px;">
+                            <el-button @click="printItem" type="primary">打印单品标签</el-button>
+                        </el-row>
+                        <el-table :data="dataForPack" style="width:100%">
+                            <el-table-column prop="$row_no" label="行号" width="70"></el-table-column>
+                            <el-table-column v-for="item in scanCodes" :prop="item.name" :label="item.text" width="180"></el-table-column>
+                        </el-table>
                     </el-col>
                     <el-col :span="12">
-                        <sub-view id="gridProduct" ref="gridProduct" style="height:350px;"></sub-view>
+                        <el-row style="margin-bottom:10px;">
+                            当前箱号：
+                            <el-input v-model="packIndex" style="width:55px;"></el-input>
+                            /
+                            <el-input v-model="packCount" style="width:55px;" :disabled="true"></el-input>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <el-button @click="printPack" type="success">打印外箱标签</el-button>
+                        </el-row>
+                        <el-table :data="dataPacking" style="width:100%">
+                            <el-table-column prop="$row_no" label="行号" width="70"></el-table-column>
+                            <el-table-column v-for="item in scanCodes" :prop="item.name" :label="item.text" width="180"></el-table-column>
+                        </el-table>
                     </el-col>
+                </el-row>
+            </el-collapse-item>
+            <!-- 接口单据数据区 -->
+            <el-collapse-item name="gridAll">
+                <template slot="title">
+                    <div class="divTitle">接口单据数据 <i class="el-icon-s-data"></i></div>
+                </template>
+                <el-row>
+                    <sub-view id="gridAll" ref="gridAll" style="height:540px;"></sub-view>
                 </el-row>
             </el-collapse-item>
         </el-collapse>
@@ -141,10 +167,10 @@
         el: '#app',
         data: {
             span: [24, 9, 9, 6],
-            activeNames: ["preview", "grid"],
+            //activeNames: ["preview", "gridScan", "gridAll"],
+            activeNames: ["gridScan", "gridAll"],
             stylePrinter: "width:200px",
             styleCopies: "width:100px",
-
 
             interfaces: [],                     // -- 接口列表 --
             interfaceId: null,                  // -- 接口ID --
@@ -156,6 +182,10 @@
             scanCodes: [                        // -- 换标扫码字段集合 --
 
             ],
+            dataForPack: [],                    // -- 待装箱记录集 --
+            dataPacking: [],                    // -- 正在装箱记录集 --
+            packIndex: 0,                       // -- 当前箱号 --
+            packCount: 0,                       // -- 当前箱号 --
 
             labelSets: [],                      // -- 标签模板组集合(id, code, name, qty0, qty1, qty2) --
             labelSetId: null,                   // -- 标签模板组ID --
@@ -164,8 +194,6 @@
 
             dtbItem: null,                      // -- 接口数据记录集 --
             itemCount: null,                    // -- 总件数 --
-            boxNo: null,                        // -- 第几箱 --
-            boxCount: null,                     // -- 总箱数 --
 
             autoPrint: true,                    // -- 自动打印 --
             autoCalc: true,                     // -- 自动打印尾箱 --
@@ -201,6 +229,16 @@
                 }
                 topWin.message(labelId, "success");
             },
+            resetPackData() {
+                let dataPOST = {
+                    interfaceId: this.interfaceId,
+                    paraCode: this.paraCode,
+                    paraValue: this.paraValue
+                };
+                ajax.send("/aprint/juchen/resetPackData", dataPOST).then(res => {
+                    this.onParaValueEnter();
+                });
+            },
 
             interfaceChange() {
                 ajax.send("/aprint/juchen/getInterfaceById", { interfaceId: this.interfaceId }).then(res => {
@@ -212,7 +250,7 @@
                     this.labelSetCodeValue = "";
                     this.paraCode = this.interface.para_code;
                     this.paraValue = "MT-2108006";
-                    this.$refs.paraValue.focus();                    
+                    this.$refs.paraValue.focus();
 
                     // ------------------------------------
                     let scanCodes = [];
@@ -234,7 +272,7 @@
             },
             async onParaValueEnter() {
                 let dataPOST = {
-                    interfaceId: this.interfaceId, 
+                    interfaceId: this.interfaceId,
                     paraValue: this.paraValue
                 }
                 let res = await ajax.send("/aprint/juchen/queryInterfaceData", dataPOST);
@@ -257,8 +295,91 @@
                 await this.labelSetChange();
 
                 this.itemCount = this.dtbItem.rowCount;
-                this.boxNo = 1;
-                this.boxCount = Math.ceil(this.itemCount / this.labelSet.qty0);
+                this.initGridAll();
+                this.$refs["_sc_0"][0].focus();
+                this.dataForPack = [];
+                this.dataPacking = [];
+                this.packIndex = 1;
+                this.packCount = Math.ceil(this.itemCount / this.labelSet.qty0);
+            },
+            onBarcodeScan(index, a, b) {
+                if (index < this.scanCodes.length - 1) {
+                    this.$refs["_sc_" + (index + 1)][0].focus();
+                }
+
+                let matchCount = 0;
+                let dataForPack = [];
+                for (let i = 0; i < this.dtbItem.rowCount; i++) {
+                    let dataRow = this.dtbItem.rows[i];
+                    if (dataRow["$pack_index"].value > 0) continue;
+
+                    let match = true;
+                    let data = {
+                        $id: dataRow["$id"].value,
+                        $row_no: dataRow["$row_no"].value
+                    };
+                    for (let j = 0; j < this.scanCodes.length; j++) {
+                        let scanCode = this.scanCodes[j];
+                        if (scanCode.value) {
+                            let value = dataRow[scanCode.name].value;
+                            if (!scanCode.value.equals(value)) {
+                                match = false;
+                                break;
+                            }
+                        }
+                        data[scanCode.name] = dataRow[scanCode.name].value;
+                    }
+                    if (match) {
+                        matchCount++;
+                        dataForPack.push(data);
+                    }
+                }
+                this.dataForPack = dataForPack;
+                if (matchCount == 0) {
+                    topWin.message("没有符合条件的数据行。", "error");
+                }
+            },
+            printItem() {
+                if (this.dataForPack.length == 0) {
+                    topWin.message("没有符合条件的待装箱数据，请检查。", "error");
+                }
+
+                let row = this.dataForPack[0];
+                let rowNo = row["$row_no"].toInt();
+                for (let i = 0; i < this.dtbItem.rowCount; i++) {
+                    if (this.dtbItem.rows[i]["$row_no"].value == rowNo) {
+                        this.dtbItem.rows[i]["$pack_index"].value = this.packIndex;
+                        break;
+                    }
+                }
+
+                row = this.dataForPack.shift();
+                this.dataPacking.push(row);
+
+                this.resetScan();
+            },
+            printPack() {
+                if (this.dataPacking.length == 0) {
+                    topWin.message("没有装箱记录明细，不能打印箱标，请检查。");
+                    return;
+                }
+
+                let ids = [];
+                for (let i = 0; i < this.dataPacking.length; i++) {
+                    ids.push(this.dataPacking[i].$id);
+                }
+
+                let dataPOST = {
+                    interfaceId: this.interfaceId,
+                    packIndex: this.packIndex,
+                    ids : ids
+                };
+                ajax.send("/aprint/juchen/savePackIndex", dataPOST).then(res => {
+                    debugger
+                    debugger
+
+                    this.packIndex++;
+                });
             },
 
             clearLabelSet() {
@@ -306,6 +427,12 @@
                 }
             },
             async createIFrames() {
+                let includePreview = this.activeNames.includes("preview");
+                if (!includePreview) {
+                    this.activeNames.push("preview");
+                    await sleep(10);
+                }
+
                 let widthAll = 0;
                 for (let i = 0; i < this.labels.length; i++) {
                     let label = this.labels[i];
@@ -338,6 +465,29 @@
 
                     label.iframe = ifr;
                 }
+
+                //setTimeout("app.activeNames.pop();", 100);
+            },
+
+            initGridAll() {
+                var para = {
+                    viewPk: "x_idata_juchen",
+                    controller: "/aprint/project/juchen/x_idata_juchen_view",
+                    filter: this.paraCode + " = '" + this.paraValue + "'",
+                    extUserDef: {
+                        interfaceId: this.interfaceId
+                    }
+                }
+                this.$refs.gridAll.init(para);
+            },
+            resetScan() {
+                for (let i = 0; i < this.scanCodes.length; i++) {
+                    let scanCode = this.scanCodes[i];
+                    scanCode.value = ""; 
+                }
+
+                this.$refs["_sc_0"][0].focus();
+                this.dataForPack = [];
             }
         }
     });
