@@ -107,15 +107,6 @@
         </el-row>
 
         <el-collapse v-model="activeNames">
-            <!-- 标签预览区 -->
-            <el-collapse-item name="preview">
-                <template slot="title">
-                    <div class="divTitle">标签预览 <i class="el-icon-picture"></i></div>
-                </template>
-                <div id="divPreview" :style="styleDivPreview">
-                    套标标签预览区...
-                </div>
-            </el-collapse-item>
             <!-- 标签数据区 -->
             <el-collapse-item name="gridScan">
                 <template slot="title">
@@ -124,7 +115,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-row style="margin-bottom:10px;">
-                            <el-button @click="printItem" type="primary">打印单品标签</el-button>
+                            <el-button @click="printItem" type="primary" :disabled="!labelSetId">打印单品标签</el-button>
                         </el-row>
                         <el-table :data="dataForPack" style="width:100%">
                             <el-table-column prop="$row_no" label="行号" width="70"></el-table-column>
@@ -134,11 +125,11 @@
                     <el-col :span="12">
                         <el-row style="margin-bottom:10px;">
                             当前箱号：
-                            <el-input v-model="packIndex" style="width:55px;"></el-input>
+                            <el-input v-model="packIndex" @change="checkPackIndex" @keyup.enter.native="onPackIndexEnter" style="width:55px;"></el-input>
                             /
                             <el-input v-model="packCount" style="width:55px;" :disabled="true"></el-input>
                             &nbsp;&nbsp;&nbsp;&nbsp;
-                            <el-button @click="printPack" type="success">打印外箱标签</el-button>
+                            <el-button @click="printPack" type="success" :disabled="!labelSetId || dataPacking.length==0">打印外箱标签</el-button>
                         </el-row>
                         <el-table :data="dataPacking" style="width:100%">
                             <el-table-column prop="$row_no" label="行号" width="70"></el-table-column>
@@ -146,6 +137,15 @@
                         </el-table>
                     </el-col>
                 </el-row>
+            </el-collapse-item>
+            <!-- 标签预览区 -->
+            <el-collapse-item name="preview">
+                <template slot="title">
+                    <div class="divTitle">标签预览 <i class="el-icon-picture"></i></div>
+                </template>
+                <div id="divPreview" :style="styleDivPreview">
+                    套标标签预览区...
+                </div>
             </el-collapse-item>
             <!-- 接口单据数据区 -->
             <el-collapse-item name="gridAll">
@@ -168,7 +168,7 @@
         data: {
             span: [24, 9, 9, 6],
             //activeNames: ["preview", "gridScan", "gridAll"],
-            activeNames: ["gridScan", "gridAll"],
+            activeNames: ["gridScan", "preview", "gridAll"],
             stylePrinter: "width:200px",
             styleCopies: "width:100px",
 
@@ -279,6 +279,7 @@
                 this.dtbItem = res.dtbItem;
                 if (this.dtbItem.rowCount == 0) {
                     topWin.message("没有查询到符合条件的接口数据。", "error");
+                    this.labelSetId = null;
                     return;
                 }
 
@@ -342,6 +343,10 @@
             printItem() {
                 if (this.dataForPack.length == 0) {
                     topWin.message("没有符合条件的待装箱数据，请检查。", "error");
+                    return;
+                }
+                if (!this.checkPackIndex()) {
+                    return;
                 }
 
                 let row = this.dataForPack[0];
@@ -349,14 +354,13 @@
                 for (let i = 0; i < this.dtbItem.rowCount; i++) {
                     if (this.dtbItem.rows[i]["$row_no"].value == rowNo) {
                         this.dtbItem.rows[i]["$pack_index"].value = this.packIndex;
+                        this.dtbItem.rows[i]["$pack_seq"].value = this.dataPacking.length + 1;
                         break;
                     }
                 }
 
-                row = this.dataForPack.shift();
-                this.dataPacking.push(row);
-
                 this.resetScan();
+                this.fillDataPacking();
             },
             printPack() {
                 if (this.dataPacking.length == 0) {
@@ -364,22 +368,24 @@
                     return;
                 }
 
-                let ids = [];
-                for (let i = 0; i < this.dataPacking.length; i++) {
-                    ids.push(this.dataPacking[i].$id);
+                let dataPOST = {
+                    interfaceId: this.interfaceId,                    
+                    dataPacking: this.dataPacking,
+                    packIndex: this.packIndex
+                };
+                ajax.send("/aprint/juchen/savePacking", dataPOST).then(res => {
+                    this.packIndex++;
+
+                    this.fillDataPacking();
+                    this.refreshGridAll();
+                });
+            },
+            onPackIndexEnter() {
+                if (!this.checkPackIndex()) {
+                    return;
                 }
 
-                let dataPOST = {
-                    interfaceId: this.interfaceId,
-                    packIndex: this.packIndex,
-                    ids : ids
-                };
-                ajax.send("/aprint/juchen/savePackIndex", dataPOST).then(res => {
-                    debugger
-                    debugger
-
-                    this.packIndex++;
-                });
+                this.fillDataPacking();
             },
 
             clearLabelSet() {
@@ -480,14 +486,68 @@
                 }
                 this.$refs.gridAll.init(para);
             },
+            refreshGridAll() {
+                this.$refs.gridAll.setFilter(this.paraCode + " = '" + this.paraValue + "'");
+            },
             resetScan() {
                 for (let i = 0; i < this.scanCodes.length; i++) {
                     let scanCode = this.scanCodes[i];
-                    scanCode.value = ""; 
+                    scanCode.value = "";
                 }
 
                 this.$refs["_sc_0"][0].focus();
                 this.dataForPack = [];
+            },
+            checkPackIndex() {
+                let blResult = true;
+                this.packIndex = this.packIndex.toInt();
+                if (this.packIndex <= 0) {
+                    topWin.message("请输入正确的箱号。", "error");
+                    blResult = false;
+                }
+
+                let maxPackIndex = 0;
+                for (let i = 0; i < this.dtbItem.rowCount; i++) {
+                    maxPackIndex = Math.max(maxPackIndex, this.dtbItem.rows[i]["$pack_index"].value);
+                }
+                if (this.packIndex > maxPackIndex + 1) {
+                    topWin.message("输入的箱号不能大于当前箱号，请检查。", "error");
+                    
+                    blResult = false;
+                }
+
+                if (!blResult) {
+                    this.packIndex = 0;
+                    this.dataPacking = [];
+                }
+                return blResult;
+            },
+            fillDataPacking() {
+                let dataPacking = [];
+                let packIndex = this.packIndex.toInt();
+
+                for (let i = 0; i < this.dtbItem.rowCount; i++) {
+                    let dataRow = this.dtbItem.rows[i];
+                    if (dataRow["$pack_index"].value == packIndex) {
+                        let row = {
+                            "$id": dataRow["$id"].value,
+                            "$row_no": dataRow["$row_no"].value,
+                            "$pack_seq": dataRow["$pack_seq"].value
+                        };
+                        for (let j = 0; j < this.scanCodes.length; j++) {
+                            let scanCode = this.scanCodes[j];
+                            row[scanCode.name] = dataRow[scanCode.name].value;
+                        }
+                        dataPacking.push(row);
+                    }
+                }
+
+                // -- 按照pack_seq倒序排序 --
+                dataPacking.sort(function (a, b) {
+                    return b["$pack_seq"] - a["$pack_seq"];
+                });
+
+                this.dataPacking = dataPacking;
             }
         }
     });

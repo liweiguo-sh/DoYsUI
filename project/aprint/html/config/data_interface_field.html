@@ -90,6 +90,7 @@
                 this.form.flag_ux = false;
             },
             beforeSave: function () {
+                this.form.name = this.form.name.toLowerCase();
                 return true;
             }
         }
