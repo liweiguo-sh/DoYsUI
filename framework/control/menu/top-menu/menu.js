@@ -72,5 +72,6 @@ function dtbMenuToJson(dtbMenu, nodeKeyParent) {
             menus.push(menu);
         }
     }
+
     return menus;
 }

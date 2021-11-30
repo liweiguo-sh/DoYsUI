@@ -91,16 +91,7 @@
             <el-col :span="span[3]">
                 <el-form label-width="5px" label-position="left">
                     <el-form-item label="">
-                        <el-button @click="manualPrint(0)" type="primary" plain>打 印</el-button>
-                    </el-form-item>
-                    <el-form-item label="">
-                        <el-button @click="resetPackData" type="warning" plain>重置包装数据</el-button>
-                    </el-form-item>
-                    <el-form-item label="">
-                        <el-checkbox v-model="autoPrint">自动打印</el-checkbox>
-                    </el-form-item>
-                    <el-form-item label="">
-                        <el-checkbox v-model="autoCalc">自动计算尾箱</el-checkbox>
+                        <el-button @click="resetPackData" type="warning" plain>重置装箱数据</el-button>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -116,6 +107,7 @@
                     <el-col :span="12">
                         <el-row style="margin-bottom:10px;">
                             <el-button @click="printItem" type="primary" :disabled="!labelSetId">打印单品标签</el-button>
+                            <el-checkbox v-model="autoPrint">自动打印</el-checkbox>
                         </el-row>
                         <el-table :data="dataForPack" style="width:100%">
                             <el-table-column prop="$row_no" label="行号" width="70"></el-table-column>
@@ -125,7 +117,7 @@
                     <el-col :span="12">
                         <el-row style="margin-bottom:10px;">
                             当前箱号：
-                            <el-input v-model="packIndex" @change="checkPackIndex" @keyup.enter.native="onPackIndexEnter" style="width:55px;"></el-input>
+                            <el-input v-model="packIndex" @change="onPackIndexEnter" @keyup.enter.native="onPackIndexEnter" style="width:55px;"></el-input>
                             /
                             <el-input v-model="packCount" style="width:55px;" :disabled="true"></el-input>
                             &nbsp;&nbsp;&nbsp;&nbsp;
@@ -195,8 +187,7 @@
             dtbItem: null,                      // -- 接口数据记录集 --
             itemCount: null,                    // -- 总件数 --
 
-            autoPrint: true,                    // -- 自动打印 --
-            autoCalc: true,                     // -- 自动打印尾箱 --
+            autoPrint: false,                   // -- 自动打印 --
 
             printers: [],                       // -- 打印机数组 --
             styleDivPreview: "border:solid 0px red;"
@@ -227,7 +218,6 @@
                         copies: label.copies
                     });
                 }
-                topWin.message(labelId, "success");
             },
             resetPackData() {
                 let dataPOST = {
@@ -300,7 +290,7 @@
                 this.$refs["_sc_0"][0].focus();
                 this.dataForPack = [];
                 this.dataPacking = [];
-                this.packIndex = 1;
+                this.packIndex = this.getPackIndex() + 1;
                 this.packCount = Math.ceil(this.itemCount / this.labelSet.qty0);
             },
             onBarcodeScan(index, a, b) {
@@ -352,15 +342,47 @@
                 let row = this.dataForPack[0];
                 let rowNo = row["$row_no"].toInt();
                 for (let i = 0; i < this.dtbItem.rowCount; i++) {
-                    if (this.dtbItem.rows[i]["$row_no"].value == rowNo) {
-                        this.dtbItem.rows[i]["$pack_index"].value = this.packIndex;
-                        this.dtbItem.rows[i]["$pack_seq"].value = this.dataPacking.length + 1;
+                    let dataRow = this.dtbItem.rows[i];
+                    if (dataRow["$row_no"].value == rowNo) {
+                        dataRow["$pack_index"].value = this.packIndex;
+                        dataRow["$pack_seq"].value = this.dataPacking.length + 1;
+
+                        this.printItemLabel(dataRow, {
+                            printToPrinter: this.autoPrint
+                        });
                         break;
                     }
                 }
 
                 this.resetScan();
                 this.fillDataPacking();
+            },
+            printItemLabel(dataRow, jsp = { printToPrinter: false }) {                
+                for (let i = 0; i < this.labels.length; i++) {
+                    let label = this.labels[i];
+                    if (label.level != 0) continue;
+                    
+                    let lbl = label.lbl;
+                    for (let j = 0; j < this.dtbItem.columnCount; j++) {
+                        let columnName = this.dtbItem.columns[j].name;
+                        if (columnName.startsWith("$")) continue;
+                        let columnValue = dataRow[columnName].value;
+
+                        lbl.setValue(columnName, columnValue, true);
+                    }
+                    lbl.compute(true);
+
+                    if (jsp.printToPrinter) {
+                        lbl.print({
+                            data: [lbl.getData()],
+                            printerName: label.printer_name,
+                            copies: label.copies
+                        });
+                    }
+                }
+                if (!jsp.printToPrinter) {
+                    topWin.message("标签模拟打印完成。", "success");
+                }
             },
             printPack() {
                 if (this.dataPacking.length == 0) {
@@ -369,7 +391,7 @@
                 }
 
                 let dataPOST = {
-                    interfaceId: this.interfaceId,                    
+                    interfaceId: this.interfaceId,
                     dataPacking: this.dataPacking,
                     packIndex: this.packIndex
                 };
@@ -439,24 +461,33 @@
                     await sleep(10);
                 }
 
-                let widthAll = 0;
-                for (let i = 0; i < this.labels.length; i++) {
-                    let label = this.labels[i];
+                let arrHtml = [];                
+                for (let level = 0; level < 2; level++) {
+                    arrHtml.push("<table class='tbIframe'><tr>")
+                    let widthAll = 0;
+                    for (let i = 0; i < this.labels.length; i++) {
+                        let label = this.labels[i];
+                        if (label.level != level) continue;
 
-                    widthAll += label.width;
+                        widthAll += label.width;
+                    }
+
+                    let widthRemain = 100;
+                    for (let i = 0; i < this.labels.length; i++) {
+                        let label = this.labels[i];
+                        if (label.level != level) continue;
+
+                        label.widthPercent = Math.min(100 * label.width / widthAll, 50);
+                        widthRemain -= label.widthPercent;
+                        arrHtml.push("<td class='tdIframe' style='width:" + label.widthPercent + "%'>");
+                        arrHtml.push("<iframe id='ifr_" + label.id + "' class='ifrLabel'></iframe>")
+                        arrHtml.push("</td > ");
+                    }
+                    if (widthRemain > 5) {
+                        arrHtml.push("<td class='tdIframe' style='width:" + widthRemain + "%'>占位<td>");
+                    }
+                    arrHtml.push("</tr></table>");
                 }
-
-                let arrHtml = [];
-                arrHtml.push("<table class='tbIframe'><tr>")
-                for (let i = 0; i < this.labels.length; i++) {
-                    let label = this.labels[i];
-
-                    label.widthPercent = 100 * label.width / widthAll;
-                    arrHtml.push("<td class='tdIframe' style='width:" + label.widthPercent + "%'>");
-                    arrHtml.push("<iframe id='ifr_" + label.id + "' class='ifrLabel'></iframe>")
-                    arrHtml.push("</td > ");
-                }
-                arrHtml.push("</tr></table>")
                 divPreview.innerHTML = arrHtml.join("");
 
                 for (let i = 0; i < this.labels.length; i++) {
@@ -464,31 +495,14 @@
                     let idIfr = "ifr_" + label.id;
                     let ifr = gId(idIfr);
 
-
                     ifr.labelIndex = i;
                     ifr.style.width = (ifr.parentElement.clientWidth - 30) + "px";
                     ifr.style.height = ifr.offsetWidth * (label.height / label.width) + "px";
 
                     label.iframe = ifr;
                 }
-
-                //setTimeout("app.activeNames.pop();", 100);
             },
 
-            initGridAll() {
-                var para = {
-                    viewPk: "x_idata_juchen",
-                    controller: "/aprint/project/juchen/x_idata_juchen_view",
-                    filter: this.paraCode + " = '" + this.paraValue + "'",
-                    extUserDef: {
-                        interfaceId: this.interfaceId
-                    }
-                }
-                this.$refs.gridAll.init(para);
-            },
-            refreshGridAll() {
-                this.$refs.gridAll.setFilter(this.paraCode + " = '" + this.paraValue + "'");
-            },
             resetScan() {
                 for (let i = 0; i < this.scanCodes.length; i++) {
                     let scanCode = this.scanCodes[i];
@@ -506,13 +520,10 @@
                     blResult = false;
                 }
 
-                let maxPackIndex = 0;
-                for (let i = 0; i < this.dtbItem.rowCount; i++) {
-                    maxPackIndex = Math.max(maxPackIndex, this.dtbItem.rows[i]["$pack_index"].value);
-                }
+                let maxPackIndex = this.getPackIndex();
                 if (this.packIndex > maxPackIndex + 1) {
                     topWin.message("输入的箱号不能大于当前箱号，请检查。", "error");
-                    
+
                     blResult = false;
                 }
 
@@ -521,6 +532,13 @@
                     this.dataPacking = [];
                 }
                 return blResult;
+            },
+            getPackIndex() {
+                let maxPackIndex = 0;
+                for (let i = 0; i < this.dtbItem.rowCount; i++) {
+                    maxPackIndex = Math.max(maxPackIndex, this.dtbItem.rows[i]["$pack_index"].value);
+                }
+                return maxPackIndex;
             },
             fillDataPacking() {
                 let dataPacking = [];
@@ -548,6 +566,21 @@
                 });
 
                 this.dataPacking = dataPacking;
+            },
+
+            initGridAll() {
+                var para = {
+                    viewPk: "x_idata_juchen",
+                    controller: "/aprint/project/juchen/x_idata_juchen_view",
+                    filter: this.paraCode + " = '" + this.paraValue + "'",
+                    extUserDef: {
+                        interfaceId: this.interfaceId
+                    }
+                }
+                this.$refs.gridAll.init(para);
+            },
+            refreshGridAll() {
+                this.$refs.gridAll.setFilter(this.paraCode + " = '" + this.paraValue + "'");
             }
         }
     });
