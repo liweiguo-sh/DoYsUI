@@ -132,7 +132,20 @@ String.prototype.toDateByFromat = function (format = "yyyy-MM-dd") {
             day = parseInt(this.substring(start, start + 2));
         }
 
-        dateResult = new Date(year, month - 1, day);
+        start = format.indexOf("ww");
+        if (start >= 0) {
+            let ww = parseInt(this.substring(start, start + 2));
+            let dateFirstDayOfYear = new Date(year, 0, 1);
+            let firstDays = dateFirstDayOfYear.getDay();
+
+            if (firstDays <= 4) {   // -- 第一周包含周四 --
+                ww = ww - 1;
+            }
+            dateResult = dateFirstDayOfYear.add(ww * 7 - firstDays + 1, "day");
+        }
+        else {
+            dateResult = new Date(year, month - 1, day);
+        }
         return dateResult;
     }
     catch (e) {
@@ -156,19 +169,22 @@ Date.prototype.toStr = function (format = "yyyy-MM-dd") {
 Date.prototype.toString = function (format = "yyyy-MM-dd HH:mm:ss") {
     ///<summary>日期时间对象格式化，默认返回 yyyy-MM-dd，除年份外，不支持短格式 </summary>
     ///<param name="format">参数格式：yyyy-MM-dd HH:mm:ss.ms </param>
-    var strReturn = format ? format : "yyyy-MM-dd";
+    let MMMMs = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    let strReturn = format ? format : "yyyy-MM-dd";
 
-    var YEAR = this.getFullYear().toString();
-    var MONTH = ("0" + (this.getMonth() + 1)).right(2);
-    var DAY = ("0" + this.getDate()).right(2);
+    let YEAR = this.getFullYear().toString();
+    let MONTH = ("0" + (this.getMonth() + 1)).right(2);
+    let MMMM = MMMMs[this.getMonth()];
+    let DAY = ("0" + this.getDate()).right(2);
 
-    var HOURS = ("0" + this.getHours()).right(2);
-    var MINUTES = ("0" + this.getMinutes()).right(2);
-    var SECONDS = ("0" + this.getSeconds()).right(2);
-    var MILLISECONDS = ("00" + this.getMilliseconds()).right(3);
+    let HOURS = ("0" + this.getHours()).right(2);
+    let MINUTES = ("0" + this.getMinutes()).right(2);
+    let SECONDS = ("0" + this.getSeconds()).right(2);
+    let MILLISECONDS = ("00" + this.getMilliseconds()).right(3);
 
     strReturn = strReturn.replace("yyyy", YEAR);
     strReturn = strReturn.replace("yy", YEAR.right(2));
+    strReturn = strReturn.replace("MMMM", MMMM);
     strReturn = strReturn.replace("MM", MONTH);
     strReturn = strReturn.replace("dd", DAY);
 

@@ -100,7 +100,7 @@
                         <el-button type="primary" :disabled="!taskId" icon="el-icon-more" circle></el-button>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="toSupplier" icon="el-icon-full-screen">分发任务至供应商</el-dropdown-item>
-                            <el-dropdown-item v-show="false" command="exportData" icon="el-icon-full-screen">导出数据</el-dropdown-item>
+                            <el-dropdown-item command="exportData" icon="el-icon-full-screen" :disabled="true">导出数据</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                     <div class="divPlaceholder"></div>

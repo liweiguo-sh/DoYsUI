@@ -93,6 +93,9 @@
                     <el-form-item label="">
                         <el-button @click="resetPackData" type="warning" plain>重置装箱数据</el-button>
                     </el-form-item>
+                    <el-form-item label="">
+                        <el-checkbox v-model="flagSimulatePrint">模拟打印</el-checkbox>
+                    </el-form-item>
                 </el-form>
             </el-col>
         </el-row>
@@ -107,7 +110,6 @@
                     <el-col :span="12">
                         <el-row style="margin-bottom:10px;">
                             <el-button @click="printItem" type="primary" :disabled="!labelSetId">打印单品标签</el-button>
-                            <el-checkbox v-model="autoPrint">自动打印</el-checkbox>
                         </el-row>
                         <el-table :data="dataForPack" style="width:100%">
                             <el-table-column prop="$row_no" label="行号" width="70"></el-table-column>
@@ -187,7 +189,7 @@
             dtbItem: null,                      // -- 接口数据记录集 --
             itemCount: null,                    // -- 总件数 --
 
-            autoPrint: false,                   // -- 自动打印 --
+            flagSimulatePrint: true,            // -- 模拟打印 --
 
             printers: [],                       // -- 打印机数组 --
             styleDivPreview: "border:solid 0px red;"
@@ -272,6 +274,7 @@
                     this.labelSetId = null;
                     return;
                 }
+                this.dtbItem.sort("$row_no");
 
                 let labelSetId;
                 let labelSetCodeValue = this.dtbItem.rows[0][this.labelSetCode].value;
@@ -348,7 +351,7 @@
                         dataRow["$pack_seq"].value = this.dataPacking.length + 1;
 
                         this.printItemLabel(dataRow, {
-                            printToPrinter: this.autoPrint
+                            printToPrinter: !this.flagSimulatePrint
                         });
                         break;
                     }
@@ -357,11 +360,11 @@
                 this.resetScan();
                 this.fillDataPacking();
             },
-            printItemLabel(dataRow, jsp = { printToPrinter: false }) {                
+            printItemLabel(dataRow, jsp = { printToPrinter: false }) {
                 for (let i = 0; i < this.labels.length; i++) {
                     let label = this.labels[i];
                     if (label.level != 0) continue;
-                    
+
                     let lbl = label.lbl;
                     for (let j = 0; j < this.dtbItem.columnCount; j++) {
                         let columnName = this.dtbItem.columns[j].name;
@@ -390,6 +393,43 @@
                     return;
                 }
 
+                // -- 数据准备1 --
+                let data = {};
+                let row = this.dataPacking[0];
+                let rowNo = row["$row_no"].toInt();
+                let rowIndex = this.dtbItem.find([rowNo]);
+                let dataRow = this.dtbItem.rows[rowIndex];
+                for (let j = 0; j < this.dtbItem.columnCount; j++) {
+                    let columnName = this.dtbItem.columns[j].name;
+                    if (columnName.startsWith("$")) continue;
+                    data[columnName] = dataRow[columnName].value;
+                }
+
+                // -- 数据准备2 --
+                let totalQuantiy = 0, mfgDates = [];
+                for (let i = 0; i < this.dataPacking.length; i++) {
+                    row = this.dataPacking[i];
+                    rowNo = row["$row_no"].toInt();
+                    rowIndex = this.dtbItem.find([rowNo]);
+                    dataRow = this.dtbItem.rows[rowIndex];
+
+                    if (dataRow["dc1"].value) mfgDates.push(dataRow["dc1"].value);
+                    if (dataRow["dc2"].value) mfgDates.push(dataRow["dc2"].value);
+                    totalQuantiy += dataRow["quantity"].value.toInt();
+                }
+
+                data["consignment_date"] = (new Date()).toString("yy/MM/dd");
+                data["expired_date"] = (new Date().add(720, "day")).toString("yy/MM/dd");
+                data["total_quantiy"] = totalQuantiy;
+                mfgDates.sort();
+                data["mfg_date_min"] = mfgDates[0].toDateByFromat("yyww").toString("MMMM-dd-yyyy");
+
+                // -- 打印并保存装箱记录 --
+                this.printPackLabel(data, {
+                    printToPrinter: !this.flagSimulatePrint
+                });
+
+                return;
                 let dataPOST = {
                     interfaceId: this.interfaceId,
                     dataPacking: this.dataPacking,
@@ -401,6 +441,30 @@
                     this.fillDataPacking();
                     this.refreshGridAll();
                 });
+            },
+            printPackLabel(data, jsp = { printToPrinter: false }) {
+                for (let i = 0; i < this.labels.length; i++) {
+                    let label = this.labels[i];
+                    if (label.level != 1) continue;
+
+                    let lbl = label.lbl;
+                    for (let key in data) {
+                        let value = data[key];
+                        lbl.setValue(key, value, true);
+                    }
+                    lbl.compute(true);
+
+                    if (jsp.printToPrinter) {
+                        lbl.print({
+                            data: [lbl.getData()],
+                            printerName: label.printer_name,
+                            copies: label.copies
+                        });
+                    }
+                }
+                if (!jsp.printToPrinter) {
+                    topWin.message("外箱标签模拟打印完成。", "success");
+                }
             },
             onPackIndexEnter() {
                 if (!this.checkPackIndex()) {
@@ -461,8 +525,8 @@
                     await sleep(10);
                 }
 
-                let arrHtml = [];                
-                for (let level = 0; level < 2; level++) {
+                let arrHtml = [];
+                for (let level = 1; level >= 0; level--) {
                     arrHtml.push("<table class='tbIframe'><tr>")
                     let widthAll = 0;
                     for (let i = 0; i < this.labels.length; i++) {
