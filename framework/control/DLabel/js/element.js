@@ -854,7 +854,7 @@ UtilElement.Is1D = function (barcodeType) {
     return !UtilElement.Is2D(barcodeType);
 }
 UtilElement.Is2D = function (barcodeType) {
-    if (barcodeType.equals("QR_CODE") || barcodeType.equals("DATA_MATRIX") || barcodeType.equals("PDF_417")) {
+    if (barcodeType.equals("QR_CODE") || barcodeType.equals("DATA_MATRIX")) {
         return true;
     }
     return false;

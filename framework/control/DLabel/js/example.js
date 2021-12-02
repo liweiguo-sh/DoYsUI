@@ -968,8 +968,8 @@ DLbelExample.debug1 = function () {
     return `
 {
   "head": {
-    "width": "30",
-    "height": "20",
+    "width": 80,
+    "height": 60,
     "point": 600,
     "element_id": 3
   },
@@ -979,7 +979,7 @@ DLbelExample.debug1 = function () {
       "head": {
         "elementType": "barcode",
         "barcodeType": "CODE_128",
-        "name": "element_1"
+        "name": "element_128"
       },
       "sections": [
         {
@@ -997,61 +997,62 @@ DLbelExample.debug1 = function () {
         "name": "宋体",
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
-        "lineHeight": null,
-        "textHeight": 3.7041666666666666
+        "lineHeight": 5,
+        "textHeight": 5
       },
       "frame": {
-        "type": "",
+        "type": "rectangle",
         "width": 0,
-        "radius": 0
+        "radius": 0,
+        "fillColor": "#F11F1F"
       },
       "position": {
         "layer": 1,
-        "width": 20.92,
-        "height": 10,
+        "width": 40,
+        "height": 20,
         "textAlign": "center",
         "verticalAlign": "bottom",
-        "top": "4.75",
-        "left": "4.89",
+        "top": "5",
+        "left": "10",
         "angle": 0,
         "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 20.92,
-        "hC": 10,
+        "wC": 40,
+        "hC": 20,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 20.92,
+          "x": 40,
           "y": 0
         },
         "P3": {
-          "x": 20.92,
-          "y": 10
+          "x": 40,
+          "y": 20
         },
         "P4": {
           "x": 0,
-          "y": 10
+          "y": 20
         },
         "P15": {
-          "x": 10.46,
+          "x": 20,
           "y": 0
         },
         "P25": {
-          "x": 20.92,
-          "y": 5
+          "x": 40,
+          "y": 10
         },
         "P35": {
-          "x": 10.46,
-          "y": 10
+          "x": 20,
+          "y": 20
         },
         "P45": {
           "x": 0,
-          "y": 5
+          "y": 10
         },
         "offsetX": 0,
         "offsetY": 0,
@@ -1059,12 +1060,12 @@ DLbelExample.debug1 = function () {
         "offsetRight": 0,
         "offsetTop": 0,
         "offsetBottom": 0,
-        "clientWidth": 20.92,
-        "clientHeight": 10,
-        "leftText": 10.46,
-        "topText": 10,
-        "heightBarcode": 6.295833333333333,
-        "widthBarcode": 20.92,
+        "clientWidth": 40,
+        "clientHeight": 20,
+        "leftText": 20,
+        "topText": 20,
+        "heightBarcode": 15,
+        "widthBarcode": 40,
         "leftBarcode": 0,
         "topBarcode": 0
       },
@@ -1083,41 +1084,61 @@ DLbelExample.debug1 = function () {
     },
     {
       "head": {
-        "elementType": "shape",
-        "name": "element_2"
+        "elementType": "barcode",
+        "barcodeType": "PDF_417",
+        "name": "element_417"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ],
+      "font": {
+        "name": "宋体",
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
+        "lineHeight": 5,
+        "textHeight": 5
       },
       "frame": {
         "type": "rectangle",
-        "width": 1,
-        "color": "#D32C2C",
-        "radius": 0
+        "width": 0,
+        "radius": 0,
+        "fillColor": "#1F3EF1"
       },
       "position": {
         "layer": 1,
-        "width": 30,
+        "width": 40,
         "height": 20,
         "textAlign": "center",
-        "verticalAlign": "middle",
-        "top": "0",
-        "left": "0",
+        "verticalAlign": "bottom",
+        "top": "30",
+        "left": "10",
         "angle": 0,
         "angleR": 0,
         "marginLeft": 0,
         "marginRight": 0,
         "marginTop": 0,
         "marginBottom": 0,
-        "wC": 30,
+        "wC": 40,
         "hC": 20,
         "P1": {
           "x": 0,
           "y": 0
         },
         "P2": {
-          "x": 30,
+          "x": 40,
           "y": 0
         },
         "P3": {
-          "x": 30,
+          "x": 40,
           "y": 20
         },
         "P4": {
@@ -1125,15 +1146,15 @@ DLbelExample.debug1 = function () {
           "y": 20
         },
         "P15": {
-          "x": 15,
+          "x": 20,
           "y": 0
         },
         "P25": {
-          "x": 30,
+          "x": 40,
           "y": 10
         },
         "P35": {
-          "x": 15,
+          "x": 20,
           "y": 20
         },
         "P45": {
@@ -1142,26 +1163,44 @@ DLbelExample.debug1 = function () {
         },
         "offsetX": 0,
         "offsetY": 0,
-        "offsetLeft": 1,
-        "offsetRight": 1,
-        "offsetTop": 1,
-        "offsetBottom": 1,
-        "clientWidth": 28,
-        "clientHeight": 18
-      }
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 40,
+        "clientHeight": 20,
+        "leftText": 20,
+        "topText": 20,
+        "heightBarcode": 15,
+        "widthBarcode": 40,
+        "leftBarcode": 0,
+        "topBarcode": 0
+      },
+      "segments": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "87654321"
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ]
     }
   ],
   "page": {
-    "width": "100",
-    "height": "50",
-    "marginLeft": "2.5",
-    "marginTop": "2.5",
+    "width": 80,
+    "height": 60,
+    "marginLeft": 0,
+    "marginTop": 0,
     "marginRight": 0,
     "marginBottom": 0,
-    "rows": "2",
-    "cols": "3",
-    "horizontalSpace": "2.5",
-    "verticalSpace": "5"
+    "rows": 1,
+    "cols": 1,
+    "horizontalSpace": 0,
+    "verticalSpace": 0
   }
 }
         `;
