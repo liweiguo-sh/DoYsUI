@@ -125,7 +125,7 @@
                             &nbsp;&nbsp;&nbsp;&nbsp;
                             <el-button @click="printPack" type="success" :disabled="!labelSetId || dataPacking.length==0">打印外箱标签</el-button>
                         </el-row>
-                        <el-table :data="dataPacking" style="width:100%">
+                        <el-table :data="dataPacking" @row-click="onRowClick_dataPacking" style="width:100%">
                             <el-table-column prop="$row_no" label="行号" width="70"></el-table-column>
                             <el-table-column v-for="item in scanCodes" :prop="item.name" :label="item.text" width="180"></el-table-column>
                         </el-table>
@@ -179,7 +179,7 @@
             dataForPack: [],                    // -- 待装箱记录集 --
             dataPacking: [],                    // -- 正在装箱记录集 --
             packIndex: 0,                       // -- 当前箱号 --
-            packCount: 0,                       // -- 当前箱号 --
+            packCount: 0,                       // -- 总箱数 --
 
             labelSets: [],                      // -- 标签模板组集合(id, code, name, qty0, qty1, qty2) --
             labelSetId: null,                   // -- 标签模板组ID --
@@ -406,16 +406,42 @@
                 }
 
                 // -- 数据准备2 --
-                let totalQuantiy = 0, mfgDates = [];
+                let totalQuantiy = 0, lots = {}, mfgDates = [];
                 for (let i = 0; i < this.dataPacking.length; i++) {
                     row = this.dataPacking[i];
                     rowNo = row["$row_no"].toInt();
                     rowIndex = this.dtbItem.find([rowNo]);
                     dataRow = this.dtbItem.rows[rowIndex];
 
-                    if (dataRow["dc1"].value) mfgDates.push(dataRow["dc1"].value);
-                    if (dataRow["dc2"].value) mfgDates.push(dataRow["dc2"].value);
-                    totalQuantiy += dataRow["quantity"].value.toInt();
+                    for (let j = 1; j <= 2; j++) {
+                        let lot = dataRow["lot" + j].value;
+                        let qty = dataRow["qty" + j].value.toInt();
+                        let dc = dataRow["dc" + j].value;
+                        if (!lot) continue;
+
+                        if (lots[lot]) {
+                            lots[lot].qty += qty;
+                        }
+                        else {
+                            lots[lot] = { qty: qty, dc: dc }
+                        }
+
+                        totalQuantiy += qty;
+                        if (dc) mfgDates.push(dc);
+                    }
+                }
+
+                let i = 1;
+                for (let key in lots) {
+                    data["lot_box" + i] = key;
+                    data["qty_box" + i] = lots[key].qty;
+                    data["dc_box" + i] = lots[key].dc;
+                    i++;
+                }
+                for (; i <= 3; i++) {
+                    data["lot_box" + i] = "";
+                    data["qty_box" + i] = 0;
+                    data["dc_box" + i] = "";
                 }
 
                 data["consignment_date"] = (new Date()).toString("yy/MM/dd");
@@ -423,6 +449,9 @@
                 data["total_quantiy"] = totalQuantiy;
                 mfgDates.sort();
                 data["mfg_date_min"] = mfgDates[0].toDateByFromat("yyww").toString("MMMM-dd-yyyy");
+                data["pack_index"] = this.packIndex;
+                data["pack_count"] = this.packCount;
+                data["print_date"] = (new date()).toString();
 
                 // -- 打印并保存装箱记录 --
                 this.printPackLabel(data, {
@@ -526,7 +555,7 @@
                 }
 
                 let arrHtml = [];
-                for (let level = 1; level >= 0; level--) {
+                for (let level = 0; level <= 1; level++) {
                     arrHtml.push("<table class='tbIframe'><tr>")
                     let widthAll = 0;
                     for (let i = 0; i < this.labels.length; i++) {
@@ -632,6 +661,11 @@
                 this.dataPacking = dataPacking;
             },
 
+            onRowClick_dataPacking(row, column, event) {
+                let rowIndex = this.dtbItem.find([row["$row_no"]]);
+                let dataRow = this.dtbItem.rows[rowIndex];
+                this.printItemLabel(dataRow, { printToPrinter: false });
+            },
             initGridAll() {
                 var para = {
                     viewPk: "x_idata_juchen",
