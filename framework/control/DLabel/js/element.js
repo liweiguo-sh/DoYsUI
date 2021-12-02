@@ -333,13 +333,12 @@ UtilElement.computeValue = function (jsp) {
             if (head.format) {
                 valueString = Util.stringFormat(valueString.replaceAll(this.GS, "").replaceAll(this.FNC1, ""), head.format);
             }
-            if (!head._segmentsText.equals("")) {
-                head._sectionsText = valueString;
-            }
-            else {
-                // -- 如果条码机器识读部分为空，则强制文本部分也为空。如果想文本部分不为空(不合理的/极个别的需求)，文本单独用一个元素表示 --
+            head._sectionsText = valueString;
+
+            // -- 如果条码机器识读部分为空，则强制文本部分也为空。如果想文本部分不为空(不合理的/极个别的需求)，文本单独用一个元素表示 --
+            if (head.elementType.equals("barcode") && head._segmentsText.equals("")) {
                 head._sectionsText = "";
-            }            
+            }
         }
     }
     // ----------------------------------------------------
