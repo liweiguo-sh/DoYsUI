@@ -451,14 +451,12 @@
                 data["mfg_date_min"] = mfgDates[0].toDateByFromat("yyww").toString("MMMM-dd-yyyy");
                 data["pack_index"] = this.packIndex;
                 data["pack_count"] = this.packCount;
-                data["print_date"] = (new date()).toString();
 
                 // -- 打印并保存装箱记录 --
                 this.printPackLabel(data, {
                     printToPrinter: !this.flagSimulatePrint
                 });
 
-                //return;
                 let dataPOST = {
                     interfaceId: this.interfaceId,
                     dataPacking: this.dataPacking,
