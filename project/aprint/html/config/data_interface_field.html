@@ -51,7 +51,7 @@
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="序号">
-                        <el-input v-model="form.sequence" />
+                        <el-input v-model="form.sequence" ref="sequence" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
@@ -88,6 +88,7 @@
                 this.form.size = 30;
                 this.form.flag_fk = false;
                 this.form.flag_ux = false;
+                this.form.sequence = 999;
             },
             beforeSave: function () {
                 this.form.name = this.form.name.toLowerCase();
