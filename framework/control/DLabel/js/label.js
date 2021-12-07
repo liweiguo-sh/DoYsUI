@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-10-30
+ * Modify Date: 2021-12-07
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -97,6 +97,17 @@ class Label {
             // -- this.label.fields = g.x.extendJSON(this.label.fields, jsp.fields);
             this.label.fields = jsp.fields;
         }
+        if (!this.label.Fields) {
+            // -- 修复旧版没有Fields对象 --
+            this.label.Fields = {};
+            for (let key in this.label.fields) {
+                let field = DLbelExample.getBlankField();
+                field.name = key;
+                field.value = this.label.fields[key];
+                this.label.Fields[key] = field;
+            }
+        }
+
         if (jsp.width) this.label.head.width = jsp.width;
         if (jsp.height) this.label.head.height = jsp.height;
         if (jsp.point) this.label.head.point = jsp.point;

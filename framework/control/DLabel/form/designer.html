@@ -124,6 +124,12 @@
                                     <el-input v-model="labelHead.imageBaseUrl" @change="elementPropChange('labelHead.imageBaseUrl')"></el-input>
                                 </el-col>
                             </el-row>
+                            <el-row style="margin-top:10px;" v-if="false">
+                                <el-col :span="span[1]"><div class="divPropName">&nbsp;</div></el-col>
+                                <el-col :span="span[2]" style="text-align:right">
+                                    <el-button @click="onFieldsClick_old" type="primary" plain>标签变量集(旧)</el-button>
+                                </el-col>
+                            </el-row>
                             <el-row style="margin-top:10px;">
                                 <el-col :span="span[1]"><div class="divPropName">&nbsp;</div></el-col>
                                 <el-col :span="span[2]" style="text-align:right">
@@ -603,7 +609,7 @@
                     lbl.showResize();
                 }
             },
-            onFieldsClick() {
+            onFieldsClick_old() {
                 let prop = {
                     topWin: topWin,
                     url: g.x.getPath("/") + "label_field.html",
@@ -615,6 +621,38 @@
                     callback: function (jsp) {
                         lbl.label.fields = jsp.fields;
                         lbl.fields = lbl.label.fields;
+
+                        lbl.loadLabel(lbl.toJson());
+                        lbl.compute(true);
+                    },
+                    _this: lbl
+                };
+
+                cWin.openWindow(prop, para);
+            },
+            onFieldsClick() {
+                let prop = {
+                    topWin: topWin,
+                    url: g.x.getPath("/") + "fields.html",
+                    parent: window.win,
+                    modal: true
+                };
+                let para = {
+                    Fields: lbl.label.Fields,
+                    callback: function (jsp) {
+                        let Fields = {}, fields = {};
+                        for (let name in jsp.Fields) {
+                            let field = {};
+                            for (let key in jsp.Fields[name]) {
+                                field[key] = jsp.Fields[name][key];
+                            }
+                            Fields[name] = field;
+                            fields[name] = field.value;
+                        }
+                        lbl.Fields = Fields;
+                        lbl.label.Fields = Fields;
+                        lbl.fields = fields;
+                        lbl.label.fields = fields;
 
                         lbl.loadLabel(lbl.toJson());
                         lbl.compute(true);

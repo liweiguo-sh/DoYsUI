@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签变量集</title>
+    <script src="../js/boot.js"></script>
+    <script>
+        importFrameworkRes("DLabel-example");
+    </script>
+
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        .tagField {
+            cursor: default;
+            width: 100%;
+        }
+
+            .tagField:hover {
+                color: #409EFF;
+            }
+    </style>
+</head>
+<body>
+    <div id="app" style="width:900px;height:580px;">
+        <el-row>
+            <el-button type="primary" icon="el-icon-check" plain @click="save">保存</el-button>
+            <el-button type="primary" icon="el-icon-close" plain @click="cancel">放弃</el-button>
+        </el-row>
+        <hr />
+        <el-row>
+            <el-col :span="6">
+                <div style="max-height:470px;overflow-y:auto;overflow-x:hidden">
+                    <el-row v-for="field in Fields" style="padding:5px 0px 5px 0px">
+                        <el-tag @click="fieldClick(field)" :key="field.value"
+                                :type="nameActive.equals(field.name)? 'primary':'info'"
+                                :effect="nameActive.equals(field.name)? 'plain':''" class="tagField">{{field.name}}</el-tag>
+                    </el-row>
+                </div>
+                <el-row style="margin-top:10px;">
+                    <el-button @click="addField" type="primary" icon="el-icon-plus" circle></el-button>
+                    <el-button @click="deleteField" type="danger" icon="el-icon-minus" circle :disabled="nameActive.equals('')"></el-button>
+                </el-row>
+            </el-col>
+            <el-col :span="18" style="padding:0px 15px 0px 40px">
+                <el-form ref="form" label-width="160px" label-position="left" v-show="nameActive">
+                    <el-row>
+                        <el-form-item label="变量名称" required>
+                            <el-input v-model="field.name" ref="name" @change="onFieldPropChange('name')" />
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="数据类型">
+                            <el-select v-model="field.datatype" ref="datatype" @change="onFieldPropChange('datatype')" style="width:100%;" clearable default-first-option>
+                                <el-option value="string" label="字符"></el-option>
+                                <el-option value="datetime" label="日期/时间"></el-option>
+                                <el-option value="number" label="数字"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="样例值">
+                            <el-input v-model="field.value" ref="value" @change="onFieldPropChange('value')" />
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="私有变量标志">
+                            <el-checkbox v-model="field.private" ref="private" @change="onFieldPropChange('private')">是标签私有变量</el-checkbox>
+                        </el-form-item>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="扩展属性">
+                            <el-input v-model="field.ext_prop" ref="ext_prop" @change="onFieldPropChange('ext_prop')" />
+                        </el-form-item>
+                    </el-row>
+                </el-form>
+            </el-col>
+        </el-row>
+    </div>
+</body>
+</html>
+
+<!-- appInit -->
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            nameActive: "",             // -- 当前标签变量实体.name --
+            flagChange: false,          // -- 更改标志 --
+
+            Fields: {},                 // -- 标签变量集 --
+            field: {},                  // -- 当前标签变量实体 --
+
+            remark: ""
+        },
+        mounted() {
+            this.field = DLbelExample.getBlankField();
+        },
+        methods: {
+            fieldClick(field) {
+                this.nameActive = field.name;
+                for (let key in this.field) {
+                    this.field[key] = field[key] || "";
+                }
+            },
+            onFieldPropChange(propName) {
+                if (propName.equals("name")) {
+                    let result = validate.dbFieldName(this.field.name);
+                    if (result != true) {
+                        topWin.alert(result, "warning", () => {
+                            this.field.name = this.Fields[this.nameActive].name;
+                            this.$refs.name.focus();
+                        })
+                        return false;
+                    }
+
+                    if (this.field.name != this.nameActive) {
+                        delete this.Fields[this.nameActive];
+                        this.Fields[this.field.name] = DLbelExample.getBlankField();
+                        this.nameActive = this.field.name;
+                    }
+                }
+
+                this.Fields[this.nameActive][propName] = this.field[propName];
+                this.flagChange = true;
+            },
+
+            addField() {
+                let field = DLbelExample.getBlankField();
+                let index = Object.keys(this.Fields).length;
+                while (true) {
+                    let name = "variable_" + index++;
+                    if (!this.Fields[name]) {
+                        field.name = name;
+                        break;
+                    }
+                }
+                this.Fields[field.name] = field;
+
+                this.nameActive = field.name;
+                this.fieldClick(this.Fields[field.name]);
+                this.flagChange = true;
+            },
+            deleteField() {
+                topWin.confirm("确定要删除当前变量吗？").then((ok) => {
+                    if (!ok) return;
+
+                    delete this.Fields[this.nameActive];
+                    this.nameActive = "";
+                    this.flagChange = true;
+                })
+            },
+
+            save() {
+                if (win.para.callback) {
+                    win.para.callback({
+                        _this: win.para._this,
+                        Fields: this.Fields
+                    });
+
+                    this.flagChange = false;
+                    win.close();
+                }
+            },
+            cancel() {
+                this.flagChange = false;
+                win.close();
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        let Fields = win.para.Fields;
+        if (Fields) {
+            let Flds = {};
+            for (let name in win.para.Fields) {
+                let field = DLbelExample.getBlankField();
+                for (let key in Fields[name]) {
+                    field[key] = Fields[name][key];
+                }
+                Flds[field.name] = field;
+            }
+            app.Fields = Flds;
+
+            for (let name in app.Fields) {
+                app.nameActive = name;
+                app.fieldClick(app.Fields[name]);
+                break;
+            }
+        }
+        // ------------------------------------------------
+        win.addEventListener("beforeClose", () => {
+            if (app.flagChange) {
+                topWin.alert("变量集尚未保存，请按 “保存” 或 “放弃” 按钮。", "warning");
+                return false;
+            }
+            app.$destroy();
+        });
+    }
+</script>

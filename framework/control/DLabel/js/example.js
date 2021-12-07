@@ -166,6 +166,15 @@ DLbelExample._getElement_line = function (elementProp = {}) {
     return element;
 }
 
+DLbelExample.getBlankField = function () {
+    return {
+        name: "",
+        value: "sample data",
+        datatype: "string",
+        private: false,
+        ext_prop: ""
+    }
+}
 
 // -- 样例标签(演示、测试、调试用)、样例脚本 -----------------------------------------
 DLbelExample.getExample = function (labelKey) {
