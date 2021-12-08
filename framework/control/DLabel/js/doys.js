@@ -85,6 +85,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(resRootPath + "/framework/control/DLabel/js/util.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/element.js");
         arrRes.push(resRootPath + "/framework/control/DLabel/js/label.js");
+        arrRes.push(resRootPath + "/framework/control/DLabel/js/example.js");
     }
     else if (fileRes.equals("DLabel-element")) {
         arrRes.push(resRootPath + "/framework/control/DLabel/js/element.js");

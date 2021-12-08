@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签变量序列定义</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:800px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <!-- 序列代码、序列名称，归零条件，长度 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="序列代码" required>
+                        <el-input v-model="form.pk" ref="pk" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="序列名称">
+                        <el-input v-model="form.name" ref="name" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="归零条件" required>
+                        <el-select v-model="form.rule_zero" style="width:100%;" default-first-option>
+                            <el-option value="NONE" label="不归零"></el-option>
+                            <el-option value="yyyy" label="年"></el-option>
+                            <el-option value="MM" label="月"></el-option>
+                            <el-option value="dd" label="日"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="长度" required>
+                        <el-input v-model="form.width" ref="width" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <!-- 当前值 --> 
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="当前值" required>
+                        <el-input v-model="form.value" ref="value" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+
+            <!-- 备注 -->
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" type="textarea" :rows="3" />
+                    </el-form-item>
+                </el-col>
+                
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {
+
+            }
+        },
+
+        methods: {
+            afterAddnew() {
+                this.form.value = "1";
+                this.form.rule_zero = "NONE";
+            },
+            beforeSave: function () {
+                return true;
+            }
+        }
+    });
+</script> 

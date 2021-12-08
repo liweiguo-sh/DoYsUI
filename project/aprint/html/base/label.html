@@ -36,7 +36,7 @@
     </style>
 </head>
 <body>
-    <div id="app" style="width:900px;margin-bottom:10px;height:485px;">
+    <div id="app" style="width:900px;margin-bottom:10px;height:605px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-tabs ref="tab" v-model="activeTabName" @tab-click="onTabClick">
             <el-tab-pane name="baseInfo" :key="0" label="基本信息">
@@ -131,7 +131,7 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane name="labelVariable" :key="1" label="标签变量">
-                <sub-view id="grid" ref="grid" view-height="370" @onaddnew="onGridAddnew"></sub-view>
+                <sub-view id="grid" ref="grid" view-height="485" @onaddnew="onGridAddnew"></sub-view>
             </el-tab-pane>
             <el-tab-pane name="labelFile" :key="2" v-if="form.type.equals('BarTender')" :label="form.type + ' 标签文件'">
                 <el-row>
@@ -174,7 +174,7 @@
                 <el-tag>function afterCompute(jsp) {...}</el-tag>
                 <el-tag>示例1: jsp = { trigger: "varChange", varName: varName }</el-tag>
                 <el-tag>示例2: jsp = { trigger: "refChange", ref: "customer" }</el-tag>
-                <el-input v-model="form.js_after_compute" type="textarea" :rows="15" spellcheck="false" style="margin-top:6px;" />
+                <el-input v-model="form.js_after_compute" type="textarea" :rows="21" spellcheck="false" style="margin-top:6px;" />
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -242,7 +242,7 @@
                     else {
                         var para = {
                             viewPk: "label_variable",
-                            flowPks: "'sys_crud'",
+                            flowPks: "'sys_crud','sys_copy'",
                             filter: filter,
                             vfUrl: g.path.project + "/aprint/html/base/label_variable.html"
                         }

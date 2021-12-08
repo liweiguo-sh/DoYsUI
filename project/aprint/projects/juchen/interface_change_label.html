@@ -241,7 +241,7 @@
                     this.labelSetCode = this.interface.label_set_code;
                     this.labelSetCodeValue = "";
                     this.paraCode = this.interface.para_code;
-                    this.paraValue = "MT-2108006";
+                    this.paraValue = g.debug ? "MT-2111013" : "";
                     this.$refs.paraValue.focus();
 
                     // ------------------------------------
@@ -350,11 +350,11 @@
                         dataRow["$pack_index"].value = this.packIndex;
                         dataRow["$pack_seq"].value = this.dataPacking.length + 1;
 
-                        let labelIds = this.getHasSnLabels();
-                        if (labelIds.length > 0) {
+                        let extProps = this.getLabelsExtProps();
+                        if (extProps.length > 0) {
                             let postDATA = {
                                 interfaceId: this.interfaceId,
-                                labelIds: labelIds,
+                                extProps: extProps,
                                 $id: dataRow["$id"].value
                             }
                             let res = await ajax.send("/aprint/juchen/addItemToPacking", postDATA);
@@ -447,12 +447,24 @@
                 }
 
                 // -- 数据准备2 --
+                for (let j = 1; j <= 5; j++) {
+                    data["line" + j + "_lot"] = "";
+                    data["line" + j + "_qty"] = "";
+                    data["line" + j + "_dc"] = "";
+                    data["line" + j + "_sn"] = "";
+                }
+
                 let totalQuantiy = 0, lots = {}, mfgDates = [];
                 for (let i = 0; i < this.dataPacking.length; i++) {
                     row = this.dataPacking[i];
                     rowNo = row["$row_no"].toInt();
                     rowIndex = this.dtbItem.find([rowNo]);
                     dataRow = this.dtbItem.rows[rowIndex];
+
+                    data["line" + (i + 1) + "_lot"] = dataRow["lot1"].value;
+                    data["line" + (i + 1) + "_qty"] = dataRow["quantity"].value;
+                    data["line" + (i + 1) + "_dc"] = dataRow["dc1"].value;
+                    data["line" + (i + 1) + "_sn"] = dataRow["sn"].value;
 
                     for (let j = 1; j <= 2; j++) {
                         let lot = dataRow["lot" + j].value;
@@ -487,7 +499,7 @@
 
                 data["consignment_date"] = (new Date()).toString("yy/MM/dd");
                 data["expired_date"] = (new Date().add(720, "day")).toString("yy/MM/dd");
-                data["total_quantiy"] = totalQuantiy;
+                data["total_quantity"] = totalQuantiy;
                 mfgDates.sort();
                 data["mfg_date_min"] = mfgDates[0].toDateByFromat("yyww").toString("MMMM-dd-yyyy");
                 data["pack_index"] = this.packIndex;
@@ -514,7 +526,7 @@
                             copies: label.copies
                         });
                     }
-                }                
+                }
             },
             savePacking() {
                 let dataPOST = {
@@ -699,20 +711,28 @@
 
                 this.dataPacking = dataPacking;
             },
-            getHasSnLabels() {
-                let snLabels = [];
+            getLabelsExtProps() {
+                let extProps = [];
                 for (let i = 0; i < this.labels.length; i++) {
                     let label = this.labels[i];
                     if (label.level != 0) continue;
                     let lbl = label.lbl;
-                    let fields = lbl.fields;
-                    for (let key in fields) {
-                        if (key.equals("sn")) {
-                            snLabels.push(label.id);
+                    let Fields = lbl.label.Fields;
+                    for (let fieldName in Fields) {
+                        let field = Fields[fieldName];
+                        for (let propName in field) {
+                            if (propName.equals("ext_prop")) {
+                                if (field[propName]) {
+                                    extProps.push({
+                                        name: field.name,
+                                        extProp: field[propName]
+                                    });
+                                }
+                            }
                         }
                     }
                 }
-                return snLabels;
+                return extProps;
             },
 
             onRowClick_dataPacking(row, column, event) {

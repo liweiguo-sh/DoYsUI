@@ -56,7 +56,7 @@
     initPage();
 })()
 function initGolbal() {
-    g.debug = document.documentURI.indexOf("//127.0.0.1") > 0;
+    g.debug = document.documentURI.indexOf("//localhost") > 0;
     if (g.debug) {
         g.cfg.jsVer = (new Date()).getTime();
     }
