@@ -222,14 +222,18 @@
                 }
             },
             resetPackData() {
-                let dataPOST = {
-                    interfaceId: this.interfaceId,
-                    paraCode: this.paraCode,
-                    paraValue: this.paraValue
-                };
-                ajax.send("/aprint/juchen/resetPackData", dataPOST).then(res => {
-                    this.onParaValueEnter();
-                });
+                topWin.confirm("确定要重置当前装箱记录吗？").then((ok) => {
+                    if (!ok) return;
+
+                    let dataPOST = {
+                        interfaceId: this.interfaceId,
+                        paraCode: this.paraCode,
+                        paraValue: this.paraValue
+                    };
+                    ajax.send("/aprint/juchen/resetPackData", dataPOST).then(res => {
+                        this.onParaValueEnter();
+                    });
+                })
             },
 
             interfaceChange() {
@@ -334,6 +338,17 @@
                 }
             },
             async printItem() {
+                for (let i = 0; i < this.scanCodes.length; i++) {
+                    let scanCode = this.scanCodes[i];
+                    if (scanCode.name.equals("orilot1") || scanCode.name.equals("qty1")) {
+                        if (scanCode.value.equals("")) {
+                            topWin.alert("扫描项 " + scanCode.name + " 不能为空，请扫码。", "warning");
+                            this.$refs["_sc_" + i].focus();
+                            return;
+                        }
+                    }
+                }
+
                 if (this.dataForPack.length == 0) {
                     topWin.message("没有符合条件的待装箱数据，请检查。", "error");
                     return;
