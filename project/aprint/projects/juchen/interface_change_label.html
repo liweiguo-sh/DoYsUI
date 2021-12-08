@@ -338,6 +338,7 @@
                 }
             },
             async printItem() {
+                // -- 至少扫码 orilot1 和 qty1 两个检索项 --
                 for (let i = 0; i < this.scanCodes.length; i++) {
                     let scanCode = this.scanCodes[i];
                     if (scanCode.name.equals("orilot1") || scanCode.name.equals("qty1")) {
