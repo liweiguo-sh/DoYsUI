@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2021-11-18
+ * Modify Date: 2021-12-09
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -56,7 +56,7 @@
     initPage();
 })()
 function initGolbal() {
-    g.debug = document.documentURI.indexOf("//localhost") > 0;
+    g.debug = document.documentURI.indexOf("//localhost") > 0 || document.documentURI.indexOf("//127.0.0.1") > 0;
     if (g.debug) {
         g.cfg.jsVer = (new Date()).getTime();
     }

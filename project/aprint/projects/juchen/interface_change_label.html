@@ -94,7 +94,10 @@
                         <el-button @click="resetPackData" type="warning" plain>重置装箱数据</el-button>
                     </el-form-item>
                     <el-form-item label="">
-                        <el-checkbox v-model="flagSimulatePrint">模拟打印</el-checkbox>
+                        <el-checkbox v-model="flagSimulatePrint" @change="onFlagSimulatePrintChange">模拟打印</el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="">
+                        <el-checkbox v-model="flagAutoPrintOuterLabel" @change="onFlagAutoPrintOuterLabelChange">满箱时自动打印外箱标签</el-checkbox>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -190,6 +193,7 @@
             itemCount: null,                    // -- 总件数 --
 
             flagSimulatePrint: true,            // -- 模拟打印 --
+            flagAutoPrintOuterLabel: false,     // -- 满箱时自动打印外箱标签 --
 
             printers: [],                       // -- 打印机数组 --
             styleDivPreview: "border:solid 0px red;"
@@ -318,6 +322,7 @@
                     };
                     for (let j = 0; j < this.scanCodes.length; j++) {
                         let scanCode = this.scanCodes[j];
+                        scanCode.value = scanCode.value.trim();
                         if (scanCode.value) {
                             let value = dataRow[scanCode.name].value;
                             if (!scanCode.value.equals(value)) {
@@ -334,7 +339,7 @@
                 }
                 this.dataForPack = dataForPack;
                 if (matchCount == 0) {
-                    topWin.message("没有符合条件的数据行。", "error");
+                    topWin.alert("没有符合条件的数据行。", "error");
                 }
             },
             async printItem() {
@@ -351,13 +356,19 @@
                 }
 
                 if (this.dataForPack.length == 0) {
-                    topWin.message("没有符合条件的待装箱数据，请检查。", "error");
+                    topWin.alert("没有符合条件的待装箱数据，请检查。", "error");
                     return;
                 }
                 if (!this.checkPackIndex()) {
                     return;
                 }
 
+                if (this.dataPacking.length >= this.labelSet.qty0) {
+                    topWin.alert("当前箱已满箱，请检查。", "error");
+                    return;
+                }
+
+                // ----------------------------------------
                 let row = this.dataForPack[0];
                 let rowNo = row["$row_no"].toInt();
                 for (let i = 0; i < this.dtbItem.rowCount; i++) {
@@ -401,10 +412,28 @@
                 this.resetScan();
                 this.fillDataPacking();
 
-                let data = this.calcPacking();
-                this.previewPacking(data, {
-                    printToPrinter: false
-                });
+                // -- 自动打印外箱标签 --
+                let needPrintOuterLabel = false;
+                if (this.flagAutoPrintOuterLabel) {
+                    if (this.dataPacking.length >= this.labelSet.qty0) {
+                        needPrintOuterLabel = true;         // -- 满箱 --
+                    }
+                    else {
+                        if ((this.packIndex - 1) * this.labelSet.qty0 + this.dataPacking.length >= this.itemCount) {
+                            needPrintOuterLabel = true;     // -- 尾箱不满箱，但已经全部装箱 --
+                        }
+                    }
+                }
+
+                if (needPrintOuterLabel) {
+                    this.printPacking();                    // -- 打印外箱贴 --
+                }
+                else {
+                    let data = this.calcPacking();          // -- 预览外箱贴 --
+                    this.previewPacking(data, {
+                        printToPrinter: false
+                    });
+                }
             },
             printItemLabel(data, jsp = { printToPrinter: false }) {
                 for (let i = 0; i < this.labels.length; i++) {
@@ -432,6 +461,14 @@
                 // -- 计算外箱数据 --
                 let data = this.calcPacking();
                 if (data == undefined) return;
+
+                if (this.dataPacking.length < this.labelSet.qty0) {
+                    if ((this.packIndex - 1) * this.labelSet.qty0 + this.dataPacking.length < this.itemCount) {
+                        // -- 不满箱，并且没全部装箱 --
+                        topWin.alert("尚未满箱，不能打印外箱标签，请继续装箱。", "error");
+                        return;
+                    }
+                }
 
                 // -- 打印外箱标签 --
                 this.previewPacking(data, {
@@ -676,13 +713,13 @@
                 let blResult = true;
                 this.packIndex = this.packIndex.toInt();
                 if (this.packIndex <= 0) {
-                    topWin.message("请输入正确的箱号。", "error");
+                    topWin.alert("请输入正确的箱号。", "error");
                     blResult = false;
                 }
 
                 let maxPackIndex = this.getPackIndex();
                 if (this.packIndex > maxPackIndex + 1) {
-                    topWin.message("输入的箱号不能大于当前箱号，请检查。", "error");
+                    topWin.alert("输入的箱号不能大于当前箱号，请检查。", "error");
 
                     blResult = false;
                 }
@@ -775,6 +812,13 @@
             },
             refreshGridAll() {
                 this.$refs.gridAll.setFilter(this.paraCode + " = '" + this.paraValue + "'");
+            },
+
+            onFlagSimulatePrintChange() {
+                setPageCookie("flagSimulatePrint", this.flagSimulatePrint ? "true" : "false");
+            },
+            onFlagAutoPrintOuterLabelChange() {
+                setPageCookie("flagAutoPrintOuterLabel", this.flagAutoPrintOuterLabel ? "true" : "false");
             }
         }
     });
@@ -805,5 +849,9 @@
 
         app.styleCopies = "width:" + widthCopies + "px;";
         app.stylePrinter = "width:" + widthPrinter + "px;";
+
+        // ------------------------------------------------
+        app.flagSimulatePrint = getPageCookie("flagSimulatePrint", "true").equals("true");
+        app.flagAutoPrintOuterLabel = getPageCookie("flagAutoPrintOuterLabel", "false").equals("true");
     }
 </script>

@@ -29,9 +29,9 @@
                     <el-form-item label="归零条件" required>
                         <el-select v-model="form.rule_zero" style="width:100%;" default-first-option>
                             <el-option value="NONE" label="不归零"></el-option>
-                            <el-option value="yyyy" label="年"></el-option>
-                            <el-option value="MM" label="月"></el-option>
-                            <el-option value="dd" label="日"></el-option>
+                            <el-option value="YEAR" label="年"></el-option>
+                            <el-option value="MONTH" label="月"></el-option>
+                            <el-option value="DAY" label="日"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
@@ -42,7 +42,7 @@
                 </el-col>
             </el-row>
 
-            <!-- 当前值 --> 
+            <!-- 当前值 -->
             <el-row>
                 <el-col :span="span[1]">
                     <el-form-item label="当前值" required>
@@ -61,7 +61,7 @@
                         <el-input v-model="form.remark" type="textarea" :rows="3" />
                     </el-form-item>
                 </el-col>
-                
+
             </el-row>
         </el-form>
     </div>
@@ -74,9 +74,7 @@
         el: '#app',
         data: {
             span: [24, 12, 12],
-            form: {
-
-            }
+            form: {}
         },
 
         methods: {
