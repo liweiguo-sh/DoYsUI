@@ -23,6 +23,12 @@
                 <el-button onclick="win.close();">关闭</el-button>
             </el-col>
         </el-row>
+        <el-row>
+            <el-col :span="3">
+                <el-input v-model="dt1" @keyup.enter.native="test1"></el-input>
+            </el-col>
+            
+        </el-row>
         <div id="divMessage"></div>
     </div>
 </body>
@@ -34,29 +40,15 @@
         el: '#app',
         data: {
             count: 0,
-            countMax: 10000
+            countMax: 10000,
+
+            dt1: "2020-01-01"
         },
         methods: {
             test1() {
-                let regex = /^[0-9a-zA-Z_]{1,}$/;
-                //let list = ["a", "A", "1", "123", "__", "-", "，", ",", "】", "繁體", "と", "中", "a汉"];
-                let list = ["abc", "中文", "中1_abc1", "1zd", "a-zd"];
-                let result = [];
+                let str = this.dt1.toDate().toString("yyyy-MM-dd WW");
 
-                result.push("<ul>");
-                for (let i = 0; i < list.length; i++) {
-                    let txt = list[i];
-                    //if (regex.test(txt)) {
-                    if (validate.dbFieldName(txt)) {
-                        result.push("<li><span style='color:green'>测试通过：&nbsp;&nbsp;&nbsp;&nbsp;" + txt + "</span></li>");
-                    }
-                    else {
-                        result.push("<li><span style='color:red'>测试失败：&nbsp;&nbsp;&nbsp;&nbsp;" + txt + "</span></li>");
-                    }
-                }
-                result.push("</ul>");
-
-                gId("divMessage").innerHTML = result.join("");
+                gId("divMessage").innerHTML = str;
             }
         }
     });

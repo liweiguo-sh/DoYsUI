@@ -2,7 +2,7 @@
  * DoYs.prototype.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2021-12-01
+ * Modify Date: 2021-12-09
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -176,6 +176,22 @@ Date.prototype.toString = function (format = "yyyy-MM-dd HH:mm:ss") {
     let MONTH = ("0" + (this.getMonth() + 1)).right(2);
     let MMMM = MMMMs[this.getMonth()];
     let DAY = ("0" + this.getDate()).right(2);
+    let WEEK = "WW";
+    if (format.indexOf("WW") >= 0) {
+        // -- 按照周一是每周第一天计算 --
+        let weekOffset = 0, days, week;
+        let dateFirstWeekOfYear;
+        let dateFirstDayOfYear = new Date(YEAR, 0, 1);
+        let firstDays = dateFirstDayOfYear.getDay();
+
+        if (firstDays <= 4) {   // -- 第一周包含周四 --
+            weekOffset = 1;
+        }
+        dateFirstWeekOfYear = new Date(YEAR, 0, - firstDays + 1);
+        days = parseInt((this.toString("yyyy-MM-dd").toDate() - dateFirstWeekOfYear) / (1000 * 60 * 60 * 24));
+        week = Math.floor((days - 1) / 7) + weekOffset;
+        WEEK = (week < 10 ? "0" : "") + week;
+    }
 
     let HOURS = ("0" + this.getHours()).right(2);
     let MINUTES = ("0" + this.getMinutes()).right(2);
@@ -186,6 +202,7 @@ Date.prototype.toString = function (format = "yyyy-MM-dd HH:mm:ss") {
     strReturn = strReturn.replace("yy", YEAR.right(2));
     strReturn = strReturn.replace("MMMM", MMMM);
     strReturn = strReturn.replace("MM", MONTH);
+    strReturn = strReturn.replace("WW", WEEK);
     strReturn = strReturn.replace("dd", DAY);
 
     strReturn = strReturn.replace("HH", HOURS);
