@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>扫码项配置</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:750px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <!-- 扫码项、序号，扫码项标题 -->
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="扫码项" required>
+                        <el-input v-model="form.name" ref="name" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="序号" required>
+                        <el-input v-model="form.sequence" ref="sequence" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="扫码项标题" required>
+                        <el-input v-model="form.text" ref="text" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    &nbsp;
+                </el-col>
+            </el-row>
+
+            <!-- 备注 -->
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="备注">
+                        <el-input v-model="form.remark" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <!-- 脚本 -->
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="扫码后脚本">
+                        <el-input v-model="form.js_after_scan" ref="js_after_scan" type="textarea" :rows="15" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 15, 9],
+            form: {
+                text: "",
+                parent_id: null
+            },
+            parentId: null
+        },
+
+        methods: {
+            afterAddnew() {
+                this.form.scan_print_id = this.parentId;
+                this.form.sequence = "9";
+            },
+            beforeSave: function () {
+                if (this.form.text.equals("")) {
+                    this.form.text = this.form.name;
+                }
+                return true;
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.parentId = win.parentWindow.app.$refs.vf.getId();
+    }
+</script>
