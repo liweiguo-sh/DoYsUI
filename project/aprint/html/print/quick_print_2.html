@@ -83,7 +83,7 @@
                         </el-form>
                     </el-tab-pane>
                 </el-tabs>
-                <el-row>
+                <el-row v-show="!activeTabName.equals('labelChange')">
                     <el-button @click="createTaskByManual" type="success" v-if="activeTabName=='standard'" :disabled="!label.id || qty.toInt()<1">生成打印数据</el-button>
                     <el-button @click="pullInterfaceData" type="success" v-if="activeTabName=='interface'" :disabled="!label.id || !interfaceId || !interfaceQueryCode">拉取接口数据</el-button>
                     <el-upload v-if="activeTabName=='excel'" :disabled="!label.id"
@@ -196,17 +196,17 @@
                 </el-form>
             </el-col>
             <!-- 标签区 -->
-            <el-col :span="span[2]" style="padding:15px 0px 0px 30px;">
-                <div id="divLabelContainerParent">
-                    <div id="divLabelContainer"></div>
-                </div>
-                <el-row v-show="label.id" style="margin-top:20px;">
-                    <el-button type="primary" plain @click="printProof">打印样张</el-button>
+            <el-col :span="span[2]" style="padding:0px 0px 0px 30px;">
+                <el-row v-show="label.id" style="margin-bottom:10px;">
+                    <el-button type="primary" plain @click="printProof" icon="el-icon-printer"></el-button>
                     <span style="margin-left:10px;margin-right:10px;">
                         {{label.width}}×{{label.height}}
                     </span>
                     <span>{{label.remark}}</span>
                 </el-row>
+                <div id="divLabelContainerParent">
+                    <div id="divLabelContainer"></div>
+                </div>
             </el-col>
         </el-row>
         <el-collapse v-model="activeCollapses" v-show="taskId">
