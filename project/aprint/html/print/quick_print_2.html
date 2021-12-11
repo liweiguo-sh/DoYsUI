@@ -68,18 +68,20 @@
                     </el-tab-pane>
                     <el-tab-pane name="labelChange" label="扫码换标">
                         <el-form label-width="135px" label-position="left" size1="medium">
-                            <el-form-item label="扫码内容">
-                                <el-select v-model="scanField" default-first-option filterable clearable style="width:100%;">
-                                    <el-option value="pn" label="产品料号(SKU)"></el-option>
+                            <el-form-item label="扫码换标规则">
+                                <el-select v-model="scanPrintId" @change="onScanPrintChange" default-first-option filterable clearable style="width:100%;">
+                                    <el-option v-for="item in scanPrints" :value="item.id" :label="item.name"></el-option>
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="选项">
                                 <el-checkbox v-model="autoPrint">扫码自动触发打印</el-checkbox>
                                 <el-checkbox v-model="autoResetCopy">自动重置份数</el-checkbox>
                             </el-form-item>
-                            <el-form-item label="扫码区">
-                                <el-input v-model="barcodeScan" ref="barcodeScan" @keyup.enter.native="scanBarcodeEnter" :disabled="!scanField || !label.id" placeholder="请扫码...">自动重置份数</el-input>
-                            </el-form-item>
+                            <el-row v-for="item in scanItems">
+                                <el-form-item :label="item.text">
+                                    <el-input v-model="item.value" :key="item.name" :ref="'_scanItem_' + item.id" @keyup.enter.native="scanBarcodeEnter(item)" :disabled="!label.id"></el-input>
+                                </el-form-item>
+                            </el-row>
                         </el-form>
                     </el-tab-pane>
                 </el-tabs>
@@ -89,7 +91,7 @@
                     <el-upload v-if="activeTabName=='excel'" :disabled="!label.id"
                                :action="actionUpload"
                                :on-success="afterUpload"
-                               :headers= "headers"
+                               :headers="headers"
                                :show-file-list="false"
                                accept=".xls,.xlsx">
                         <el-button type="success" :disabled="!label.id">导入Excel数据(.xls;.xlsx)</el-button>
@@ -231,11 +233,17 @@
             span: [24, 8, 16],
             size: "medium",                 // -- medium/small/mini --
 
-            scanField: "pn",                // -- 扫码内容 --
+            actionUpload: g.prefix + "/framework/common/upload/upload_temp_file",
+
+            scanPrints: [],                 // -- 扫码换标打印规则集合 --
+            scanPrintId: null,              // -- 当前规则ID --
+            scanItems: [],                  // -- 扫码项集合 --
+
+            scanField: "pn",                // -- xxx扫码内容 --
+            barcodeScan: "",                // -- xxx扫码内容 --
+
             autoPrint: true,                // -- 自动打印 --
             autoResetCopy: true,            // -- 自动重置份数 --
-            barcodeScan: "",                // -- 扫码内容 --
-            actionUpload: g.prefix + "/framework/common/upload/upload_temp_file",
 
             labels: [],
             label: {                        // -- 标签对象 --
@@ -323,9 +331,16 @@
                     this.qty = 0;
                 }
                 else if (tab.name.equals("labelChange")) {
-                    setTimeout(_ => {
-                        this.$refs.barcodeScan.focus();
-                    }, 100);
+                    if (this.scanPrints.length == 0) {
+                        ajax.send("/aprint/print/quick/getScanPrintList", {}).then(res => {
+                            if (res.scanPrints.length > 0) {
+                                this.scanPrints = res.scanPrints;
+                            }
+                            else {
+                                this.scanPrints = [{ id: 0, name: "未配置" }];
+                            }
+                        });
+                    }
                 }
 
                 setPageCookie("activeTabName", this.activeTabName);
@@ -392,7 +407,7 @@
             },
             getQuoteData() {
                 if (this.productPns.length == 0) {
-                    ajax.send("/aprint/print/quick/getProductPns", {}).then(res => {                        
+                    ajax.send("/aprint/print/quick/getProductPns", {}).then(res => {
                         this.productPnCount = res.productPns.length;
                         this.productPns = res.productPns;
                     });
@@ -408,6 +423,91 @@
                     ajax.send("/aprint/print/quick/getSuppliers", {}).then(res => {
                         this.suppliers = res.suppliers;
                     });
+                }
+            },
+
+            // -- 扫码换标 ------------------------------------
+            onScanPrintChange() {
+                if (!this.scanPrintId) {
+                    this.scanItems = [];
+                    return;
+                }
+
+                ajax.send("/aprint/print/quick/getScanPrintItemList", { scanPrintId: this.scanPrintId }).then(res => {
+                    this.scanItems = res.scanPrintItems;
+                    if (this.scanItems.length == 0) {
+                        topWin.alert("未配置扫码项，请检查。");
+                    }
+                    for (let i = 0; i < this.scanItems.length; i++) {
+                        let item = this.scanItems[i];
+                        item.index = i;
+                        if (item.js_after_scan) {
+                            item.jsAfterScan = eval("(function (barcode) {" + item.js_after_scan + "})");
+                        }
+                    }
+                });
+            },
+            scanBarcodeEnter(item) {
+                if (item.jsAfterScan) {
+                    let jsonRet = item.jsAfterScan(item.value);
+                    let fields = jsonRet.fields;
+                    if (fields) {
+                        for (let key in fields) {
+                            for (let i = 0; i < this.variables.length; i++) {
+                                let variable = this.variables[i];
+                                if (variable.name.equals(key)) {
+                                    variable.value = fields[key];
+                                    break;
+                                }
+                            }
+                        }
+                        this.setVariables();
+                    }
+                }
+                else {
+                    if (item.index < this.scanItems.length - 1) {
+                        let refNextItem = "_scanItem_" + this.scanItems[item.index + 1].id;
+                        this.$refs[refNextItem][0].select();
+                        this.$refs[refNextItem][0].focus();
+                    }
+                }
+
+                return;
+                let barcode = this.barcodeScan.trim();
+                if (barcode.equals("")) return;
+
+                // -- 1. 查找 --
+                let value, idxFind = -1;
+                for (let i = this.productPns.length - 1; i >= 0; i--) {
+                    value = this.productPns[i][this.scanField];
+                    if (barcode == value) {
+                        idxFind = i;
+                        break;
+                    }
+                }
+
+                this.$refs["barcodeScan"].select();
+                if (idxFind < 0) {
+                    topWin.message("未找到符合条件的数据，请检查扫码内容是否正确。", "error");
+                    return;
+                }
+
+                // -- 2. 选中 --
+                if (this.scanField.equals("pn")) {
+                    this.productPnId = this.productPns[idxFind]["id"];
+
+                    if (this.autoPrint) {
+                        this.onProductPnChange({ scanBarcodeEnterNext: true });
+                    }
+                }
+                else {
+                    topWin.message("尚未实现的触发字段", "error");
+                }
+            },
+            scanBarcodeEnterNext() {
+                this.print();
+                if (this.autoResetCopy) {
+                    this.copies = 1;
                 }
             },
 
@@ -817,46 +917,6 @@
                 lbl.compute(true);
 
                 this.printProof();
-            },
-
-            // -- label change print ----------------------
-            scanBarcodeEnter() {
-                let barcode = this.barcodeScan.trim();
-                if (barcode.equals("")) return;
-
-                // -- 1. 查找 --
-                let value, idxFind = -1;
-                for (let i = this.productPns.length - 1; i >= 0; i--) {
-                    value = this.productPns[i][this.scanField];
-                    if (barcode == value) {
-                        idxFind = i;
-                        break;
-                    }
-                }
-
-                this.$refs["barcodeScan"].select();
-                if (idxFind < 0) {
-                    topWin.message("未找到符合条件的数据，请检查扫码内容是否正确。", "error");
-                    return;
-                }
-
-                // -- 2. 选中 --
-                if (this.scanField.equals("pn")) {
-                    this.productPnId = this.productPns[idxFind]["id"];
-
-                    if (this.autoPrint) {
-                        this.onProductPnChange({ scanBarcodeEnterNext: true });
-                    }
-                }
-                else {
-                    topWin.message("尚未实现的触发字段", "error");
-                }
-            },
-            scanBarcodeEnterNext() {
-                this.print();
-                if (this.autoResetCopy) {
-                    this.copies = 1;
-                }
             },
 
             // -- others ----------------------------------

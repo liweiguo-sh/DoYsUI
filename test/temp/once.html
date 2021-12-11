@@ -45,11 +45,25 @@
             dt1: "2020-01-01"
         },
         methods: {
-            test1() {
-                let str = this.dt1.toDate().toString("yyyy-MM-dd WW");
+            test1() { 
+                debugger
+                debugger
 
-                gId("divMessage").innerHTML = str;
+                let a = looseJsonParse();
+                a();
+
+                debugger
+                debugger
             }
         }
     });
+</script>
+
+<script>
+
+    function looseJsonParse() {
+        let obj = "alert('1')";
+        return Function('"use strict";return (' + obj + ')');
+    }
+    
 </script>
