@@ -252,6 +252,7 @@
                 content: ""
             },
 
+            dtbProductPn: null,             // -- 产品料号记录集 --
             productPns: [],                 // -- 产品料号集合 --
             productPnId: "",
             productPn: "",                  // -- 产品料号 --
@@ -408,8 +409,26 @@
             getQuoteData() {
                 if (this.productPns.length == 0) {
                     ajax.send("/aprint/print/quick/getProductPns", {}).then(res => {
-                        this.productPnCount = res.productPns.length;
-                        this.productPns = res.productPns;
+                        this.dtbProductPn = res.dtbProductPn;
+
+                        let rowCount = this.dtbProductPn.rowCount;
+                        let dataRow;
+                        let productPns = [];
+
+                        if (rowCount <= 1000) {
+                            for (let i = 0; i < rowCount; i++) {
+                                dataRow = this.dtbProductPn.rows[i];
+                                productPns.push({
+                                    id: dataRow["id"].value,
+                                    pn: dataRow["pn"].value,
+                                    product_name: dataRow["product_name"].value
+                                });
+                            }
+                        }
+                        this.productPns = productPns;
+                        this.productPnCount = rowCount;
+
+                        this.dtbProductPn.sort("pn");
                     });
                 }
 
@@ -447,61 +466,80 @@
                     }
                 });
             },
-            scanBarcodeEnter(item) {
-                if (item.jsAfterScan) {
-                    let jsonRet = item.jsAfterScan(item.value);
-                    let fields = jsonRet.fields;
-                    if (fields) {
-                        for (let key in fields) {
-                            for (let i = 0; i < this.variables.length; i++) {
-                                let variable = this.variables[i];
-                                if (variable.name.equals(key)) {
-                                    variable.value = fields[key];
-                                    break;
+            async scanBarcodeEnter(item) {
+                const waiting = this.$loading({
+                    lock: true,
+                    text: 'waiting ...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+                try {
+                    if (item.jsAfterScan) {
+                        let jsonRet = item.jsAfterScan(item.value);
+                        let fields = jsonRet.fields;
+                        // -- 填充返回的变量值 --
+                        debugger
+                        debugger
+                        if (fields) {
+                            for (let key in fields) {
+                                for (let i = 0; i < this.variables.length; i++) {
+                                    let variable = this.variables[i];
+                                    if (variable.name.equals(key)) {
+                                        variable.value = fields[key];
+                                        break;
+                                    }
+                                }
+                            }
+                            this.setVariables();
+                        }
+                        
+                        // -- 执行match动作 --
+                        let match = jsonRet.match || "";
+                        let field = jsonRet.field || "";
+                        let action = jsonRet.action || "";
+                        if (match.equals("product")) {
+                            if (field.equals("pn")) {
+                                let pn = fields["pn"] || "";
+                                let arrFind = [pn];
+                                let nFind = this.dtbProductPn.find(arrFind);
+                                if (nFind >= 0) {
+                                    let dataRow = this.dtbProductPn.rows[8];
+                                    this.productPnId = dataRow["id"].value;
+                                    await this.onProductPnChange();                                    
+                                }
+                                else {
+                                    throw ("未找到匹配的产品料号/SKU，请检查。");
                                 }
                             }
                         }
-                        this.setVariables();
+                        else {
+                            if (match) {
+                                throw ("不支持的match项(" + match + ")，请检查。");
+                            }
+                        }
+
+                        // -- 执行action动作 --
+                        if (action.equals("print")) {
+                            this.printProof();
+                            return;
+                        }
                     }
-                }
-                else {
+
+                    // -- 定位到下一个扫描项 --
                     if (item.index < this.scanItems.length - 1) {
                         let refNextItem = "_scanItem_" + this.scanItems[item.index + 1].id;
                         this.$refs[refNextItem][0].select();
                         this.$refs[refNextItem][0].focus();
                     }
                 }
-
-                return;
-                let barcode = this.barcodeScan.trim();
-                if (barcode.equals("")) return;
-
-                // -- 1. 查找 --
-                let value, idxFind = -1;
-                for (let i = this.productPns.length - 1; i >= 0; i--) {
-                    value = this.productPns[i][this.scanField];
-                    if (barcode == value) {
-                        idxFind = i;
-                        break;
-                    }
+                catch (e) {
+                    topWin.alert(e.toString(), "error", () => {
+                        this.$refs["_scanItem_" + item.id][0].select();
+                        this.$refs["_scanItem_" + item.id][0].focus();
+                    });                    
                 }
-
-                this.$refs["barcodeScan"].select();
-                if (idxFind < 0) {
-                    topWin.message("未找到符合条件的数据，请检查扫码内容是否正确。", "error");
-                    return;
-                }
-
-                // -- 2. 选中 --
-                if (this.scanField.equals("pn")) {
-                    this.productPnId = this.productPns[idxFind]["id"];
-
-                    if (this.autoPrint) {
-                        this.onProductPnChange({ scanBarcodeEnterNext: true });
-                    }
-                }
-                else {
-                    topWin.message("尚未实现的触发字段", "error");
+                finally {
+                    waiting.close();
                 }
             },
             scanBarcodeEnterNext() {
@@ -512,16 +550,15 @@
             },
 
             // -- variable --------------------------------
-            onProductPnChange(jsp = {}) {
+            async onProductPnChange(jsp = {}) {
                 if (this.productPnId) {
-                    ajax.send("/aprint/print/quick/getProductPnPara", { productPnId: this.productPnId }).then(res => {
-                        this.productPnPara = res.productPnPara;
-                        this.setVariables();
+                    let res = await ajax.send("/aprint/print/quick/getProductPnPara", { productPnId: this.productPnId });
+                    this.productPnPara = res.productPnPara;
+                    this.setVariables();
 
-                        if (jsp.scanBarcodeEnterNext) {
-                            this.scanBarcodeEnterNext();
-                        }
-                    });
+                    if (jsp.scanBarcodeEnterNext) {
+                        this.scanBarcodeEnterNext();
+                    }
                 }
                 else {
                     this.productPnPara = {};
