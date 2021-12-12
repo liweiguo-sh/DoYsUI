@@ -265,6 +265,10 @@
             scanPrints: [],                 // -- 扫码换标打印规则集合 --
             scanPrintId: null,              // -- 当前规则ID --
             scanItems: [],                  // -- 扫码项集合 --
+            scanTask: {                     // -- 扫码任务 --
+                taskId: 0,
+                labelId: 0
+            },
 
             interfaces: [],                 // -- 业务数据接口列表 --
             interfaceId: null,
@@ -521,6 +525,7 @@
                         if (action.equals("print")) {
                             if (this.autoPrint) {
                                 this.printProof();
+                                this.saveScanPrintRecord();
 
                                 if (this.autoResetCopy) {
                                     this.copies = 1;
@@ -570,6 +575,17 @@
                 else {
                     throw ("不支持的查找项：" + field);
                 }
+            },
+            async saveScanPrintRecord() {
+                let poseDATA = {
+                    labelId: this.label.id,
+                    taskId: (this.label.id == this.scanTask.labelId ? this.scanTask.taskId : 0),
+                    data: lbl.fields
+                }
+                ajax.send("/aprint/print/quick/saveScanPrintRecord", poseDATA).then(res => {
+                    this.scanTask.labelId = res.labelId
+                    this.scanTask.taskId = res.taskId;                    
+                });
             },
 
             // -- variable --------------------------------
