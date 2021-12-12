@@ -45,11 +45,20 @@
             </el-row>
             <!-- 脚本 -->
             <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="扫码后脚本">
+                <el-tabs v-model="activeName">
+                    <el-tab-pane label="扫码后脚本" name="jsAfterScan">
                         <el-input v-model="form.js_after_scan" ref="js_after_scan" type="textarea" :rows="15" spellcheck="false" />
-                    </el-form-item>
-                </el-col>
+                    </el-tab-pane>
+                    <el-tab-pane label="脚本样例-01" name="script_1">
+                        <el-input v-model="script_1" type="textarea" :rows="15" spellcheck="false" />
+                    </el-tab-pane>
+                    <el-tab-pane label="脚本样例-02" name="script_2">
+                        <el-input v-model="script_2" type="textarea" :rows="15" spellcheck="false" />
+                    </el-tab-pane>
+                    <el-tab-pane label="脚本样例-03" name="script_3">
+                        <el-input v-model="script_3" type="textarea" :rows="15" spellcheck="false" />
+                    </el-tab-pane>
+                </el-tabs>
             </el-row>
         </el-form>
     </div>
@@ -61,14 +70,47 @@
     var app = new Vue({
         el: '#app',
         data: {
+            activeName: "jsAfterScan",
             span: [24, 15, 9],
             form: {
                 text: "",
                 parent_id: null
             },
-            parentId: null
+            parentId: null,
+
+            script_1: "",
+            script_2: "",
+            script_3: ""
         },
 
+        mounted() {
+            this.script_1 = `脚本样例一：
+let jsp = {
+    fields: {
+        "pn": barcode
+    },
+    match: "product",
+    field: "pn",
+    action: "print"
+}
+return jsp;
+            `;
+            this.script_2 = `脚本样例二：
+let price1 = barcode.substring(0,3);
+let price2 = barcode.substring(3);
+let jsp = {
+    fields: {
+        "pn": barcode
+    },
+    match: "product",
+    field: "pn"
+}
+return jsp;
+            `;
+            this.script_3 = `脚本样例三：
+coming soon ...
+            `;
+        },
         methods: {
             afterAddnew() {
                 this.form.scan_print_id = this.parentId;

@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8" />
     <title>login</title>
-    <script>var jsVer = "2021-12-09";</script>
+    <script>var jsVer = "2021-12-12";</script>
     <script src="../../../../framework/core/boot.js"></script>
-    <script src="../../../../framework/system/login.js?v=2021-12-09"></script>
-    <script src="../../../../framework/system/user.js?v=2021-12-09"></script>
+    <script src="../../../../framework/system/user.js?v=2021-12-12"></script>
+    <script src="../../../../framework/system/login.js?v=2021-12-12"></script>
 
     <!-- 仅login.html页面需要单独引用下列js -->
     <script src="../../../../plugin/util/jquery-3.1.1.min.js"></script>
@@ -43,7 +43,7 @@
 </head>
 <body onload="winLoad()">
     <div id="app">
-         <el-card id="elCardLogin" class="box-card">
+        <el-card id="elCardLogin" class="box-card">
             <el-row style="text-align:center;">
                 <H2>Alis operation system</H2>
             </el-row>
@@ -81,7 +81,7 @@
 <script>
     var app = new Vue({
         el: '#app',
-        data: { 
+        data: {
             tenantId: "F100",
             userPk: "",
             password: "",

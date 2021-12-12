@@ -7,6 +7,9 @@
  */
 
 (function () {
+    setLocalItem("token", "");
+    setLocalItem("tenantId", "");
+
     window.UtilUser = {
         MD5_SPLIT: "^",
         MD5_KEY: "doys-next.com"
