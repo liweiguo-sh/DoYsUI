@@ -252,7 +252,8 @@
                 content: ""
             },
 
-            dtbProductPn: null,             // -- 产品料号记录集 --
+            dtbProductPn: null,             // -- 产品料号记录集(按照PN排序，默认加载) --
+            dtbProductPnOrderByDi: null,    // -- 产品料号记录集(按照DI排序，按需加载) --
             productPns: [],                 // -- 产品料号集合 --
             productPnId: "",
             productPn: "",                  // -- 产品料号 --
@@ -328,10 +329,10 @@
                 this.activeCollapses = ["preview"];
             },
             tabClick(tab, event) {
-                if (tab.name.equals("excel") || tab.name.equals("interface")) {
+                if (this.activeTabName.equals("excel") || this.activeTabName.equals("interface")) {
                     this.qty = 0;
                 }
-                else if (tab.name.equals("labelChange")) {
+                else if (this.activeTabName.equals("labelChange")) {
                     if (this.scanPrints.length == 0) {
                         ajax.send("/aprint/print/quick/getScanPrintList", {}).then(res => {
                             if (res.scanPrints.length > 0) {
@@ -478,8 +479,6 @@
                         let jsonRet = item.jsAfterScan(item.value);
                         let fields = jsonRet.fields;
                         // -- 填充返回的变量值 --
-                        debugger
-                        debugger
                         if (fields) {
                             for (let key in fields) {
                                 for (let i = 0; i < this.variables.length; i++) {
@@ -492,24 +491,22 @@
                             }
                             this.setVariables();
                         }
-                        
+
                         // -- 执行match动作 --
                         let match = jsonRet.match || "";
                         let field = jsonRet.field || "";
                         let action = jsonRet.action || "";
                         if (match.equals("product")) {
-                            if (field.equals("pn")) {
-                                let pn = fields["pn"] || "";
-                                let arrFind = [pn];
-                                let nFind = this.dtbProductPn.find(arrFind);
-                                if (nFind >= 0) {
-                                    let dataRow = this.dtbProductPn.rows[8];
-                                    this.productPnId = dataRow["id"].value;
-                                    await this.onProductPnChange();                                    
-                                }
-                                else {
-                                    throw ("未找到匹配的产品料号/SKU，请检查。");
-                                }
+                            let dtbMatch = await this.getDtbProduct(field);
+                            let arrFind = [fields[field] || ""];
+                            let nFind = dtbMatch.find(arrFind);
+                            if (nFind >= 0) {
+                                let dataRow = dtbMatch.rows[nFind];
+                                this.productPnId = dataRow["id"].value;
+                                await this.onProductPnChange();
+                            }
+                            else {
+                                throw ("未找到匹配的产品，请检查。");
                             }
                         }
                         else {
@@ -536,10 +533,27 @@
                     topWin.alert(e.toString(), "error", () => {
                         this.$refs["_scanItem_" + item.id][0].select();
                         this.$refs["_scanItem_" + item.id][0].focus();
-                    });                    
+                    });
                 }
                 finally {
                     waiting.close();
+                }
+            },
+            async getDtbProduct(field) {
+                if (field.equals("pn")) {
+                    return this.dtbProductPn;
+                }
+                else if (field.equals("di")) {
+                    if (this.dtbProductPnOrderByDi == null) {
+                        let res = await ajax.send("/aprint/print/quick/getProductPn_orderByDi", {});
+
+                        this.dtbProductPnOrderByDi = res.dtbProductPnOrderByDi;
+                        this.dtbProductPnOrderByDi.sort("di");
+                    }
+                    return this.dtbProductPnOrderByDi;
+                }
+                else {
+                    throw ("不支持的查找项：" + field);
                 }
             },
             scanBarcodeEnterNext() {
@@ -1026,6 +1040,7 @@
         let activeTabName = getPageCookie("activeTabName");
         if (!activeTabName.equals("")) {
             app.activeTabName = activeTabName;
+            app.tabClick();
         }
     }
 </script>
