@@ -66,7 +66,7 @@
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
-                    <el-tab-pane name="labelChange" label="扫码换标">
+                    <el-tab-pane name="scanPrint" label="扫码换标">
                         <el-form label-width="135px" label-position="left" size1="medium">
                             <el-form-item label="扫码换标规则">
                                 <el-select v-model="scanPrintId" @change="onScanPrintChange" default-first-option filterable clearable style="width:100%;">
@@ -85,7 +85,7 @@
                         </el-form>
                     </el-tab-pane>
                 </el-tabs>
-                <el-row v-show="!activeTabName.equals('labelChange')">
+                <el-row v-show="!activeTabName.equals('scanPrint')">
                     <el-button @click="createTaskByManual" type="success" v-if="activeTabName=='standard'" :disabled="!label.id || qty.toInt()<1">生成打印数据</el-button>
                     <el-button @click="pullInterfaceData" type="success" v-if="activeTabName=='interface'" :disabled="!label.id || !interfaceId || !interfaceQueryCode">拉取接口数据</el-button>
                     <el-upload v-if="activeTabName=='excel'" :disabled="!label.id"
@@ -157,7 +157,7 @@
                     <!-- 产品、客户、供应商 -->
                     <hr v-show="hasProductRef || hasCustomerRef || hasSupplierRef" />
                     <el-form-item label="产品料号(SKU)" v-show="hasProductRef">
-                        <el-select v-model="productPnId" v-if="productPnCount<=1000" @change="onProductPnChange" default-first-option filterable clearable style="width:100%;">
+                        <el-select v-model="productPnId" v-if="productPnCount<=productPnCountMax" @change="onProductPnChange" default-first-option filterable clearable style="width:100%;">
                             <el-option v-for="item in productPns" :key="item.id" :value="item.id" :label="item.pn + '  ' + item.product_name">
                                 <span>{{ item.pn }}</span>
                                 <span style="float:right">{{ item.product_name }}</span>
@@ -234,14 +234,6 @@
             size: "medium",                 // -- medium/small/mini --
 
             actionUpload: g.prefix + "/framework/common/upload/upload_temp_file",
-
-            scanPrints: [],                 // -- 扫码换标打印规则集合 --
-            scanPrintId: null,              // -- 当前规则ID --
-            scanItems: [],                  // -- 扫码项集合 --
-
-            scanField: "pn",                // -- xxx扫码内容 --
-            barcodeScan: "",                // -- xxx扫码内容 --
-
             autoPrint: true,                // -- 自动打印 --
             autoResetCopy: true,            // -- 自动重置份数 --
 
@@ -258,7 +250,9 @@
             productPnId: "",
             productPn: "",                  // -- 产品料号 --
             productPnCount: 0,              // -- 产品料号数量(数量过大时，导致渲染太慢，优化为不加载下俩列表) --
+            productPnCountMax: 1000,        // -- 产品料号是否以下拉列表形式展现 --
             productPnPara: {},              // -- 产品料号参数集 --
+
             customers: [],                  // -- 客户集合 --
             customerId: "",                 // -- 当前选中客户ID --
             customerPara: {},               // -- 当前客户参数集 --
@@ -268,6 +262,10 @@
 
             variables: {},                  // -- 标签变量集合 --
             variablesUser: {},              // -- 用户修改过的标签变量集合 --
+            scanPrints: [],                 // -- 扫码换标打印规则集合 --
+            scanPrintId: null,              // -- 当前规则ID --
+            scanItems: [],                  // -- 扫码项集合 --
+
             interfaces: [],                 // -- 业务数据接口列表 --
             interfaceId: null,
             interfaceQueryCode: "",         // -- 业务接口查询单号 --
@@ -332,11 +330,15 @@
                 if (this.activeTabName.equals("excel") || this.activeTabName.equals("interface")) {
                     this.qty = 0;
                 }
-                else if (this.activeTabName.equals("labelChange")) {
+                else if (this.activeTabName.equals("scanPrint")) {
                     if (this.scanPrints.length == 0) {
                         ajax.send("/aprint/print/quick/getScanPrintList", {}).then(res => {
                             if (res.scanPrints.length > 0) {
                                 this.scanPrints = res.scanPrints;
+                                if (this.scanPrints.length == 1) {
+                                    this.scanPrintId = this.scanPrints[0].id;
+                                    this.onScanPrintChange();
+                                }
                             }
                             else {
                                 this.scanPrints = [{ id: 0, name: "未配置" }];
@@ -416,7 +418,7 @@
                         let dataRow;
                         let productPns = [];
 
-                        if (rowCount <= 1000) {
+                        if (rowCount <= this.productPnCountMax) {
                             for (let i = 0; i < rowCount; i++) {
                                 dataRow = this.dtbProductPn.rows[i];
                                 productPns.push({
@@ -517,7 +519,20 @@
 
                         // -- 执行action动作 --
                         if (action.equals("print")) {
-                            this.printProof();
+                            if (this.autoPrint) {
+                                this.printProof();
+
+                                if (this.autoResetCopy) {
+                                    this.copies = 1;
+                                }
+                            }
+                            else {
+                                topWin.message("找到匹配记录，已生成标签，请手动打印。", "success");
+                            }
+
+                            let refItem = "_scanItem_" + this.scanItems[item.index].id;
+                            this.$refs[refItem][0].select();
+                            this.$refs[refItem][0].focus();
                             return;
                         }
                     }
@@ -556,52 +571,37 @@
                     throw ("不支持的查找项：" + field);
                 }
             },
-            scanBarcodeEnterNext() {
-                this.print();
-                if (this.autoResetCopy) {
-                    this.copies = 1;
-                }
-            },
 
             // -- variable --------------------------------
-            async onProductPnChange(jsp = {}) {
+            async onProductPnChange() {
                 if (this.productPnId) {
                     let res = await ajax.send("/aprint/print/quick/getProductPnPara", { productPnId: this.productPnId });
                     this.productPnPara = res.productPnPara;
                     this.setVariables();
-
-                    if (jsp.scanBarcodeEnterNext) {
-                        this.scanBarcodeEnterNext();
-                    }
                 }
                 else {
                     this.productPnPara = {};
                     this.setVariables();
                 }
             },
-            onProductPnChange_input() {
+            async onProductPnChange_input() {
                 // -- onProductPnChange是下拉框触发的，onProductPnChange_input是文本框触发的 --
                 let productPn = this.productPn.trim();
                 if (productPn.equals("")) return;
 
                 // -- 1. 查找 --
-                let value, idxFind = -1;
-                for (let i = this.productPns.length - 1; i >= 0; i--) {
-                    value = this.productPns[i]["pn"];
-                    if (productPn == value) {
-                        idxFind = i;
-                        break;
-                    }
-                }
+                let arrFind = [productPn];
+                let dtbFind = await this.getDtbProduct("pn");
+                let nFind = dtbFind.find(arrFind);
 
                 // -- 2. 调用下拉框change事件 --
-                if (idxFind < 0) {
+                if (nFind < 0) {
                     topWin.message("未找到符合条件的产品料号/SKU，请检查。", "error");
                     this.$refs["productPn"].select();
                     return;
                 }
 
-                this.productPnId = this.productPns[idxFind]["id"];
+                this.productPnId = dtbFind.rows[nFind]["id"].value;
                 this.onProductPnChange();
             },
             onCustomerChange() {
