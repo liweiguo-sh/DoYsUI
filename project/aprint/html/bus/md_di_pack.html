@@ -84,7 +84,7 @@
             init() {
                 let pickDi;
                 let suffix = this.diMain.substring(1, 13);
-                let disSub = [{ idx: 0, pack_di: this.diMain }];
+                let disSub = [{ idx: 0, pack_di: "0" + suffix + Util.GetChecksumEAN("0" + suffix, 14) }];
 
                 for (let i = 1; i <= this.max; i++) {
                     pickDi = i.toString() + suffix + Util.GetChecksumEAN(i.toString() + suffix, 14);
@@ -104,9 +104,10 @@
                     let dis = JSON.parse(this.jsonPacks);
                     for (let i = 0; i < dis.length; i++) {
                         let di = dis[i];
-                        this.dis[i].pack_name = di.pack_name;
-                        this.dis[i].sub_di_qty = di.sub_di_qty;
-                        this.dis[i].sub_di = di.sub_di;
+                        let idx = di.pack_di.substring(0, 1).toInt() - 1;
+                        this.dis[idx].pack_name = di.pack_name;
+                        this.dis[idx].sub_di_qty = di.sub_di_qty;
+                        this.dis[idx].sub_di = di.sub_di;
                     }
                 }
 
@@ -145,8 +146,8 @@
                     let di = this.dis[i];
                     let diPre = this.dis[i - 1];
                     if (di.pack_name && !diPre.pack_name) {
-                        topWin.message("第" + (i) + "行数据不能为空，请按照顺序填写。", "error");
-                        return;
+                        //topWin.message("第" + (i) + "行数据不能为空，请按照顺序填写。", "error");
+                        //return;
                     }
                 }
                 // ----------------------------------------
