@@ -468,7 +468,12 @@
                         let item = this.scanItems[i];
                         item.index = i;
                         if (item.js_after_scan) {
-                            item.jsAfterScan = eval("(function (barcode) {" + item.js_after_scan + "})");
+                            try {
+                                item.jsAfterScan = eval("(function (barcode) {" + item.js_after_scan + "})");
+                            }
+                            catch (e) {
+                                topWin.alert("脚本解析错误：" + e.toString(), "error");
+                            }
                         }
                     }
                 });

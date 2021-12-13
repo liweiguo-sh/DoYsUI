@@ -5,6 +5,10 @@
     <script src="../../framework/core/boot.js"></script>
 
     <style type="text/css">
+        body {
+            margin: 15px;
+        }
+
         .el-row {
             margin-bottom: 20px;
             vertical-align: middle
@@ -24,10 +28,10 @@
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="3">
-                <el-input v-model="dt1" @keyup.enter.native="test1"></el-input>
+            <el-col :span="12">
+                <el-input v-model="barcode" keyup.enter.native="test1" type="textarea" rows="5"></el-input>
             </el-col>
-            
+
         </el-row>
         <div id="divMessage"></div>
     </div>
@@ -39,31 +43,61 @@
     var app = new Vue({
         el: '#app',
         data: {
-            count: 0,
-            countMax: 10000,
-
-            dt1: "2020-01-01"
+            barcode: "(21)YPZ15-21B-0002" + String.fromCharCode(10) + "(01) 06974778410016   (11)211019 (17)311018 "
         },
         methods: {
-            test1() { 
-                debugger
-                debugger
-
-                let a = looseJsonParse();
-                a();
-
-                debugger
-                debugger
+            test1() {
+                parseUDI(this.barcode.replaceAll(" ", ""));
             }
         }
     });
 </script>
 
 <script>
+    function parseUDI(barcodeString) {
+        let ais = {};
+        let rules = [
+            { ai: "01", width: 14 },
+            { ai: "10", width: 0 },         // -- 批次 --
+            { ai: "11", width: 6 },         // -- 生产日期 --
+            { ai: "13", width: 6 },         // -- 包装日期 --
+            { ai: "17", width: 6 },         // -- 产品效期 --
+            { ai: "21", width: 0 }          // -- 序列号 --
+        ];
 
-    function looseJsonParse() {
-        let obj = "alert('1')";
-        return Function('"use strict";return (' + obj + ')');
+        let GS = String.fromCharCode(29);   // -- 分组符 --
+        let LF = String.fromCharCode(10);   // -- 换行符(\n) --
+        let barcodes = barcodeString.replaceAll(LF, GS).split(GS);
+        for (let i = 0; i < barcodes.length; i++) {
+            let barcode = barcodes[i];
+            while (barcode.length > 3) {
+                let aiFind = "", start = 0, end = 0;
+                for (let j = 0; j < rules.length; j++) {
+                    let ai = rules[j].ai;
+                    let width = rules[j].width;
+
+                    if (barcode.startsWith(ai) || barcode.startsWith("(" + ai + ")")) {
+                        aiFind = ai;
+                        start = ai.length + (barcode.startsWith("(" + ai + ")") ? 2 : 0);
+                        if (width != 0) {
+                            end = start + width;
+                        }
+                        if (end > 0) {
+                            ais[aiFind] = barcode.substring(start, end);
+                            barcode = barcode.substring(end);
+                        }
+                        else {
+                            ais[aiFind] = barcode.substring(start);
+                            barcode = "";
+                        }
+                        break;
+                    }
+                }
+
+                if (aiFind.equals("")) break;
+            }
+        }
+        return ais;
     }
-    
+
 </script>

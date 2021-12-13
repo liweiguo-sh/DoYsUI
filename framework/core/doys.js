@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2021-12-09
+ * Modify Date: 2021-12-13
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -103,6 +103,7 @@ function initGlobalJs() {
     arrJS.push(g.path.framework + "/core/" + "datatable.js");
     arrJS.push(g.path.framework + "/core/" + "ajax.js");
     arrJS.push(g.path.framework + "/core/" + "validate.js");
+    arrJS.push(g.path.framework + "/core/" + "util.js");
 
     // -- control --
     arrJS.push(g.path.framework + "/control/sub-view/sub-view-bar.js");
