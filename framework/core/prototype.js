@@ -153,6 +153,11 @@ String.prototype.toDateByFromat = function (format = "yyyy-MM-dd") {
     }
 }
 
+String.prototype.toFormat = function (format = "") {
+    let num = parseFloat(this);
+    return num.toFormat(format);
+};
+
 // -- Date --------------------------------------------------------------------
 Date.prototype.toDate = function () {
     return this.toStr().toDate();
