@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-12-07
+ * Modify Date: 2021-12-15
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -92,19 +92,23 @@ class Label {
             this.label = JSON.parse(labelString);
         }
 
-        if (jsp.fields) {
-            // -- 以传进来的fields为准，便于外部管理fields --
-            // -- this.label.fields = g.x.extendJSON(this.label.fields, jsp.fields);
-            this.label.fields = jsp.fields;
-        }
         if (!this.label.Fields) {
             // -- 修复旧版没有Fields对象 --
             this.label.Fields = {};
-            for (let key in this.label.fields) {
+        }
+        if (jsp.fields) {
+            // -- 以传进来的fields为准，便于外部管理fields --
+            this.label.fields = jsp.fields;
+        }
+        for (let key in this.label.fields) {
+            if (this.label.Fields[key] == undefined) {
                 let field = DLbelExample.getBlankField();
                 field.name = key;
                 field.value = this.label.fields[key];
                 this.label.Fields[key] = field;
+            }
+            else {
+                this.label.Fields[key].value = this.label.fields[key];
             }
         }
 
@@ -116,6 +120,7 @@ class Label {
         this.head = this.label.head;
         this.head.element_id = this.head.element_id || this.label.elements.length + 1;
         this.fields = this.label.fields;
+        this.Fields = this.label.Fields;
         this.elements = this.label.elements;
         this.selectedElements = [];                                 // -- 多选选中的元素集合 --
         this.selectedCount = 0;                                     // -- 多选选中的元素数量 --
@@ -711,7 +716,7 @@ class Label {
         UtilElement.reduce({ element: element });
 
         UtilElement.computeProp({ element: element });
-        UtilElement.computeValue({ element: element, fields: _this.fields });
+        UtilElement.computeValue({ element: element, fields: _this.fields, Fields: _this.Fields });
         UtilElement.draw({ element: element });
         _this.showResize();
     }
@@ -1300,7 +1305,7 @@ class Label {
 
         // -- 2. compute elements --
         for (let i = 0; i < this.elements.length; i++) {
-            UtilElement.computeValue({ element: this.elements[i], fields: this.fields });
+            UtilElement.computeValue({ element: this.elements[i], fields: this.fields, Fields: this.Fields });
         }
 
         // -- 3. after compute --

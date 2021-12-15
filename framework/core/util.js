@@ -20,7 +20,8 @@ util.parseUDI = function (barcodeString) {
         { ai: "11", width: 6 },         // -- 生产日期 --
         { ai: "13", width: 6 },         // -- 包装日期 --
         { ai: "17", width: 6 },         // -- 产品效期 --
-        { ai: "21", width: 0 }          // -- 序列号 --
+        { ai: "21", width: 0 },         // -- 序列号 --
+        { ai: "91", width: 0 }          // -- 企业内部编码 --
     ];
 
     let GS = String.fromCharCode(29);   // -- 分组符 --

@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-    <div id="app" style="width:900px;height:500px;">
+    <div id="app" style="width:1050px;height:500px;">
         <el-tabs v-model="activeTabName" type="card">
             <!-- 条码、文本 -->
             <el-tab-pane label="条码内容(机器识读)" name="segments" v-if="head.elementType=='barcode'">
@@ -58,12 +58,12 @@
                     </el-col>
                 </el-row>
                 <el-row v-for="section in sections" :key="section.pos" :gutter="8" style="margin-bottom:5px;">
-                    <el-col :span="5">
+                    <el-col :span="4">
                         <el-select v-model="section.type" @change="sectionTypeChange(section.pos)">
                             <el-option v-for="st in sectionTypes" :value="st.k" :label="st.v" :key="st.k" :section="section"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="14">
+                    <el-col :span="12">
                         <el-input v-model="section.value" v-if="section.type=='fixed'" type="textarea" @change="sectionValueChange(section.pos)" autosize></el-input>
                         <el-select v-model="section.value" v-if="section.type=='field'" @change="sectionValueChange(section.pos)" style="width:100%">
                             <el-option v-for="f in fields" :value="f.k" :label="f.k" :key="f.k" :section="section"></el-option>
@@ -72,7 +72,11 @@
                             <el-option v-for="s in symbols" :value="s.k" :label="s.v" :key="s.k" :section="section"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="5">
+                    <el-col :span="4">
+                        <el-input v-model="section.format" v-if="section.type=='field'" @change="sectionFormatChange(section.pos)" placeholder="格式化模板" ></el-input>
+                        <span v-else>&nbsp;</span>
+                    </el-col>
+                    <el-col :span="4">
                         <el-button-group>
                             <el-button type="danger" v-if="section.type!=''" @click="sectionDelete(section.pos)" :section="section" title="删除" icon="el-icon-delete"></el-button>
                             <el-button type="primary" v-if="section.pos<sections.length-1 && section.pos>0" @click="sectionMoveUp(section.pos)" :section="section" title="上移" icon="el-icon-arrow-up"></el-button>
@@ -81,12 +85,12 @@
                     </el-col>
                 </el-row>
             </el-tab-pane>
-        </el-tabs>        
+        </el-tabs>
         <div style="display:none;">
             <hr />
             <el-button @click="reComputer();">preview</el-button>
             <el-button @click="test1();">测试一</el-button>
-        </div>        
+        </div>
     </div>
 </body>
 </html>
@@ -123,6 +127,9 @@
                 this.reComputer();
             },
             sectionValueChange(pos) {
+                this.reComputer();
+            },
+            sectionFormatChange(pos) {
                 this.reComputer();
             },
             sectionDelete(pos) {

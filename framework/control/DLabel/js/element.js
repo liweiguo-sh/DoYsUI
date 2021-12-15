@@ -242,6 +242,7 @@ UtilElement.computePropAngle = function (element) {
 UtilElement.computeValue = function (jsp) {
     let element = jsp.element;
     let fields = jsp.fields;
+    let Fields = jsp.Fields;
 
     let head = element.head;
     let segments = element.segments;
@@ -311,7 +312,19 @@ UtilElement.computeValue = function (jsp) {
                     values.push(value);
                 }
                 else if (type.equals("field")) {
-                    values.push(fields[value]);
+                    
+                    let fieldValue = fields[value];
+                    let format = section.format;
+                    if (format) {
+                        let datatype = Fields[value].datatype;
+                        if (datatype.equals("number")) {
+                            fieldValue = parseFloat(fieldValue).toFormat(format);
+                        }
+                        else {
+                            console.log("不支持格式化的数据类型：" + datatype);
+                        }
+                    }
+                    values.push(fieldValue);
                 }
                 else if (type.equals("symbol")) {
                     if (value.equals("GS")) {

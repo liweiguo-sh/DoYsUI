@@ -203,7 +203,7 @@ DLbelExample.demo1 = function () {
     "mfg_date": "201016",
     "exp_date": "231015",
     "lot": "231015",
-    "price": "$1234.56",
+    "price": "1234.56",
     "img01": "http://biosunmed.com/upload/2020/7/61552460.jpg",
     "img02": "http://biosunmed.com/upload/2020/4/1410510871.jpg",
     "img08": "08.png"
@@ -220,19 +220,22 @@ DLbelExample.demo1 = function () {
         "lineHeight": 0,
         "size": "7",
         "name": "宋体",
-        "color": "#3300FF"
+        "color": "#3300FF",
+        "fontHeight": 2.4694444444444446,
+        "textHeight": 2.4694444444444446
       },
       "frame": {
         "type": "",
         "width": 0,
-        "color": "#04FF00"
+        "color": "#04FF00",
+        "radius": 0
       },
       "position": {
         "layer": 1,
         "top": 44.95934959349595,
         "left": "3",
-        "width": "73.74",
-        "height": "12.66",
+        "width": 73.74,
+        "height": 12.66,
         "angle": 0,
         "angleR": 0,
         "textAlign": "center",
@@ -279,7 +282,7 @@ DLbelExample.demo1 = function () {
         "offsetY": 0,
         "leftText": 36.87,
         "topText": 12.66,
-        "heightBarcode": 9.837777777777777,
+        "heightBarcode": 10.190555555555555,
         "widthBarcode": 73.74,
         "leftBarcode": 0,
         "topBarcode": 0,
@@ -429,18 +432,21 @@ DLbelExample.demo1 = function () {
         "lineHeight": 0,
         "size": "8",
         "name": "微软雅黑",
-        "color": "#ED1414"
+        "color": "#ED1414",
+        "fontHeight": 2.822222222222222,
+        "textHeight": 2.822222222222222
       },
       "frame": {
         "type": "",
-        "width": 0
+        "width": 0,
+        "radius": 0
       },
       "position": {
         "layer": 1,
         "top": "1.45",
         "left": "51.70",
-        "width": "22.03",
-        "height": "24.64",
+        "width": 22.03,
+        "height": 24.64,
         "angle": 270,
         "angleR": 4.71238898038469,
         "textAlign": "center",
@@ -544,7 +550,9 @@ DLbelExample.demo1 = function () {
         "lineHeight": 0,
         "size": 12,
         "name": "楷体",
-        "color": "#00FF48"
+        "color": "#00FF48",
+        "fontHeight": 4.2333333333333325,
+        "textHeight": 4.2333333333333325
       },
       "frame": {
         "type": "rectangle",
@@ -636,18 +644,21 @@ DLbelExample.demo1 = function () {
       "font": {
         "lineHeight": 0,
         "size": "9",
-        "name": "微软雅黑"
+        "name": "微软雅黑",
+        "fontHeight": 3.175,
+        "textHeight": 3.175
       },
       "frame": {
         "type": "",
-        "width": 0
+        "width": 0,
+        "radius": 0
       },
       "position": {
         "layer": 1,
         "top": "3.90",
         "left": "3",
-        "width": "47.57",
-        "height": "5.93",
+        "width": 47.57,
+        "height": 5.93,
         "angle": 0,
         "angleR": 0,
         "textAlign": "left",
@@ -720,7 +731,7 @@ DLbelExample.demo1 = function () {
           "pos": 1,
           "type": "field",
           "value": "price",
-          "format": ""
+          "format": "#,##0.00"
         },
         {
           "pos": 2,
@@ -734,19 +745,22 @@ DLbelExample.demo1 = function () {
         "size": "9",
         "name": "微软雅黑",
         "italic": true,
-        "color": "#DC1A1A"
+        "color": "#DC1A1A",
+        "fontHeight": 3.175,
+        "textHeight": 3.175
       },
       "frame": {
         "type": "rectangle",
         "width": 0,
-        "fillColor": "#E2E780"
+        "fillColor": "#E2E780",
+        "radius": 0
       },
       "position": {
         "layer": 1,
         "top": "11.11",
         "left": 10.95,
-        "width": "38",
-        "height": "8.38",
+        "width": 38,
+        "height": 8.38,
         "angle": 0,
         "angleR": 0,
         "textAlign": "right",
@@ -810,20 +824,24 @@ DLbelExample.demo1 = function () {
       },
       "font": {
         "lineHeight": 0,
-        "size": 12
+        "size": 12,
+        "name": "宋体",
+        "fontHeight": 4.2333333333333325,
+        "textHeight": 4.2333333333333325
       },
       "frame": {
         "type": "",
         "width": 0,
         "color": "#B30A0A",
-        "fillColor": "#00F7FF"
+        "fillColor": "#00F7FF",
+        "radius": 0
       },
       "position": {
         "layer": 1,
         "top": 21.05691056910569,
         "left": "3",
-        "width": "24.79",
-        "height": "22.52",
+        "width": 24.79,
+        "height": 22.52,
         "angle": 0,
         "angleR": 0,
         "textAlign": "left",
@@ -882,7 +900,7 @@ DLbelExample.demo1 = function () {
       "image": {
         "value": "img01",
         "deformation": "zoom",
-        "url": "http://biosunmed.com/upload/2020/4/1410510871.jpg"
+        "url": "http://biosunmed.com/upload/2020/7/61552460.jpg"
       },
       "env": "design",
       "point": 600
@@ -896,12 +914,13 @@ DLbelExample.demo1 = function () {
         "type": "rectangle",
         "width": 0,
         "color": "#000000",
-        "fillColor": "#809AE7"
+        "fillColor": "#809AE7",
+        "radius": 0
       },
       "position": {
         "layer": 1,
-        "width": "45.95",
-        "height": "0.5",
+        "width": 45.95,
+        "height": 0.5,
         "textAlign": "center",
         "verticalAlign": "middle",
         "top": "20.21",
@@ -969,6 +988,64 @@ DLbelExample.demo1 = function () {
     "cols": 1,
     "horizontalSpace": 0,
     "verticalSpace": 0
+  },
+  "Fields": {
+    "gtin": {
+      "name": "gtin",
+      "value": "06938450873308",
+      "datatype": "string",
+      "private": false,
+      "ext_prop": ""
+    },
+    "mfg_date": {
+      "name": "mfg_date",
+      "value": "201016",
+      "datatype": "string",
+      "private": false,
+      "ext_prop": ""
+    },
+    "exp_date": {
+      "name": "exp_date",
+      "value": "231015",
+      "datatype": "string",
+      "private": false,
+      "ext_prop": ""
+    },
+    "lot": {
+      "name": "lot",
+      "value": "231015",
+      "datatype": "string",
+      "private": false,
+      "ext_prop": ""
+    },
+    "price": {
+      "name": "price",
+      "value": "1234.56",
+      "datatype": "number",
+      "private": false,
+      "ext_prop": ""
+    },
+    "img01": {
+      "name": "img01",
+      "value": "http://biosunmed.com/upload/2020/7/61552460.jpg",
+      "datatype": "string",
+      "private": false,
+      "ext_prop": ""
+    },
+    "img02": {
+      "name": "img02",
+      "value": "http://biosunmed.com/upload/2020/4/1410510871.jpg",
+      "datatype": "string",
+      "private": false,
+      "ext_prop": ""
+    },
+    "img08": {
+      "name": "img08",
+      "value": "08.png",
+      "datatype": "string",
+      "private": false,
+      "ext_prop": ""
+    }
   }
 }
         `;

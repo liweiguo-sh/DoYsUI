@@ -2,7 +2,7 @@
  * DoYs.prototype.js
  * Author: David.Li
  * Create Date: 2020-04-10
- * Modify Date: 2021-12-09
+ * Modify Date: 2021-12-15
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -262,6 +262,72 @@ Date.prototype.diffDay = function (dateEarly) {
 // -- Number ------------------------------------------------------------------
 Number.prototype.toInt = function () {
     return parseInt(this);
+}
+Number.prototype.toFormat = function (format = "0.00") {
+    let idxPoint;
+    let valueString = this.toString();
+    let intStr = valueString, decStr = "";
+    let intFormat = format, decFormat = "";
+
+    // -- 数字和格式化分别分拆为整数部分和小数部分 --
+    idxPoint = valueString.indexOf(".");
+    if (idxPoint >= 0) {
+        intStr = valueString.substring(0, idxPoint);
+        decStr = valueString.substring(idxPoint + 1);
+    }
+
+    idxPoint = format.indexOf(".");
+    if (idxPoint >= 0) {
+        intFormat = format.substring(0, idxPoint);
+        decFormat = format.substring(idxPoint + 1);
+    }
+
+    // -- 格式化整数部分 --
+    for (let pos = 1; pos <= intFormat.length; pos++) {
+        let ch = intFormat.charAt(intFormat.length - pos);
+        if (ch == "0") {
+            if (pos > intStr.length) {
+                intStr = "0" + intStr;
+            }
+        }
+        else {
+            if (pos > intStr.length) {
+                break;
+            }
+            else {
+                if (ch != "#") {
+                    intStr = intStr.substring(0, intStr.length - pos + 1) + ch + intStr.substring(intStr.length - pos + 1);
+                }
+            }
+        }
+    }
+
+    // -- 格式化整数部分 --    
+    for (let pos = 1; pos <= decFormat.length; pos++) {
+        let ch = decFormat.charAt(pos - 1);
+        if (ch == "0") {
+            if (pos > decStr.length) {
+                decStr = decStr + "0";
+            }
+        }
+        else {
+            if (pos > decStr.length) {
+                break;
+            }
+            else {
+                if (ch != "#") {
+                    decStr = decStr.substring(0, decStr.length - pos + 1) + ch + decStr.substring(decStr.length - pos + 1);
+                }
+            }
+        }
+    }
+    decStr = decStr.substring(0, decFormat.length);
+
+    // -- 返回结果 --
+    if (decStr) {
+        return intStr + "." + decStr;
+    }
+    return intStr;
 }
 
 // -- JSON --------------------------------------------------------------------
