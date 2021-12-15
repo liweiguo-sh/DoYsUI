@@ -278,21 +278,33 @@
                 let res = await ajax.send("/aprint/juchen/queryInterfaceData", dataPOST);
                 this.dtbItem = res.dtbItem;
                 if (this.dtbItem.rowCount == 0) {
-                    topWin.message("没有查询到符合条件的接口数据。", "error");
+                    topWin.alert("没有查询到符合条件的接口数据。", "warning");
                     this.labelSetId = null;
                     return;
                 }
                 this.dtbItem.sort("$row_no");
 
-                let labelSetId;
+                let labelSetId, labelSetIdDefault;
                 let labelSetCodeValue = this.dtbItem.rows[0][this.labelSetCode].value;
                 for (let i = 0; i < this.labelSets.length; i++) {
                     if (this.labelSets[i].code.equals(labelSetCodeValue)) {
                         labelSetId = this.labelSets[i].id;
                         break;
                     }
+                    if (this.labelSets[i].code.equals("default")) {
+                        labelSetIdDefault = this.labelSets[i].id;
+                    }
                 }
-                if (!labelSetId) return;
+                if (!labelSetId) {
+                    if (labelSetIdDefault) {
+                        labelSetId = labelSetIdDefault;
+                    }
+                    else {
+                        topWin.alert("缺少默认套标。", "error");
+                        return;
+                    }                    
+                }                
+
                 this.labelSetId = labelSetId;
                 await this.labelSetChange();
 
@@ -554,7 +566,7 @@
                 data["expired_date"] = (new Date().add(720, "day")).toString("yy/MM/dd");
                 data["total_quantity"] = totalQuantiy;
                 mfgDates.sort();
-                data["mfg_date_min"] = mfgDates[0].toDateByFromat("yyww").toString("MMMM-dd-yyyy");
+                data["mfg_date_min"] = mfgDates[0].toDateByFromat("yyww");
                 data["pack_index"] = this.packIndex;
                 data["pack_count"] = this.packCount;
 
