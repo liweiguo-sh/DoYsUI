@@ -268,7 +268,28 @@ UtilElement.computeValue = function (jsp) {
                 values.push(value);
             }
             else if (type.equals("field")) {
-                values.push(fields[value]);
+                let fieldValue = fields[value];
+                let format = segment.format;
+                if (format) {
+                    try {
+                        let datatype = Fields[value].datatype;
+                        if (datatype.equals("number")) {
+                            fieldValue = parseFloat(fieldValue).toFormat(format);
+                        }
+                        else if (datatype.equals("datetime")) {
+                            fieldValue = fieldValue.toDate().toString(format);
+                        }
+                        else if (datatype.equals("string")) {
+                            fieldValue = fieldValue.toFormat(format);
+                        }
+                        else {
+                            throw ("不支持格式化的数据类型：" + datatype);
+                        }
+                    } catch (e) {
+                        topWin.message(e.toString(), "error");
+                    }
+                }
+                values.push(fieldValue);
             }
             else if (type.equals("symbol")) {
                 if (value.equals("GS")) {
