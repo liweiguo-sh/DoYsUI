@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-12-13
- * Modify Date: 2021-12-13
+ * Modify Date: 2021-12-17
  * Copyright 2021, doys-next.com
  * util lib
  */
@@ -12,7 +12,7 @@
 })()
 
 // ----------------------------------------------------------------------------
-util.parseUDI = function (barcodeString) {
+util.parseUDI = function (barcodeString) {    
     let ais = {};
     let rules = [
         { ai: "01", width: 14 },        // -- GTIN --
@@ -48,6 +48,11 @@ util.parseUDI = function (barcodeString) {
                     else {
                         ais[aiFind] = barcode.substring(start);
                         barcode = "";
+                    }
+                    if (aiFind.equals("11") || aiFind.equals("13") || aiFind.equals("17")) {
+                        if (ais[aiFind].length == 6) {
+                            ais[aiFind] = ais[aiFind].toDateByFromat("yyMMdd").toString("yyyy-MM-dd");
+                        }
                     }
                     break;
                 }

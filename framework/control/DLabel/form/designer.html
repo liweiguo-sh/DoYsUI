@@ -580,7 +580,7 @@
                                 element[propGroupName][propName] = this[propGroupName][propName];
 
                                 UtilElement.computeProp({ element: element });
-                                UtilElement.computeValue({ element: element, fields: lbl.fields });
+                                UtilElement.computeValue({ element: element, fields: lbl.fields, Fields: lbl.Fields });
                                 UtilElement.draw({ element: element });
                             }
                         }
@@ -603,7 +603,7 @@
 
                         element[propGroupName][propName] = propValue;
                         UtilElement.computeProp({ element: element });
-                        UtilElement.computeValue({ element: element, fields: lbl.fields });
+                        UtilElement.computeValue({ element: element, fields: lbl.fields, Fields: lbl.Fields });
                         UtilElement.draw({ element: element });
                     }
                     lbl.showResize();

@@ -200,9 +200,9 @@ DLbelExample.demo1 = function () {
   },
   "fields": {
     "gtin": "06938450873308",
-    "mfg_date": "201016",
-    "exp_date": "231015",
-    "lot": "231015",
+    "mfg_date": "2020-10-16",
+    "exp_date": "2023-10-15",
+    "lot": "2042",
     "price": "1234.56",
     "img01": "http://biosunmed.com/upload/2020/7/61552460.jpg",
     "img02": "http://biosunmed.com/upload/2020/4/1410510871.jpg",
@@ -318,7 +318,7 @@ DLbelExample.demo1 = function () {
           "pos": 3,
           "type": "field",
           "value": "mfg_date",
-          "format": ""
+          "format": "yyMMdd"
         },
         {
           "pos": 4,
@@ -330,7 +330,7 @@ DLbelExample.demo1 = function () {
           "pos": 5,
           "type": "field",
           "value": "exp_date",
-          "format": ""
+          "format": "yyMMdd"
         },
         {
           "pos": 6,
@@ -374,7 +374,7 @@ DLbelExample.demo1 = function () {
           "pos": 3,
           "type": "field",
           "value": "mfg_date",
-          "format": ""
+          "format": "yyMMdd"
         },
         {
           "pos": 4,
@@ -386,7 +386,7 @@ DLbelExample.demo1 = function () {
           "pos": 5,
           "type": "field",
           "value": "exp_date",
-          "format": ""
+          "format": "yyMMdd"
         },
         {
           "pos": 6,
@@ -999,21 +999,21 @@ DLbelExample.demo1 = function () {
     },
     "mfg_date": {
       "name": "mfg_date",
-      "value": "201016",
-      "datatype": "string",
+      "value": "2020-10-16",
+      "datatype": "datetime",
       "private": false,
       "ext_prop": ""
     },
     "exp_date": {
       "name": "exp_date",
-      "value": "231015",
-      "datatype": "string",
+      "value": "2023-10-15",
+      "datatype": "datetime",
       "private": false,
       "ext_prop": ""
     },
     "lot": {
       "name": "lot",
-      "value": "231015",
+      "value": "2042",
       "datatype": "string",
       "private": false,
       "ext_prop": ""
@@ -1046,247 +1046,6 @@ DLbelExample.demo1 = function () {
       "private": false,
       "ext_prop": ""
     }
-  }
-}
-        `;
-}
-DLbelExample.debug1 = function () {
-    return `
-{
-  "head": {
-    "width": 80,
-    "height": 60,
-    "point": 600,
-    "element_id": 3
-  },
-  "fields": {},
-  "elements": [
-    {
-      "head": {
-        "elementType": "barcode",
-        "barcodeType": "CODE_128",
-        "name": "element_128"
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": ""
-        }
-      ],
-      "font": {
-        "name": "宋体",
-        "size": "10.5",
-        "fontHeight": 3.7041666666666666,
-        "lineHeight": 5,
-        "textHeight": 5
-      },
-      "frame": {
-        "type": "rectangle",
-        "width": 0,
-        "radius": 0,
-        "fillColor": "#F11F1F"
-      },
-      "position": {
-        "layer": 1,
-        "width": 40,
-        "height": 20,
-        "textAlign": "center",
-        "verticalAlign": "bottom",
-        "top": "5",
-        "left": "10",
-        "angle": 0,
-        "angleR": 0,
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0,
-        "wC": 40,
-        "hC": 20,
-        "P1": {
-          "x": 0,
-          "y": 0
-        },
-        "P2": {
-          "x": 40,
-          "y": 0
-        },
-        "P3": {
-          "x": 40,
-          "y": 20
-        },
-        "P4": {
-          "x": 0,
-          "y": 20
-        },
-        "P15": {
-          "x": 20,
-          "y": 0
-        },
-        "P25": {
-          "x": 40,
-          "y": 10
-        },
-        "P35": {
-          "x": 20,
-          "y": 20
-        },
-        "P45": {
-          "x": 0,
-          "y": 10
-        },
-        "offsetX": 0,
-        "offsetY": 0,
-        "offsetLeft": 0,
-        "offsetRight": 0,
-        "offsetTop": 0,
-        "offsetBottom": 0,
-        "clientWidth": 40,
-        "clientHeight": 20,
-        "leftText": 20,
-        "topText": 20,
-        "heightBarcode": 15,
-        "widthBarcode": 40,
-        "leftBarcode": 0,
-        "topBarcode": 0
-      },
-      "segments": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "12345678"
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "head": {
-        "elementType": "barcode",
-        "barcodeType": "PDF_417",
-        "name": "element_417"
-      },
-      "sections": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": ""
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": ""
-        }
-      ],
-      "font": {
-        "name": "宋体",
-        "size": "10.5",
-        "fontHeight": 3.7041666666666666,
-        "lineHeight": 5,
-        "textHeight": 5
-      },
-      "frame": {
-        "type": "rectangle",
-        "width": 0,
-        "radius": 0,
-        "fillColor": "#1F3EF1"
-      },
-      "position": {
-        "layer": 1,
-        "width": 40,
-        "height": 20,
-        "textAlign": "center",
-        "verticalAlign": "bottom",
-        "top": "30",
-        "left": "10",
-        "angle": 0,
-        "angleR": 0,
-        "marginLeft": 0,
-        "marginRight": 0,
-        "marginTop": 0,
-        "marginBottom": 0,
-        "wC": 40,
-        "hC": 20,
-        "P1": {
-          "x": 0,
-          "y": 0
-        },
-        "P2": {
-          "x": 40,
-          "y": 0
-        },
-        "P3": {
-          "x": 40,
-          "y": 20
-        },
-        "P4": {
-          "x": 0,
-          "y": 20
-        },
-        "P15": {
-          "x": 20,
-          "y": 0
-        },
-        "P25": {
-          "x": 40,
-          "y": 10
-        },
-        "P35": {
-          "x": 20,
-          "y": 20
-        },
-        "P45": {
-          "x": 0,
-          "y": 10
-        },
-        "offsetX": 0,
-        "offsetY": 0,
-        "offsetLeft": 0,
-        "offsetRight": 0,
-        "offsetTop": 0,
-        "offsetBottom": 0,
-        "clientWidth": 40,
-        "clientHeight": 20,
-        "leftText": 20,
-        "topText": 20,
-        "heightBarcode": 15,
-        "widthBarcode": 40,
-        "leftBarcode": 0,
-        "topBarcode": 0
-      },
-      "segments": [
-        {
-          "pos": 0,
-          "type": "fixed",
-          "value": "87654321"
-        },
-        {
-          "pos": 1,
-          "type": "",
-          "value": ""
-        }
-      ]
-    }
-  ],
-  "page": {
-    "width": 80,
-    "height": 60,
-    "marginLeft": 0,
-    "marginTop": 0,
-    "marginRight": 0,
-    "marginBottom": 0,
-    "rows": 1,
-    "cols": 1,
-    "horizontalSpace": 0,
-    "verticalSpace": 0
   }
 }
         `;

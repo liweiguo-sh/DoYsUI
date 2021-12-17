@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-12-15
+ * Modify Date: 2021-12-17
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -388,6 +388,7 @@ class Label {
 
         let element, elementString;
         let count = elementsCopy.length;
+
         // ------------------------------------------------
         for (let i = 0; i < count; i++) {
             elementString = UtilElement.getJson(elementsCopy[i]);
@@ -406,7 +407,7 @@ class Label {
             this.createElement(element);
 
             UtilElement.computeProp({ element: element });
-            UtilElement.computeValue({ element: element, fields: this.fields });
+            UtilElement.computeValue({ element: element, fields: this.fields, Fields: this.Fields });
             UtilElement.draw({ element: element });
         }
 

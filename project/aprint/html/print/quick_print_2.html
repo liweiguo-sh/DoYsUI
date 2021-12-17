@@ -74,7 +74,7 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="选项">
-                                <el-checkbox v-model="autoPrint">扫码自动触发打印</el-checkbox>
+                                <el-checkbox v-model="autoPrint" @change="onAutuPrintChange">扫码自动触发打印</el-checkbox>
                                 <el-checkbox v-model="autoResetCopy">自动重置份数</el-checkbox>
                             </el-form-item>
                             <el-row v-for="item in scanItems">
@@ -489,20 +489,7 @@
                     if (item.jsAfterScan) {
                         let jsonRet = item.jsAfterScan(item.value);
                         let fields = jsonRet.fields;
-                        // -- 填充返回的变量值 --
-                        if (fields) {
-                            for (let key in fields) {
-                                for (let i = 0; i < this.variables.length; i++) {
-                                    let variable = this.variables[i];
-                                    if (variable.name.equals(key)) {
-                                        variable.value = fields[key];
-                                        break;
-                                    }
-                                }
-                            }
-                            this.setVariables();
-                        }
-
+                        
                         // -- 执行match动作 --
                         let match = jsonRet.match || "";
                         let field = jsonRet.field || "";
@@ -525,6 +512,9 @@
                                 throw ("不支持的match项(" + match + ")，请检查。");
                             }
                         }
+
+                        // -- 填充返回的变量值 --
+                        this.setVariables({ scriptVariables: fields });
 
                         // -- 执行action动作 --
                         if (action.equals("print")) {
@@ -589,7 +579,7 @@
                 }
                 ajax.send("/aprint/print/quick/saveScanPrintRecord", poseDATA).then(res => {
                     this.scanTask.labelId = res.labelId
-                    this.scanTask.taskId = res.taskId;                    
+                    this.scanTask.taskId = res.taskId;
                 });
             },
 
@@ -655,7 +645,7 @@
 
                 this.setVariables();
             },
-            setVariables() {
+            setVariables(jsp = { scriptVariables: {} }) {
                 for (let i = 0; i < this.variables.length; i++) {
                     let variable = this.variables[i];
                     let name = variable["name"];
@@ -726,7 +716,12 @@
                         }
                     }
 
-                    // -- 3. 回写计算后的变量值，格式化日期变量 --
+                    // -- 3. 回写脚本执行的结果变量 --
+                    if (jsp.scriptVariables[name]) {
+                        value = jsp.scriptVariables[name];
+                    }
+
+                    // -- 4. 回写计算后的变量值，格式化日期变量 --
                     value = value || "";
                     variable["value"] = value;
                     variable["valueFormat"] = value;
@@ -995,6 +990,9 @@
             onPrinterChange() {
                 setPageCookie("printerName", this.printerName);
             },
+            onAutuPrintChange() {
+                setPageCookie("autoPrint", this.autoPrint);
+            },
             setLabelContainerSize() {
                 let elParent = divLabelContainerParent.parentElement;
                 let width = elParent.clientWidth - 10 - g.x.getStyleValue(elParent, "paddingLeft") - g.x.getStyleValue(elParent, "paddingRight");
@@ -1063,5 +1061,6 @@
             app.activeTabName = activeTabName;
             app.tabClick();
         }
+        app.autoPrint = getPageCookie("autoPrint","true").equals("true");
     }
 </script>
