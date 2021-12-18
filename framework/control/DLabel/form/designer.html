@@ -171,6 +171,7 @@
                                     <el-select v-model="head.barcodeType" @change="elementPropChange('head.barcodeType')" filterable style="width:100%;">
                                         <el-option-group label="一维码">
                                             <el-option value="CODE_128" key="CODE_128" label="Code 128"></el-option>
+                                            <el-option value="CODE_128_D" key="CODE_128_D" label="Code 128 EX"></el-option>
                                             <el-option value="CODE_39" key="CODE_39" label="Code 39"></el-option>
                                             <el-option value="EAN_13" key="EAN_13" label="EAN13"></el-option>
                                             <el-option value="EAN_13_D" key="EAN_13_D" label="EAN_13"></el-option>
@@ -266,7 +267,17 @@
                             </el-row>
                             <!-- textAlign,verticalAlign -->
                             <el-row>
-                                <el-col :span="span[1]"><div class="divPropName">水平位置</div></el-col>
+                                <el-col :span="span[1]"><div class="divPropName">条码水平位置</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="position.barcodeAlign" @change="elementPropChange('position.barcodeAlign')" style="width:100%;">
+                                        <el-option value="left" label="居左"></el-option>
+                                        <el-option value="center" label="居中"></el-option>
+                                        <el-option value="right" label="居右"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="span[1]"><div class="divPropName">文本水平位置</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-select v-model="position.textAlign" @change="elementPropChange('position.textAlign')" style="width:100%;">
                                         <el-option value="left" label="居左"></el-option>
@@ -277,7 +288,7 @@
                                 </el-col>
                             </el-row>
                             <el-row>
-                                <el-col :span="span[1]"><div class="divPropName">垂直位置</div></el-col>
+                                <el-col :span="span[1]"><div class="divPropName">文本垂直位置</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-select v-model="position.verticalAlign" @change="elementPropChange('position.verticalAlign')" style="width:100%;">
                                         <el-option value="top" label="居上"></el-option>
@@ -544,7 +555,7 @@
                 layer: null, angle: 0, hidden: false,
                 top: null, left: null, width: null, height: null,
                 marginTop: null, marginLeft: null, marginRight: null, marginBottom: null,
-                textAlign: null, verticalAlign: null
+                barcodeAlign: null, textAlign: null, verticalAlign: null
             },
             frame: {
                 type: null, width: null, color: null, fillColor: null, radius: null
@@ -942,6 +953,7 @@
         props.push({ group: "position", name: "hidden" });
         props.push({ group: "position", name: "layer" });
         props.push({ group: "position", name: "angle" });
+        props.push({ group: "position", name: "barcodeAlign" });
         props.push({ group: "position", name: "textAlign" });
         props.push({ group: "position", name: "verticalAlign" });
         props.push({ group: "position", name: "top" });

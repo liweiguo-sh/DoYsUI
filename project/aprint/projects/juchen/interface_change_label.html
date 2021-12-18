@@ -394,7 +394,8 @@
                             let postDATA = {
                                 interfaceId: this.interfaceId,
                                 extProps: extProps,
-                                $id: dataRow["$id"].value
+                                $id: dataRow["$id"].value,
+                                owner: dataRow["lot1"].value
                             }
                             let res = await ajax.send("/aprint/juchen/addItemToPacking", postDATA);
                             if (res.ok) {

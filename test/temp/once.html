@@ -43,11 +43,13 @@
     var app = new Vue({
         el: '#app',
         data: {
-            barcode: "(21)YPZ15-21B-0002" + String.fromCharCode(10) + "(01) 06974778410016   (11)211019 (17)311018 "
+            barcode: "2115"
         },
         methods: {
             test1() {
-                let ais = util.parseUDI(this.barcode.replaceAll(" ", ""));
+                debugger
+                debugger
+                let ais = "2142".toDateByFromat("yyww").toString("yyMMdd");
                 console.log(ais);
             }
         }

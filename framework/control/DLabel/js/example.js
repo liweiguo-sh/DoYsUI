@@ -1050,6 +1050,358 @@ DLbelExample.demo1 = function () {
 }
         `;
 }
+DLbelExample.debug1 = function () {
+    return `
+{
+  "head": {
+    "width": 80,
+    "height": 60,
+    "point": 600,
+    "element_id": 6
+  },
+  "fields": {},
+  "elements": [
+    {
+      "head": {
+        "elementType": "barcode",
+        "barcodeType": "CODE_128_D",
+        "name": "element_3"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ],
+      "font": {
+        "name": "宋体",
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
+        "lineHeight": null,
+        "textHeight": 3.7041666666666666
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0.2,
+        "radius": 0,
+        "color": "#E05050"
+      },
+      "position": {
+        "layer": 1,
+        "width": 41.25,
+        "height": 10,
+        "textAlign": "right",
+        "verticalAlign": "bottom",
+        "top": "2.40",
+        "left": "2.47",
+        "angle": 0,
+        "angleR": 0,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 41.25,
+        "hC": 10,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 41.25,
+          "y": 0
+        },
+        "P3": {
+          "x": 41.25,
+          "y": 10
+        },
+        "P4": {
+          "x": 0,
+          "y": 10
+        },
+        "P15": {
+          "x": 20.625,
+          "y": 0
+        },
+        "P25": {
+          "x": 41.25,
+          "y": 5
+        },
+        "P35": {
+          "x": 20.625,
+          "y": 10
+        },
+        "P45": {
+          "x": 0,
+          "y": 5
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "offsetLeft": 0.2,
+        "offsetRight": 0.2,
+        "offsetTop": 0.2,
+        "offsetBottom": 0.2,
+        "clientWidth": 40.849999999999994,
+        "clientHeight": 9.600000000000001,
+        "leftText": 41.05,
+        "topText": 9.8,
+        "heightBarcode": 5.895833333333333,
+        "widthBarcode": 40.85,
+        "leftBarcode": 0.2,
+        "topBarcode": 0.2,
+        "barcodeAlign": "left"
+      },
+      "segments": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "ABcd1234"
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "head": {
+        "elementType": "barcode",
+        "barcodeType": "CODE_128_D",
+        "name": "element_4"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ],
+      "font": {
+        "name": "宋体",
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
+        "lineHeight": null,
+        "textHeight": 3.7041666666666666
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0.2,
+        "radius": 0,
+        "color": "#E05050"
+      },
+      "position": {
+        "layer": 1,
+        "width": 41.25,
+        "height": 10,
+        "textAlign": "center",
+        "verticalAlign": "bottom",
+        "top": 19.41,
+        "left": "2.47",
+        "angle": 0,
+        "angleR": 0,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 41.25,
+        "hC": 10,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 41.25,
+          "y": 0
+        },
+        "P3": {
+          "x": 41.25,
+          "y": 10
+        },
+        "P4": {
+          "x": 0,
+          "y": 10
+        },
+        "P15": {
+          "x": 20.625,
+          "y": 0
+        },
+        "P25": {
+          "x": 41.25,
+          "y": 5
+        },
+        "P35": {
+          "x": 20.625,
+          "y": 10
+        },
+        "P45": {
+          "x": 0,
+          "y": 5
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "offsetLeft": 0.2,
+        "offsetRight": 0.2,
+        "offsetTop": 0.2,
+        "offsetBottom": 0.2,
+        "clientWidth": 40.849999999999994,
+        "clientHeight": 9.600000000000001,
+        "leftText": 20.625,
+        "topText": 9.8,
+        "heightBarcode": 5.895833333333333,
+        "widthBarcode": 40.85,
+        "leftBarcode": 0.2,
+        "topBarcode": 0.2,
+        "barcodeAlign": "center"
+      },
+      "segments": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "ABcd1234"
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "head": {
+        "elementType": "barcode",
+        "barcodeType": "CODE_128_D",
+        "name": "element_5"
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ],
+      "font": {
+        "name": "宋体",
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
+        "lineHeight": null,
+        "textHeight": 3.7041666666666666
+      },
+      "frame": {
+        "type": "rectangle",
+        "width": 0.2,
+        "radius": 0,
+        "color": "#E05050"
+      },
+      "position": {
+        "layer": 1,
+        "width": 41.25,
+        "height": 10,
+        "textAlign": "left",
+        "verticalAlign": "bottom",
+        "top": "36.42",
+        "left": "2.47",
+        "angle": 0,
+        "angleR": 0,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 41.25,
+        "hC": 10,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 41.25,
+          "y": 0
+        },
+        "P3": {
+          "x": 41.25,
+          "y": 10
+        },
+        "P4": {
+          "x": 0,
+          "y": 10
+        },
+        "P15": {
+          "x": 20.625,
+          "y": 0
+        },
+        "P25": {
+          "x": 41.25,
+          "y": 5
+        },
+        "P35": {
+          "x": 20.625,
+          "y": 10
+        },
+        "P45": {
+          "x": 0,
+          "y": 5
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "offsetLeft": 0.2,
+        "offsetRight": 0.2,
+        "offsetTop": 0.2,
+        "offsetBottom": 0.2,
+        "clientWidth": 40.849999999999994,
+        "clientHeight": 9.600000000000001,
+        "leftText": 0.2,
+        "topText": 9.8,
+        "heightBarcode": 5.895833333333333,
+        "widthBarcode": 40.85,
+        "leftBarcode": 0.2,
+        "topBarcode": 0.2,
+        "barcodeAlign": "right"
+      },
+      "segments": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "ABcd1234"
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "page": {
+    "width": 80,
+    "height": 60,
+    "marginLeft": 0,
+    "marginTop": 0,
+    "marginRight": 0,
+    "marginBottom": 0,
+    "rows": 1,
+    "cols": 1,
+    "horizontalSpace": 0,
+    "verticalSpace": 0
+  },
+  "Fields": {}
+}
+        `;
+}
 
 DLbelExample.getExampleScript = function (scriptKey) {
     let script;

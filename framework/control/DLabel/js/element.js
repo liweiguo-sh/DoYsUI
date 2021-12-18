@@ -926,6 +926,7 @@ UtilElement.draw_barcode1D = async function (context, element) {
         barcodeValue: head._segmentsText,
         width: position.width,
         height: position.height,
+        barcodeAlign: position.barcodeAlign,
         point: element._labelHead.point,
         gs1: head.gs1,
         elementFont: JSON.stringify(element.font)
@@ -1025,7 +1026,8 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
         barcodeValue: jsp.barcodeValue,
         point: jsp.point,
         isGS1: jsp.gs1 ? true : false,
-        elementFont: jsp.elementFont
+        elementFont: jsp.elementFont,
+        barcodeAlign: jsp.barcodeAlign
     }
     let hashTypeOld = JSON.getHashCode(element._imgType);
     let hashTypeNew = JSON.getHashCode(imgType);
@@ -1049,6 +1051,7 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
             barcodeValue: jsp.barcodeValue,
             width: jsp.width,
             height: jsp.height,
+            barcodeAlign: jsp.barcodeAlign,
             point: jsp.point,
             isGS1: jsp.gs1 ? true : false,
             elementFont: jsp.elementFont
