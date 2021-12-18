@@ -1057,7 +1057,7 @@ DLbelExample.debug1 = function () {
     "width": 80,
     "height": 60,
     "point": 600,
-    "element_id": 6
+    "element_id": 7
   },
   "fields": {},
   "elements": [
@@ -1065,7 +1065,9 @@ DLbelExample.debug1 = function () {
       "head": {
         "elementType": "barcode",
         "barcodeType": "CODE_128_D",
-        "name": "element_3"
+        "name": "element_3",
+        "codeSet": "A",
+        "minUnitWidth": "5"
       },
       "sections": [
         {
@@ -1084,7 +1086,8 @@ DLbelExample.debug1 = function () {
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
         "lineHeight": null,
-        "textHeight": 3.7041666666666666
+        "textHeight": 3.7041666666666666,
+        "barcodeColor": "#E32D2D"
       },
       "frame": {
         "type": "rectangle",
@@ -1173,7 +1176,9 @@ DLbelExample.debug1 = function () {
       "head": {
         "elementType": "barcode",
         "barcodeType": "CODE_128_D",
-        "name": "element_4"
+        "name": "element_4",
+        "codeSet": "B",
+        "minUnitWidth": "10"
       },
       "sections": [
         {
@@ -1192,7 +1197,8 @@ DLbelExample.debug1 = function () {
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
         "lineHeight": null,
-        "textHeight": 3.7041666666666666
+        "textHeight": 3.7041666666666666,
+        "barcodeColor": "#2D61E3"
       },
       "frame": {
         "type": "rectangle",
@@ -1281,7 +1287,9 @@ DLbelExample.debug1 = function () {
       "head": {
         "elementType": "barcode",
         "barcodeType": "CODE_128_D",
-        "name": "element_5"
+        "name": "element_5",
+        "codeSet": "C",
+        "minUnitWidth": "15"
       },
       "sections": [
         {
@@ -1300,7 +1308,8 @@ DLbelExample.debug1 = function () {
         "size": "10.5",
         "fontHeight": 3.7041666666666666,
         "lineHeight": null,
-        "textHeight": 3.7041666666666666
+        "textHeight": 3.7041666666666666,
+        "barcodeColor": "#2DE354"
       },
       "frame": {
         "type": "rectangle",
@@ -1371,6 +1380,115 @@ DLbelExample.debug1 = function () {
         "leftBarcode": 0.2,
         "topBarcode": 0.2,
         "barcodeAlign": "right"
+      },
+      "segments": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": "ABcd1234"
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "head": {
+        "elementType": "barcode",
+        "barcodeType": "CODE_128",
+        "name": "element_6",
+        "codeSet": ""
+      },
+      "sections": [
+        {
+          "pos": 0,
+          "type": "fixed",
+          "value": ""
+        },
+        {
+          "pos": 1,
+          "type": "",
+          "value": ""
+        }
+      ],
+      "font": {
+        "name": "宋体",
+        "size": "10.5",
+        "fontHeight": 3.7041666666666666,
+        "lineHeight": null,
+        "textHeight": 3.7041666666666666
+      },
+      "frame": {
+        "type": "",
+        "width": 0,
+        "radius": 0,
+        "color": ""
+      },
+      "position": {
+        "layer": 1,
+        "width": 32.47,
+        "height": 10,
+        "textAlign": "center",
+        "verticalAlign": "bottom",
+        "top": 19.41,
+        "left": "46.59",
+        "angle": 0,
+        "angleR": 0,
+        "marginLeft": 0,
+        "marginRight": 0,
+        "marginTop": 0,
+        "marginBottom": 0,
+        "wC": 32.47,
+        "hC": 10,
+        "P1": {
+          "x": 0,
+          "y": 0
+        },
+        "P2": {
+          "x": 32.47,
+          "y": 0
+        },
+        "P3": {
+          "x": 32.47,
+          "y": 10
+        },
+        "P4": {
+          "x": 0,
+          "y": 10
+        },
+        "P15": {
+          "x": 16.235,
+          "y": 0
+        },
+        "P25": {
+          "x": 32.47,
+          "y": 5
+        },
+        "P35": {
+          "x": 16.235,
+          "y": 10
+        },
+        "P45": {
+          "x": 0,
+          "y": 5
+        },
+        "offsetX": 0,
+        "offsetY": 0,
+        "offsetLeft": 0,
+        "offsetRight": 0,
+        "offsetTop": 0,
+        "offsetBottom": 0,
+        "clientWidth": 32.47,
+        "clientHeight": 10,
+        "leftText": 16.235,
+        "topText": 10,
+        "heightBarcode": 6.295833333333333,
+        "widthBarcode": 32.47,
+        "leftBarcode": 0,
+        "topBarcode": 0,
+        "barcodeAlign": ""
       },
       "segments": [
         {

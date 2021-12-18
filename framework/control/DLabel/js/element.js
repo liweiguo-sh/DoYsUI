@@ -346,7 +346,7 @@ UtilElement.computeValue = function (jsp) {
                             }
                             else if (datatype.equals("string")) {
                                 fieldValue = fieldValue.toFormat(format);
-                            }                            
+                            }
                             else {
                                 throw ("不支持格式化的数据类型：" + datatype);
                             }
@@ -923,10 +923,13 @@ UtilElement.draw_barcode1D = async function (context, element) {
     await UtilElement._getBarcodeBase64({
         element: element,
         barcodeType: head.barcodeType,
+        codeSet: head.codeSet,
+        minUnitWidth: head.minUnitWidth,
         barcodeValue: head._segmentsText,
         width: position.width,
         height: position.height,
         barcodeAlign: position.barcodeAlign,
+        barcodeColor: element.font.barcodeColor,
         point: element._labelHead.point,
         gs1: head.gs1,
         elementFont: JSON.stringify(element.font)
@@ -1023,11 +1026,14 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
 
     let imgType = {
         barcodeType: jsp.barcodeType,
+        codeSet: jsp.codeSet,
+        minUnitWidth: jsp.minUnitWidth,
         barcodeValue: jsp.barcodeValue,
         point: jsp.point,
         isGS1: jsp.gs1 ? true : false,
         elementFont: jsp.elementFont,
-        barcodeAlign: jsp.barcodeAlign
+        barcodeAlign: jsp.barcodeAlign,
+        barcodeColor: jsp.barcodeColor
     }
     let hashTypeOld = JSON.getHashCode(element._imgType);
     let hashTypeNew = JSON.getHashCode(imgType);
@@ -1048,10 +1054,13 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
     try {
         let para = {
             barcodeType: jsp.barcodeType,
+            codeSet: jsp.codeSet,
+            minUnitWidth: jsp.minUnitWidth,
             barcodeValue: jsp.barcodeValue,
             width: jsp.width,
             height: jsp.height,
             barcodeAlign: jsp.barcodeAlign,
+            barcodeColor: jsp.barcodeColor,
             point: jsp.point,
             isGS1: jsp.gs1 ? true : false,
             elementFont: jsp.elementFont

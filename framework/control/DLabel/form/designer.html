@@ -184,6 +184,23 @@
                                     </el-select>
                                 </el-col>
                             </el-row>
+                            <el-row v-show="head.barcodeType=='CODE_128_D'">
+                                <el-col :span="span[1]"><div class="divPropName">代码集</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="head.codeSet" @change="elementPropChange('head.codeSet')" filterable style="width:100%;">
+                                        <el-option value="A" key="A" label="A"></el-option>
+                                        <el-option value="B" key="B" label="B"></el-option>
+                                        <el-option value="C" key="C" label="C"></el-option>
+                                        <el-option value="AUTO" key="AUTO" label="Auto" :disabled="true"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+                            <el-row v-show="head.barcodeType=='CODE_128_D'">
+                                <el-col :span="span[1]"><div class="divPropName">最小单元宽度</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-input v-model="head.minUnitWidth" @change="elementPropChange('head.minUnitWidth')" placeholder="单位：mil（1/1000in=0.0254mm）"></el-input>
+                                </el-col>
+                            </el-row>
                             <el-row v-show="head.elementType=='barcode'">
                                 <el-col :span="span[1]">&nbsp;</el-col>
                                 <el-col :span="span[2]">
@@ -266,7 +283,7 @@
                                 </el-col>
                             </el-row>
                             <!-- textAlign,verticalAlign -->
-                            <el-row>
+                            <el-row v-show="head.barcodeType=='CODE_128_D'">
                                 <el-col :span="span[1]"><div class="divPropName">条码水平位置</div></el-col>
                                 <el-col :span="span[2]">
                                     <el-select v-model="position.barcodeAlign" @change="elementPropChange('position.barcodeAlign')" style="width:100%;">
@@ -424,6 +441,13 @@
                                     <el-input v-model="font.lineHeight" @change="elementPropChange('font.lineHeight')"></el-input>
                                 </el-col>
                             </el-row>
+                            <br />
+                            <el-row v-show="head.barcodeType=='CODE_128_D'">
+                                <el-col :span="span[1]"><div class="divPropName">条码颜色</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-color-picker v-model="font.barcodeColor" @change="elementPropChange('font.barcodeColor')"></el-color-picker>
+                                </el-col>
+                            </el-row>
                         </el-collapse-item>
                         <!-- image -->
                         <el-collapse-item name="image" v-show="selectedCount==1 && head.elementType=='image'">
@@ -548,7 +572,7 @@
             head: {
                 name: null,
                 elementType: null,
-                barcodeType: null,
+                barcodeType: null, codeSet: "B", minUnitWidth: null,
                 pureBarcode: false, gs1: false, locked: false
             },
             position: {
@@ -561,7 +585,7 @@
                 type: null, width: null, color: null, fillColor: null, radius: null
             },
             font: {
-                name: null, size: 10.5, color: null,
+                name: null, size: 10.5, color: null, barcodeColor: null,
                 bold: false, italic: false, wordWrap: false, lineHeight: null
             },
             image: {
@@ -946,6 +970,8 @@
         props.push({ group: "head", name: "elementType" });
         props.push({ group: "head", name: "barcodeType" });
         props.push({ group: "head", name: "pureBarcode" });
+        props.push({ group: "head", name: "codeSet" });
+        props.push({ group: "head", name: "minUnitWidth" });
         props.push({ group: "head", name: "gs1" });
         props.push({ group: "head", name: "locked" });
 
@@ -976,6 +1002,7 @@
         props.push({ group: "font", name: "name" });
         props.push({ group: "font", name: "size" });
         props.push({ group: "font", name: "color" });
+        props.push({ group: "font", name: "barcodeColor" });
         props.push({ group: "font", name: "bold" });
         props.push({ group: "font", name: "italic" });
         props.push({ group: "font", name: "wordWrap" });
