@@ -42,15 +42,17 @@
                 </el-col>
             </el-row>
 
-            <!-- 当前值 -->
+            <!-- 多实例标志、当前值 -->
             <el-row>
                 <el-col :span="span[1]">
-                    <el-form-item label="当前值" required>
-                        <el-input v-model="form.value" ref="value" />
+                    <el-form-item label="是否多实例">
+                        <el-checkbox v-model="form.flag_multi_inst" ref="flag_multi_inst">是多实例序列</el-checkbox>
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
-                    &nbsp;
+                    <el-form-item label="当前值" required>
+                        <el-input v-model="form.value" ref="value" />
+                    </el-form-item>
                 </el-col>
             </el-row>
 
@@ -83,6 +85,9 @@
                 this.form.rule_zero = "NONE";
             },
             beforeSave: function () {
+                if (this.form.name.equals("")) {
+                    this.form.name = this.form.pk;
+                }
                 return true;
             }
         }
