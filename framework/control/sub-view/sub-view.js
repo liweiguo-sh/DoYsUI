@@ -293,11 +293,12 @@
                 this.getViewData();
             }
             else if (button.name.equals("addnew")) {
-                this.$emit("onaddnew", (cancel) => {
-                    if (!cancel) {
-                        this.openEditForm("addnew");
-                    }
-                });
+                let cancel = false;
+                this.$emit("onaddnew", (val) => { cancel = val; });
+
+                if (!cancel) {
+                    this.openEditForm("addnew");
+                }
             }
             else if (button.name.equals("close")) {
                 win.close();

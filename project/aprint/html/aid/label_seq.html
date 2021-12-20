@@ -106,12 +106,10 @@
 
             onGridAddnew: function (callback) {
                 if (!this.$refs.vf.status.equals("view")) {
-                    this.$refs.vf.save().then((result) => {
-                        callback(!result);
-                    })
-                }
-                else {
-                    callback(false);
+                    callback(true);
+                    topWin.alert("请先保存主表。", (val) => {
+                        win.flashTitle("请先保存主表");
+                    });
                 }
             },
             showGrid: function () {
