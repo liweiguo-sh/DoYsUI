@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>标签变量序列实例定义</title>
+    <script src="../../../../framework/core/boot.js"></script>
+    <script>
+        importFrameworkRes("view-form-bar");
+    </script>
+</head>
+<body>
+    <div id="app" style="width:525px;">
+        <view-form-bar id="vf" ref="vf"></view-form-bar>
+        <el-form :model="form" ref="form" label-width="145px" label-position="left">
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="实例变量值" required>
+                        <el-input v-model="form.owner" ref="owner" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[0]">
+                    <el-form-item label="当前序列值" required>
+                        <el-input v-model="form.value" ref="value" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</body>
+</html>
+
+<!-- vue.init -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            span: [24, 12, 12],
+            form: {
+                label_seq_pk: null
+            },
+            labelSeqPk: null
+        },
+
+        methods: {
+            afterAddnew() {
+                this.form.label_seq_pk = this.labelSeqPk;
+                this.form.value = "1";
+            }
+        }
+    });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        app.labelSeqPk = win.parentWindow.app.form.pk;
+    }
+</script>

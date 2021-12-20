@@ -8,64 +8,71 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:800px;">
+    <div id="app" style="width:800px;height:450px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
-        <el-form :model="form" ref="form" label-width="145px" label-position="left">
-            <!-- 序列代码、序列名称，归零条件，长度 -->
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="序列代码" required>
-                        <el-input v-model="form.pk" ref="pk" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="序列名称">
-                        <el-input v-model="form.name" ref="name" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="归零条件" required>
-                        <el-select v-model="form.rule_zero" style="width:100%;" default-first-option>
-                            <el-option value="NONE" label="不归零"></el-option>
-                            <el-option value="YEAR" label="年"></el-option>
-                            <el-option value="MONTH" label="月"></el-option>
-                            <el-option value="DAY" label="日"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="长度" required>
-                        <el-input v-model="form.width" ref="width" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
+        <el-tabs v-model="activeName">
+            <el-tab-pane label="基本定义" name="base">
+                <el-form :model="form" ref="form" label-width="145px" label-position="left">
+                    <!-- 序列代码、序列名称，归零条件，长度 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="序列代码" required>
+                                <el-input v-model="form.pk" ref="pk" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="序列名称">
+                                <el-input v-model="form.name" ref="name" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="归零条件" required>
+                                <el-select v-model="form.rule_zero" style="width:100%;" default-first-option>
+                                    <el-option value="NONE" label="不归零"></el-option>
+                                    <el-option value="YEAR" label="年"></el-option>
+                                    <el-option value="MONTH" label="月"></el-option>
+                                    <el-option value="DAY" label="日"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="长度" required>
+                                <el-input v-model="form.width" ref="width" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
 
-            <!-- 多实例标志、当前值 -->
-            <el-row>
-                <el-col :span="span[1]">
-                    <el-form-item label="是否多实例">
-                        <el-checkbox v-model="form.flag_multi_inst" ref="flag_multi_inst">是多实例序列</el-checkbox>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="span[2]">
-                    <el-form-item label="当前值" required>
-                        <el-input v-model="form.value" ref="value" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
+                    <!-- 多实例标志、当前值 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="是否多实例">
+                                <el-checkbox v-model="form.flag_multi_inst" ref="flag_multi_inst">是多实例序列</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="当前值" required>
+                                <el-input v-model="form.value" ref="value" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
 
-            <!-- 备注 -->
-            <el-row>
-                <el-col :span="span[0]">
-                    <el-form-item label="备注">
-                        <el-input v-model="form.remark" type="textarea" :rows="3" />
-                    </el-form-item>
-                </el-col>
+                    <!-- 备注 -->
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="备注">
+                                <el-input v-model="form.remark" type="textarea" :rows="3" />
+                            </el-form-item>
+                        </el-col>
 
-            </el-row>
-        </el-form>
+                    </el-row>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="多实例列表" name="inst" :disabled="!form.flag_multi_inst">
+                <sub-view id="grid" ref="grid" view-height="320" @onaddnew="onGridAddnew"></sub-view>
+            </el-tab-pane>
+        </el-tabs>
     </div>
 </body>
 </html>
@@ -75,8 +82,11 @@
     var app = new Vue({
         el: '#app',
         data: {
+            activeName: "base",
             span: [24, 12, 12],
-            form: {}
+            form: {
+                pk: ""
+            }
         },
 
         methods: {
@@ -84,12 +94,41 @@
                 this.form.value = "1";
                 this.form.rule_zero = "NONE";
             },
-            beforeSave: function () {
+            beforeSave() {
                 if (this.form.name.equals("")) {
                     this.form.name = this.form.pk;
                 }
                 return true;
-            }
+            },
+            afterMove() {
+                this.showGrid();
+            },
+
+            onGridAddnew: function (callback) {
+                if (!this.$refs.vf.status.equals("view")) {
+                    this.$refs.vf.save().then((result) => {
+                        callback(!result);
+                    })
+                }
+                else {
+                    callback(false);
+                }
+            },
+            showGrid: function () {
+                let filter = "label_seq_pk = '" + this.form.pk + "'";
+                if (this.$refs.grid.initialized) {
+                    this.$refs.grid.setFilter(filter);
+                }
+                else {
+                    var para = {
+                        viewPk: "label_seq_inst",
+                        flowPks: "'sys_crud'",
+                        filter: filter,
+                        vfUrl: g.path.project + "/aprint/html/aid/label_seq_inst.html"
+                    }
+                    this.$refs.grid.init(para);
+                }
+            },
         }
     });
 </script> 

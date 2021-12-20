@@ -302,8 +302,8 @@
                     else {
                         topWin.alert("缺少默认套标。", "error");
                         return;
-                    }                    
-                }                
+                    }
+                }
 
                 this.labelSetId = labelSetId;
                 await this.labelSetChange();
@@ -521,16 +521,18 @@
                 }
 
                 let totalQuantiy = 0, lots = {}, mfgDates = [];
-                for (let i = 0; i < this.dataPacking.length; i++) {
+                for (let i = this.dataPacking.length - 1; i >= 0; i--) {
+                    let lineNo = this.dataPacking.length - i;
+
                     row = this.dataPacking[i];
                     rowNo = row["$row_no"].toInt();
                     rowIndex = this.dtbItem.find([rowNo]);
                     dataRow = this.dtbItem.rows[rowIndex];
 
-                    data["line" + (i + 1) + "_lot"] = dataRow["lot1"].value;
-                    data["line" + (i + 1) + "_qty"] = dataRow["quantity"].value;
-                    data["line" + (i + 1) + "_dc"] = dataRow["dc1"].value;
-                    data["line" + (i + 1) + "_sn"] = dataRow["sn"].value;
+                    data["line" + lineNo + "_lot"] = dataRow["lot1"].value;
+                    data["line" + lineNo + "_qty"] = dataRow["quantity"].value;
+                    data["line" + lineNo + "_dc"] = dataRow["dc1"].value;
+                    data["line" + lineNo + "_sn"] = dataRow["sn"].value;
 
                     for (let j = 1; j <= 2; j++) {
                         let lot = dataRow["lot" + j].value;
