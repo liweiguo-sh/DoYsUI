@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2021-12-13
+ * Modify Date: 2021-12-23
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -170,6 +170,7 @@ function importFrameworkRes(fileRes) {
         arrRes.push(g.path.framework + "/control/DLabel/js/example.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/element.js");
         arrRes.push(g.path.framework + "/control/DLabel/js/label.js");
+        arrRes.push(g.path.framework + "/control/DLabel/js/util.js");
     }
     // -- 4. plugin组件 --
     else if (fileRes.equals("echarts")) {

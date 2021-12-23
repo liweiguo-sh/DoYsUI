@@ -337,7 +337,7 @@ class Label {
     }
 
     zoomIn() {
-        if (this.zoom > 2) return;
+        if (this.zoom > 5) return;
         this.zoom = this.zoom * 1.1;
         this.loadLabel(this.toJson());
         this.compute(true);

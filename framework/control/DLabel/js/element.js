@@ -924,6 +924,7 @@ UtilElement.draw_barcode1D = async function (context, element) {
         element: element,
         barcodeType: head.barcodeType,
         codeSet: head.codeSet,
+        characterSet: head.characterSet,
         minUnitWidth: head.minUnitWidth,
         barcodeValue: head._segmentsText,
         width: position.width,
@@ -977,7 +978,8 @@ UtilElement.draw_barcode2D = async function (context, element) {
         width: position.widthBarcode,
         height: position.heightBarcode,
         point: element._labelHead.point,
-        gs1: head.gs1
+        gs1: head.gs1,
+        characterSet: head.characterSet
     });
 
     // -- 3. 输出条码部分 --   
@@ -1027,6 +1029,7 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
     let imgType = {
         barcodeType: jsp.barcodeType,
         codeSet: jsp.codeSet,
+        characterSet: jsp.characterSet,
         minUnitWidth: jsp.minUnitWidth,
         barcodeValue: jsp.barcodeValue,
         point: jsp.point,
@@ -1055,6 +1058,7 @@ UtilElement._getBarcodeBase64 = async function (jsp) {
         let para = {
             barcodeType: jsp.barcodeType,
             codeSet: jsp.codeSet,
+            characterSet: jsp.characterSet,
             minUnitWidth: jsp.minUnitWidth,
             barcodeValue: jsp.barcodeValue,
             width: jsp.width,

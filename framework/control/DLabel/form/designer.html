@@ -195,6 +195,14 @@
                                     </el-select>
                                 </el-col>
                             </el-row>
+                            <el-row v-show="head.barcodeType=='QR_CODE'">
+                                <el-col :span="span[1]"><div class="divPropName">代码集</div></el-col>
+                                <el-col :span="span[2]">
+                                    <el-select v-model="head.characterSet" @change="elementPropChange('head.characterSet')" clearable style="width:100%;">
+                                        <el-option value="UTF-8" key="UTF-8" label="UTF-8（支持中文）"></el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
                             <el-row v-show="head.barcodeType=='CODE_128_D'">
                                 <el-col :span="span[1]"><div class="divPropName">最小单元宽度</div></el-col>
                                 <el-col :span="span[2]">
@@ -572,7 +580,7 @@
             head: {
                 name: null,
                 elementType: null,
-                barcodeType: null, codeSet: "B", minUnitWidth: null,
+                barcodeType: null, codeSet: "B", "characterSet": "", minUnitWidth: null,
                 pureBarcode: false, gs1: false, locked: false
             },
             position: {
@@ -931,7 +939,7 @@
     }
 
     // -- zoom --------------------------------------------
-    function zoomIn() {
+    function zoomIn() { 
         lbl.zoomIn(1.2);
     }
     function zoomOut() {
@@ -971,6 +979,7 @@
         props.push({ group: "head", name: "barcodeType" });
         props.push({ group: "head", name: "pureBarcode" });
         props.push({ group: "head", name: "codeSet" });
+        props.push({ group: "head", name: "characterSet" });
         props.push({ group: "head", name: "minUnitWidth" });
         props.push({ group: "head", name: "gs1" });
         props.push({ group: "head", name: "locked" });

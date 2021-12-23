@@ -445,8 +445,8 @@ DLbelExample.demo1 = function () {
         "layer": 1,
         "top": "1.45",
         "left": "51.70",
-        "width": 22.03,
-        "height": 24.64,
+        "width": 20,
+        "height": 23,
         "angle": 270,
         "angleR": 4.71238898038469,
         "textAlign": "center",
@@ -519,6 +519,12 @@ DLbelExample.demo1 = function () {
         },
         {
           "pos": 2,
+          "type": "fixed",
+          "value": "&chinese=中文字符",
+          "format": ""
+        },
+        {
+          "pos": 3,
           "type": "",
           "value": "",
           "format": ""
