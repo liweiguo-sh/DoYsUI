@@ -152,10 +152,32 @@ String.prototype.toDateByFromat = function (format = "yyyy-MM-dd") {
         throw e;
     }
 }
-
 String.prototype.toFormat = function (format = "") {
     let num = parseFloat(this);
     return num.toFormat(format);
+};
+
+String.prototype.padLeft = function (len, char = " ") {
+    let qty = len - this.length;
+    if (qty > 0) {
+        let arr = [];
+        while (qty--) {
+            arr.push(char);
+        }
+        return arr.join("") + this;
+    }
+    return this;
+};
+String.prototype.padRight = function (len, char = " ") {
+    let qty = len - this.length;
+    if (qty > 0) {
+        let arr = [];
+        while (qty--) {
+            arr.push(char);
+        }
+        return this + arr.join("");
+    }
+    return this;
 };
 
 // -- Date --------------------------------------------------------------------
