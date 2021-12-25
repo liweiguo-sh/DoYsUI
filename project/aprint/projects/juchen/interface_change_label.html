@@ -660,7 +660,10 @@
                         // -- 获取 Label控件 实例 --
                         let label = app.labels[iframe.labelIndex];
                         let lbl = iframe.contentWindow.getLabel();
-                        lbl.loadLabel(label.content, { designMode: false });
+                        lbl.loadLabel(label.content, { 
+                            imageBaseUrl: topWin.cfg.labelVariableImageBaseUrl,
+                            readonly: true
+                        });
                         lbl.compute(true);
                         label.lbl = lbl;
                     }, false);
