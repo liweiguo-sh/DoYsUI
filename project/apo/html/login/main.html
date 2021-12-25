@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Alis 敖维标识管理系统</title>
-    <script>var jsVer = "V2021-12-09";</script>
+    <script>var jsVer = "V2021-12-24";</script>
     <script src="../../../../framework/core/boot.js"></script>
     <script>
         importFrameworkRes("window");
@@ -205,6 +205,9 @@
             handleCommand(command) {
                 if (command.equals("exit")) {
                     window.location.href = getUrlItem("urlLogin");
+                }
+                else if (command.equals("change-password")) {
+                    changePassword();
                 }
                 else {
                     this.$message('click on item ' + command);

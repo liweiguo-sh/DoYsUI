@@ -356,6 +356,12 @@ Number.prototype.toFormat = function (format = "0.00") {
     }
     return intStr;
 }
+Number.prototype.padLeft = function (len, char = " ") {
+    return this.toString().padLeft(len, char);
+};
+Number.prototype.padRight = function (len, char = " ") {
+    return this.toString().padRight(len, char);
+};
 
 // -- JSON --------------------------------------------------------------------
 JSON.getHashCode = function (jsonObject) {

@@ -207,6 +207,9 @@
                 if (command.equals("exit")) {
                     window.location.href = getUrlItem("urlLogin");
                 }
+                else if (command.equals("change-password")) {
+                    changePassword();
+                }
                 else {
                     this.$message('click on item ' + command);
                 }

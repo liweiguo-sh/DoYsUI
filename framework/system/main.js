@@ -2,7 +2,7 @@
  * DoYs.main.js
  * Author: David.Li
  * Create Date: 2020-04-11
- * Modify Date: 2021-06-17
+ * Modify Date: 2021-12-24
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -39,8 +39,6 @@ function openMenu(menu) {
         win = topWin.openFullWindow(prop, para);
     }
     else if (menu.type.equals("win")) {
-        debugger
-        debugger
         let url = g.path.project + menu.url;
         if (menu.url.indexOf("/framework/") == 0) {
             url = g.path.base + menu.url;
@@ -80,4 +78,11 @@ function openMenu(menu) {
         win: win
     };
     app.$refs.taskBar.addBar(taskbar);
+}
+function changePassword() {
+    let prop = {
+        url: g.path.project + "/.aid/html/org/change_password.html",
+        modal: false
+    }; 
+    topWin.openWindow(prop, {});
 }
