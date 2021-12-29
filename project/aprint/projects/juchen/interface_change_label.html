@@ -517,7 +517,10 @@
                     data["line" + j + "_lot"] = "";
                     data["line" + j + "_lot2"] = "";
                     data["line" + j + "_qty"] = "";
+                    data["line" + j + "_qty1"] = "";
+                    data["line" + j + "_qty2"] = "";
                     data["line" + j + "_dc"] = "";
+                    data["line" + j + "_dc2"] = "";
                     data["line" + j + "_sn"] = "";
                 }
                 
@@ -533,7 +536,10 @@
                     data["line" + lineNo + "_lot"] = dataRow["lot1"].value;
                     data["line" + lineNo + "_lot2"] = dataRow["lot2"].value;
                     data["line" + lineNo + "_qty"] = dataRow["quantity"].value;
+                    data["line" + lineNo + "_qty1"] = dataRow["qty1"].value;
+                    data["line" + lineNo + "_qty2"] = dataRow["qty2"].value;
                     data["line" + lineNo + "_dc"] = dataRow["dc1"].value;
+                    data["line" + lineNo + "_dc2"] = dataRow["dc2"].value;
                     data["line" + lineNo + "_sn"] = dataRow["sn"].value;
 
                     for (let j = 1; j <= 2; j++) {
