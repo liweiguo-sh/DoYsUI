@@ -249,7 +249,7 @@
                     this.labelSetCode = this.interface.label_set_code;
                     this.labelSetCodeValue = "";
                     this.paraCode = this.interface.para_code;
-                    this.paraValue = g.debug ? "MT-2111013" : "";
+                    this.paraValue = g.debug ? "MT-2111012" : "";
                     this.$refs.paraValue.focus();
 
                     // ------------------------------------
@@ -573,6 +573,7 @@
                 data["pack_index"] = this.packIndex;
                 data["pack_count"] = this.packCount;
 
+                console.log(data);
                 return data;
             },
             previewPacking(data, jsp = { printToPrinter: false }) {
