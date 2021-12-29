@@ -265,6 +265,7 @@ UtilElement.computeValue = function (jsp) {
             }
             // ------------------------
             if (type.equals("fixed")) {
+                value = UtilElement.replaceFieldValue(value, jsp.fields);
                 values.push(value);
             }
             else if (type.equals("field")) {
