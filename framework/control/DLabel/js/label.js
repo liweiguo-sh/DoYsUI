@@ -1221,14 +1221,16 @@ class Label {
         return data;
     }
 
-    setValue(name, value, ignoreIfNoExist = false) {
+    setValue(name, value, ignoreIfNoExist = false, appandIfNoExist = false) {
         if (this.fields[name] == undefined) {
-            if (ignoreIfNoExist) return;    // -- 如果变量不存在，忽略错误 --
-            if (value) {
-                throw new Error("The label variable (" + name + ") was not found, please check.");
-            }
-            else {
-                return; // -- 容错。例如，旧版本的标签缺少当前字段，赋值时又有这个字段。但是因为值为空，所以可以忽略 --
+            if (!appandIfNoExist) {
+                if (ignoreIfNoExist) return;    // -- 如果变量不存在，忽略错误 --
+                if (value) {
+                    throw new Error("The label variable (" + name + ") was not found, please check.");
+                }
+                else {
+                    return; // -- 容错。例如，旧版本的标签缺少当前字段，赋值时又有这个字段。但是因为值为空，所以可以忽略 --
+                }
             }
         }
         this.fields[name] = value || "";
@@ -1362,25 +1364,39 @@ class Label {
 
     // -- temporary script debug --
     jsBeforeComputeDebug1() {
-        let mfgDate = this.fields["生产日期"].toDate("yyMMdd");
-        let expDate = mfgDate.add(1, "year").add(-1, "day");
-        this.fields["失效日期"] = expDate.toString("yyMMdd");
+        if (!this.fields["line1_lot"]) return;
+        debugger
+        debugger
 
-        return;
-        let imagePara = this.fields["图片参数"];
-        let arr = imagePara.split("");
-        for (let i = 1; i <= arr.length && i <= 6; i++) {
-            let element = this.getElementByName("图片0" + i);
-            let idxImg = parseInt(arr[i - 1]);
-            let imgUrl = this.head.imageBaseUrl + this.fields["image0" + idxImg];
+        for (let i = 1; i <= 5; i++) {
+            let sn = this.fields["line" + i + "_sn"];
+            let lot1 = this.fields["line" + i + "_lot"];
+            let lot2 = this.fields["line" + i + "_lot2"];
+            let qty1 = this.fields["line" + i + "_qty1"];
+            let qty2 = this.fields["line" + i + "_qty2"];
+            let dc1 = this.fields["line" + i + "_dc"];
+            let dc2 = this.fields["line" + i + "_dc2"];
+            let dc = dc1;
 
-            element.image.url = imgUrl;
-        }
-        for (let i = arr.length + 1; i <= 6; i++) {
-            let element = this.getElementByName("图片0" + i);
-            let imgUrl = this.head.imageBaseUrl + this.fields["image00"];
+            this.fields["barcode_" + i + "a"] = "";
+            this.fields["barcode_" + i + "b"] = "";
+            this.fields["barcode_" + i + "c"] = "";
+            this.fields["barcode_" + i + "F"] = "";
+            this.fields["barcode_" + i + "L"] = "";
 
-            element.image.url = imgUrl;
+            if (lot1) {
+                this.fields["barcode_" + i + "a"] = this.fields["customer_pn"] + " 308160" + " " + sn;
+                this.fields["barcode_" + i + "b"] = this.fields["customer_pn"] + " 200284" + " " + sn;
+                this.fields["barcode_" + i + "c"] = qty1.toFormat("00000000") + " " + dc1 + " " + lot1 + "AN";
+                this.fields["barcode_" + i + "L"] = "";
+            }
+            if (lot2) {
+                this.fields["barcode_" + i + "L"] = qty2.toFormat("00000000") + " " + dc2 + " " + lot2 + "AN";
+                if (dc2.toInt() > dc1.toInt()) {
+                    dc = dc2;
+                }
+            }
+            this.fields["barcode_" + i + "F"] = "Mfg of Date " + dc.toDateByFromat("yyww").toString("MMMM-dd-yy");
         }
     }
     jsAfterComputeDebug1() {
