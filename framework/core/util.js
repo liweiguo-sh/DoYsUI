@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-12-13
- * Modify Date: 2021-12-17
+ * Modify Date: 2022-01-04
  * Copyright 2021, doys-next.com
  * util lib
  */
@@ -12,7 +12,7 @@
 })()
 
 // ----------------------------------------------------------------------------
-util.parseUDI = function (barcodeString) {    
+util.parseUDI = function (barcodeString) {
     let ais = {};
     let rules = [
         { ai: "01", width: 14 },        // -- GTIN --
@@ -24,9 +24,16 @@ util.parseUDI = function (barcodeString) {
         { ai: "91", width: 0 }          // -- 企业内部编码 --
     ];
 
-    let GS = String.fromCharCode(29);   // -- 分组符 --
+    let barcodes = barcodeString;
     let LF = String.fromCharCode(10);   // -- 换行符(\n) --
-    let barcodes = barcodeString.replaceAll(LF, GS).split(GS);
+    let GS = String.fromCharCode(29);   // -- 分组符 --    
+    let GSs = [LF, GS, "(GS)", "[GS]", "{GS}"];
+
+    for (let i = 0; i < GSs.length; i++) {
+        barcodes = barcodeString.replaceAll(GSs[i], GS);
+    }
+    barcodes = barcodes.split(GS);
+
     for (let i = 0; i < barcodes.length; i++) {
         let barcode = barcodes[i];
         while (barcode.length > 3) {

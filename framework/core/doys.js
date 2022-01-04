@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2020-04-08
- * Modify Date: 2021-12-23
+ * Modify Date: 2022-01-04
  * Copyright 2020-2021, doys-next.com
  */
 
@@ -39,6 +39,9 @@
         CHAR5: "\5",
         CHAR6: "\6",
         CHAR7: "\7",
+        LF: String.fromCharCode(10),
+        CR: String.fromCharCode(13),
+        GS: String.fromCharCode(29),
 
         zIndexWin: 1000,
         zIndexElement: 90000,

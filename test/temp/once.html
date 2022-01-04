@@ -31,7 +31,6 @@
             <el-col :span="12">
                 <el-input v-model="barcode" keyup.enter.native="test1" type="textarea" rows="5"></el-input>
             </el-col>
-
         </el-row>
         <div id="divMessage"></div>
     </div>
@@ -43,19 +42,16 @@
     var app = new Vue({
         el: '#app',
         data: {
-            barcode: "2115"
+            barcode: "0126971381280009"
+                + "11211231" + "17231230"
+                + "1021102801" + "{GS}"
+                + "21000002"
         },
         methods: {
-            test1() {
-                debugger
-                debugger
-                let ais = "2142".toDateByFromat("yyww").toString("yyMMdd");
+            test1() {               
+                let ais = util.parseUDI(this.barcode.replaceAll(" ", ""));
                 console.log(ais);
             }
         }
     });
-</script>
-
-<script>
-     
 </script>
