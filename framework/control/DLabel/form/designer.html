@@ -28,8 +28,8 @@
             <el-button-group>
                 <el-button type="info" onclick="copyElements()" icon="alifont ali-icon-copy" title="复制元素"></el-button>
                 <el-button type="info" onclick="pasteElements()" icon="alifont ali-icon-paste" title="粘贴元素"></el-button>
-                <el-button type="success" :disabled="true" icon="alifont ali-icon-back" title="撤销"></el-button>
-                <el-button type="info" :disabled="true" icon="alifont ali-icon-redo" title="重做"></el-button>
+                <el-button type="success" onclick="back()" :disabled="!showBack" icon="alifont ali-icon-back" title="撤销"></el-button>
+                <el-button type="success" onclick="redo()" :disabled="!showRedo" icon="alifont ali-icon-redo" title="重做"></el-button>
             </el-button-group>
 
             <!-- add element -->
@@ -542,8 +542,12 @@
     var vmTollbar = new Vue({
         el: '#vmToolbar',
         data: {
-            edgeWV: top.chrome && top.chrome.webview,      // -- 是否外壳(edge.webview2)环境 --
-            showDebugToolbar: true
+            edgeWV: top.chrome && top.chrome.webview,       // -- 是否外壳(edge.webview2)环境 --
+            showDebugToolbar: true, 
+            showBack: false,
+            showRedo: false,
+            stackBack: [""],                                // -- 撤销栈 --
+            stackRedo: []                                   // -- 重做栈 --
         },
         methods: {}
     });
@@ -802,6 +806,8 @@
 
             lbl.addEventListener("after-label-load", afterLabelLoad);
             lbl.addEventListener("on-select", onSelect);
+            lbl.addEventListener("after-move", afterMove);
+            lbl.addEventListener("after-resize", afterResize);
         }
         return lbl;
     }
@@ -931,15 +937,53 @@
             return;
         }
         lbl.pasteElements(elementsCopy);
+
+        pushBack();
+    }
+
+    function pushBack() {
+        vmTollbar.stackBack.push(lbl.toJson());
+        vmTollbar.stackRedo = [];
+         
+        vmTollbar.showBack = true;
+        vmTollbar.showRedo = false;
+    }
+    function back() {
+        vmTollbar.stackRedo.push(vmTollbar.stackBack.pop());
+        if (vmTollbar.stackRedo.length > 0) {
+            vmTollbar.showRedo = true;
+        }
+
+        let labelContent = vmTollbar.stackBack[vmTollbar.stackBack.length - 1];
+        lbl.loadLabel(labelContent, { designMode: true });
+        lbl.compute(true);
+
+        if (vmTollbar.stackBack.length <= 1) { 
+            vmTollbar.showBack = false;
+        } 
+    }
+    function redo() {
+        let labelContent = vmTollbar.stackRedo.pop();
+        lbl.loadLabel(labelContent, { designMode: true });
+        lbl.compute(true);
+
+        if (vmTollbar.stackRedo.length == 0) {
+            vmTollbar.showRedo = false;
+        } 
+
+        vmTollbar.stackBack.push(labelContent); 
+        vmTollbar.showBack = true;
     }
 
     // -- addElement(text\barcode\image etc.) -------------
     function addElement(elementType) {
         lbl.addBlankTextElement(elementType);
+
+        pushBack();
     }
 
     // -- zoom --------------------------------------------
-    function zoomIn() { 
+    function zoomIn() {
         lbl.zoomIn(1.2);
     }
     function zoomOut() {
@@ -1131,6 +1175,13 @@
                 }
             }
         }
+    }
+
+    function afterMove() {
+        pushBack();
+    }
+    function afterResize() {
+        pushBack();
     }
 </script>
 

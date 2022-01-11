@@ -30,7 +30,7 @@ util.parseUDI = function (barcodeString) {
     let GSs = [LF, GS, "(GS)", "[GS]", "{GS}"];
 
     for (let i = 0; i < GSs.length; i++) {
-        barcodes = barcodeString.replaceAll(GSs[i], GS);
+        barcodes = barcodes.replaceAll(GSs[i], GS);
     }
     barcodes = barcodes.split(GS);
 

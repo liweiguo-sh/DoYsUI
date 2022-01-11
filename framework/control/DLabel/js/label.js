@@ -2,7 +2,7 @@
  * DoYs JavaScript Library v1.0
  * Author: David.Li
  * Create Date: 2021-03-19
- * Modify Date: 2021-12-17
+ * Modify Date: 2022-01-04
  * Copyright 2021, doys-next.com
  * DLabel class
  * 
@@ -280,6 +280,18 @@ class Label {
             }
             this.onSelectEvents.push({ callback: callback, jsp: jsp });
         }
+        else if (name.equals("after-move") || name.equals("afterMove")) {
+            if (!this.afterMoveEvents) {
+                this.afterMoveEvents = [];
+            }
+            this.afterMoveEvents.push({ callback: callback, jsp: jsp });
+        }
+        else if (name.equals("after-resize") || name.equals("afterResize")) {
+            if (!this.afterResizeEvents) {
+                this.afterResizeEvents = [];
+            }
+            this.afterResizeEvents.push({ callback: callback, jsp: jsp });
+        }
         else {
             throw ("unsupport event: " + name);
         }
@@ -299,6 +311,22 @@ class Label {
             if (this.onSelectEvents) {
                 for (let i = 0; i < this.onSelectEvents.length; i++) {
                     evt = this.onSelectEvents[i];
+                    evt.callback(jsp, evt.jsp);     // -- 事件参数，事件注册时的原始参数 --
+                }
+            }
+        }
+        else if (name.equals("after-move")) {
+            if (this.afterMoveEvents) {
+                for (let i = 0; i < this.afterMoveEvents.length; i++) {
+                    evt = this.afterMoveEvents[i];
+                    evt.callback(jsp, evt.jsp);     // -- 事件参数，事件注册时的原始参数 --
+                }
+            }
+        }
+        else if (name.equals("after-resize")) {
+            if (this.afterResizeEvents) {
+                for (let i = 0; i < this.afterResizeEvents.length; i++) {
+                    evt = this.afterResizeEvents[i];
                     evt.callback(jsp, evt.jsp);     // -- 事件参数，事件注册时的原始参数 --
                 }
             }
@@ -485,6 +513,7 @@ class Label {
                 _this.ondragstart(evt);
             };
             cvsElement.ondrag = _this.onCanvasDrag;
+            cvsElement.ondragend = _this.ondragend;
 
             cvsElement.onkeydown = this.cvsElementOnKeydown;
             cvsElement.onmousemove = this.cvsElementOnMousemove;
@@ -577,6 +606,12 @@ class Label {
             el.position.left = (x / _this.pxmm).toFixed(2);
             el.position.top = (y / _this.pxmm).toFixed(2);
         }
+    }
+    ondragend(evt) {
+        let _dom = evt.srcElement;
+        let _this = _dom._this;
+
+        _this.raiseEvent("after-move");
     }
 
     cvsElementOnMousemove(evt) {
@@ -1073,6 +1108,8 @@ class Label {
 
         UtilElement.computeProp({ element: element });
         UtilElement.draw({ element: element });
+
+        _this.raiseEvent("after-resize");
     }
 
     // -- element event: align ------------------------------------------------
