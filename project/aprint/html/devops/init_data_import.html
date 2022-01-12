@@ -15,21 +15,31 @@
         <el-button type="primary" onclick="win.close();">关闭</el-button>
         <el-tabs v-model="tabNameImport" @tab-click="tabImportClick">
             <el-tab-pane label="产品导入" name="importProduct">
-                <el-link type="primary" :underline="false" href="产品数据导入模板.xlsx">产品数据导入模板.xlsx</el-link>
-                <el-button type="danger" plain @click="deleteProduct">清空产品数据</el-button>
-                <!-- 导入数据 -->
-                <el-row style="margin-top:20px;margin-bottom:10px;" v-show="originalName">
-                    <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
-                    <el-button type="success" @click="importProduct">导入产品数据</el-button>
-                </el-row>
+                <el-col :span="12">
+                    <el-link type="primary" :underline="false" href="产品数据导入模板.xlsx">产品数据导入模板.xlsx</el-link>
+                    <!-- 导入数据 -->
+                    <el-row style="margin-top:30px;" v-show="originalName">
+                        <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
+                        <el-button type="success" @click="importProduct">导入产品数据</el-button>
+                    </el-row>
+                </el-col>
+                <el-col :span="12">
+                    <el-button type="danger" plain @click="deleteProduct" style="float:right">清空产品数据</el-button>
+                </el-col>
             </el-tab-pane>
             <el-tab-pane label="UDI初始数据导入" name="importUDI">
-                <el-link type="primary" :underline="false" href="DI数据导入模板.xlsx">DI数据导入模板.xlsx</el-link>
-                <el-button type="danger" plain @click="deleteUDI">清空DI数据</el-button>
-                <!-- 导入数据 -->
-                <el-row style="margin-top:20px;margin-bottom:10px;" v-show="originalName">
-                    <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
-                    <el-button type="success" @click="importUDI">导入DI数据</el-button>
+                <el-row>
+                    <el-col :span="12">
+                        <el-link type="primary" :underline="false" href="DI数据导入模板.xlsx">DI数据导入模板.xlsx</el-link>
+                        <!-- 导入数据 -->
+                        <el-row style="margin-top:30px;" v-show="originalName">
+                            <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
+                            <el-button type="success" @click="importUDI">导入DI数据</el-button>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-button type="danger" plain @click="deleteUDI" style="float:right">清空DI数据</el-button>
+                    </el-col>
                 </el-row>
             </el-tab-pane>
             <el-tab-pane label="用户导入" name="user" :disabled="true">
