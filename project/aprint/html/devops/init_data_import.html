@@ -23,15 +23,24 @@
                     <el-button type="success" @click="importProduct">导入产品数据</el-button>
                 </el-row>
             </el-tab-pane>
+            <el-tab-pane label="UDI初始数据导入" name="importUDI">
+                <el-link type="primary" :underline="false" href="DI数据导入模板.xlsx">DI数据导入模板.xlsx</el-link>
+                <el-button type="danger" plain @click="deleteUDI">清空DI数据</el-button>
+                <!-- 导入数据 -->
+                <el-row style="margin-top:20px;margin-bottom:10px;" v-show="originalName">
+                    <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
+                    <el-button type="success" @click="importUDI">导入DI数据</el-button>
+                </el-row>
+            </el-tab-pane>
             <el-tab-pane label="用户导入" name="user" :disabled="true">
                 用户导入模板
             </el-tab-pane>
         </el-tabs>
 
-        <!-- 上传文件 -->        
-        <el-row style="padding-top:30px;" v-show="tabNameImport.equals('importProduct')">
+        <!-- 上传文件 -->
+        <el-row style="padding-top:30px;" v-show="tabNameImport.equals('importProduct') || tabNameImport.equals('importUDI')">
             <el-upload :action="actionUpload" :with-credentials="true"
-                       :headers= "headers"
+                       :headers="headers"
                        :on-success="onSuccess"
                        :show-file-list="false"
                        accept=".xlsx,.xls">
@@ -40,7 +49,7 @@
         </el-row>
 
         <!-- message -->
-        <el-divider content-position="left" v-if="listLog.length">执行结果</el-divider>
+        <el-divider content-position="left" v-if="listLog && listLog.length">执行结果</el-divider>
         <el-row>
             <ul>
                 <li v-for="item in listLog" style="color:red;margin-bottom:15px;">{{item}}</li>
@@ -78,7 +87,7 @@
         },
         methods: {
             tabImportClick() {
-
+                setPageCookie("activeTabName", this.tabNameImport);
             },
 
             onSuccess(res, file, fileList) {
@@ -113,7 +122,45 @@
                         })
                     })
                 })
+            },
+
+            importUDI() {
+                this.message = "";
+                this.listLog = [];
+
+                let url = "/aprint/devops/data_import/" + this.tabNameImport;
+                let dataPOST = { pathname: this.pathname };
+                ajax.send(url, dataPOST).then((res) => {
+                    topWin.message("DI数据导入成功，请检查并核对导入结果是否正确。", "success");
+
+                    this.message = "DI数据导入成功，请检查并核对导入结果是否正确。";
+                    this.listLog = res.listLog;
+                    this.originalName = "";
+                })
+            },
+            deleteUDI() {
+                topWin.confirm("DI数据删除后不能恢复，确定要清空全部DI数据吗？").then((ok) => {
+                    if (!ok) return;
+                    topWin.confirm("DI数据删除后不能恢复，请再次确认。").then((ok) => {
+                        if (!ok) return;
+
+                        ajax.send("/aprint/devops/data_import/emptyUDI", {}).then((res) => {
+                            topWin.message("DI数据删除成功。", "success");
+                        })
+                    })
+                })
             }
         }
     });
+</script>
+
+<!-- winLoad -->
+<script>
+    function winLoad() {
+        let activeTabName = getPageCookie("activeTabName");
+        if (!activeTabName.equals("")) {
+            app.tabNameImport = activeTabName;
+            app.tabImportClick();
+        }
+    }
 </script>

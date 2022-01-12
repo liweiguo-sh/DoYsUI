@@ -47,7 +47,7 @@
                     <el-row>
                         <el-col :span="span[1]">
                             <el-form-item label="DI(最小销售单元产品标识)" required>
-                                <el-input v-model="form.di" ref="di" :disabled="false && form.id.toInt()>0" />
+                                <el-input v-model="form.di" ref="di" :disabled="form.id.toInt()>0" />
                             </el-form-item>
                         </el-col>
                         <el-col :span="span[2]">
