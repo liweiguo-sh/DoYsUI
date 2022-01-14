@@ -41,7 +41,7 @@
                     <el-row>
                         <el-col :span="span[0]">
                             <el-form-item label="注册证/备案凭证编号" required>
-                                <el-select v-model="certs" ref="certs" @change="onCodeChange" multiple clearable>
+                                <el-select v-model="certs" ref="certs" @change="onCodeChange" multiple multiple-limit="2" clearable>
                                     <el-option v-for="item in certificates" :key="item.code" :value="item.code" :label="item.code" :disabled="item.disabled">
                                         <span style="float: left">{{ item.code }}&nbsp;&nbsp;&nbsp;&nbsp;效期: {{item.expDate}}</span>
                                         <span style="float: right;">{{ item.name }} </span>
