@@ -18,7 +18,7 @@
 <body>
     <div id="app" style="width:1100px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
-        <el-form :model="form" ref="form" label-width="195px" label-position="left">
+        <el-form :model="form" ref="form" label-width="215px" label-position="left">
             <!-- 产品名称/通用名称、标识发布日期 -->
             <el-row>
                 <el-col :span="span[1]">
@@ -63,7 +63,7 @@
                     <!-- 最小销售单元数量、使用单元产品标识，注册备案-->
                     <el-row>
                         <el-col :span="span[1]">
-                            <el-form-item label="最小销售单元数量" required>
+                            <el-form-item label="最小销售单元中使用单元数量" required>
                                 <el-tooltip effect="dark" placement="bottom-start">
                                     <div slot="content">最小销售单元中使用单元的数量<br />示例：<br />最小销售单元包含100支采血管/盒；<br />最小销售单元中使用单元的数量=100。</div>
                                     <el-input v-model="form.zxxsdyzsydydsl" ref="zxxsdyzsydydsl" placeholder="最小销售单元中使用单元的数量" />
