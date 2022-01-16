@@ -16,7 +16,7 @@
         <el-tabs v-model="tabNameImport" @tab-click="tabImportClick">
             <el-tab-pane label="产品导入" name="importProduct">
                 <el-col :span="12">
-                    <el-link type="primary" :underline="false" href="产品数据导入模板.xlsx">产品数据导入模板.xlsx</el-link>
+                    <el-link type="primary" :underline="false" href="模板_产品数据导入_V1.xlsx">模板_产品数据导入_V1.xlsx</el-link>
                     <!-- 导入数据 -->
                     <el-row style="margin-top:30px;" v-show="originalName">
                         <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
@@ -30,7 +30,7 @@
             <el-tab-pane label="UDI初始数据导入" name="importUDI">
                 <el-row>
                     <el-col :span="12">
-                        <el-link type="primary" :underline="false" href="DI数据导入模板.xlsx">DI数据导入模板.xlsx</el-link>
+                        <el-link type="primary" :underline="false" href="模板_UDI数据导入_V2.xlsx">模板_UDI数据导入_V2.xlsx</el-link>
                         <!-- 导入数据 -->
                         <el-row style="margin-top:30px;" v-show="originalName">
                             <el-link type="danger" icon="el-icon-document" :underline="false" href="javascript:">{{originalName}}</el-link>
