@@ -8,13 +8,33 @@
     </script>
 </head>
 <body>
-    <div id="app" style="width:800px;height:490px;">
+    <div id="app" style="width:800px;height:550px;">
         <view-form-bar id="vf" ref="vf"></view-form-bar>
         <el-form :model="form" ref="form" label-width="145px" label-position="left">
             <el-row>
                 <el-col :span="span[0]">
                     <el-form-item label="规则名称" required>
                         <el-input v-model="form.name" ref="name" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
+                    <el-form-item label="数据源" required>
+                        <el-select v-model="form.data_source">
+                            <el-option value="product" label="产品数据"></el-option>
+                            <el-option value="interface" label="接口数据"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="数据接口">
+                        <el-select v-model="form.data_interface_id" :disabled="!form.data_source.equals('interface')">
+                            <el-option v-for="item in ds.data_interface_id" :value="item.id" :label="item.name">
+                                <span>{{item.name}}</span>
+                                <span style="float: right;">{{item.code}}</span>
+                            </el-option>
+                        </el-select>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -36,10 +56,17 @@
     var app = new Vue({
         el: '#app',
         data: {
-            span: [24, 12, 12],
-            form: {}
+            span: [24, 9, 15],
+            form: {
+                data_source: ""
+            },
+            ds: {}
         },
-
+        mounted() {
+            ajax.send("/aprint/cfg/data_interface/getDataInterfaceList", {}).then(res => {
+                this.interfaces = res.interfaces;
+            });
+        },
         methods: {
             afterAddnew: function () {
             },

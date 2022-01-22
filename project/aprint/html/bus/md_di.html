@@ -141,6 +141,34 @@
                 </el-collapse-item>
                 <el-collapse-item name="3">
                     <template slot="title">
+                        <div class="divTitle">产品安全信息<i class="el-icon-warning"></i></div>
+                    </template>
+                    <!-- 灭菌信息 -->
+                    <el-row>
+                        <el-col :span="span[1]">
+                            <el-form-item label="是否为无菌包装">
+                                <el-checkbox v-model="form.sfwwjbz">是无菌包装</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="span[2]">
+                            <el-form-item label="使用前是否需要灭菌">
+                                <el-checkbox v-model="form.syqsfxyjxmj">使用前需要灭菌</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="span[0]">
+                            <el-form-item label="灭菌方式">
+                                <el-tooltip effect="dark" placement="bottom-end">
+                                    <div slot="content">使用前需要接菌的情况下必填</div>
+                                    <el-input v-model="form.mjfs" ref="mjfs" placeholder="使用前需要接菌的情况下必填" />
+                                </el-tooltip>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-collapse-item>
+                <el-collapse-item name="4">
+                    <template slot="title">
                         <div class="divTitle">包装标识维护<i class="el-icon-s-cooperation"></i></div>
                     </template>
                     <el-table :data="packs" border style="width: 100%">
@@ -185,7 +213,7 @@
                 zxxsdyzsydydsl: "1"
             },
             ds: {},
-            activeNames: ["1", "2", "3"],
+            activeNames: ["1", "2", "3", "4"],
 
             packs: []
         },

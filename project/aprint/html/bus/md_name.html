@@ -130,29 +130,6 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <!-- 灭菌信息 -->
-                    <el-row>
-                        <el-col :span="span[1]">
-                            <el-form-item label="是否为无菌包装" required>
-                                <el-checkbox v-model="form.sfwwjbz">是无菌包装</el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="span[2]">
-                            <el-form-item label="使用前是否需要灭菌" required>
-                                <el-checkbox v-model="form.syqsfxyjxmj">使用前需要灭菌</el-checkbox>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="span[0]">
-                            <el-form-item label="灭菌方式">
-                                <el-tooltip effect="dark" placement="bottom-end">
-                                    <div slot="content">使用前需要接菌的情况下必填</div>
-                                    <el-input v-model="form.mjfs" ref="mjfs" placeholder="使用前需要接菌的情况下必填" />
-                                </el-tooltip>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
                 </el-collapse-item>
                 <el-collapse-item name="5">
                     <template slot="title">

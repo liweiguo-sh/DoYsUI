@@ -79,7 +79,7 @@
                             </el-form-item>
                             <el-row v-for="item in scanItems">
                                 <el-form-item :label="item.text">
-                                    <el-input v-model="item.value" :key="item.name" :ref="'_scanItem_' + item.id" @keyup.enter.native="scanBarcodeEnter(item)" :disabled="!label.id"></el-input>
+                                    <el-input v-model="item.value" :key="item.name" :ref="'_scanItem_' + item.id" @keyup.enter.native="scanBarcodeEnter(item)" :disabled="!label.id" clearable></el-input>
                                 </el-form-item>
                             </el-row>
                         </el-form>
@@ -262,8 +262,9 @@
 
             variables: {},                  // -- 标签变量集合 --
             variablesUser: {},              // -- 用户修改过的标签变量集合 --
+            scanPrintId: null,              // -- 扫码换标规则ID --
             scanPrints: [],                 // -- 扫码换标打印规则集合 --
-            scanPrintId: null,              // -- 当前规则ID --
+            scanPrint: {},                  // -- 扫码换标打印当前规则 --
             scanItems: [],                  // -- 扫码项集合 --
             scanTask: {                     // -- 扫码任务 --
                 taskId: 0,
@@ -458,6 +459,18 @@
                     this.scanItems = [];
                     return;
                 }
+                else {
+                    for (let i = 0; i < this.scanPrints.length; i++) {
+                        let scanPrint = this.scanPrints[i];
+                        if (scanPrint.id == this.scanPrintId) {
+                            this.scanPrint = {
+                                dataSource: scanPrint["data_source"],
+                                dataInterfaceId: scanPrint["data_interface_id"],
+                            }
+                            break;
+                        }
+                    }
+                }
 
                 ajax.send("/aprint/print/quick/getScanPrintItemList", { scanPrintId: this.scanPrintId }).then(res => {
                     this.scanItems = res.scanPrintItems;
@@ -469,7 +482,7 @@
                         item.index = i;
                         if (item.js_after_scan) {
                             try {
-                                item.jsAfterScan = eval("(function (barcode) {" + item.js_after_scan + "})");
+                                item.jsAfterScan = eval("(function (jsp) {" + item.js_after_scan + "})");
                             }
                             catch (e) {
                                 topWin.alert("脚本解析错误：" + e.toString(), "error");
@@ -486,62 +499,98 @@
                     background: 'rgba(0, 0, 0, 0.7)'
                 });
                 try {
+                    let print = item["flag_print"];
+                    let query = print;
+
+                    // -- 1. 采集数据 --
+                    let fields = {}, match = {};
+                    for (let i = 0; i < this.scanItems.length; i++) {
+                        match[this.scanItems[i].name] = this.scanItems[i].value;
+                    }
+
+                    // -- 2. 执行脚本 --
                     if (item.jsAfterScan) {
-                        let jsonRet = item.jsAfterScan(item.value);
-                        let fields = jsonRet.fields;
-                        
-                        // -- 执行match动作 --
-                        let match = jsonRet.match || "";
-                        let field = jsonRet.field || "";
-                        let action = jsonRet.action || "";
-                        if (match.equals("product")) {
-                            let dtbMatch = await this.getDtbProduct(field);
-                            let arrFind = [fields[field] || ""];
-                            let nFind = dtbMatch.find(arrFind);
-                            if (nFind >= 0) {
-                                let dataRow = dtbMatch.rows[nFind];
-                                this.productPnId = dataRow["id"].value;
-                                await this.onProductPnChange();
-                            }
-                            else {
-                                throw ("未找到匹配的产品，请检查。");
-                            }
-                        }
-                        else {
-                            if (match) {
-                                throw ("不支持的match项(" + match + ")，请检查。");
-                            }
-                        }
-
-                        // -- 填充返回的变量值 --
-                        this.setVariables({ scriptVariables: fields });
-
-                        // -- 执行action动作 --
-                        if (action.equals("print")) {
-                            if (this.autoPrint) {
-                                this.printProof();
-                                this.saveScanPrintRecord();
-
-                                if (this.autoResetCopy) {
-                                    this.copies = 1;
-                                }
-                            }
-                            else {
-                                topWin.message("找到匹配记录，已生成标签，请手动打印。", "success");
-                            }
-
-                            let refItem = "_scanItem_" + this.scanItems[item.index].id;
-                            this.$refs[refItem][0].select();
-                            this.$refs[refItem][0].focus();
-                            return;
+                        let ret = item.jsAfterScan({ barcode: item.value, items: match });
+                        fields = g.x.extendJSON(fields, ret.fields);        // -- 合并脚本返回的变量值 --
+                        if (ret.match) {                            
+                            match = ret.match;                              // -- 以脚本返回的match为准 --
                         }
                     }
 
-                    // -- 定位到下一个扫描项 --
-                    if (item.index < this.scanItems.length - 1) {
-                        let refNextItem = "_scanItem_" + this.scanItems[item.index + 1].id;
-                        this.$refs[refNextItem][0].select();
-                        this.$refs[refNextItem][0].focus();
+                    // -- 3. 后台查询数据 --
+                    if (query) {
+                        if (this.scanPrint.dataSource.equals("product")) {
+                            let dataPOST = {
+                                match: match
+                            };
+                            let res = await ajax.send("/aprint/print/quick/queryProductData", dataPOST);
+                            if (g.x.isEmptyJson(res.fields)) {
+                                topWin.message("产品数据中没有找到匹配的数据，请检查。", "error");
+                                let refItem = "_scanItem_" + item.id;
+                                this.$refs[refItem][0].select();
+                                this.$refs[refItem][0].focus();
+                                return;
+                            }
+                            fields = g.x.extendJSON(fields, res.fields);    // -- 合并查询返回的变量值 --
+                            if (fields["吊牌价"] == undefined && fields["价格"]) {
+                                // TODO: 临时代码，待删除 --
+                                fields["吊牌价"] = fields["价格"];
+                                fields["条形码"] = fields["pn"];
+                            }
+                        }
+                        else if (this.scanPrint.dataSource.equals("interface")) {
+                            let dataPOST = {
+                                interfaceId: this.scanPrint.dataInterfaceId,
+                                match: match
+                            };
+                            let res = await ajax.send("/aprint/print/quick/queryInterfaceData", dataPOST);
+                            if (g.x.isEmptyJson(res.fields)) {
+                                topWin.message("接口数据中没有找到匹配的数据，请检查。", "error");
+                                let refItem = "_scanItem_" + item.id;
+                                this.$refs[refItem][0].select();
+                                this.$refs[refItem][0].focus();
+                                return;
+                            }
+                            fields = g.x.extendJSON(fields, res.fields);
+                        }
+                        else {
+                            topWin.alert("不支持的数据源：" + this.scanPrint.dataSource, "error");
+                            return;
+                        }                        
+                    }
+
+                    // -- 4. 填充标签变量值(脚本执行结果或后台查询返回) --
+                    this.setVariables({ scriptVariables: fields });
+
+                    // -- 5. 打印标签(重置扫描项)或定位扫描项 --
+                    if (print) {
+                        if (this.autoPrint) {
+                            this.printProof();
+                            this.saveScanPrintRecord();
+
+                            if (this.autoResetCopy) {
+                                this.copies = 1;
+                            }
+
+                            for (let i = this.scanItems.length - 1; i >= 0; i--) {
+                                let scanItem = this.scanItems[i];
+                                if (scanItem["flag_reset"]) {
+                                    scanItem.value = "";
+                                    this.$refs["_scanItem_" + scanItem.id][0].focus();
+                                }                                
+                            }
+                        }
+                        else {
+                            topWin.message("找到匹配记录，已生成标签，请手动打印。", "success");
+                        }
+                    }
+                    else {
+                        // -- 定位到下一个扫描项 --
+                        if (item.index < this.scanItems.length - 1) {
+                            let refNextItem = "_scanItem_" + this.scanItems[item.index + 1].id;
+                            this.$refs[refNextItem][0].select();
+                            this.$refs[refNextItem][0].focus();
+                        }
                     }
                 }
                 catch (e) {
@@ -884,7 +933,6 @@
                 });
             },
             pullInterfaceData() {
-
                 this.createTask({
                     mode: "interface",
                     interfaceId: this.interfaceId,
@@ -1061,6 +1109,6 @@
             app.activeTabName = activeTabName;
             app.tabClick();
         }
-        app.autoPrint = getPageCookie("autoPrint","true").equals("true");
+        app.autoPrint = getPageCookie("autoPrint", "true").equals("true");
     }
 </script>

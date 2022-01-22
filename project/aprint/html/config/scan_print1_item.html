@@ -31,7 +31,19 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="span[2]">
+                    <el-form-item label="扫码后打印选项">
+                        <el-checkbox v-model="form.flag_print">扫码后自动打印</el-checkbox>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="span[1]">
                     &nbsp;
+                </el-col>
+                <el-col :span="span[2]">
+                    <el-form-item label="打印后重置选项">
+                        <el-checkbox v-model="form.flag_reset">打印后清空内容</el-checkbox>
+                    </el-form-item>
                 </el-col>
             </el-row>
 
@@ -71,8 +83,8 @@
         el: '#app',
         data: {
             activeName: "jsAfterScan",
-            span: [24, 15, 9],
-            maxRows: 16,                 
+            span: [24, 14, 10],
+            maxRows: 16,
             form: {
                 text: "",
                 parent_id: null
@@ -86,17 +98,17 @@
 
         mounted() {
             this.script_1 = `脚本样例一：
-let jsp = {
+let ret = {
     fields: {
-        "pn": barcode
+        "pn": jsp.barcode
     },
     match: "product",
     field: "pn",
     action: "print"
 }
-return jsp;`;
+return ret;`;
             this.script_2 = `脚本样例二：
-let ais = util.parseUDI(barcode);
+let ais = util.parseUDI(jsp.barcode);
 let fields = {
     di: ais["01"] || "",
     gtin: ais["01"] || "",
@@ -104,13 +116,13 @@ let fields = {
     exp_date: ais["17"] || "",
     lot: ais["21"] || ""
 };
-let jsp = {
+let ret = {
     fields: fields,
     match: "product",
     field: "di",
     action: "print"
 }
-return jsp;`;
+return ret;`;
             this.script_3 = `脚本样例三：
 coming soon ...
             `;

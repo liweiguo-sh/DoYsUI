@@ -168,6 +168,13 @@ g.x.getAbsolutePath = function (jsSelf = "core.js", relativePath = "framework") 
     }
     return absolutePath;
 }
+g.x.isEmptyJson = function (json) {
+    if (!json) return true;
+    for (let key in json) {
+        return false;
+    };
+    return true;
+}
 
 g.x.getEventTarget = function (evt) {
     evt = evt || window.event;
